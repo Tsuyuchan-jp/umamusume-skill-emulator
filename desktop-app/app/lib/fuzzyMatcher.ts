@@ -4,7 +4,7 @@ import { UmaStatusData } from './types';
 
 // マスターデータからスキル名の文字列配列を抽出
 const allSkills = [...normalSkillData({}), ...uniqueSkillData({})];
-const skillNames = allSkills.flatMap((s: any) => s.variants.map((v: any) => v.name));
+const skillNames = allSkills.flatMap((s: any) => (s?.variants || []).map((v: any) => v?.name));
 
 // 全角英数字を半角に変換するユーティリティ
 function toHalfWidth(str: string): string {

@@ -6,7 +6,7 @@ import { normalSkillData, uniqueSkillData } from '../lib/engine/data/skillData';
 
 // スキル選択用のオプション
 const allSkills = [...normalSkillData({}), ...uniqueSkillData({})];
-const skillNames = allSkills.flatMap((s: any) => s.variants.map((v: any) => v.name));
+const skillNames = allSkills.flatMap((s: any) => (s?.variants || []).map((v: any) => v?.name));
 const skillOptions = skillNames.map((name) => ({ value: name, label: name }));
 
 const customStyles = {
