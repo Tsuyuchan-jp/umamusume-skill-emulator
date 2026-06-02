@@ -118,14 +118,14 @@ export async function analyzeStitchedImage(apiKey: string, dataUrl: string): Pro
   try {
     responseData = await callApi(MODEL_PRIMARY);
   } catch (err: any) {
-    if (err.status === 429) {
-      console.warn(`[Auto-Fallback] ${MODEL_PRIMARY} rate limit hit. Switching to ${MODEL_FALLBACK}...`);
+    if (err.status === 429 || err.status === 503) {
+      console.warn(`[Auto-Fallback] ${MODEL_PRIMARY} is busy/limited. Switching to ${MODEL_FALLBACK}...`);
       modelUsed = MODEL_FALLBACK;
       try {
         responseData = await callApi(MODEL_FALLBACK);
       } catch (fallbackErr: any) {
-        if (fallbackErr.status === 429) {
-          throw new Error(`Gemini APIの制限に達しました。数分ほど待ってから再度お試しください。`);
+        if (fallbackErr.status === 429 || fallbackErr.status === 503) {
+          throw new Error(`Gemini APIの制限またはサーバー混雑に達しました。数秒〜数分待ってから再度お試しください。`);
         }
         throw new Error(`Gemini API Error (Fallback ${fallbackErr.status}): ${fallbackErr.message}`);
       }
