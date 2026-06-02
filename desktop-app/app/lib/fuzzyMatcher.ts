@@ -21,10 +21,24 @@ function createFuzzyMatcher(targetList: string[]) {
     if (!cleanInput) return "";
 
     const matches = stringSimilarity.findBestMatch(cleanInput, targetList);
+    let bestMatch = matches.bestMatch;
+
+    // 〇、◎、× の特例ルール: 末尾記号が一致するものを優先する
+    const inputSuffix = cleanInput.slice(-1);
+    const hasSymbol = ['〇', '◎', '×'].includes(inputSuffix);
+    if (hasSymbol) {
+      // 一定以上のスコアがあり、かつ末尾記号が完全一致する候補を探す
+      const exactSymbolMatches = matches.ratings.filter(r => r.target.endsWith(inputSuffix) && r.rating > 0.4);
+      if (exactSymbolMatches.length > 0) {
+        exactSymbolMatches.sort((a, b) => b.rating - a.rating); // スコア順
+        bestMatch = exactSymbolMatches[0];
+      }
+    }
+
     // スコアが低すぎる場合は誤変換（AIの幻覚）とみなし空欄を返す
-    // 0.45未満は誤検出として厳格に弾く（〇/◎の区別なども厳しくするため）
-    if (matches.bestMatch.rating < 0.45) return "";
-    return matches.bestMatch.target;
+    // 0.45未満は誤検出として厳格に弾く
+    if (bestMatch.rating < 0.45) return "";
+    return bestMatch.target;
   };
 }
 

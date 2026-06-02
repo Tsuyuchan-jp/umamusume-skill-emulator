@@ -122,6 +122,7 @@ export default function Home() {
 
     setIsOcrProcessing(true);
     setOcrResult(null);
+    setToastType("success"); // リセット
     setToastMessage("OCR解析中...");
     setShowToast(true);
 
