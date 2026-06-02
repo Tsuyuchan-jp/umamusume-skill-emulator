@@ -245,5 +245,92 @@ export class RaceSimulator {
     }
     return ret;
   }
+
+  public calcRequiredSp(v: number, position: number): number {
+    const condKey = this.trackDetail.surfaceCondition + 1;
+    const spCoef = CONSTANTS.spConsumptionCoef[this.trackDetail.surface]?.[condKey] || 1;
+    const remainingDistance = this.trackDetail.distance - position - 60.0;
+    
+    const term1 = (remainingDistance * 20.0 * spCoef * this.spurtSpCoef * Math.pow(this.v3 - this.baseSpeed + 12.0, 2)) / 144.0 / this.v3;
+    const term2 = remainingDistance * (20.0 * spCoef * this.spurtSpCoef * (
+      Math.pow(v - this.baseSpeed + 12.0, 2) / 144.0 / v - Math.pow(this.v3 - this.baseSpeed + 12.0, 2) / 144.0 / this.v3
+    ));
+    return term1 + term2;
+  }
+
+  public calcSpurtDistance(v: number, position: number, sp: number): number {
+    const condKey = this.trackDetail.surfaceCondition + 1;
+    const spCoef = CONSTANTS.spConsumptionCoef[this.trackDetail.surface]?.[condKey] || 1;
+    const remainingDistance = this.trackDetail.distance - position - 60.0;
+
+    const numerator = sp - (remainingDistance * 20.0 * spCoef * this.spurtSpCoef * Math.pow(this.v3 - this.baseSpeed + 12.0, 2)) / 144.0 / this.v3;
+    const denominator = 20.0 * spCoef * this.spurtSpCoef * (
+      Math.pow(v - this.baseSpeed + 12.0, 2) / 144.0 / v - Math.pow(this.v3 - this.baseSpeed + 12.0, 2) / 144.0 / this.v3
+    );
+    return (numerator / denominator) + 60.0;
+  }
+
+  public calcSpurtParameter(isReCalc: boolean, position: number, sp: number, currentSpurtParams: any = null): any {
+    const maxDistance = this.trackDetail.distance - position;
+    const maxSpurtSpeed = this.calcMaxSpurtSpeed();
+    const spurtDistance = this.calcSpurtDistance(maxSpurtSpeed, position, sp);
+    const totalConsume = this.calcRequiredSp(maxSpurtSpeed, position);
+    
+    let maxSpurt = false;
+    
+    if (spurtDistance >= maxDistance) {
+      if (position <= (this.trackDetail.distance * 2.0) / 3.0 + 5.0) {
+        if (!isReCalc) {
+          maxSpurt = true;
+        }
+      }
+      return {
+        distance: maxDistance,
+        speed: maxSpurtSpeed,
+        spDiff: isReCalc ? (currentSpurtParams ? currentSpurtParams.spDiff : 0) : (sp - totalConsume),
+        maxSpurt
+      };
+    }
+    
+    // SPが足りない場合の処理
+    const candidates = [];
+    const totalConsumeV3 = this.calcRequiredSp(this.v3, position);
+    const excessSp = sp - totalConsumeV3;
+    if (excessSp < 0) {
+      return {
+        distance: 0,
+        speed: this.v3,
+        spDiff: isReCalc ? (currentSpurtParams ? currentSpurtParams.spDiff : 0) : (sp - totalConsume), // 元JSの実装に準拠
+        maxSpurt: false
+      };
+    }
+    
+    for (let v = maxSpurtSpeed - 0.1; v >= this.v3; v -= 0.1) {
+      let distanceV = this.calcSpurtDistance(v, position, sp);
+      if (distanceV >= maxDistance) {
+        distanceV = maxDistance;
+      }
+      candidates.push({
+        distance: distanceV,
+        speed: v,
+        time: distanceV / v + (maxDistance - distanceV) / this.v3,
+        spDiff: isReCalc ? (currentSpurtParams ? currentSpurtParams.spDiff : 0) : (sp - totalConsume)
+      });
+    }
+    
+    candidates.sort((a, b) => a.time - b.time);
+    
+    // Excel比較用のため決定論的（期待値モード）にベストな候補を返す
+    if (candidates.length > 0) {
+      return { ...candidates[0], maxSpurt: false };
+    }
+    
+    return {
+      distance: 0,
+      speed: this.v3,
+      spDiff: sp - totalConsume,
+      maxSpurt: false
+    };
+  }
 }
 
