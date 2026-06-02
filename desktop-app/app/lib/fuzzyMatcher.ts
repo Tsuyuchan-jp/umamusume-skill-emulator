@@ -6,16 +6,19 @@ import { UmaStatusData } from './types';
 const allSkills = [...normalSkillData({}), ...uniqueSkillData({})];
 const skillNames = allSkills.flatMap((s: any) => (s?.variants || []).map((v: any) => v?.name));
 
-// 全角英数字を半角に変換するユーティリティ
+// 全角英数字を半角に変換するユーティリティ（さらに漢数字のゼロ「〇」を記号の丸「○」に正規化）
 function toHalfWidth(str: string): string {
-  return str.replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
+  let s = str.replace(/[Ａ-Ｚａ-ｚ０-９]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xFEE0));
+  // AIが誤出力しやすい漢数字のゼロをマスターデータで使われる白丸記号に変換
+  s = s.replace(/〇/g, '○');
+  return s;
 }
 
 // 汎用的なFuzzyMatch生成関数
 function createFuzzyMatcher(targetList: string[]) {
   return function(rawInput: string | null | undefined): string {
     if (!rawInput) return "";
-    // 空白や改行を除去し、全角英数字を半角化
+    // 空白や改行を除去し、全角英数字を半角化、〇を○に正規化
     let cleanInput = rawInput.replace(/[\s\u3000]+/g, "");
     cleanInput = toHalfWidth(cleanInput);
     if (!cleanInput) return "";
@@ -23,9 +26,9 @@ function createFuzzyMatcher(targetList: string[]) {
     const matches = stringSimilarity.findBestMatch(cleanInput, targetList);
     let bestMatch = matches.bestMatch;
 
-    // 〇、◎、× の特例ルール: 末尾記号が一致するものを優先する
+    // ○、◎、× の特例ルール: 末尾記号が一致するものを優先する
     const inputSuffix = cleanInput.slice(-1);
-    const hasSymbol = ['〇', '◎', '×'].includes(inputSuffix);
+    const hasSymbol = ['○', '◎', '×'].includes(inputSuffix);
     if (hasSymbol) {
       // 一定以上のスコアがあり、かつ末尾記号が完全一致する候補を探す
       const exactSymbolMatches = matches.ratings.filter(r => r.target.endsWith(inputSuffix) && r.rating > 0.4);

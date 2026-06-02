@@ -71,28 +71,72 @@ function cleanAndParseJSON(str: string): any {
 
 
 /**
+ * 画像を必要に応じて縦方向に分割（スライス）するヘルパー関数。
+ * 縦長すぎる画像によるAIの読み取りスキップ（解像度低下）を防ぐために使用します。
+ */
+async function sliceTallImage(dataUrl: string): Promise<string[]> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      // 縦の長さが横幅の1.8倍以下なら分割不要
+      if (img.height <= img.width * 1.8) {
+        return resolve([dataUrl]);
+      }
+
+      // 縦横比から分割数を決定（最大4分割）
+      const numSlices = Math.min(Math.ceil(img.height / (img.width * 1.5)), 4);
+      if (numSlices <= 1) return resolve([dataUrl]);
+
+      const slices: string[] = [];
+      const sliceHeight = Math.ceil(img.height / numSlices);
+      const overlap = 60; // 文字が切れないように重なりを持たせる
+
+      for (let i = 0; i < numSlices; i++) {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        let sy = i * sliceHeight - (i > 0 ? overlap : 0);
+        let h = sliceHeight + (i > 0 ? overlap : 0) + (i < numSlices - 1 ? overlap : 0);
+        
+        if (sy < 0) { h += sy; sy = 0; }
+        if (sy + h > img.height) { h = img.height - sy; }
+        canvas.height = h;
+
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, sy, img.width, h, 0, 0, img.width, h);
+          slices.push(canvas.toDataURL("image/png"));
+        }
+      }
+      resolve(slices.length > 0 ? slices : [dataUrl]);
+    };
+    img.onerror = () => resolve([dataUrl]); // エラー時は分割せず元画像を返す
+    img.src = dataUrl;
+  });
+}
+
+/**
  * 結合済みのDataURL画像1枚を送信する（デフォルト）
  */
 export async function analyzeStitchedImage(apiKey: string, dataUrl: string): Promise<{ data: UmaStatusData; modelUsed: string }> {
-  const base64Data = dataUrl.replace(/^data:image\/(png|jpeg);base64,/, "");
+  // 縦長画像の場合は自動でスライスする
+  const imageSlices = await sliceTallImage(dataUrl);
   
+  // 送信用のparts配列を組み立てる（プロンプトテキスト + 複数の画像チャンク）
+  const contentParts: any[] = [{ text: "この画像のステータス情報をJSONで抽出してください。画像が複数ある場合は上から下へ繋がっています。" }];
+  for (const slice of imageSlices) {
+    contentParts.push({
+      inline_data: {
+        mime_type: "image/png",
+        data: slice.replace(/^data:image\/(png|jpeg);base64,/, "")
+      }
+    });
+  }
+
   const payload = {
     system_instruction: {
       parts: { text: SYSTEM_INSTRUCTION }
     },
-    contents: [
-      {
-        parts: [
-          { text: "この画像のステータス情報をJSONで抽出してください。" },
-          {
-            inline_data: {
-              mime_type: "image/png",
-              data: base64Data
-            }
-          }
-        ]
-      }
-    ],
+    contents: [{ parts: contentParts }],
     generationConfig: {
       responseMimeType: "application/json",
       temperature: 0.1,

@@ -43,6 +43,17 @@ export default function Home() {
   const previewRef = useRef<HTMLDivElement>(null);
   const autoCopyTriggeredRef = useRef<boolean>(false);
   const shortcutInputRef = useRef<HTMLInputElement>(null);
+  const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const showToastMessage = (msg: string, type: "success" | "error" = "success", durationMs: number = 3000) => {
+    setToastType(type);
+    setToastMessage(msg);
+    setShowToast(true);
+    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+    if (durationMs > 0) {
+      toastTimeoutRef.current = setTimeout(() => setShowToast(false), durationMs);
+    }
+  };
 
   const captureStatusRef = useRef(captureStatus);
   const handleStartAutoCaptureRef = useRef(handleStartAutoCapture);
@@ -122,26 +133,21 @@ export default function Home() {
 
     setIsOcrProcessing(true);
     setOcrResult(null);
-    setToastType("success"); // リセット
-    setToastMessage("OCR解析中...");
-    setShowToast(true);
+    showToastMessage("OCR解析中...", "success", 0); // タイマーなしで表示し続ける
 
     try {
       const res = await analyzeStitchedImage(apiKey, resultImage);
       setOcrResult(res.data);
-      setToastType("success");
-      setToastMessage(`OCR解析が完了しました！(モデル: ${res.modelUsed})`);
+      showToastMessage(`OCR解析が完了しました！(モデル: ${res.modelUsed})`, "success", 4000);
     } catch (err: any) {
       console.error(err);
-      setToastType("error");
       if (err.message && (err.message.includes("503") || err.message.includes("UNAVAILABLE"))) {
-        setToastMessage("現在AIサーバーが大変混み合っています。数秒待ってからもう一度お試しください。");
+        showToastMessage("現在AIサーバーが大変混み合っています。数秒待ってからもう一度お試しください。", "error", 4000);
       } else {
-        setToastMessage(`OCRエラー: ${err.message}`);
+        showToastMessage(`OCRエラー: ${err.message}`, "error", 4000);
       }
     } finally {
       setIsOcrProcessing(false);
-      setTimeout(() => setShowToast(false), 4000); // 4秒表示
     }
   };
 
@@ -151,10 +157,7 @@ export default function Home() {
     setShowApiKeyModal(false);
     if (captureStatus === "saved" && resultImage) {
       // APIキー保存後にすぐOCRを開始するかはユーザーに任せる
-      setToastType("success");
-      setToastMessage("APIキーを保存しました。");
-      setShowToast(true);
-      setTimeout(() => setShowToast(false), 3000);
+      showToastMessage("APIキーを保存しました。", "success", 3000);
     }
   };
 
@@ -247,20 +250,10 @@ export default function Home() {
   const copyImageToClipboard = async (dataUrl: string) => {
     try {
       await invoke("copy_image_to_clipboard", { dataUrl });
-      setToastMessage("画像をクリップボードにコピーしました！");
-      setShowToast(true);
-      
-      // 3秒後に非表示
-      setTimeout(() => {
-        setShowToast(false);
-      }, 3000);
+      showToastMessage("画像をクリップボードにコピーしました！", "success", 3000);
     } catch (err) {
       console.error("Clipboard copy failed via Rust:", err);
-      setToastMessage("コピーに失敗しました。アプリの状態を確認してください。");
-      setShowToast(true);
-      setTimeout(() => {
-        setShowToast(false);
-      }, 3000);
+      showToastMessage("コピーに失敗しました。アプリの状態を確認してください。", "error", 3000);
     }
   };
 
@@ -585,12 +578,7 @@ export default function Home() {
                   )}
                 </button>
                 <button
-                  onClick={() => {
-                    setToastType("error");
-                    setToastMessage("現在AIサーバーが大変混み合っています。数秒待ってからもう一度お試しください。");
-                    setShowToast(true);
-                    setTimeout(() => setShowToast(false), 3000);
-                  }}
+                  onClick={() => showToastMessage("現在AIサーバーが大変混み合っています。数秒待ってからもう一度お試しください。", "error", 3000)}
                   className="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-400 font-bold py-2 rounded-xl border border-zinc-700 transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
                 >
                   [Dev] 503エラートーストをテスト表示
@@ -604,9 +592,7 @@ export default function Home() {
                   initialData={ocrResult} 
                   onSave={(data) => {
                     console.log("シミュレーションへ渡すデータ:", data);
-                    setToastType("success");
-                    setToastMessage("シミュレーションを開始します...");
-                    setShowToast(true);
+                    showToastMessage("シミュレーションを開始します...", "success", 3000);
                   }}
                 />
               </div>
