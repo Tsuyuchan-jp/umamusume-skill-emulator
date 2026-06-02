@@ -130,7 +130,11 @@ export default function Home() {
       setToastMessage("OCR解析が完了しました！");
     } catch (err: any) {
       console.error(err);
-      setToastMessage(`OCRエラー: ${err.message}`);
+      if (err.message && (err.message.includes("503") || err.message.includes("UNAVAILABLE"))) {
+        setToastMessage("現在AIサーバーが大変混み合っています。数秒待ってからもう一度お試しください。");
+      } else {
+        setToastMessage(`OCRエラー: ${err.message}`);
+      }
     } finally {
       setIsOcrProcessing(false);
       setTimeout(() => setShowToast(false), 3000);
