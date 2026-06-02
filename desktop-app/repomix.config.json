@@ -1,0 +1,25 @@
+{
+  "output": {
+    "filePath": "repomix-output.txt",
+    "style": "plain"
+  },
+  "ignore": {
+    "customPatterns": [
+      "node_modules/**",
+      ".next/**",
+      "src-tauri/target/**",
+      "**/*.png",
+      "**/*.jpg",
+      "**/*.jpeg",
+      "**/*.ico",
+      "**/*.svg",
+      "**/*.gif",
+      "package-lock.json",
+      "Cargo.lock",
+      ".env*",
+      ".git/**"
+    ],
+    "useGitignore": true,
+    "useDefaultPatterns": true
+  }
+}

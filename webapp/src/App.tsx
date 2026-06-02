@@ -1,138 +1,122 @@
-import React, { useState, useEffect } from 'react';
-import { useCapture } from './hooks/useCapture';
-import { analyzeImageWithGemini } from './lib/geminiOcr';
-import { UmaStatusData } from './lib/types';
-import { StatusEditor } from './components/StatusEditor';
-import ApiKeyModal from './components/ApiKeyModal';
-import './App.css';
+import { useState } from 'react'
+import reactLogo from './assets/react.svg'
+import viteLogo from './assets/vite.svg'
+import heroImg from './assets/hero.png'
+import './App.css'
 
 function App() {
-  const {
-    captureStatus,
-    captureMessage,
-    captureError,
-    resultImage,
-    handleStartCapture,
-    handleStopCapture,
-    handleSaveAndCopy
-  } = useCapture();
-
-  const [apiKey, setApiKey] = useState<string>('');
-  const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [parsedData, setParsedData] = useState<UmaStatusData | null>(null);
-
-  useEffect(() => {
-    const savedKey = localStorage.getItem('gemini_api_key');
-    if (savedKey) {
-      setApiKey(savedKey);
-    } else {
-      setIsApiKeyModalOpen(true);
-    }
-  }, []);
-
-  const handleSaveApiKey = (key: string) => {
-    localStorage.setItem('gemini_api_key', key);
-    setApiKey(key);
-    setIsApiKeyModalOpen(false);
-  };
-
-  const handleAnalyzeImage = async () => {
-    if (!resultImage) return;
-    if (!apiKey) {
-      setIsApiKeyModalOpen(true);
-      return;
-    }
-    
-    setIsAnalyzing(true);
-    try {
-      const data = await analyzeImageWithGemini(resultImage, apiKey);
-      setParsedData(data);
-    } catch (error: any) {
-      console.error(error);
-      alert('解析エラー: ' + error.message);
-    } finally {
-      setIsAnalyzing(false);
-    }
-  };
-
-  const handleEditorSave = (data: UmaStatusData) => {
-    console.log("Saving to simulator context: ", data);
-    setParsedData(null);
-    alert("シミュレーターへデータを送信しました！（※フェーズ1との統合は別途実施）");
-  };
+  const [count, setCount] = useState(0)
 
   return (
-    <div className="app-container">
-      <header>
-        <h1>Uma Skill Emulator Input</h1>
-      </header>
+    <>
+      <section id="center">
+        <div className="hero">
+          <img src={heroImg} className="base" width="170" height="179" alt="" />
+          <img src={reactLogo} className="framework" alt="React logo" />
+          <img src={viteLogo} className="vite" alt="Vite logo" />
+        </div>
+        <div>
+          <h1>Get started</h1>
+          <p>
+            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
+          </p>
+        </div>
+        <button
+          type="button"
+          className="counter"
+          onClick={() => setCount((count) => count + 1)}
+        >
+          Count is {count}
+        </button>
+      </section>
 
-      <div className="main-content">
-        {!parsedData ? (
-          <>
-            <section className="capture-section">
-              <h2>1. 画面キャプチャ（詳細ステータス画面をスクロール）</h2>
-              <div className="controls">
-                {captureStatus === 'idle' || captureStatus === 'saved' || captureStatus === 'done' ? (
-                  <button className="btn-primary" onClick={handleStartCapture}>
-                    キャプチャ開始
-                  </button>
-                ) : captureStatus === 'recording' ? (
-                  <button className="btn-danger" onClick={handleStopCapture}>
-                    キャプチャ停止
-                  </button>
-                ) : null}
-              </div>
+      <div className="ticks"></div>
 
-              {captureMessage && <div className="status-message">{captureMessage}</div>}
-              {captureError && <div className="error-message">{captureError}</div>}
+      <section id="next-steps">
+        <div id="docs">
+          <svg className="icon" role="presentation" aria-hidden="true">
+            <use href="/icons.svg#documentation-icon"></use>
+          </svg>
+          <h2>Documentation</h2>
+          <p>Your questions, answered</p>
+          <ul>
+            <li>
+              <a href="https://vite.dev/" target="_blank">
+                <img className="logo" src={viteLogo} alt="" />
+                Explore Vite
+              </a>
+            </li>
+            <li>
+              <a href="https://react.dev/" target="_blank">
+                <img className="button-icon" src={reactLogo} alt="" />
+                Learn more
+              </a>
+            </li>
+          </ul>
+        </div>
+        <div id="social">
+          <svg className="icon" role="presentation" aria-hidden="true">
+            <use href="/icons.svg#social-icon"></use>
+          </svg>
+          <h2>Connect with us</h2>
+          <p>Join the Vite community</p>
+          <ul>
+            <li>
+              <a href="https://github.com/vitejs/vite" target="_blank">
+                <svg
+                  className="button-icon"
+                  role="presentation"
+                  aria-hidden="true"
+                >
+                  <use href="/icons.svg#github-icon"></use>
+                </svg>
+                GitHub
+              </a>
+            </li>
+            <li>
+              <a href="https://chat.vite.dev/" target="_blank">
+                <svg
+                  className="button-icon"
+                  role="presentation"
+                  aria-hidden="true"
+                >
+                  <use href="/icons.svg#discord-icon"></use>
+                </svg>
+                Discord
+              </a>
+            </li>
+            <li>
+              <a href="https://x.com/vite_js" target="_blank">
+                <svg
+                  className="button-icon"
+                  role="presentation"
+                  aria-hidden="true"
+                >
+                  <use href="/icons.svg#x-icon"></use>
+                </svg>
+                X.com
+              </a>
+            </li>
+            <li>
+              <a href="https://bsky.app/profile/vite.dev" target="_blank">
+                <svg
+                  className="button-icon"
+                  role="presentation"
+                  aria-hidden="true"
+                >
+                  <use href="/icons.svg#bluesky-icon"></use>
+                </svg>
+                Bluesky
+              </a>
+            </li>
+          </ul>
+        </div>
+      </section>
 
-              {captureStatus === 'done' && (
-                <div style={{ marginTop: '1rem' }}>
-                  <button className="btn-primary" onClick={handleSaveAndCopy}>
-                    画像を結合して結果を取得
-                  </button>
-                </div>
-              )}
-            </section>
-
-            {resultImage && (
-              <section className="ocr-section">
-                <h2>2. Geminiによる解析</h2>
-                <img src={resultImage} alt="Stitched Result" className="result-image" />
-                <div style={{ marginTop: '1rem' }}>
-                  <button className="btn-primary" onClick={handleAnalyzeImage} disabled={isAnalyzing}>
-                    {isAnalyzing ? "解析中..." : "解析を実行"}
-                  </button>
-                  <button 
-                    style={{ marginLeft: '1rem', background: '#555', color: 'white', padding: '10px 20px', borderRadius: '6px', border: 'none', cursor: 'pointer' }}
-                    onClick={() => setIsApiKeyModalOpen(true)}
-                  >
-                    APIキー設定
-                  </button>
-                </div>
-              </section>
-            )}
-          </>
-        ) : (
-          <section className="editor-section">
-            <StatusEditor
-              initialData={parsedData}
-              onSave={handleEditorSave}
-              onCancel={() => setParsedData(null)}
-            />
-          </section>
-        )}
-      </div>
-
-      <ApiKeyModal
-        isOpen={isApiKeyModalOpen}
-        onClose={() => setIsApiKeyModalOpen(false)}
-        onSave={handleSaveApiKey}
-      />
-    </div>
-  );
+      <div className="ticks"></div>
+      <section id="spacer"></section>
+    </>
+  )
 }
 
-export default App;
+export default App
