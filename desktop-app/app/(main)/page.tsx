@@ -509,20 +509,21 @@ export default function Home() {
                   {isRecordingShortcut ? "入力中" : "変更"}
                 </button>
               </div>
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-3 border-t border-white/[0.05]">
-                <div className="flex flex-col gap-0.5 shrink-0">
-                  <span className="text-xs font-medium text-zinc-300">Gemini APIキー</span>
-                  <span className="text-[10px] text-zinc-500">OCR解析用</span>
-                </div>
-                <div className="flex w-full sm:max-w-md items-center justify-end">
-                  <button 
-                    onClick={() => setShowApiKeyModal(true)}
-                    className="shrink-0 bg-zinc-800 hover:bg-emerald-600 text-zinc-300 hover:text-white text-xs font-semibold px-4 py-2 border border-zinc-700/50 rounded-lg transition-all active:bg-emerald-700 flex items-center gap-2"
-                  >
-                    <Key className="w-3.5 h-3.5" />
-                    {apiKey ? "設定済み (変更)" : "未設定"}
-                  </button>
-                </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-3 border-t border-white/[0.05]">
+              <div className="flex flex-col gap-0.5 shrink-0">
+                <span className="text-xs font-medium text-zinc-300">Gemini APIキー</span>
+                <span className="text-[10px] text-zinc-500">OCR解析用</span>
+              </div>
+              <div className="flex w-full sm:max-w-md items-center justify-end">
+                <button 
+                  onClick={() => setShowApiKeyModal(true)}
+                  className="shrink-0 bg-zinc-800 hover:bg-emerald-600 text-zinc-300 hover:text-white text-xs font-semibold px-4 py-2 border border-zinc-700/50 rounded-lg transition-all active:bg-emerald-700 flex items-center gap-2"
+                >
+                  <Key className="w-3.5 h-3.5" />
+                  {apiKey ? "設定済み (変更)" : "未設定"}
+                </button>
               </div>
             </div>
           </div>
@@ -531,7 +532,7 @@ export default function Home() {
 
       {/* 結合結果の画像プレビューエリア */}
       {resultImage && (
-        <div ref={previewRef} className="w-full max-w-4xl px-8 pb-16 animate-fadeIn flex flex-col gap-6">
+        <div ref={previewRef} className="w-full px-8 pb-16 animate-fadeIn flex flex-col gap-6">
           <div className="bg-zinc-900/40 border border-white/[0.04] rounded-3xl p-6 shadow-lg flex flex-col items-center">
             <div className="flex w-full justify-between items-center mb-6">
               <h2 className="text-lg font-bold tracking-wide text-zinc-200 flex items-center gap-2">
@@ -552,7 +553,7 @@ export default function Home() {
               <img 
                 src={resultImage} 
                 alt="Combined Status" 
-                className="w-full h-auto object-contain mx-auto rounded-xl shadow-2xl max-h-[600px]"
+                className="w-full h-auto object-contain mx-auto rounded-xl shadow-2xl"
               />
             </div>
 
