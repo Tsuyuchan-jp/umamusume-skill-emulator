@@ -1,7 +1,0 @@
-﻿Found Japanese text at 12434648
---- MATCH ---
-generated tauri context creationunable to create thread with 8MiB stack
---- MATCH ---
-the generated Tauri `Context` panicked during creation
-fatal runtime error: thread result panicked on drop, aborting
-C:\Users\PC1\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_json-1.0.150\src\ser.rs
