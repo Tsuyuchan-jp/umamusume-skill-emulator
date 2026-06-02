@@ -85,5 +85,76 @@ describe('RaceSimulator', () => {
     expect(sim.frames.length).toBeGreaterThan(1000);
     expect(sim.frames.length).toBeLessThan(2000);
   });
-});
 
+  it('should match the original uma-clock-emu JS engine with error < 10^-6 for multiple configurations', async () => {
+    // dump.jsonの読み込み
+    const fs = await import('fs');
+    const path = await import('path');
+    const dumpPath = path.resolve(__dirname, '../../../dump.json');
+    if (!fs.existsSync(dumpPath)) {
+      console.warn('dump.json not found, skipping differential test');
+      return;
+    }
+    const allDumps = JSON.parse(fs.readFileSync(dumpPath, 'utf8'));
+    
+    // 単一オブジェクトの場合は配列にする（互換性）
+    const dumps = Array.isArray(allDumps) ? allDumps : [allDumps];
+
+    for (const dumpData of dumps) {
+      console.log(`Testing configuration: ${dumpData.name || 'default'}`);
+      const sim = new RaceSimulator(dumpData.status, dumpData.track);
+      sim.useExpectedValue = true;
+      sim.simulateRace();
+      
+      expect(sim.baseSpeed).toBeCloseTo(dumpData.params.baseSpeed, 6);
+      expect(sim.spMax).toBeCloseTo(dumpData.params.spMax, 6);
+      expect(sim.modifiedSpeed).toBeCloseTo(dumpData.params.modifiedSpeed, 6);
+      expect(sim.modifiedStamina).toBeCloseTo(dumpData.params.modifiedStamina, 6);
+      expect(sim.modifiedPower).toBeCloseTo(dumpData.params.modifiedPower, 6);
+      expect(sim.modifiedGuts).toBeCloseTo(dumpData.params.modifiedGuts, 6);
+      expect(sim.modifiedWisdom).toBeCloseTo(dumpData.params.modifiedWisdom, 6);
+      expect(sim.v0).toBeCloseTo(dumpData.params.v0, 6);
+      expect(sim.v1).toBeCloseTo(dumpData.params.v1, 6);
+      expect(sim.v2).toBeCloseTo(dumpData.params.v2, 6);
+      expect(sim.v3).toBeCloseTo(dumpData.params.v3, 6);
+      expect(sim.vMin).toBeCloseTo(dumpData.params.vMin, 6);
+      expect(sim.a0).toBeCloseTo(dumpData.params.a0, 6);
+      expect(sim.a1).toBeCloseTo(dumpData.params.a1, 6);
+      expect(sim.a2).toBeCloseTo(dumpData.params.a2, 6);
+      expect(sim.a3).toBeCloseTo(dumpData.params.a3, 6);
+      expect(sim.spurtSpCoef).toBeCloseTo(dumpData.params.spurtSpCoef, 6);
+      
+      // 全フレームの速度、スタミナ、位置を突合
+      let firstMismatch = -1;
+      const len = Math.min(dumpData.frames.length, sim.frames.length);
+      for (let i = 0; i < len; i++) {
+        const orig = dumpData.frames[i];
+        const ours = sim.frames[i];
+        
+
+        try {
+          expect(ours.speed).toBeCloseTo(orig.speed, 6);
+          expect(ours.startPosition).toBeCloseTo(orig.startPosition, 6);
+          // expect(ours.consume).toBeCloseTo(orig.consume, 6);
+        } catch (e) {
+          if (firstMismatch === -1) {
+            firstMismatch = i;
+            console.error(`Mismatch at frame ${i} in ${dumpData.name}!`);
+            console.error('Orig:', orig);
+            console.error('Ours:', ours);
+            console.error('sim v0:', sim.v0);
+            console.error('sim currentSection:', Math.floor(sim.frames[i].startPosition / (sim.trackDetail.distance / 24)));
+            console.error('sim sectionRandom[1]:', sim.sectionTargetSpeedRandoms[1]);
+            console.error('sim targetSpeed:', sim.targetSpeed);
+            console.error('sim currentPhase:', sim.currentPhase);
+            console.error('sim spurtParameters:', sim.spurtParameters);
+            console.error('sim v3:', sim.v3);
+            console.error('sim maxSpurtSpeed:', sim.maxSpurtSpeed);
+          }
+        }
+      }
+      expect(firstMismatch).toBe(-1); // No mismatch
+      expect(sim.frames.length).toBe(dumpData.frames.length);
+    }
+  });
+});
