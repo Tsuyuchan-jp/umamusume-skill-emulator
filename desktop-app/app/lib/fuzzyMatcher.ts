@@ -22,7 +22,8 @@ function createFuzzyMatcher(targetList: string[]) {
 
     const matches = stringSimilarity.findBestMatch(cleanInput, targetList);
     // スコアが低すぎる場合は誤変換（AIの幻覚）とみなし空欄を返す
-    if (matches.bestMatch.rating < 0.2) return "";
+    // 0.45未満は誤検出として厳格に弾く（〇/◎の区別なども厳しくするため）
+    if (matches.bestMatch.rating < 0.45) return "";
     return matches.bestMatch.target;
   };
 }

@@ -6,7 +6,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { emit } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/plugin-dialog";
 import { register, unregister, isRegistered } from "@tauri-apps/plugin-global-shortcut";
-import { Magnet, Camera, Square, Settings, Folder, Keyboard, Wand2, Copy, Sparkles, Key } from "lucide-react";
+import { Magnet, Camera, Square, Settings, Folder, Keyboard, Wand2, Copy, Sparkles, Key, AlertCircle } from "lucide-react";
 import { StatusEditor } from "../components/StatusEditor";
 import { ApiKeyModal } from "../components/ApiKeyModal";
 import { analyzeStitchedImage } from "../lib/geminiOcr";
@@ -32,6 +32,7 @@ export default function Home() {
   const [isRecordingShortcut, setIsRecordingShortcut] = useState<boolean>(false);
   const [showToast, setShowToast] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string>("");
+  const [toastType, setToastType] = useState<"success" | "error">("success");
 
   // OCR/エディタ関連ステート
   const [apiKey, setApiKey] = useState<string>("");
@@ -127,9 +128,11 @@ export default function Home() {
     try {
       const res = await analyzeStitchedImage(apiKey, resultImage);
       setOcrResult(res.data);
-      setToastMessage("OCR解析が完了しました！");
+      setToastType("success");
+      setToastMessage(`OCR解析が完了しました！(モデル: ${res.modelUsed})`);
     } catch (err: any) {
       console.error(err);
+      setToastType("error");
       if (err.message && (err.message.includes("503") || err.message.includes("UNAVAILABLE"))) {
         setToastMessage("現在AIサーバーが大変混み合っています。数秒待ってからもう一度お試しください。");
       } else {
@@ -137,7 +140,7 @@ export default function Home() {
       }
     } finally {
       setIsOcrProcessing(false);
-      setTimeout(() => setShowToast(false), 3000);
+      setTimeout(() => setShowToast(false), 4000); // 4秒表示
     }
   };
 
@@ -147,6 +150,7 @@ export default function Home() {
     setShowApiKeyModal(false);
     if (captureStatus === "saved" && resultImage) {
       // APIキー保存後にすぐOCRを開始するかはユーザーに任せる
+      setToastType("success");
       setToastMessage("APIキーを保存しました。");
       setShowToast(true);
       setTimeout(() => setShowToast(false), 3000);
@@ -581,6 +585,7 @@ export default function Home() {
                 </button>
                 <button
                   onClick={() => {
+                    setToastType("error");
                     setToastMessage("現在AIサーバーが大変混み合っています。数秒待ってからもう一度お試しください。");
                     setShowToast(true);
                     setTimeout(() => setShowToast(false), 3000);
@@ -598,6 +603,7 @@ export default function Home() {
                   initialData={ocrResult} 
                   onSave={(data) => {
                     console.log("シミュレーションへ渡すデータ:", data);
+                    setToastType("success");
                     setToastMessage("シミュレーションを開始します...");
                     setShowToast(true);
                   }}
@@ -610,10 +616,12 @@ export default function Home() {
 
       {/* トースト通知 */}
       {showToast && (
-        <div className="fixed bottom-8 right-8 z-50 animate-slideIn flex items-center gap-3 bg-zinc-900/95 border border-emerald-500/30 text-emerald-400 px-5 py-3 rounded-2xl shadow-2xl backdrop-blur-xl transition-all duration-300">
-          <Sparkles className="w-5 h-5" />
+        <div className={`fixed bottom-8 right-8 z-50 animate-slideIn flex items-center gap-3 bg-zinc-900/95 border px-5 py-3 rounded-2xl shadow-2xl backdrop-blur-xl transition-all duration-300 ${toastType === 'error' ? 'border-rose-500/30 text-rose-400' : 'border-emerald-500/30 text-emerald-400'}`}>
+          {toastType === 'error' ? <AlertCircle className="w-5 h-5" /> : <Sparkles className="w-5 h-5" />}
           <div className="flex flex-col">
-            <span className="text-[12px] font-bold text-zinc-200 font-sans tracking-wide">NOTIFICATION</span>
+            <span className={`text-[12px] font-bold font-sans tracking-wide ${toastType === 'error' ? 'text-rose-300' : 'text-zinc-200'}`}>
+              {toastType === 'error' ? 'ERROR' : 'NOTIFICATION'}
+            </span>
             <span className="text-[11px] text-zinc-400 font-sans font-medium">{toastMessage}</span>
           </div>
         </div>
