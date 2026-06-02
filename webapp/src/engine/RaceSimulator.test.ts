@@ -67,4 +67,23 @@ describe('RaceSimulator', () => {
     const expectedSpurt = 20.0 * sim.spurtSpCoef;
     expect(sim.consumePerSecond(20, 20, 2)).toBeCloseTo(expectedSpurt, 6);
   });
+
+  it('should run a full simulation without infinite loop', () => {
+    const sim = new RaceSimulator(defaultStatus, defaultTrack);
+    sim.simulateRace();
+
+    expect(sim.position).toBeGreaterThanOrEqual(defaultTrack.distance);
+    expect(sim.frames.length).toBeGreaterThan(0);
+    expect(sim.frameElapsed).toBeGreaterThan(0);
+    expect(sim.frameElapsed).toBeLessThan(5000); // 無限ループ対策の閾値未満であること
+    
+    // Check that we eventually consumed SP
+    expect(sim.sp).toBeLessThan(sim.spMax);
+    
+    // Check finish time roughly
+    // 2000m at ~20m/s is around 100 seconds, so ~1500 frames
+    expect(sim.frames.length).toBeGreaterThan(1000);
+    expect(sim.frames.length).toBeLessThan(2000);
+  });
 });
+

@@ -71,6 +71,21 @@ export const CONSTANTS = {
   } as Record<number, Record<number, number>>,
 };
 
+export interface SpurtParameter {
+  distance: number;
+  speed: number;
+  spDiff: number;
+  maxSpurt: boolean;
+}
+
+export interface RaceFrame {
+  speed: number;
+  sp: number;
+  startPosition: number;
+  movement: number;
+  consume: number;
+}
+
 export class RaceSimulator {
   public umaStatus: UmaStatus;
   public trackDetail: TrackDetail;
@@ -83,6 +98,18 @@ export class RaceSimulator {
   public modifiedWisdom: number;
   
   public spMax: number;
+
+  // --- 走行状態 ---
+  public frameElapsed: number = 0;
+  public position: number = 0;
+  public sp: number = 0;
+  public currentSpeed: number = 0;
+  public isStartDash: boolean = false;
+  public delayTime: number = 0;
+  public spurtParameters: SpurtParameter | null = null;
+  public maxSpurt: boolean = false;
+  public currentPhase: number = 0;
+  public frames: RaceFrame[] = [];
 
   constructor(umaStatus: UmaStatus, trackDetail: TrackDetail) {
     this.umaStatus = umaStatus;
@@ -201,8 +228,14 @@ export class RaceSimulator {
   // --- ヘルパー群 ---
   
   public get deceleration(): number {
-    // 実際には sp <= 0 で -1.2 になるが、ここでは基本の減速度を返す (currentPhase に依存)
-    return -1.0; 
+    if (this.sp <= 0) return -1.2;
+    switch (this.currentPhase) {
+      case 0: return -1.2;
+      case 1: return -0.8;
+      case 2:
+      case 3:
+      default: return -1.0;
+    }
   }
   
   public getPhase(position: number): number {
@@ -331,6 +364,146 @@ export class RaceSimulator {
       spDiff: sp - totalConsume,
       maxSpurt: false
     };
+  }
+
+  // --- シミュレーションループ ---
+
+  public get targetSpeed(): number {
+    if (this.sp <= 0) {
+      return this.vMin;
+    }
+    if (this.currentSpeed < this.v0) {
+      return this.v0;
+    }
+    let baseTargetSpeed = 0;
+    if (this.spurtParameters && this.position + this.spurtParameters.distance >= this.trackDetail.distance) {
+      baseTargetSpeed = this.spurtParameters.speed;
+    } else {
+      switch (this.currentPhase) {
+        case 0:
+        case 1:
+          baseTargetSpeed = this.baseSpeed * CONSTANTS.styleSpeedCoef[this.umaStatus.style][this.currentPhase];
+          break;
+        case 2:
+        case 3:
+        default:
+          const distanceFit = CONSTANTS.distanceFitSpeedCoef[this.umaStatus.distanceFit] || 1;
+          baseTargetSpeed = this.baseSpeed * CONSTANTS.styleSpeedCoef[this.umaStatus.style][2] + Math.sqrt(this.modifiedSpeed / 500.0) * distanceFit;
+          baseTargetSpeed += Math.pow(this.modifiedGuts * 450, 0.597) * 0.0001;
+          break;
+      }
+      // TODO: sectionTargetSpeedRandoms (掛かり等) を加算
+    }
+    let ret = baseTargetSpeed; // * progressPositionKeeping()
+    // TODO: 坂 (upSlope / downSlope) の処理
+    // TODO: スキルによる目標速度の加算
+    return ret;
+  }
+
+  public get acceleration(): number {
+    const c = 0.0006; // TODO: 登り坂の場合は 0.0004
+    const surfaceFit = CONSTANTS.surfaceFitAccelerateCoef[this.umaStatus.surfaceFit] || 1;
+    const distanceFit = CONSTANTS.distanceFitAccelerateCoef[this.umaStatus.distanceFit] || 1;
+    let ret = c * Math.sqrt(500 * this.modifiedPower) * CONSTANTS.styleAccelerateCoef[this.umaStatus.style][this.currentPhase] * surfaceFit * distanceFit;
+    
+    if (this.isStartDash) {
+      ret += 24.0;
+    }
+    // TODO: スキルによる加速度の加算
+    return ret;
+  }
+
+  public updateSelfSpeed(elapsedTime: number): void {
+    let newSpeed = 0;
+    const tgt = this.targetSpeed;
+    if (this.currentSpeed < tgt) {
+      newSpeed = Math.min(this.currentSpeed + elapsedTime * this.acceleration, tgt);
+    } else {
+      newSpeed = Math.max(this.currentSpeed + elapsedTime * this.deceleration, tgt);
+    }
+    if (this.isStartDash && newSpeed > this.v0) {
+      newSpeed = this.v0;
+    }
+    const maxSpeed = 30.0;
+    newSpeed = Math.max(Math.min(newSpeed, maxSpeed), this.vMin);
+    // TODO: speedDebuff の適用
+    this.currentSpeed = newSpeed;
+  }
+
+  public move(elapsedTime: number): void {
+    if (this.delayTime > 0) {
+      this.delayTime -= elapsedTime;
+    }
+    if (this.delayTime <= 0) {
+      let timeAfterDelay = elapsedTime;
+      if (this.delayTime < 0) {
+        timeAfterDelay = Math.abs(this.delayTime);
+        this.delayTime = 0;
+      }
+
+      this.updateSelfSpeed(elapsedTime);
+      const actualSpeed = this.currentSpeed;
+      
+      this.position += actualSpeed * timeAfterDelay;
+      
+      const bSpeed = this.isStartDash ? this.currentSpeed : this.baseSpeed;
+      let consume = this.consumePerSecond(bSpeed, this.currentSpeed, this.currentPhase) * elapsedTime;
+      // TODO: downSlopeModeStart や 掛かり (isInTemptation) によるスタミナ消費の増減
+      
+      this.sp -= consume;
+      
+      if (this.isStartDash && this.currentSpeed >= this.v0) {
+        this.isStartDash = false;
+      }
+    }
+  }
+
+  public simulateRace(): void {
+    this.frameElapsed = 0;
+    this.sp = this.spMax;
+    this.position = 0;
+    this.currentSpeed = CONSTANTS.startSpeed;
+    this.frames = [];
+    this.spurtParameters = null;
+    this.maxSpurt = false;
+    
+    // 出遅れ等は期待値モードでは固定かゼロにする。ここでは0
+    this.delayTime = 0.0; 
+    this.isStartDash = true;
+    
+    while (this.position < this.trackDetail.distance) {
+      if (this.frameElapsed > 5000) break; // 無限ループ対策
+      
+      this.currentPhase = this.getPhase(this.position);
+      
+      const startPosition = this.position;
+      const startSp = this.sp;
+      const startPhase = this.currentPhase;
+      
+      const frame: RaceFrame = {
+        speed: this.currentSpeed,
+        sp: this.sp,
+        startPosition: startPosition,
+        movement: 0,
+        consume: 0
+      };
+      
+      // TODO: downSlopeModeStart の判定
+      // TODO: temptationMode の判定
+      
+      this.move(CONSTANTS.frameLength);
+      
+      frame.movement = this.position - startPosition;
+      frame.consume = startSp - this.sp;
+      this.frames.push(frame);
+      
+      this.frameElapsed++;
+      
+      const newPhase = this.getPhase(this.position);
+      if (startPhase === 1 && newPhase === 2) {
+        this.spurtParameters = this.calcSpurtParameter(false, this.position, this.sp);
+      }
+    }
   }
 }
 
