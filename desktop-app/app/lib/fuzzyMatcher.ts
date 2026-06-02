@@ -1,10 +1,9 @@
 import stringSimilarity from 'string-similarity';
-import { normalSkillData, uniqueSkillData } from './engine/data/skillData';
+import { umasimSkillNames } from './umasimSkillData';
 import { UmaStatusData } from './types';
 
-// マスターデータからスキル名の文字列配列を抽出
-const allSkills = [...normalSkillData({}), ...uniqueSkillData({})];
-const skillNames = allSkills.flatMap((s: any) => (s?.variants || []).map((v: any) => v?.name));
+// マスターデータからスキル名の文字列配列を抽出 (umasimの最新データを使用)
+const skillNames = umasimSkillNames;
 
 // 全角英数字を半角に変換するユーティリティ（さらに漢数字のゼロ「〇」を記号の丸「○」に正規化）
 function toHalfWidth(str: string): string {
