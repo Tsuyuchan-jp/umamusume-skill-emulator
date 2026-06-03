@@ -88,11 +88,13 @@ export async function runUmaSimulation(data: UmaStatusData, raceCondition: RaceC
       power: data.power,
       guts: data.guts,
       wisdom: data.wisdom,
-      condition: "BEST",
-      style: "NIGE",
-      distanceFit: data.aptitudes.mile || "A",
-      surfaceFit: data.aptitudes.turf || "A",
-      styleFit: data.aptitudes.nige || "A",
+      condition: data.condition || "BEST",
+      style: data.strategy || "NIGE",
+      popularity: data.popularity || 1,
+      gateNumber: data.gateNumber || 0,
+      distanceFit: data.aptitudes.distanceFit || "A",
+      surfaceFit: data.aptitudes.surfaceFit || "A",
+      styleFit: data.aptitudes.styleFit || "A",
       skillNames: data.skills || []
     },
     track: {

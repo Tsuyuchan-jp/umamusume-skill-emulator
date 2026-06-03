@@ -9,7 +9,8 @@ import { Copy, Wand2 } from "lucide-react";
 import { useCapture } from "../hooks/useCapture";
 import { useToast } from "../hooks/useToast";
 import { ApiKeyModal } from "../components/ApiKeyModal";
-import { StatusEditor } from "../components/StatusEditor";
+import { StatusPanel } from "../components/StatusPanel";
+import { SkillPanel } from "../components/SkillPanel";
 import { SettingsPanel } from "../components/SettingsPanel";
 import { ToastNotification } from "../components/ToastNotification";
 import { RaceConditionSelector, RaceCondition } from "../components/RaceConditionSelector";
@@ -40,7 +41,7 @@ export default function Home() {
   // OCR/エディタ関連ステート
   const [apiKey, setApiKey] = useState<string>("");
   const [showApiKeyModal, setShowApiKeyModal] = useState<boolean>(false);
-  const [ocrResult, setOcrResult] = useState<UmaStatusData | null>(null);
+  const [umaData, setUmaData] = useState<UmaStatusData | null>(null);
   const [isOcrProcessing, setIsOcrProcessing] = useState<boolean>(false);
 
   // レース環境ステート
@@ -132,12 +133,12 @@ export default function Home() {
     if (!resultImage) return;
 
     setIsOcrProcessing(true);
-    setOcrResult(null);
+    setUmaData(null);
     showToastMessage("OCR解析中...", "success", 0); // タイマーなしで表示し続ける
 
     try {
       const res = await analyzeStitchedImage(apiKey, resultImage);
-      setOcrResult(res.data);
+      setUmaData(res.data);
       showToastMessage(`OCR解析が完了しました！(モデル: ${res.modelUsed})`, "success", 4000);
     } catch (err: any) {
       console.error(err);
@@ -275,7 +276,7 @@ export default function Home() {
       }, 100);
     }
     // キャプチャが新しくなったらOCR結果をリセット
-    setOcrResult(null);
+    setUmaData(null);
   }, [resultImage]);
 
   const captureStatusConfig = {
@@ -475,7 +476,7 @@ export default function Home() {
               />
             </div>
 
-            {!ocrResult && (
+            {!umaData && (
               <div className="flex flex-col w-full gap-3">
                 <button
                   onClick={handleOcrStart}
@@ -496,29 +497,46 @@ export default function Home() {
               </div>
             )}
 
-            {ocrResult && (
+            {umaData && (
               <div className="w-full mt-4 animate-fadeIn flex flex-col gap-6">
+                {/* 1. コース */}
                 <RaceConditionSelector 
                   condition={raceCondition} 
                   onChange={setRaceCondition} 
                 />
 
-                <StatusEditor 
-                  initialData={ocrResult} 
-                  onSave={async (data) => {
-                    console.log("シミュレーションへ渡すデータ:", data);
-                    showToastMessage("シミュレーションを開始します...", "success", 3000);
-                    try {
-                      const { runUmaSimulation } = await import('../lib/engine/umaemuAdapter');
-                      const simResult = await runUmaSimulation(data, raceCondition);
-                      console.log("シミュレーション結果:", simResult);
-                      showToastMessage(`シミュレーション完了！タイム: ${simResult.raceTime.toFixed(3)}秒`, "success", 5000);
-                    } catch (e: any) {
-                      console.error(e);
-                      showToastMessage(`シミュレーションエラー: ${e.message}`, "error", 5000);
-                    }
-                  }}
+                {/* 2. ステータス */}
+                <StatusPanel 
+                  data={umaData} 
+                  onChange={setUmaData} 
                 />
+
+                {/* 3. スキル */}
+                <SkillPanel 
+                  data={umaData} 
+                  onChange={setUmaData} 
+                />
+
+                <div className="flex flex-col gap-3 mt-4">
+                  <button
+                    onClick={async () => {
+                      console.log("シミュレーションへ渡すデータ:", umaData);
+                      showToastMessage("シミュレーションを開始します...", "success", 3000);
+                      try {
+                        const { runUmaSimulation } = await import('../lib/engine/umaemuAdapter');
+                        const simResult = await runUmaSimulation(umaData, raceCondition);
+                        console.log("シミュレーション結果:", simResult);
+                        showToastMessage(`シミュレーション完了！タイム: ${simResult.raceTime.toFixed(3)}秒`, "success", 5000);
+                      } catch (e: any) {
+                        console.error(e);
+                        showToastMessage(`シミュレーションエラー: ${e.message}`, "error", 5000);
+                      }
+                    }}
+                    className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition-all shadow-lg hover:shadow-emerald-500/20 active:scale-[0.98]"
+                  >
+                    ✅ 確定してシミュレーションを開始
+                  </button>
+                </div>
               </div>
             )}
           </div>

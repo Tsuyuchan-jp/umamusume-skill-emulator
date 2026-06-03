@@ -31,6 +31,10 @@ export interface UmaStatusData {
   power: number;
   guts: number;
   wisdom: number;
+  strategy?: string;
+  condition?: string;
+  popularity?: number;
+  gateNumber?: number;
   aptitudes: {
     turf: string;
     dirt: string;
@@ -42,6 +46,10 @@ export interface UmaStatusData {
     senkou: string;
     sashi: string;
     oikomi: string;
+    // UI selections for the current race
+    distanceFit?: string;
+    surfaceFit?: string;
+    styleFit?: string;
   };
   skills: string[];
 }
