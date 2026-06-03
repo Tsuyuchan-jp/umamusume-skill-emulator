@@ -121,13 +121,19 @@ export function SkillPanel({ data, onChange }: SkillPanelProps) {
           </div>
         </div>
         
-        <div className="flex flex-col gap-2">
+        <div className="grid grid-cols-2 gap-3">
           {data.skills.map((skill, idx) => (
-            <div key={idx} className="flex items-center justify-between bg-zinc-950 border border-zinc-800 px-3 py-2 rounded-lg group">
-              <span className="text-sm text-zinc-300 font-medium">{skill}</span>
+            <div 
+              key={idx} 
+              className="group flex items-center justify-between bg-zinc-800/40 hover:bg-zinc-800/80 border border-zinc-700/50 hover:border-zinc-500 px-3 py-2.5 rounded-lg transition-all"
+            >
+              <div className="flex items-center gap-2.5 overflow-hidden">
+                <div className="w-1.5 h-1.5 rounded-full bg-amber-400/80 flex-shrink-0 shadow-[0_0_8px_rgba(251,191,36,0.5)]" />
+                <span className="text-sm text-zinc-200 font-medium truncate" title={skill}>{skill}</span>
+              </div>
               <button
                 onClick={() => removeSkill(idx)}
-                className="text-rose-500/50 hover:text-rose-400 transition-colors opacity-0 group-hover:opacity-100 px-2"
+                className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-md text-zinc-500 hover:text-red-400 hover:bg-red-400/10 transition-colors opacity-0 group-hover:opacity-100 ml-2"
                 title="削除"
               >
                 ✕
@@ -135,7 +141,9 @@ export function SkillPanel({ data, onChange }: SkillPanelProps) {
             </div>
           ))}
           {data.skills.length === 0 && (
-            <div className="text-sm text-zinc-600 text-center py-4">スキルなし</div>
+            <div className="col-span-2 text-sm text-zinc-500 text-center py-8 border border-dashed border-zinc-800 rounded-lg bg-zinc-900/30">
+              取得スキルがありません
+            </div>
           )}
         </div>
       </div>
