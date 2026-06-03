@@ -26,7 +26,7 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
   const activeSkillsCount = umaData.skills.length - disabledSkills.length;
 
   return (
-    <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-5 mt-8 animate-fadeIn">
+    <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-5 mt-6 animate-fadeIn">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-bold text-zinc-300 flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-purple-500"></div>
