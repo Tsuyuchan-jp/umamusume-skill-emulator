@@ -1,6 +1,7 @@
 import { UmaStatusData } from "../types";
 
 let cachedEngine: any = null;
+let engineLoadPromise: Promise<any> | null = null;
 let cachedSkillsJson: string | null = null;
 let isEngineInitialized = false;
 
@@ -25,8 +26,9 @@ export async function loadUmasimEngine() {
   }
   
   if (cachedEngine) return cachedEngine;
+  if (engineLoadPromise) return engineLoadPromise;
 
-  return new Promise((resolve, reject) => {
+  engineLoadPromise = new Promise((resolve, reject) => {
     if ((window as any).race) {
       Promise.resolve((window as any).race).then((engine) => {
         cachedEngine = engine;
@@ -41,11 +43,19 @@ export async function loadUmasimEngine() {
       Promise.resolve((window as any).race).then((engine) => {
         cachedEngine = engine;
         resolve(engine);
-      }).catch(reject);
+      }).catch((err) => {
+        engineLoadPromise = null;
+        reject(err);
+      });
     };
-    script.onerror = () => reject(new Error("Failed to load race.js script"));
+    script.onerror = () => {
+      engineLoadPromise = null;
+      reject(new Error("Failed to load race.js script"));
+    };
     document.body.appendChild(script);
   });
+
+  return engineLoadPromise;
 }
 
 export async function initializeUmasimEngine() {
