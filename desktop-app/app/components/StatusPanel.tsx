@@ -80,8 +80,9 @@ export function StatusPanel({ data, onChange, raceCondition }: StatusPanelProps)
   const styleKey = getStyleKey(data.strategy);
 
   return (
-    <div className="w-full flex flex-col gap-4">
-      <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-5">
+    <div className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl p-5 flex flex-col gap-6">
+      {/* 基礎能力 */}
+      <div>
         <h3 className="text-zinc-200 font-bold mb-4 text-sm border-b border-zinc-800 pb-2">基礎能力</h3>
         <div className="flex flex-wrap gap-4">
           {renderStatInput('スピード', 'speed', 'text-blue-400')}
@@ -92,9 +93,11 @@ export function StatusPanel({ data, onChange, raceCondition }: StatusPanelProps)
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-4">
-        <div className="flex-1 bg-zinc-900/50 border border-zinc-800 rounded-xl p-5 min-w-[280px]">
-          <h3 className="text-zinc-200 font-bold mb-4 text-sm border-b border-zinc-800 pb-2">コンディション・作戦</h3>
+      {/* 作戦・適性・コンディション */}
+      <div>
+        <h3 className="text-zinc-200 font-bold mb-4 text-sm border-b border-zinc-800 pb-2">作戦・適性・コンディション</h3>
+        <div className="flex flex-col gap-4">
+          {/* 1行目: 作戦・適性×3・調子 */}
           <div className="flex flex-wrap gap-4">
             <div className="flex flex-col gap-1">
               <span className="text-xs font-semibold text-zinc-400">作戦</span>
@@ -106,6 +109,11 @@ export function StatusPanel({ data, onChange, raceCondition }: StatusPanelProps)
                 {STRATEGIES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
             </div>
+            
+            {renderAptitudeSelect(`${APTITUDE_LABELS[surfaceKey]}適性`, surfaceKey)}
+            {renderAptitudeSelect(`${APTITUDE_LABELS[distanceKey]}適性`, distanceKey)}
+            {renderAptitudeSelect(`${APTITUDE_LABELS[styleKey]}適性`, styleKey)}
+
             <div className="flex flex-col gap-1">
               <span className="text-xs font-semibold text-zinc-400">調子</span>
               <select
@@ -116,6 +124,10 @@ export function StatusPanel({ data, onChange, raceCondition }: StatusPanelProps)
                 {CONDITIONS.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
               </select>
             </div>
+          </div>
+
+          {/* 2行目: 人気・ゲート番号 */}
+          <div className="flex flex-wrap gap-4">
             <div className="flex flex-col gap-1">
               <span className="text-xs font-semibold text-zinc-400">人気</span>
               <select
@@ -128,6 +140,7 @@ export function StatusPanel({ data, onChange, raceCondition }: StatusPanelProps)
                 ))}
               </select>
             </div>
+            
             <div className="flex flex-col gap-1">
               <span className="text-xs font-semibold text-zinc-400">ゲート番号</span>
               <select
@@ -141,15 +154,6 @@ export function StatusPanel({ data, onChange, raceCondition }: StatusPanelProps)
                 ))}
               </select>
             </div>
-          </div>
-        </div>
-
-        <div className="flex-1 bg-zinc-900/50 border border-zinc-800 rounded-xl p-5 min-w-[280px]">
-          <h3 className="text-zinc-200 font-bold mb-4 text-sm border-b border-zinc-800 pb-2">適性</h3>
-          <div className="flex gap-4">
-            {renderAptitudeSelect(`${APTITUDE_LABELS[surfaceKey]}適性`, surfaceKey)}
-            {renderAptitudeSelect(`${APTITUDE_LABELS[distanceKey]}適性`, distanceKey)}
-            {renderAptitudeSelect(`${APTITUDE_LABELS[styleKey]}適性`, styleKey)}
           </div>
         </div>
       </div>
