@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
-import { UmaStatusData } from '../lib/types';
+import { UmaStatusData, RawSkillData } from '../lib/types';
 import { fetchSkillData } from '../lib/engine/umaemuAdapter';
 
 // スキル選択用のオプションはAPIから取得する
@@ -72,8 +72,8 @@ export function StatusEditor({ initialData, onSave }: StatusEditorProps) {
     try {
       const skillsData = await fetchSkillData();
       // GitHubから取得したJSONの配列からスキル名だけを抽出
-      const names = Array.from(new Set(skillsData.map((s: any) => s.name)));
-      const options = names.map((name: any) => ({ value: name, label: name }));
+      const names = Array.from(new Set(skillsData.map((s: RawSkillData) => s.name)));
+      const options = names.map((name: string) => ({ value: name, label: name }));
       setSkillOptions(options);
     } catch (err) {
       console.error("Failed to load skills for editor:", err);

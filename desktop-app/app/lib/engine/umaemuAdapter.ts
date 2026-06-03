@@ -1,19 +1,19 @@
-import { UmaStatusData } from "../types";
+import { UmaStatusData, RawSkillData } from "../types";
 
 let cachedEngine: any = null;
 let engineLoadPromise: Promise<any> | null = null;
 let cachedSkillsJson: string | null = null;
 let isEngineInitialized = false;
 
-export async function fetchSkillData() {
-  if (cachedSkillsJson) return JSON.parse(cachedSkillsJson);
+export async function fetchSkillData(): Promise<RawSkillData[]> {
+  if (cachedSkillsJson) return JSON.parse(cachedSkillsJson) as RawSkillData[];
   
   try {
     const res = await fetch("https://raw.githubusercontent.com/mee1080/umasim/refs/heads/main/data/skill_data.txt");
     if (!res.ok) throw new Error("Failed to fetch skill data");
     const text = await res.text();
     cachedSkillsJson = text;
-    return JSON.parse(text);
+    return JSON.parse(text) as RawSkillData[];
   } catch (error) {
     console.error("Failed to fetch skill data from GitHub:", error);
     throw error;

@@ -45,3 +45,8 @@ export interface UmaStatusData {
   };
   skills: string[];
 }
+
+export interface RawSkillData {
+  name: string;
+  [key: string]: any;
+}
