@@ -13,8 +13,8 @@
     "windows": [
       {
         "title": "ウマ娘 レースアナライザー",
-        "width": 800,
-        "height": 600,
+        "width": 1382,
+        "height": 808,
         "resizable": true,
         "fullscreen": false
       }
