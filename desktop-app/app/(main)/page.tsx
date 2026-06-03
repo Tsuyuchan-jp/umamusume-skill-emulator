@@ -555,7 +555,7 @@ export default function Home() {
             >
               {isSimulating && simulationProgress && (
                 <div 
-                  className="absolute inset-y-0 left-0 bg-emerald-400/50 transition-all duration-100 ease-linear"
+                  className="absolute inset-y-0 left-0 bg-wave-pattern animate-wave-pan transition-all duration-100 ease-linear opacity-40"
                   style={{ width: `${(simulationProgress.current / simulationProgress.total) * 100}%` }}
                 />
               )}
