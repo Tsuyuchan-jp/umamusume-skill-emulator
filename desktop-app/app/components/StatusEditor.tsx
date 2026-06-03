@@ -65,18 +65,23 @@ export function StatusEditor({ initialData, onSave }: StatusEditorProps) {
     }
   }, [initialData]);
 
-  useEffect(() => {
-    async function loadSkills() {
-      try {
-        const skillsData = await fetchSkillData();
-        // GitHubから取得したJSONの配列からスキル名だけを抽出
-        const names = Array.from(new Set(skillsData.map((s: any) => s.name)));
-        const options = names.map((name: any) => ({ value: name, label: name }));
-        setSkillOptions(options);
-      } catch (err) {
-        console.error("Failed to load skills for editor:", err);
-      }
+  const [skillLoadError, setSkillLoadError] = useState<boolean>(false);
+
+  const loadSkills = async () => {
+    setSkillLoadError(false);
+    try {
+      const skillsData = await fetchSkillData();
+      // GitHubから取得したJSONの配列からスキル名だけを抽出
+      const names = Array.from(new Set(skillsData.map((s: any) => s.name)));
+      const options = names.map((name: any) => ({ value: name, label: name }));
+      setSkillOptions(options);
+    } catch (err) {
+      console.error("Failed to load skills for editor:", err);
+      setSkillLoadError(true);
     }
+  };
+
+  useEffect(() => {
     loadSkills();
   }, []);
 
@@ -190,6 +195,17 @@ export function StatusEditor({ initialData, onSave }: StatusEditorProps) {
       {/* スキル */}
       <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-5 mb-6">
         <h3 className="text-zinc-200 font-bold mb-4 text-sm border-b border-zinc-800 pb-2">取得スキル</h3>
+        {skillLoadError && (
+          <div className="bg-rose-500/10 border border-rose-500/30 text-rose-400 p-3 rounded-lg mb-4 text-sm flex items-center justify-between">
+            <span>スキルの読み込みに失敗しました。ネットワークを確認してください。</span>
+            <button 
+              onClick={loadSkills}
+              className="bg-rose-500/20 hover:bg-rose-500/40 text-rose-300 px-3 py-1 rounded transition-colors"
+            >
+              再試行
+            </button>
+          </div>
+        )}
         <div className="flex items-center gap-2 mb-4">
           <div className="flex-1">
             <Select
