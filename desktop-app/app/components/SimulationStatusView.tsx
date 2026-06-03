@@ -23,17 +23,17 @@ export default function SimulationStatusView({ umaData, raceCondition }: Simulat
   const styleKey = getStyleKey(umaData.strategy || "NIGE");
 
   const renderAptitudeBadge = (label: string, value: string) => {
-    // S〜Gの色分け（簡易的）
-    let colorClass = "text-zinc-400 bg-zinc-800 border-zinc-700";
-    if (value === "S") colorClass = "text-amber-300 bg-amber-500/10 border-amber-500/30";
-    else if (value === "A") colorClass = "text-rose-400 bg-rose-500/10 border-rose-500/30";
-    else if (value === "B") colorClass = "text-pink-400 bg-pink-500/10 border-pink-500/30";
-    else if (value === "C" || value === "D") colorClass = "text-blue-400 bg-blue-500/10 border-blue-500/30";
+    // S〜Gの色分け
+    let colorClass = "text-zinc-400 bg-zinc-500/10 border-zinc-500/20";
+    if (value === "S") colorClass = "text-amber-400 bg-amber-500/10 border-amber-500/20";
+    else if (value === "A") colorClass = "text-rose-400 bg-rose-500/10 border-rose-500/20";
+    else if (value === "B") colorClass = "text-pink-400 bg-pink-500/10 border-pink-500/20";
+    else if (value === "C" || value === "D") colorClass = "text-blue-400 bg-blue-500/10 border-blue-500/20";
 
     return (
-      <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-zinc-950 border border-zinc-800">
-        <span className="text-[10px] text-zinc-500">{label}</span>
-        <span className={`text-xs font-bold px-1.5 rounded ${colorClass}`}>{value}</span>
+      <div className={`flex items-center gap-2 px-3 py-1 rounded border ${colorClass}`}>
+        <span className="text-xs font-bold opacity-80">{label}</span>
+        <span className="text-sm font-black">{value}</span>
       </div>
     );
   };
