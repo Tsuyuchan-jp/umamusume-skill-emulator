@@ -58,6 +58,7 @@ export default function Home() {
   const activeTab = tabs.find(t => t.id === activeTabId) || null;
   const [isPreviewExpanded, setIsPreviewExpanded] = useState<boolean>(true); // プレビューの開閉
   const [isSimulating, setIsSimulating] = useState<boolean>(false); // シミュレーション実行中
+  const [simulationCount, setSimulationCount] = useState<number>(100); // シミュレーション回数
 
   // レース環境ステート
   const [raceCondition, setRaceCondition] = useState<RaceCondition>({
@@ -155,6 +156,10 @@ export default function Home() {
     const savedApiKey = localStorage.getItem("geminiApiKey");
     if (savedApiKey) {
       setApiKey(savedApiKey);
+    }
+    const savedSimCount = localStorage.getItem("simulationCount");
+    if (savedSimCount) {
+      setSimulationCount(parseInt(savedSimCount, 10));
     }
   }, []);
 
@@ -456,18 +461,54 @@ export default function Home() {
             {/* 3. スキル */}
             <SkillPanel data={umaData} onChange={setUmaData} />
 
-            <button
-              onClick={async () => {
-                if (!umaData) return;
-                if (!umaData.strategy || umaData.strategy === "") {
-                  showToastMessage("作戦が未選択です。ステータス枠から作戦を選択してください！", "error", 5000);
-                  return;
-                }
-                setIsSimulating(true);
-                showToastMessage('100回シミュレーションを実行中...', 'success', 3000);
-                try {
-                  const { runMultipleSimulations } = await import('../lib/engine/umaemuAdapter');
-                  const simResult = await runMultipleSimulations(umaData, raceCondition, 100);
+            {/* シミュレーション設定 & 実行 */}
+            <div className="flex flex-col gap-3 sticky bottom-0 z-20 pb-4 bg-[#09090b] pt-4 border-t border-zinc-900/50">
+              <div className="flex items-center gap-3 bg-zinc-900/80 border border-zinc-800 rounded-xl p-3 backdrop-blur-md">
+                <span className="text-sm font-bold text-zinc-300 whitespace-nowrap">試行回数</span>
+                <input
+                  type="number"
+                  min="1"
+                  max="100000"
+                  value={simulationCount}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value) || 100;
+                    setSimulationCount(val);
+                    localStorage.setItem("simulationCount", val.toString());
+                  }}
+                  className="bg-zinc-950 border border-zinc-700 rounded-lg px-3 py-1.5 text-sm text-zinc-100 outline-none focus:border-emerald-500 w-24 font-mono font-bold"
+                />
+                <div className="flex items-center gap-1.5 ml-auto">
+                  {[100, 1000, 10000].map(num => (
+                    <button
+                      key={num}
+                      onClick={() => {
+                        setSimulationCount(num);
+                        localStorage.setItem("simulationCount", num.toString());
+                      }}
+                      className={`px-2.5 py-1 text-xs font-bold rounded-md transition-all ${
+                        simulationCount === num
+                          ? 'bg-emerald-500 text-white shadow-md'
+                          : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200'
+                      }`}
+                    >
+                      {num.toLocaleString()}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <button
+                onClick={async () => {
+                  if (!umaData) return;
+                  if (!umaData.strategy || umaData.strategy === "") {
+                    showToastMessage("作戦が未選択です。ステータス枠から作戦を選択してください！", "error", 5000);
+                    return;
+                  }
+                  setIsSimulating(true);
+                  showToastMessage(`${simulationCount.toLocaleString()}回シミュレーションを実行中...`, 'success', 3000);
+                  try {
+                    const { runMultipleSimulations } = await import('../lib/engine/umaemuAdapter');
+                    const simResult = await runMultipleSimulations(umaData, raceCondition, simulationCount);
                   
                   // サムネイル画像の生成
                   let thumbUrl = null;
@@ -492,7 +533,7 @@ export default function Home() {
                   setTabs(prev => [...prev, newTab]);
                   setActiveTabId(newTabId);
                   
-                  showToastMessage(`100回のシミュレーションが完了しました！`, 'success', 5000);
+                  showToastMessage(`${simulationCount.toLocaleString()}回のシミュレーションが完了しました！`, 'success', 5000);
                 } catch (e: any) {
                   console.error("Simulation error:", e);
                   const msg = e && e.message ? e.message : String(e);
@@ -502,9 +543,9 @@ export default function Home() {
                 }
               }}
               disabled={isSimulating}
-              className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg hover:shadow-emerald-500/20 active:scale-[0.98] flex items-center justify-center gap-2 sticky bottom-0 z-20 disabled:opacity-50"
+              className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg hover:shadow-emerald-500/20 active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50"
             >
-              {isSimulating ? "実行中..." : "🚀 100回シミュレーションを実行"}
+              {isSimulating ? "実行中..." : `🚀 ${simulationCount.toLocaleString()}回シミュレーションを実行`}
             </button>
           </div>
         )}
@@ -599,7 +640,8 @@ export default function Home() {
                       parts.push(`${uma.gateNumber}番ゲート`);
                     }
                     
-                    parts.push('100走');
+                    const runCount = activeTab.simResultDump?.length || simulationCount;
+                    parts.push(`${runCount.toLocaleString()}走`);
                     return parts.join(' / ');
                   })()}
                 </span>
@@ -635,7 +677,7 @@ export default function Home() {
                         ...activeTab.umaData,
                         skills: activeTab.umaData.skills.filter(s => !activeTab.disabledSkills.includes(s))
                       };
-                      const simResult = await runMultipleSimulations(clonedUmaData, raceCondition, 100);
+                      const simResult = await runMultipleSimulations(clonedUmaData, raceCondition, simulationCount);
                       
                       setTabs(prev => prev.map(t => {
                         if (t.id === activeTabId) {
