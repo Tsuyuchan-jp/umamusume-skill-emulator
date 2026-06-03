@@ -59,6 +59,7 @@ export interface SimTab {
   id: string;
   title: string;
   umaData: UmaStatusData;
+  raceCondition: any; // RaceCondition from components
   simResultDump: any;
   baselineResult: any;
   disabledSkills: string[];

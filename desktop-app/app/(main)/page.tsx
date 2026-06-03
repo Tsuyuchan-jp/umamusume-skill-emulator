@@ -18,6 +18,7 @@ import { analyzeStitchedImage } from "../lib/geminiOcr";
 import { UmaStatusData, SimTab } from "../lib/types";
 import { ResultCard } from "../components/ResultCard";
 import { SkillVerifier } from "../components/SkillVerifier";
+import { trackData } from "../lib/trackData";
 
 export default function Home() {
   const {
@@ -477,6 +478,7 @@ export default function Home() {
                     id: newTabId,
                     title: `ウマ娘 ${tabs.length + 1}`,
                     umaData: { ...umaData },
+                    raceCondition: { ...raceCondition },
                     simResultDump: simResult,
                     baselineResult: simResult,
                     disabledSkills: [],
@@ -568,7 +570,25 @@ export default function Home() {
               <div className="flex items-center gap-3 mb-8">
                 <div className="w-2 h-8 bg-blue-500 rounded-full"></div>
                 <h2 className="text-2xl font-bold text-zinc-100">シミュレーション結果</h2>
-                <span className="ml-auto text-zinc-500 text-sm">東京 芝 2400m / 100走</span>
+                <span className="ml-auto text-zinc-500 text-sm font-medium">
+                  {(() => {
+                    if (!activeTab || !activeTab.raceCondition) return "東京 芝 2400m / 100走";
+                    const cond = activeTab.raceCondition;
+                    const uma = activeTab.umaData;
+                    const loc = trackData.find(l => l.id === cond.locationId);
+                    const course = loc?.courses.find(c => c.id === cond.courseId);
+                    const SURFACE_MAP: Record<number, string> = { 1: '良', 2: '稍重', 3: '重', 4: '不良' };
+                    const parts = [];
+                    if (loc && course) parts.push(`${loc.name} ${course.name}`);
+                    if (SURFACE_MAP[cond.surfaceCond]) parts.push(SURFACE_MAP[cond.surfaceCond]);
+                    if (cond.playerNum) parts.push(`${cond.playerNum}人`);
+                    if (uma?.condition) parts.push(uma.condition);
+                    if (uma?.popularity) parts.push(`${uma.popularity}番人気`);
+                    if (uma?.gateNumber) parts.push(`${uma.gateNumber}番ゲート`);
+                    parts.push('100走');
+                    return parts.join(' / ');
+                  })()}
+                </span>
               </div>
               <ResultCard result={activeTab.simResultDump} baseline={activeTab.baselineResult} />
 
