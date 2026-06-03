@@ -525,10 +525,10 @@ export default function Home() {
                     <div 
                       key={tab.id}
                       onClick={() => setActiveTabId(tab.id)}
-                      className={`group relative flex-shrink-0 cursor-pointer overflow-hidden rounded-xl border-2 transition-all duration-300 h-14 ${
+                      className={`group relative flex-shrink-0 cursor-pointer overflow-hidden rounded-xl border-2 transition-all duration-300 h-16 ${
                         isActive 
-                          ? 'border-emerald-500 w-[200px] opacity-100 shadow-[0_0_15px_rgba(16,185,129,0.3)] z-10' 
-                          : 'border-transparent w-40 opacity-60 hover:opacity-100 hover:border-zinc-700'
+                          ? 'border-emerald-500 w-56 opacity-100 shadow-[0_0_15px_rgba(16,185,129,0.3)] z-10' 
+                          : 'border-transparent w-48 opacity-60 hover:opacity-100 hover:border-zinc-700'
                       }`}
                     >
                       {tab.thumbnailUrl ? (
