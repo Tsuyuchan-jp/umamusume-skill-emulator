@@ -20,15 +20,32 @@ export async function fetchSkillData() {
 }
 
 export async function loadUmasimEngine() {
-  if (cachedEngine) return cachedEngine;
-  try {
-    const wasmModule = await import('./umaemu/race.js');
-    cachedEngine = wasmModule;
-    return wasmModule;
-  } catch (error) {
-    console.error("Failed to load umasim engine:", error);
-    throw error;
+  if (typeof window === 'undefined') {
+    throw new Error("WASM engine can only be loaded in the browser");
   }
+  
+  if (cachedEngine) return cachedEngine;
+
+  return new Promise((resolve, reject) => {
+    if ((window as any).race) {
+      Promise.resolve((window as any).race).then((engine) => {
+        cachedEngine = engine;
+        resolve(engine);
+      }).catch(reject);
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = '/umaemu/race.js';
+    script.onload = () => {
+      Promise.resolve((window as any).race).then((engine) => {
+        cachedEngine = engine;
+        resolve(engine);
+      }).catch(reject);
+    };
+    script.onerror = () => reject(new Error("Failed to load race.js script"));
+    document.body.appendChild(script);
+  });
 }
 
 export async function initializeUmasimEngine() {
