@@ -80,80 +80,76 @@ export function StatusPanel({ data, onChange, raceCondition }: StatusPanelProps)
   const styleKey = getStyleKey(data.strategy);
 
   return (
-    <div className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl p-5 flex flex-col gap-6">
+    <div className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl p-5 flex flex-col gap-5">
+      <h3 className="text-zinc-200 font-bold text-sm border-b border-zinc-800 pb-2">ステータス</h3>
+      
       {/* 基礎能力 */}
-      <div>
-        <h3 className="text-zinc-200 font-bold mb-4 text-sm border-b border-zinc-800 pb-2">基礎能力</h3>
-        <div className="flex flex-wrap gap-4">
-          {renderStatInput('スピード', 'speed', 'text-blue-400')}
-          {renderStatInput('スタミナ', 'stamina', 'text-orange-400')}
-          {renderStatInput('パワー', 'power', 'text-rose-400')}
-          {renderStatInput('根性', 'guts', 'text-pink-400')}
-          {renderStatInput('賢さ', 'wisdom', 'text-green-400')}
-        </div>
+      <div className="flex flex-wrap gap-4">
+        {renderStatInput('スピード', 'speed', 'text-blue-400')}
+        {renderStatInput('スタミナ', 'stamina', 'text-orange-400')}
+        {renderStatInput('パワー', 'power', 'text-rose-400')}
+        {renderStatInput('根性', 'guts', 'text-pink-400')}
+        {renderStatInput('賢さ', 'wisdom', 'text-green-400')}
       </div>
 
       {/* 作戦・適性・コンディション */}
-      <div>
-        <h3 className="text-zinc-200 font-bold mb-4 text-sm border-b border-zinc-800 pb-2">作戦・適性・コンディション</h3>
-        <div className="flex flex-col gap-4">
-          {/* 1行目: 作戦・適性×3・調子 */}
-          <div className="flex flex-wrap gap-4">
-            <div className="flex flex-col gap-1">
-              <span className="text-xs font-semibold text-zinc-400">作戦</span>
-              <select
-                value={data.strategy || "NIGE"}
-                onChange={(e) => updateStat('strategy', e.target.value)}
-                className="bg-zinc-950 border border-zinc-800 rounded-md px-2 py-1.5 text-sm outline-none focus:border-zinc-500 text-zinc-200"
-              >
-                {STRATEGIES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-              </select>
-            </div>
-            
-            {renderAptitudeSelect(`${APTITUDE_LABELS[surfaceKey]}適性`, surfaceKey)}
-            {renderAptitudeSelect(`${APTITUDE_LABELS[distanceKey]}適性`, distanceKey)}
-            {renderAptitudeSelect(`${APTITUDE_LABELS[styleKey]}適性`, styleKey)}
-
-            <div className="flex flex-col gap-1">
-              <span className="text-xs font-semibold text-zinc-400">調子</span>
-              <select
-                value={data.condition || "BEST"}
-                onChange={(e) => updateStat('condition', e.target.value)}
-                className="bg-zinc-950 border border-zinc-800 rounded-md px-2 py-1.5 text-sm outline-none focus:border-zinc-500 text-zinc-200"
-              >
-                {CONDITIONS.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
-              </select>
-            </div>
+      <div className="flex flex-col gap-4 mt-2">
+        {/* 1行目: 作戦・適性×3・調子 */}
+        <div className="flex flex-wrap gap-4">
+          <div className="flex flex-col gap-1">
+            <span className="text-xs font-bold text-amber-400">作戦</span>
+            <select
+              value={data.strategy || "NIGE"}
+              onChange={(e) => updateStat('strategy', e.target.value)}
+              className="bg-zinc-950 border border-zinc-800 rounded-md px-2 py-1.5 text-sm outline-none focus:border-zinc-500 text-zinc-200"
+            >
+              {STRATEGIES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+            </select>
           </div>
+          
+          {renderAptitudeSelect(`${APTITUDE_LABELS[surfaceKey]}適性`, surfaceKey)}
+          {renderAptitudeSelect(`${APTITUDE_LABELS[distanceKey]}適性`, distanceKey)}
+          {renderAptitudeSelect(`${APTITUDE_LABELS[styleKey]}適性`, styleKey)}
 
-          {/* 2行目: 人気・ゲート番号 */}
-          <div className="flex flex-wrap gap-4">
-            <div className="flex flex-col gap-1">
-              <span className="text-xs font-semibold text-zinc-400">人気</span>
-              <select
-                value={data.popularity || 1}
-                onChange={(e) => updateStat('popularity', parseInt(e.target.value))}
-                className="bg-zinc-950 border border-zinc-800 rounded-md px-2 py-1.5 text-sm outline-none focus:border-zinc-500 text-zinc-200"
-              >
-                {Array.from({ length: 18 }, (_, i) => i + 1).map(n => (
-                  <option key={n} value={n}>{n}</option>
-                ))}
-              </select>
-            </div>
-            
-            <div className="flex flex-col gap-1">
-              <span className="text-xs font-semibold text-zinc-400">ゲート番号</span>
-              <select
-                value={data.gateNumber !== undefined ? data.gateNumber : 0}
-                onChange={(e) => updateStat('gateNumber', parseInt(e.target.value))}
-                className="bg-zinc-950 border border-zinc-800 rounded-md px-2 py-1.5 text-sm outline-none focus:border-zinc-500 text-zinc-200"
-              >
-                <option value={0}>ランダム</option>
-                {Array.from({ length: 18 }, (_, i) => i + 1).map(n => (
-                  <option key={n} value={n}>{n}</option>
-                ))}
-              </select>
-            </div>
+          <div className="flex flex-col gap-1">
+            <span className="text-xs font-semibold text-zinc-400">調子</span>
+            <select
+              value={data.condition || "BEST"}
+              onChange={(e) => updateStat('condition', e.target.value)}
+              className="bg-zinc-950 border border-zinc-800 rounded-md px-2 py-1.5 text-sm outline-none focus:border-zinc-500 text-zinc-200"
+            >
+              {CONDITIONS.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+            </select>
+          </div>
+        </div>
+
+        {/* 2行目: 人気・ゲート番号 */}
+        <div className="flex flex-wrap gap-4">
+          <div className="flex flex-col gap-1">
+            <span className="text-xs font-semibold text-zinc-400">人気</span>
+            <select
+              value={data.popularity || 1}
+              onChange={(e) => updateStat('popularity', parseInt(e.target.value))}
+              className="bg-zinc-950 border border-zinc-800 rounded-md px-2 py-1.5 text-sm outline-none focus:border-zinc-500 text-zinc-200"
+            >
+              {Array.from({ length: 18 }, (_, i) => i + 1).map(n => (
+                <option key={n} value={n}>{n}</option>
+              ))}
+            </select>
+          </div>
+          
+          <div className="flex flex-col gap-1">
+            <span className="text-xs font-semibold text-zinc-400">ゲート番号</span>
+            <select
+              value={data.gateNumber !== undefined ? data.gateNumber : 0}
+              onChange={(e) => updateStat('gateNumber', parseInt(e.target.value))}
+              className="bg-zinc-950 border border-zinc-800 rounded-md px-2 py-1.5 text-sm outline-none focus:border-zinc-500 text-zinc-200"
+            >
+              <option value={0}>ランダム</option>
+              {Array.from({ length: 18 }, (_, i) => i + 1).map(n => (
+                <option key={n} value={n}>{n}</option>
+              ))}
+            </select>
           </div>
         </div>
       </div>
