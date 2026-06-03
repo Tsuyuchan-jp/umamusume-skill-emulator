@@ -104,6 +104,28 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, baseline }) => {
         </div>
       </div>
 
+      {/* スタミナ評価バッジ (スパート分析の代替) */}
+      <div className={`flex items-center justify-between px-4 py-2 rounded-lg border ${
+        (maxSpurt?.count || 0) === result.iterations 
+          ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+          : 'bg-red-500/10 border-red-500/20 text-red-400'
+      }`}>
+        <div className="flex items-center gap-2">
+          <span>{(maxSpurt?.count || 0) === result.iterations ? '✅' : '⚠️'}</span>
+          <span className="text-sm font-bold">
+            {(maxSpurt?.count || 0) === result.iterations ? 'スパート完走 (全レースで最大スパート成功)' : 'スタミナ切れリスクあり (最大スパート失敗が発生)'}
+          </span>
+        </div>
+        <div className="flex gap-4 text-xs font-bold items-center">
+          <span>最大スパート率: {formatPercent((maxSpurt?.count || 0) / result.iterations)}</span>
+          {(nonMaxSpurt && nonMaxSpurt.count > 0) && (
+            <span className="opacity-80 font-normal">
+              (失敗時平均: {formatTime(nonMaxSpurt.avgTime)})
+            </span>
+          )}
+        </div>
+      </div>
+
       {/* サブKPI グリッド */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 flex flex-col">
@@ -150,51 +172,6 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, baseline }) => {
           </div>
         </div>
       </div>
-
-      {/* スパート分析 */}
-      <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-5">
-        <h3 className="text-sm font-bold text-zinc-300 mb-4 flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-indigo-500"></div>
-          スパート分析 (計 {result.iterations}走)
-        </h3>
-        
-        <div className="space-y-4">
-          <div className="flex items-center justify-between p-3 bg-zinc-950/50 rounded-lg border border-zinc-800/50">
-            <div className="flex flex-col">
-              <span className="text-zinc-300 font-bold text-sm">最大スパート成功</span>
-              <span className="text-zinc-500 text-xs">十分なスタミナでスパートしきれたレース</span>
-            </div>
-            <div className="flex items-center gap-6">
-              <div className="flex flex-col items-end">
-                <span className="text-xs text-zinc-500 mb-1">平均タイム</span>
-                <span className="text-sm font-mono text-emerald-400">{formatTime(maxSpurt?.avgTime || 0)}</span>
-              </div>
-              <div className="flex flex-col items-end w-20">
-                <span className="text-xs text-zinc-500 mb-1">発生率</span>
-                <span className="text-lg font-bold text-zinc-100">{formatPercent((maxSpurt?.count || 0) / result.iterations)}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between p-3 bg-zinc-950/50 rounded-lg border border-zinc-800/50">
-            <div className="flex flex-col">
-              <span className="text-zinc-400 font-bold text-sm">スタミナ切れ (非最大スパート)</span>
-              <span className="text-zinc-600 text-xs">スタミナが足りず失速したレース</span>
-            </div>
-            <div className="flex items-center gap-6 opacity-70">
-              <div className="flex flex-col items-end">
-                <span className="text-xs text-zinc-500 mb-1">平均タイム</span>
-                <span className="text-sm font-mono text-red-400">{nonMaxSpurt ? formatTime(nonMaxSpurt.avgTime) : "---"}</span>
-              </div>
-              <div className="flex flex-col items-end w-20">
-                <span className="text-xs text-zinc-500 mb-1">発生率</span>
-                <span className="text-lg font-bold text-zinc-400">{nonMaxSpurt ? formatPercent(nonMaxSpurt.count / result.iterations) : "0.0%"}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
     </div>
   );
 };

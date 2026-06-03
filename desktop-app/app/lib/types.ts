@@ -54,3 +54,13 @@ export interface RawSkillData {
   name: string;
   [key: string]: any;
 }
+
+export interface SimTab {
+  id: string;
+  title: string;
+  umaData: UmaStatusData;
+  simResultDump: any;
+  baselineResult: any;
+  disabledSkills: string[];
+  thumbnailUrl: string | null;
+}

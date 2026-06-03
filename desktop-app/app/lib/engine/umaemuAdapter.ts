@@ -2,10 +2,7 @@ import { UmaStatusData, RawSkillData } from "../types";
 import type { RaceCondition } from "../../components/RaceConditionSelector";
 import { getCourseById, getSurfaceKey, getDistanceKey, getStyleKey } from "../aptitudeHelper";
 
-let cachedEngine: any = null;
-let engineLoadPromise: Promise<any> | null = null;
 let cachedSkillsJson: string | null = null;
-let isEngineInitialized = false;
 
 export async function fetchSkillData(): Promise<RawSkillData[]> {
   if (cachedSkillsJson) return JSON.parse(cachedSkillsJson) as RawSkillData[];
@@ -22,73 +19,50 @@ export async function fetchSkillData(): Promise<RawSkillData[]> {
   }
 }
 
-export async function loadUmasimEngine() {
+let worker: Worker | null = null;
+let currentMessageId = 0;
+const pendingRequests = new Map<number, { resolve: (val: any) => void, reject: (err: any) => void }>();
+
+function getWorker(): Worker {
   if (typeof window === 'undefined') {
     throw new Error("WASM engine can only be loaded in the browser");
   }
-  
-  if (cachedEngine) return cachedEngine;
-  if (engineLoadPromise) return engineLoadPromise;
 
-  engineLoadPromise = new Promise((resolve, reject) => {
-    if ((window as any).race) {
-      Promise.resolve((window as any).race).then((engine) => {
-        cachedEngine = engine;
-        resolve(engine);
-      }).catch(reject);
-      return;
+  if (worker) return worker;
+  
+  worker = new Worker('/umaemu/worker.js');
+  worker.onmessage = (event) => {
+    const { id, type, results, error } = event.data;
+    const req = pendingRequests.get(id);
+    if (!req) return;
+    
+    pendingRequests.delete(id);
+    if (type === 'SUCCESS') {
+      req.resolve(results);
+    } else {
+      // Crash or error in worker
+      worker?.terminate();
+      worker = null;
+      req.reject(new Error(error));
     }
-
-    const script = document.createElement('script');
-    script.src = '/umaemu/race.js';
-    script.onload = () => {
-      Promise.resolve((window as any).race).then((engine) => {
-        cachedEngine = engine;
-        resolve(engine);
-      }).catch((err) => {
-        engineLoadPromise = null;
-        reject(err);
-      });
-    };
-    script.onerror = () => {
-      engineLoadPromise = null;
-      reject(new Error("Failed to load race.js script"));
-    };
-    document.body.appendChild(script);
-  });
-
-  return engineLoadPromise;
+  };
+  worker.onerror = (err) => {
+    // If worker crashes fundamentally (e.g., OOM)
+    pendingRequests.forEach(req => req.reject(new Error(err.message || String(err))));
+    pendingRequests.clear();
+    worker?.terminate();
+    worker = null;
+  };
+  return worker;
 }
 
-export async function initializeUmasimEngine() {
-  if (isEngineInitialized) return;
-  
-  const [engine, _] = await Promise.all([
-    loadUmasimEngine(),
-    fetchSkillData()
-  ]);
-  
-  if (cachedSkillsJson) {
-    engine.initializeEngine(cachedSkillsJson);
-    isEngineInitialized = true;
-    console.log("WASM Engine initialized with skill data.");
+export function terminateWorker() {
+  if (worker) {
+    worker.terminate();
+    worker = null;
   }
-}
-
-export async function runUmaSimulation(data: UmaStatusData, raceCondition: RaceCondition): Promise<any> {
-  if (!isEngineInitialized) {
-    await initializeUmasimEngine();
-  }
-  const engine = cachedEngine;
-  const payload = createPayload(data, raceCondition);
-  const jsonInput = JSON.stringify(payload);
-  const jsonOutput = engine.runSimulation(jsonInput);
-  
-  const result = JSON.parse(jsonOutput);
-  if (result.error) {
-    throw new Error(result.error);
-  }
-  return result;
+  pendingRequests.forEach(req => req.reject(new Error("Worker terminated")));
+  pendingRequests.clear();
 }
 
 function createPayload(data: UmaStatusData, raceCondition: RaceCondition) {
@@ -125,30 +99,40 @@ function createPayload(data: UmaStatusData, raceCondition: RaceCondition) {
   };
 }
 
-
 export async function runMultipleSimulations(data: UmaStatusData, raceCondition: RaceCondition, iterations: number = 100): Promise<any> {
-  if (!isEngineInitialized) {
-    await initializeUmasimEngine();
+  if (!cachedSkillsJson) {
+    await fetchSkillData();
   }
-  const engine = cachedEngine;
   
   const payload = createPayload(data, raceCondition);
   const jsonInput = JSON.stringify(payload);
 
-  const results = [];
-  console.time(`Simulating ${iterations} times`);
+  const w = getWorker();
+  const id = ++currentMessageId;
   
-  // Note: Running 100 times synchronously. If iterations > 1000, we should yield to the event loop.
-  for (let i = 0; i < iterations; i++) {
-    const jsonOutput = engine.runSimulation(jsonInput);
-    const parsed = JSON.parse(jsonOutput);
-    if (parsed.error) {
-      throw new Error(parsed.error);
-    }
-    results.push(parsed);
+  const resultsPromise = new Promise<any[]>((resolve, reject) => {
+    pendingRequests.set(id, { resolve, reject });
+  });
+
+  console.time(`Simulating ${iterations} times via Worker`);
+  w.postMessage({
+    id,
+    type: 'SIMULATE',
+    payload: jsonInput,
+    iterations,
+    skillData: cachedSkillsJson
+  });
+
+  let results: any[];
+  try {
+    results = await resultsPromise;
+  } catch (error) {
+    console.error("Simulation crashed, worker was terminated.", error);
+    // Rethrow to let the UI handle the error and display a toast
+    throw error;
   }
   
-  console.timeEnd(`Simulating ${iterations} times`);
+  console.timeEnd(`Simulating ${iterations} times via Worker`);
 
   // Phase 16.5: 正しいキーによる集計ロジック
   const aggregateGroup = (groupResults: any[]) => {
@@ -209,4 +193,9 @@ export async function runMultipleSimulations(data: UmaStatusData, raceCondition:
     },
     rawSample: results[0]
   };
+}
+
+export async function runUmaSimulation(data: UmaStatusData, raceCondition: RaceCondition): Promise<any> {
+  const summary = await runMultipleSimulations(data, raceCondition, 1);
+  return summary.rawSample;
 }

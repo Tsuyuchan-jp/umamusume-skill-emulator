@@ -15,7 +15,7 @@ import { SettingsPanel } from "../components/SettingsPanel";
 import { ToastNotification } from "../components/ToastNotification";
 import { RaceConditionSelector, RaceCondition } from "../components/RaceConditionSelector";
 import { analyzeStitchedImage } from "../lib/geminiOcr";
-import { UmaStatusData } from "../lib/types";
+import { UmaStatusData, SimTab } from "../lib/types";
 import { ResultCard } from "../components/ResultCard";
 import { SkillVerifier } from "../components/SkillVerifier";
 
@@ -49,9 +49,12 @@ export default function Home() {
   const [showApiKeyModal, setShowApiKeyModal] = useState<boolean>(false);
   const [umaData, setUmaData] = useState<UmaStatusData | null>(null);
   const [isOcrProcessing, setIsOcrProcessing] = useState<boolean>(false);
-  const [simResultDump, setSimResultDump] = useState<any>(null); // デバッグ用結果ダンプ
-  const [baselineResult, setBaselineResult] = useState<any>(null); // ベース結果
-  const [disabledSkills, setDisabledSkills] = useState<string[]>([]); // 無効化スキル
+  
+  // 複数タブ管理用ステート
+  const [tabs, setTabs] = useState<SimTab[]>([]);
+  const [activeTabId, setActiveTabId] = useState<string | null>(null);
+  
+  const activeTab = tabs.find(t => t.id === activeTabId) || null;
   const [isPreviewExpanded, setIsPreviewExpanded] = useState<boolean>(true); // プレビューの開閉
   const [isSimulating, setIsSimulating] = useState<boolean>(false); // シミュレーション実行中
 
@@ -460,13 +463,34 @@ export default function Home() {
                 try {
                   const { runMultipleSimulations } = await import('../lib/engine/umaemuAdapter');
                   const simResult = await runMultipleSimulations(umaData, raceCondition, 100);
-                  setSimResultDump(simResult);
-                  setBaselineResult(simResult);
-                  setDisabledSkills([]);
+                  
+                  // サムネイル画像の生成
+                  let thumbUrl = null;
+                  if (resultImage) {
+                    const { cropThumbnail } = await import('../lib/imageUtils');
+                    thumbUrl = await cropThumbnail(resultImage);
+                  }
+
+                  // タブを追加
+                  const newTabId = Date.now().toString();
+                  const newTab: SimTab = {
+                    id: newTabId,
+                    title: `ウマ娘 ${tabs.length + 1}`,
+                    umaData: { ...umaData },
+                    simResultDump: simResult,
+                    baselineResult: simResult,
+                    disabledSkills: [],
+                    thumbnailUrl: thumbUrl
+                  };
+                  
+                  setTabs(prev => [...prev, newTab]);
+                  setActiveTabId(newTabId);
+                  
                   showToastMessage(`100回のシミュレーションが完了しました！`, 'success', 5000);
                 } catch (e: any) {
-                  console.error(e);
-                  showToastMessage(`シミュレーションエラー: ${e.message}`, 'error', 5000);
+                  console.error("Simulation error:", e);
+                  const msg = e && e.message ? e.message : String(e);
+                  showToastMessage(`シミュレーションエラー: ${msg}`, 'error', 5000);
                 } finally {
                   setIsSimulating(false);
                 }
@@ -491,42 +515,106 @@ export default function Home() {
       {/* 右カラム (結果アリーナ) */}
       <div className={`flex-1 h-full overflow-y-auto p-10 bg-[#09090b] relative scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent ${isResizing ? 'select-none pointer-events-none' : ''}`}>
         <div className="max-w-5xl mx-auto h-full">
-          {simResultDump ? (
+          {activeTab ? (
             <div className="animate-fadeIn">
+              {/* Tab Bar UI */}
+              <div className="flex gap-3 mb-6 border-b border-zinc-800 pb-4 overflow-x-auto scrollbar-thin">
+                {tabs.map(tab => {
+                  const isActive = activeTabId === tab.id;
+                  return (
+                    <div 
+                      key={tab.id}
+                      onClick={() => setActiveTabId(tab.id)}
+                      className={`group relative flex-shrink-0 cursor-pointer overflow-hidden rounded-xl border-2 transition-all duration-300 h-14 ${
+                        isActive 
+                          ? 'border-emerald-500 w-56 opacity-100 shadow-[0_0_15px_rgba(16,185,129,0.3)] z-10' 
+                          : 'border-transparent w-48 opacity-60 hover:opacity-100 hover:border-zinc-700'
+                      }`}
+                    >
+                      {tab.thumbnailUrl ? (
+                        <div className="w-full h-full relative bg-zinc-900 pointer-events-none">
+                          <img 
+                            src={tab.thumbnailUrl} 
+                            alt={tab.title} 
+                            className="w-full h-full object-cover"
+                          />
+                          <div className={`absolute inset-0 transition-opacity ${isActive ? 'bg-black/0' : 'bg-black/50 group-hover:bg-black/20'}`}></div>
+                        </div>
+                      ) : (
+                        <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
+                          <span className="text-sm font-bold text-zinc-400">{tab.title}</span>
+                        </div>
+                      )}
+                      
+                      {/* Close button */}
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setTabs(prev => prev.filter(t => t.id !== tab.id));
+                          if (activeTabId === tab.id) {
+                            const remaining = tabs.filter(t => t.id !== tab.id);
+                            setActiveTabId(remaining.length > 0 ? remaining[remaining.length - 1].id : null);
+                          }
+                        }}
+                        className={`absolute top-1.5 right-1.5 w-6 h-6 flex items-center justify-center rounded-full bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500 hover:text-white backdrop-blur-md`}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+
               <div className="flex items-center gap-3 mb-8">
                 <div className="w-2 h-8 bg-blue-500 rounded-full"></div>
                 <h2 className="text-2xl font-bold text-zinc-100">シミュレーション結果</h2>
                 <span className="ml-auto text-zinc-500 text-sm">東京 芝 2400m / 100走</span>
               </div>
-              <ResultCard result={simResultDump} baseline={baselineResult} />
+              <ResultCard result={activeTab.simResultDump} baseline={activeTab.baselineResult} />
 
               {/* スキル影響検証モード */}
-              {umaData && baselineResult && (
+              {activeTab.umaData && activeTab.baselineResult && (
                 <SkillVerifier
-                  umaData={umaData}
-                  disabledSkills={disabledSkills}
+                  umaData={activeTab.umaData}
+                  disabledSkills={activeTab.disabledSkills}
                   onToggleSkill={(skillName) => {
-                    setDisabledSkills(prev => 
-                      prev.includes(skillName) ? prev.filter(s => s !== skillName) : [...prev, skillName]
-                    );
+                    setTabs(prev => prev.map(t => {
+                      if (t.id === activeTabId) {
+                        return {
+                          ...t,
+                          disabledSkills: t.disabledSkills.includes(skillName)
+                            ? t.disabledSkills.filter(s => s !== skillName)
+                            : [...t.disabledSkills, skillName]
+                        };
+                      }
+                      return t;
+                    }));
                   }}
                   isSimulating={isSimulating}
                   onRunComparativeSimulation={async () => {
-                    if (!umaData) return;
+                    if (!activeTab.umaData) return;
                     setIsSimulating(true);
                     showToastMessage('検証シミュレーションを実行中...', 'success', 3000);
                     try {
                       const { runMultipleSimulations } = await import('../lib/engine/umaemuAdapter');
                       const clonedUmaData = {
-                        ...umaData,
-                        skills: umaData.skills.filter(s => !disabledSkills.includes(s))
+                        ...activeTab.umaData,
+                        skills: activeTab.umaData.skills.filter(s => !activeTab.disabledSkills.includes(s))
                       };
                       const simResult = await runMultipleSimulations(clonedUmaData, raceCondition, 100);
-                      setSimResultDump(simResult);
+                      
+                      setTabs(prev => prev.map(t => {
+                        if (t.id === activeTabId) {
+                          return { ...t, simResultDump: simResult };
+                        }
+                        return t;
+                      }));
+                      
                       showToastMessage(`比較検証が完了しました！`, 'success', 5000);
                     } catch (e: any) {
-                      console.error(e);
-                      showToastMessage(`検証エラー: ${e.message}`, 'error', 5000);
+                      console.error("Verification error:", e);
+                      const msg = e && e.message ? e.message : String(e);
+                      showToastMessage(`検証エラー: ${msg}`, 'error', 5000);
                     } finally {
                       setIsSimulating(false);
                     }
