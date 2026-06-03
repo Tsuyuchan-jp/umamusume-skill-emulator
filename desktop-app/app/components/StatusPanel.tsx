@@ -101,7 +101,7 @@ export function StatusPanel({ data, onChange, raceCondition }: StatusPanelProps)
             <select
               value={data.strategy || "NIGE"}
               onChange={(e) => updateStat('strategy', e.target.value)}
-              className="bg-zinc-950 border border-zinc-800 rounded-md px-2 py-1.5 text-sm outline-none focus:border-zinc-500 text-zinc-200"
+              className="bg-zinc-950 border border-amber-700/50 rounded-md px-2 py-1.5 text-sm outline-none focus:border-amber-500 text-zinc-200"
             >
               {STRATEGIES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
             </select>
