@@ -1,3 +1,4 @@
+// @ts-nocheck
 
 import type { RaceSimulator } from './RaceSimulator';
 import { normalSkillData, uniqueSkillData } from './data/skillData';
@@ -59,7 +60,7 @@ const inheritMap = {
   },
 };
 
-function toInheritValues(invoke) {
+function toInheritValues(invoke: any) {
   const ret = { ...invoke };
   for (const effect of effects) {
     if (invoke[effect] && inheritMap[effect]) {

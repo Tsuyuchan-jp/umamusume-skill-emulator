@@ -1,3 +1,4 @@
+// @ts-nocheck
 export function normalSkillData(thiz: any) {
   return [
     {
@@ -8394,7 +8395,7 @@ export const uniqueSkillData = (thiz: any) => [
     conditions: {
       distance_rate_random: [50, 100],
     },
-    trigger: function (thisSkill) {
+    trigger: function (thisSkill: any) {
       const candidates = [];
       for (const skill of thiz.invokedSkills) {
         if (

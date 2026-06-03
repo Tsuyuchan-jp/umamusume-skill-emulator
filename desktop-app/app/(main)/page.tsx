@@ -122,6 +122,11 @@ export default function Home() {
     if (savedApiKey) {
       setApiKey(savedApiKey);
     }
+    
+    // Umasimエンジンのロードテスト
+    import('../lib/engine/umaemuAdapter').then(({ loadUmasimEngine }) => {
+      loadUmasimEngine().catch(e => console.error(e));
+    });
   }, []);
 
   const handleOcrStart = async () => {
