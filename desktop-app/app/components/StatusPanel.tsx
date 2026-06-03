@@ -11,6 +11,11 @@ interface StatusPanelProps {
 }
 
 const APTITUDE_GRADES = ["S", "A", "B", "C", "D", "E", "F", "G"];
+const APTITUDE_LABELS: Record<string, string> = {
+  turf: "芝", dirt: "ダート",
+  short: "短距離", mile: "マイル", medium: "中距離", long: "長距離",
+  nige: "逃げ", senkou: "先行", sashi: "差し", oikomi: "追込"
+};
 const STRATEGIES = [
   { value: "NIGE", label: "逃げ" },
   { value: "SEN", label: "先行" },
@@ -143,9 +148,9 @@ export function StatusPanel({ data, onChange, raceCondition }: StatusPanelProps)
         <div className="flex-1 bg-zinc-900/50 border border-zinc-800 rounded-xl p-5 min-w-[280px]">
           <h3 className="text-zinc-200 font-bold mb-4 text-sm border-b border-zinc-800 pb-2">適性</h3>
           <div className="flex gap-4">
-            {renderAptitudeSelect('バ場適性', surfaceKey)}
-            {renderAptitudeSelect('距離適性', distanceKey)}
-            {renderAptitudeSelect('脚質適性', styleKey)}
+            {renderAptitudeSelect(`${APTITUDE_LABELS[surfaceKey]}適性`, surfaceKey)}
+            {renderAptitudeSelect(`${APTITUDE_LABELS[distanceKey]}適性`, distanceKey)}
+            {renderAptitudeSelect(`${APTITUDE_LABELS[styleKey]}適性`, styleKey)}
           </div>
         </div>
       </div>
