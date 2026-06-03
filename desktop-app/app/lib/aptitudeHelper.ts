@@ -22,7 +22,6 @@ export function getDistanceKey(course?: TrackCourse): keyof UmaStatusData['aptit
 export function getStyleKey(strategy?: string): keyof UmaStatusData['aptitudes'] {
   switch (strategy) {
     case 'NIGE':
-    case 'OONIGE':
       return 'nige';
     case 'SEN':
       return 'senkou';

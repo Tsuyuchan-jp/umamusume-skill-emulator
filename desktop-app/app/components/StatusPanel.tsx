@@ -21,7 +21,6 @@ const STRATEGIES = [
   { value: "SEN", label: "先行" },
   { value: "SASI", label: "差し" },
   { value: "OI", label: "追込" },
-  { value: "OONIGE", label: "大逃げ" },
 ];
 const CONDITIONS = [
   { value: "BEST", label: "絶好調" },
