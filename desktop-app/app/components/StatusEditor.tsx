@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
 import { UmaStatusData } from '../lib/types';
-import { normalSkillData, uniqueSkillData } from '../lib/engine/data/skillData';
+import { normalSkillData, uniqueSkillData } from '../lib/data/skillData';
 
 // スキル選択用のオプション
 const allSkills = [...normalSkillData({}), ...uniqueSkillData({})];

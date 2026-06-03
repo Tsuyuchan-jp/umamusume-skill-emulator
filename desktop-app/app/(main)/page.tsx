@@ -584,9 +584,18 @@ export default function Home() {
               <div className="w-full mt-4 animate-fadeIn">
                 <StatusEditor 
                   initialData={ocrResult} 
-                  onSave={(data) => {
+                  onSave={async (data) => {
                     console.log("シミュレーションへ渡すデータ:", data);
                     showToastMessage("シミュレーションを開始します...", "success", 3000);
+                    try {
+                      const { runUmaSimulation } = await import('../lib/engine/umaemuAdapter');
+                      const simResult = await runUmaSimulation(data);
+                      console.log("シミュレーション結果:", simResult);
+                      showToastMessage(`シミュレーション完了！タイム: ${simResult.raceTime.toFixed(3)}秒`, "success", 5000);
+                    } catch (e: any) {
+                      console.error(e);
+                      showToastMessage(`シミュレーションエラー: ${e.message}`, "error", 5000);
+                    }
                   }}
                 />
               </div>
