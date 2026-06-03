@@ -62,15 +62,15 @@ export function SettingsPanel({
             <span className="text-xs font-medium text-zinc-300">画像の保存先フォルダ</span>
             <span className="text-[10px] text-zinc-500">未設定時は標準ダウンロードフォルダ</span>
           </div>
-          <div className="flex w-full sm:max-w-md items-center bg-zinc-950/50 border border-zinc-800/80 rounded-lg overflow-hidden group focus-within:border-emerald-500/50 transition-colors">
-            <div className="pl-3 pr-2 text-zinc-500">
+          <div className="flex w-full flex-1 min-w-0 items-center bg-zinc-950/50 border border-zinc-800/80 rounded-lg overflow-hidden group focus-within:border-emerald-500/50 transition-colors">
+            <div className="pl-3 pr-2 text-zinc-500 shrink-0">
               <Folder className="w-3.5 h-3.5 text-zinc-500" />
             </div>
             <input 
               type="text" 
               readOnly 
               placeholder="未設定" 
-              className="flex-1 bg-transparent py-2 text-xs text-zinc-300 outline-none truncate" 
+              className="flex-1 bg-transparent py-2 text-xs text-zinc-300 outline-none truncate min-w-0" 
               title={saveFolder || "標準のダウンロードフォルダ"} 
               value={saveFolder}
             />
@@ -88,8 +88,8 @@ export function SettingsPanel({
             <span className="text-xs font-medium text-zinc-300">キャプチャ開始/停止キー</span>
             <span className="text-[10px] text-zinc-500">グローバルでキャプチャをトグル</span>
           </div>
-          <div className={`flex w-full sm:max-w-md items-center bg-zinc-950/50 border ${isRecordingShortcut ? 'border-emerald-500/50 shadow-[0_0_10px_rgba(16,185,129,0.1)]' : 'border-zinc-800/80'} rounded-lg overflow-hidden group focus-within:border-emerald-500/50 transition-colors`}>
-            <div className="pl-3 pr-2 text-zinc-500">
+          <div className={`flex w-full flex-1 min-w-0 items-center bg-zinc-950/50 border ${isRecordingShortcut ? 'border-emerald-500/50 shadow-[0_0_10px_rgba(16,185,129,0.1)]' : 'border-zinc-800/80'} rounded-lg overflow-hidden group focus-within:border-emerald-500/50 transition-colors`}>
+            <div className="pl-3 pr-2 text-zinc-500 shrink-0">
               <Keyboard className="w-3.5 h-3.5 text-zinc-500" />
             </div>
             <input 
@@ -100,7 +100,7 @@ export function SettingsPanel({
               placeholder="未設定" 
               onKeyDown={onKeyDownForShortcut}
               onBlur={onRecordingShortcutBlur}
-              className={`flex-1 bg-transparent py-2 text-xs outline-none truncate transition-colors ${isRecordingShortcut ? 'text-emerald-400 font-bold' : 'text-zinc-300'}`} 
+              className={`flex-1 bg-transparent py-2 text-xs outline-none truncate min-w-0 transition-colors ${isRecordingShortcut ? 'text-emerald-400 font-bold' : 'text-zinc-300'}`} 
             />
             <button 
               onClick={onRecordingShortcutStart}

@@ -5,7 +5,7 @@ import { register, unregister, isRegistered } from "@tauri-apps/plugin-global-sh
 import { open } from "@tauri-apps/plugin-dialog";
 import { invoke } from "@tauri-apps/api/core";
 import { emit } from "@tauri-apps/api/event";
-import { Copy, Wand2 } from "lucide-react";
+import { Copy, Wand2, ChevronDown, ChevronUp } from "lucide-react";
 import { useCapture } from "../hooks/useCapture";
 import { useToast } from "../hooks/useToast";
 import { ApiKeyModal } from "../components/ApiKeyModal";
@@ -49,6 +49,7 @@ export default function Home() {
   const [umaData, setUmaData] = useState<UmaStatusData | null>(null);
   const [isOcrProcessing, setIsOcrProcessing] = useState<boolean>(false);
   const [simResultDump, setSimResultDump] = useState<any>(null); // デバッグ用結果ダンプ
+  const [isPreviewExpanded, setIsPreviewExpanded] = useState<boolean>(true); // プレビューの開閉
 
   // レース環境ステート
   const [raceCondition, setRaceCondition] = useState<RaceCondition>({
@@ -367,7 +368,7 @@ export default function Home() {
                     : 'bg-rose-600/90 hover:bg-rose-500 text-white animate-pulse'
                 }`}
               >
-                {captureStatus === 'idle' || captureStatus === 'saved' ? '録画待機' : '録画停止'}
+                {captureStatus === 'idle' || captureStatus === 'saved' ? '自動キャプチャ' : '録画停止'}
               </button>
 
               {(captureStatus === 'done' || captureStatus === 'saved' || captureStatus === 'saving') && (
@@ -384,7 +385,13 @@ export default function Home() {
             {captureStatus === 'saved' && resultImage && (
               <div className="mt-2" ref={previewRef}>
                 <div className="flex items-center justify-between mb-2">
-                  <h2 className="text-xs font-bold text-zinc-300">結合結果</h2>
+                  <button 
+                    onClick={() => setIsPreviewExpanded(!isPreviewExpanded)}
+                    className="flex items-center gap-1.5 text-xs font-bold text-zinc-300 hover:text-white transition-colors"
+                  >
+                    {isPreviewExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    結合結果プレビュー
+                  </button>
                   {!autoCopyEnabled && (
                     <button
                       onClick={() => copyImageToClipboard(resultImage)}
@@ -394,9 +401,12 @@ export default function Home() {
                     </button>
                   )}
                 </div>
-                <div className="w-full rounded-xl border border-white/[0.04] bg-black/50 p-2 shadow-inner">
-                  <img src={resultImage} alt="Combined Status" className="w-full h-auto object-contain mx-auto rounded-lg" />
-                </div>
+                <button 
+                  onClick={() => setIsPreviewExpanded(!isPreviewExpanded)}
+                  className={`block w-full rounded-xl border border-white/[0.04] bg-black/50 p-2 shadow-inner transition-all duration-500 overflow-hidden cursor-pointer hover:border-white/[0.1] ${isPreviewExpanded ? '' : 'max-h-[140px]'}`}
+                >
+                  <img src={resultImage} alt="Combined Status" className={`w-full mx-auto rounded-lg transition-all duration-500 ${isPreviewExpanded ? 'h-auto object-contain' : 'h-[120px] object-cover object-top'}`} />
+                </button>
               </div>
             )}
             
