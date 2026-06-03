@@ -337,7 +337,7 @@ export default function Home() {
             </svg>
           </div>
           <h1 className="text-xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-100 to-zinc-400 shrink-0">
-            ウマレシートキャプチャ
+            ウマ娘 レースアナライザー
           </h1>
         </div>
 
