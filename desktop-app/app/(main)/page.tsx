@@ -43,6 +43,7 @@ export default function Home() {
   const [showApiKeyModal, setShowApiKeyModal] = useState<boolean>(false);
   const [umaData, setUmaData] = useState<UmaStatusData | null>(null);
   const [isOcrProcessing, setIsOcrProcessing] = useState<boolean>(false);
+  const [simResultDump, setSimResultDump] = useState<any>(null); // デバッグ用結果ダンプ
 
   // レース環境ステート
   const [raceCondition, setRaceCondition] = useState<RaceCondition>({
@@ -521,13 +522,14 @@ export default function Home() {
                 <div className="flex flex-col gap-3 mt-4">
                   <button
                     onClick={async () => {
-                      console.log("シミュレーションへ渡すデータ:", umaData);
-                      showToastMessage("シミュレーションを開始します...", "success", 3000);
+                      setSimResultDump(null);
+                      showToastMessage("100回シミュレーションを実行中...", "success", 3000);
                       try {
-                        const { runUmaSimulation } = await import('../lib/engine/umaemuAdapter');
-                        const simResult = await runUmaSimulation(umaData, raceCondition);
-                        console.log("シミュレーション結果:", simResult);
-                        showToastMessage(`シミュレーション完了！タイム: ${simResult.raceTime.toFixed(3)}秒`, "success", 5000);
+                        const { runMultipleSimulations } = await import('../lib/engine/umaemuAdapter');
+                        // 100回ループさせる
+                        const simResult = await runMultipleSimulations(umaData, raceCondition, 100);
+                        setSimResultDump(simResult);
+                        showToastMessage(`100回のシミュレーションが完了しました！`, "success", 5000);
                       } catch (e: any) {
                         console.error(e);
                         showToastMessage(`シミュレーションエラー: ${e.message}`, "error", 5000);
@@ -535,8 +537,17 @@ export default function Home() {
                     }}
                     className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition-all shadow-lg hover:shadow-emerald-500/20 active:scale-[0.98]"
                   >
-                    ✅ 確定してシミュレーションを開始
+                    🚀 100回シミュレーションを実行してデータを抽出
                   </button>
+                  
+                  {simResultDump && (
+                    <div className="mt-4 p-4 bg-zinc-950 border border-zinc-800 rounded-xl overflow-x-auto">
+                      <h4 className="text-zinc-400 text-xs font-bold mb-2">DEBUG: 抽出された生データ (1サンプルの構造と集計値)</h4>
+                      <pre className="text-[10px] font-mono text-zinc-300">
+                        {JSON.stringify(simResultDump, null, 2)}
+                      </pre>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

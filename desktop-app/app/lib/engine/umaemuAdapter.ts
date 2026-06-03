@@ -80,14 +80,24 @@ export async function runUmaSimulation(data: UmaStatusData, raceCondition: RaceC
     await initializeUmasimEngine();
   }
   const engine = cachedEngine;
+  const payload = createPayload(data, raceCondition);
+  const jsonInput = JSON.stringify(payload);
+  const jsonOutput = engine.runSimulation(jsonInput);
+  
+  const result = JSON.parse(jsonOutput);
+  if (result.error) {
+    throw new Error(result.error);
+  }
+  return result;
+}
 
+function createPayload(data: UmaStatusData, raceCondition: RaceCondition) {
   const course = getCourseById(raceCondition.locationId, raceCondition.courseId);
   const distanceKey = getDistanceKey(course);
   const surfaceKey = getSurfaceKey(course);
   const styleKey = getStyleKey(data.strategy);
 
-  // 1. UmaStatusData と RaceCondition から、WASMが要求するJSONスキーマに変換する
-  const payload = {
+  return {
     umaStatus: {
       speed: data.speed,
       stamina: data.stamina,
@@ -113,16 +123,52 @@ export async function runUmaSimulation(data: UmaStatusData, raceCondition: RaceC
     weather: 0,
     badStart: false
   };
+}
 
-  console.log("Sending payload to WASM engine:", payload);
+
+export async function runMultipleSimulations(data: UmaStatusData, raceCondition: RaceCondition, iterations: number = 100): Promise<any> {
+  if (!isEngineInitialized) {
+    await initializeUmasimEngine();
+  }
+  const engine = cachedEngine;
+  
+  const payload = createPayload(data, raceCondition);
   const jsonInput = JSON.stringify(payload);
+
+  const results = [];
+  console.time(`Simulating ${iterations} times`);
   
-  const jsonOutput = engine.runSimulation(jsonInput);
-  
-  const result = JSON.parse(jsonOutput);
-  if (result.error) {
-    throw new Error(result.error);
+  // Note: Running 100 times synchronously. If iterations > 1000, we should yield to the event loop.
+  for (let i = 0; i < iterations; i++) {
+    const jsonOutput = engine.runSimulation(jsonInput);
+    const parsed = JSON.parse(jsonOutput);
+    if (parsed.error) {
+      throw new Error(parsed.error);
+    }
+    results.push(parsed);
   }
   
-  return result;
+  console.timeEnd(`Simulating ${iterations} times`);
+
+  // Basic aggregation for debug view
+  // Extract times
+  const times = results.map(r => r.time || 0);
+  const avgTime = times.reduce((a, b) => a + b, 0) / times.length;
+  const minTime = Math.min(...times);
+  const maxTime = Math.max(...times);
+
+  // Remaining Stamina
+  const remainingStaminas = results.map(r => r.spMin || 0); // Need to check actual fields in WASM result
+  const avgStamina = remainingStaminas.reduce((a, b) => a + b, 0) / remainingStaminas.length;
+
+  return {
+    iterations,
+    summary: {
+      avgTime,
+      minTime,
+      maxTime,
+      avgStamina
+    },
+    rawSample: results[0] // Return one sample to inspect fields
+  };
 }
