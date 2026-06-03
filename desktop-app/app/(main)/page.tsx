@@ -403,9 +403,9 @@ export default function Home() {
                 </div>
                 <button 
                   onClick={() => setIsPreviewExpanded(!isPreviewExpanded)}
-                  className={`block w-full rounded-xl border border-white/[0.04] bg-black/50 p-2 shadow-inner transition-all duration-500 overflow-hidden cursor-pointer hover:border-white/[0.1] ${isPreviewExpanded ? '' : 'max-h-[140px]'}`}
+                  className="block w-full rounded-xl border border-white/[0.04] bg-black/50 p-2 shadow-inner transition-all duration-500 overflow-hidden cursor-pointer hover:border-white/[0.1]"
                 >
-                  <img src={resultImage} alt="Combined Status" className={`w-full mx-auto rounded-lg transition-all duration-500 ${isPreviewExpanded ? 'h-auto object-contain' : 'h-[120px] object-cover object-top'}`} />
+                  <img src={resultImage} alt="Combined Status" className={`w-full mx-auto rounded-lg transition-all duration-500 ${isPreviewExpanded ? 'h-auto aspect-auto' : 'aspect-[100/32] object-cover object-top'}`} />
                 </button>
               </div>
             )}
