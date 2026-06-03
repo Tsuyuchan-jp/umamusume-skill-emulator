@@ -577,12 +577,6 @@ export default function Home() {
                     </>
                   )}
                 </button>
-                <button
-                  onClick={() => showToastMessage("現在AIサーバーが大変混み合っています。数秒待ってからもう一度お試しください。", "error", 3000)}
-                  className="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-400 font-bold py-2 rounded-xl border border-zinc-700 transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
-                >
-                  [Dev] 503エラートーストをテスト表示
-                </button>
               </div>
             )}
 

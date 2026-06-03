@@ -149,7 +149,6 @@ export function StatusEditor({ initialData, onSave }: StatusEditorProps) {
         <h3 className="text-zinc-200 font-bold mb-4 text-sm border-b border-zinc-800 pb-2">適性</h3>
         
         <div className="mb-4">
-          <div className="text-xs text-zinc-500 mb-2">バ場適性</div>
           <div className="flex gap-4">
             {renderAptitudeSelect('芝', 'turf')}
             {renderAptitudeSelect('ダート', 'dirt')}
@@ -157,7 +156,6 @@ export function StatusEditor({ initialData, onSave }: StatusEditorProps) {
         </div>
         
         <div className="mb-4">
-          <div className="text-xs text-zinc-500 mb-2">距離適性</div>
           <div className="flex gap-4">
             {renderAptitudeSelect('短距離', 'short')}
             {renderAptitudeSelect('マイル', 'mile')}
@@ -167,7 +165,6 @@ export function StatusEditor({ initialData, onSave }: StatusEditorProps) {
         </div>
 
         <div>
-          <div className="text-xs text-zinc-500 mb-2">脚質適性</div>
           <div className="flex gap-4">
             {renderAptitudeSelect('逃げ', 'nige')}
             {renderAptitudeSelect('先行', 'senkou')}
