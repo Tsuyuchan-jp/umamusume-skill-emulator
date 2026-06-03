@@ -103,12 +103,12 @@ export function StatusPanel({ data, onChange, raceCondition }: StatusPanelProps)
               onChange={(e) => updateStat('strategy', e.target.value)}
               className={`rounded-md px-2 py-1.5 text-sm outline-none text-zinc-200 transition-all ${
                 !data.strategy || data.strategy === "" 
-                  ? "bg-rose-500/10 border-2 border-rose-500 animate-pulse focus:border-rose-400 shadow-[0_0_10px_rgba(244,63,94,0.3)]" 
-                  : "bg-zinc-950 border border-amber-700/50 focus:border-amber-500"
+                  ? "bg-zinc-950 border-2 border-rose-500 animate-pulse focus:border-rose-400 shadow-[0_0_10px_rgba(244,63,94,0.3)]" 
+                  : "bg-zinc-950 border border-zinc-800 focus:border-zinc-500"
               }`}
             >
-              <option value="" disabled>-- 選択 --</option>
-              {STRATEGIES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+              <option value="" disabled className="bg-zinc-950 text-zinc-400">-- 選択 --</option>
+              {STRATEGIES.map(s => <option key={s.value} value={s.value} className="bg-zinc-950 text-zinc-200">{s.label}</option>)}
             </select>
           </div>
           
