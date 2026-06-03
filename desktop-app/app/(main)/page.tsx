@@ -59,6 +59,7 @@ export default function Home() {
   const [isPreviewExpanded, setIsPreviewExpanded] = useState<boolean>(true); // プレビューの開閉
   const [isSimulating, setIsSimulating] = useState<boolean>(false); // シミュレーション実行中
   const [simulationCount, setSimulationCount] = useState<number>(100); // シミュレーション回数
+  const [simulationProgress, setSimulationProgress] = useState<{current: number, total: number} | null>(null); // 進捗
 
   // レース環境ステート
   const [raceCondition, setRaceCondition] = useState<RaceCondition>({
@@ -505,10 +506,16 @@ export default function Home() {
                     return;
                   }
                   setIsSimulating(true);
+                  setSimulationProgress({ current: 0, total: simulationCount });
                   showToastMessage(`${simulationCount.toLocaleString()}回シミュレーションを実行中...`, 'success', 3000);
                   try {
                     const { runMultipleSimulations } = await import('../lib/engine/umaemuAdapter');
-                    const simResult = await runMultipleSimulations(umaData, raceCondition, simulationCount);
+                    const simResult = await runMultipleSimulations(
+                      umaData, 
+                      raceCondition, 
+                      simulationCount,
+                      (current, total) => setSimulationProgress({ current, total })
+                    );
                   
                   // サムネイル画像の生成
                   let thumbUrl = null;
@@ -540,12 +547,23 @@ export default function Home() {
                   showToastMessage(`シミュレーションエラー: ${msg}`, 'error', 5000);
                 } finally {
                   setIsSimulating(false);
+                  setSimulationProgress(null);
                 }
               }}
               disabled={isSimulating}
-              className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg hover:shadow-emerald-500/20 active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50"
+              className="relative overflow-hidden w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg hover:shadow-emerald-500/20 active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50"
             >
-              {isSimulating ? "実行中..." : `🚀 ${simulationCount.toLocaleString()}回シミュレーションを実行`}
+              {isSimulating && simulationProgress && (
+                <div 
+                  className="absolute inset-y-0 left-0 bg-emerald-400/50 transition-all duration-100 ease-linear"
+                  style={{ width: `${(simulationProgress.current / simulationProgress.total) * 100}%` }}
+                />
+              )}
+              <span className="relative z-10 flex items-center gap-2 drop-shadow-md">
+                {isSimulating && simulationProgress 
+                  ? `実行中... ${Math.floor((simulationProgress.current / simulationProgress.total) * 100)}% (${simulationProgress.current.toLocaleString()} / ${simulationProgress.total.toLocaleString()})` 
+                  : `🚀 ${simulationCount.toLocaleString()}回シミュレーションを実行`}
+              </span>
             </button>
             </div>
           </div>
@@ -671,6 +689,7 @@ export default function Home() {
                   onRunComparativeSimulation={async () => {
                     if (!activeTab.umaData) return;
                     setIsSimulating(true);
+                    setSimulationProgress({ current: 0, total: simulationCount });
                     showToastMessage('検証シミュレーションを実行中...', 'success', 3000);
                     try {
                       const { runMultipleSimulations } = await import('../lib/engine/umaemuAdapter');
@@ -678,7 +697,12 @@ export default function Home() {
                         ...activeTab.umaData,
                         skills: activeTab.umaData.skills.filter(s => !activeTab.disabledSkills.includes(s))
                       };
-                      const simResult = await runMultipleSimulations(clonedUmaData, raceCondition, simulationCount);
+                      const simResult = await runMultipleSimulations(
+                        clonedUmaData, 
+                        raceCondition, 
+                        simulationCount,
+                        (current, total) => setSimulationProgress({ current, total })
+                      );
                       
                       setTabs(prev => prev.map(t => {
                         if (t.id === activeTabId) {
@@ -694,6 +718,7 @@ export default function Home() {
                       showToastMessage(`検証エラー: ${msg}`, 'error', 5000);
                     } finally {
                       setIsSimulating(false);
+                      setSimulationProgress(null);
                     }
                   }}
                 />

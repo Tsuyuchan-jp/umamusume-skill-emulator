@@ -32,6 +32,10 @@ self.onmessage = async (event) => {
       for (let i = 0; i < iterations; i++) {
         const jsonOutput = engine.runSimulation(payload);
         results.push(JSON.parse(jsonOutput));
+        
+        if (i > 0 && i % 100 === 0) {
+          self.postMessage({ id, type: 'PROGRESS', current: i, total: iterations });
+        }
       }
       
       self.postMessage({ id, type: 'SUCCESS', results });

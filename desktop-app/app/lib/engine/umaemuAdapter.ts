@@ -21,7 +21,7 @@ export async function fetchSkillData(): Promise<RawSkillData[]> {
 
 let worker: Worker | null = null;
 let currentMessageId = 0;
-const pendingRequests = new Map<number, { resolve: (val: any) => void, reject: (err: any) => void }>();
+const pendingRequests = new Map<number, { resolve: (val: any) => void, reject: (err: any) => void, onProgress?: (current: number, total: number) => void }>();
 
 function getWorker(): Worker {
   if (typeof window === 'undefined') {
@@ -35,6 +35,11 @@ function getWorker(): Worker {
     const { id, type, results, error } = event.data;
     const req = pendingRequests.get(id);
     if (!req) return;
+    
+    if (type === 'PROGRESS') {
+      if (req.onProgress) req.onProgress(event.data.current, event.data.total);
+      return; // Do not delete from pendingRequests yet
+    }
     
     pendingRequests.delete(id);
     if (type === 'SUCCESS') {
@@ -99,7 +104,12 @@ function createPayload(data: UmaStatusData, raceCondition: RaceCondition) {
   };
 }
 
-export async function runMultipleSimulations(data: UmaStatusData, raceCondition: RaceCondition, iterations: number = 100): Promise<any> {
+export async function runMultipleSimulations(
+  data: UmaStatusData, 
+  raceCondition: RaceCondition, 
+  iterations: number = 100,
+  onProgress?: (current: number, total: number) => void
+): Promise<any> {
   if (!cachedSkillsJson) {
     await fetchSkillData();
   }
@@ -111,7 +121,7 @@ export async function runMultipleSimulations(data: UmaStatusData, raceCondition:
   const id = ++currentMessageId;
   
   const resultsPromise = new Promise<any[]>((resolve, reject) => {
-    pendingRequests.set(id, { resolve, reject });
+    pendingRequests.set(id, { resolve, reject, onProgress });
   });
 
   console.time(`Simulating ${iterations} times via Worker`);
