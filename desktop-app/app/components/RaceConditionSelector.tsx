@@ -29,6 +29,14 @@ const PLAYER_NUMS = [9, 12, 18];
 
 export function RaceConditionSelector({ condition, onChange }: RaceConditionSelectorProps) {
   const [presets, setPresets] = useState<RacePreset[]>([]);
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  const isPresetActive = (preset: RacePreset) => {
+    return condition.locationId === preset.locationId &&
+           condition.courseId === preset.courseId &&
+           condition.surfaceCond === preset.surfaceCond &&
+           condition.playerNum === preset.playerNum;
+  };
 
   useEffect(() => {
     // 外部ファイルからプリセットを取得
@@ -81,13 +89,21 @@ export function RaceConditionSelector({ condition, onChange }: RaceConditionSele
             {presets.map((preset, idx) => (
               <button
                 key={idx}
-                onClick={() => onChange({
-                  locationId: preset.locationId,
-                  courseId: preset.courseId,
-                  surfaceCond: preset.surfaceCond,
-                  playerNum: preset.playerNum
-                })}
-                className="px-3 py-1.5 text-sm bg-[#27272a] hover:bg-[#3f3f46] text-[#e4e4e7] rounded transition-colors border border-[#3f3f46] hover:border-[#52525b]"
+                onClick={() => {
+                  onChange({
+                    locationId: preset.locationId,
+                    courseId: preset.courseId,
+                    surfaceCond: preset.surfaceCond,
+                    playerNum: preset.playerNum
+                  });
+                  setIsAnimating(true);
+                  setTimeout(() => setIsAnimating(false), 500);
+                }}
+                className={`px-3 py-1.5 text-sm rounded transition-all duration-300 border ${
+                  isPresetActive(preset)
+                    ? 'bg-blue-600 text-white border-blue-500 shadow-[0_0_10px_rgba(37,99,235,0.3)]'
+                    : 'bg-[#27272a] hover:bg-[#3f3f46] text-[#e4e4e7] border-[#3f3f46] hover:border-[#52525b]'
+                }`}
               >
                 {preset.name}
               </button>
@@ -96,10 +112,12 @@ export function RaceConditionSelector({ condition, onChange }: RaceConditionSele
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className={`grid grid-cols-2 gap-4 p-4 -mx-4 rounded-xl transition-all duration-500 ${
+        isAnimating ? 'bg-blue-500/10 ring-1 ring-blue-500/50 shadow-[0_0_15px_rgba(37,99,235,0.2)]' : 'bg-transparent ring-0 ring-transparent shadow-none'
+      }`}>
         <div>
           <label className="block text-sm font-medium text-[#a1a1aa] mb-1 flex items-center gap-1">
-            <MapPin className="w-4 h-4" /> レース場
+            <MapPin className={`w-4 h-4 transition-transform duration-300 ${isAnimating ? 'scale-125 text-blue-400' : ''}`} /> レース場
           </label>
           <select
             value={condition.locationId}
@@ -114,7 +132,7 @@ export function RaceConditionSelector({ condition, onChange }: RaceConditionSele
 
         <div>
           <label className="block text-sm font-medium text-[#a1a1aa] mb-1 flex items-center gap-1">
-            <Flag className="w-4 h-4" /> コース
+            <Flag className={`w-4 h-4 transition-transform duration-300 ${isAnimating ? 'scale-125 text-blue-400' : ''}`} /> コース
           </label>
           <select
             value={condition.courseId}
@@ -130,7 +148,7 @@ export function RaceConditionSelector({ condition, onChange }: RaceConditionSele
 
         <div>
           <label className="block text-sm font-medium text-[#a1a1aa] mb-1 flex items-center gap-1">
-            <CloudRain className="w-4 h-4" /> バ場状態
+            <CloudRain className={`w-4 h-4 transition-transform duration-300 ${isAnimating ? 'scale-125 text-blue-400' : ''}`} /> バ場状態
           </label>
           <select
             value={condition.surfaceCond}
@@ -145,7 +163,7 @@ export function RaceConditionSelector({ condition, onChange }: RaceConditionSele
 
         <div>
           <label className="block text-sm font-medium text-[#a1a1aa] mb-1 flex items-center gap-1">
-            <Users className="w-4 h-4" /> 出走人数
+            <Users className={`w-4 h-4 transition-transform duration-300 ${isAnimating ? 'scale-125 text-blue-400' : ''}`} /> 出走人数
           </label>
           <select
             value={condition.playerNum}
