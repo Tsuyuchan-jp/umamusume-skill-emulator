@@ -17,6 +17,7 @@ import { RaceConditionSelector, RaceCondition } from "../components/RaceConditio
 import { analyzeStitchedImage } from "../lib/geminiOcr";
 import { UmaStatusData } from "../lib/types";
 import { ResultCard } from "../components/ResultCard";
+import { SkillVerifier } from "../components/SkillVerifier";
 
 export default function Home() {
   const {
@@ -49,7 +50,10 @@ export default function Home() {
   const [umaData, setUmaData] = useState<UmaStatusData | null>(null);
   const [isOcrProcessing, setIsOcrProcessing] = useState<boolean>(false);
   const [simResultDump, setSimResultDump] = useState<any>(null); // デバッグ用結果ダンプ
+  const [baselineResult, setBaselineResult] = useState<any>(null); // ベース結果
+  const [disabledSkills, setDisabledSkills] = useState<string[]>([]); // 無効化スキル
   const [isPreviewExpanded, setIsPreviewExpanded] = useState<boolean>(true); // プレビューの開閉
+  const [isSimulating, setIsSimulating] = useState<boolean>(false); // シミュレーション実行中
 
   // レース環境ステート
   const [raceCondition, setRaceCondition] = useState<RaceCondition>({
@@ -78,7 +82,7 @@ export default function Home() {
     if (!isResizing) return;
     const handleMouseMove = (e: MouseEvent) => {
       let newWidth = e.clientX;
-      if (newWidth < 300) newWidth = 300; // 最小幅
+      if (newWidth < 450) newWidth = 450; // 最小幅
       if (newWidth > 800) newWidth = 800; // 最大幅
       setSidebarWidth(newWidth);
     };
@@ -450,20 +454,27 @@ export default function Home() {
 
             <button
               onClick={async () => {
+                if (!umaData) return;
+                setIsSimulating(true);
                 showToastMessage('100回シミュレーションを実行中...', 'success', 3000);
                 try {
                   const { runMultipleSimulations } = await import('../lib/engine/umaemuAdapter');
                   const simResult = await runMultipleSimulations(umaData, raceCondition, 100);
                   setSimResultDump(simResult);
+                  setBaselineResult(simResult);
+                  setDisabledSkills([]);
                   showToastMessage(`100回のシミュレーションが完了しました！`, 'success', 5000);
                 } catch (e: any) {
                   console.error(e);
                   showToastMessage(`シミュレーションエラー: ${e.message}`, 'error', 5000);
+                } finally {
+                  setIsSimulating(false);
                 }
               }}
-              className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg hover:shadow-emerald-500/20 active:scale-[0.98] flex items-center justify-center gap-2 sticky bottom-0 z-20"
+              disabled={isSimulating}
+              className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg hover:shadow-emerald-500/20 active:scale-[0.98] flex items-center justify-center gap-2 sticky bottom-0 z-20 disabled:opacity-50"
             >
-              🚀 100回シミュレーションを実行
+              {isSimulating ? "実行中..." : "🚀 100回シミュレーションを実行"}
             </button>
           </div>
         )}
@@ -487,7 +498,41 @@ export default function Home() {
                 <h2 className="text-2xl font-bold text-zinc-100">シミュレーション結果</h2>
                 <span className="ml-auto text-zinc-500 text-sm">東京 芝 2400m / 100走</span>
               </div>
-              <ResultCard result={simResultDump} />
+              <ResultCard result={simResultDump} baseline={baselineResult} />
+
+              {/* スキル影響検証モード */}
+              {umaData && baselineResult && (
+                <SkillVerifier
+                  umaData={umaData}
+                  disabledSkills={disabledSkills}
+                  onToggleSkill={(skillName) => {
+                    setDisabledSkills(prev => 
+                      prev.includes(skillName) ? prev.filter(s => s !== skillName) : [...prev, skillName]
+                    );
+                  }}
+                  isSimulating={isSimulating}
+                  onRunComparativeSimulation={async () => {
+                    if (!umaData) return;
+                    setIsSimulating(true);
+                    showToastMessage('検証シミュレーションを実行中...', 'success', 3000);
+                    try {
+                      const { runMultipleSimulations } = await import('../lib/engine/umaemuAdapter');
+                      const clonedUmaData = {
+                        ...umaData,
+                        skills: umaData.skills.filter(s => !disabledSkills.includes(s))
+                      };
+                      const simResult = await runMultipleSimulations(clonedUmaData, raceCondition, 100);
+                      setSimResultDump(simResult);
+                      showToastMessage(`比較検証が完了しました！`, 'success', 5000);
+                    } catch (e: any) {
+                      console.error(e);
+                      showToastMessage(`検証エラー: ${e.message}`, 'error', 5000);
+                    } finally {
+                      setIsSimulating(false);
+                    }
+                  }}
+                />
+              )}
             </div>
           ) : (
             <div className="w-full h-full flex flex-col items-center justify-center text-zinc-600 gap-4 opacity-50">
