@@ -1,17 +1,26 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp, Activity } from 'lucide-react';
 import { UmaStatusData } from '../lib/types';
-import { STRATEGIES, CONDITIONS } from '../lib/constants';
+import { getCourseById, getSurfaceKey, getDistanceKey, getStyleKey } from '../lib/aptitudeHelper';
+import { RaceCondition } from './RaceConditionSelector';
+import { STRATEGIES, CONDITIONS, APTITUDE_LABELS } from '../lib/constants';
 
 interface SimulationStatusViewProps {
   umaData: UmaStatusData;
+  raceCondition: RaceCondition;
 }
 
-export default function SimulationStatusView({ umaData }: SimulationStatusViewProps) {
+export default function SimulationStatusView({ umaData, raceCondition }: SimulationStatusViewProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const strategyLabel = STRATEGIES.find(s => s.value === umaData.strategy)?.label || umaData.strategy || '未設定';
-  const conditionLabel = CONDITIONS.find(c => c.value === umaData.condition)?.label || umaData.condition || '未設定';
+  const condVal = umaData.condition || "BEST";
+  const conditionLabel = CONDITIONS.find(c => c.value === condVal)?.label || condVal;
+
+  const course = getCourseById(raceCondition.locationId, raceCondition.courseId);
+  const distanceKey = getDistanceKey(course);
+  const surfaceKey = getSurfaceKey(course);
+  const styleKey = getStyleKey(umaData.strategy || "NIGE");
 
   const renderAptitudeBadge = (label: string, value: string) => {
     // S〜Gの色分け（簡易的）
@@ -30,7 +39,7 @@ export default function SimulationStatusView({ umaData }: SimulationStatusViewPr
   };
 
   return (
-    <div className="w-full bg-zinc-900/40 border border-zinc-800/80 rounded-xl overflow-hidden mb-6">
+    <div className="w-full bg-zinc-900/40 border border-zinc-800/80 rounded-xl overflow-hidden mb-6 mt-6">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full px-4 py-3 flex items-center justify-between hover:bg-zinc-800/50 transition-colors focus:outline-none"
@@ -91,18 +100,11 @@ export default function SimulationStatusView({ umaData }: SimulationStatusViewPr
 
           {/* 適性 */}
           <div className="flex flex-col gap-2">
-            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">適性</span>
+            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">シミュレーション使用適性</span>
             <div className="flex flex-wrap gap-2">
-              {renderAptitudeBadge('芝', umaData.aptitudes.turf)}
-              {renderAptitudeBadge('ダート', umaData.aptitudes.dirt)}
-              {renderAptitudeBadge('短距離', umaData.aptitudes.short)}
-              {renderAptitudeBadge('マイル', umaData.aptitudes.mile)}
-              {renderAptitudeBadge('中距離', umaData.aptitudes.medium)}
-              {renderAptitudeBadge('長距離', umaData.aptitudes.long)}
-              {renderAptitudeBadge('逃げ', umaData.aptitudes.nige)}
-              {renderAptitudeBadge('先行', umaData.aptitudes.senkou)}
-              {renderAptitudeBadge('差し', umaData.aptitudes.sashi)}
-              {renderAptitudeBadge('追込', umaData.aptitudes.oikomi)}
+              {renderAptitudeBadge(APTITUDE_LABELS[surfaceKey] || 'バ場', umaData.aptitudes[surfaceKey as keyof typeof umaData.aptitudes] || 'G')}
+              {renderAptitudeBadge(APTITUDE_LABELS[distanceKey] || '距離', umaData.aptitudes[distanceKey as keyof typeof umaData.aptitudes] || 'G')}
+              {renderAptitudeBadge(APTITUDE_LABELS[styleKey] || '脚質', umaData.aptitudes[styleKey as keyof typeof umaData.aptitudes] || 'G')}
             </div>
           </div>
 

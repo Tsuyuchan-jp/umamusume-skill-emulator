@@ -669,8 +669,8 @@ export default function Home() {
               <ResultCard result={activeTab.simResultDump} baseline={activeTab.baselineResult} />
 
               {/* 実行時ステータス表示 */}
-              {activeTab.umaData && (
-                <SimulationStatusView umaData={activeTab.umaData} />
+              {activeTab.umaData && activeTab.raceCondition && (
+                <SimulationStatusView umaData={activeTab.umaData} raceCondition={activeTab.raceCondition} />
               )}
 
               {/* スキル影響検証モード */}
