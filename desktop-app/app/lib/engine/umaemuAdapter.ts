@@ -1,8 +1,29 @@
 import { UmaStatusData } from "../types";
 
+let cachedEngine: any = null;
+let cachedSkillsJson: string | null = null;
+let isEngineInitialized = false;
+
+export async function fetchSkillData() {
+  if (cachedSkillsJson) return JSON.parse(cachedSkillsJson);
+  
+  try {
+    const res = await fetch("https://raw.githubusercontent.com/mee1080/umasim/refs/heads/main/data/skill_data.txt");
+    if (!res.ok) throw new Error("Failed to fetch skill data");
+    const text = await res.text();
+    cachedSkillsJson = text;
+    return JSON.parse(text);
+  } catch (error) {
+    console.error("Failed to fetch skill data from GitHub:", error);
+    throw error;
+  }
+}
+
 export async function loadUmasimEngine() {
+  if (cachedEngine) return cachedEngine;
   try {
     const wasmModule = await import('./umaemu/race.js');
+    cachedEngine = wasmModule;
     return wasmModule;
   } catch (error) {
     console.error("Failed to load umasim engine:", error);
@@ -10,8 +31,26 @@ export async function loadUmasimEngine() {
   }
 }
 
+export async function initializeUmasimEngine() {
+  if (isEngineInitialized) return;
+  
+  const [engine, _] = await Promise.all([
+    loadUmasimEngine(),
+    fetchSkillData()
+  ]);
+  
+  if (cachedSkillsJson) {
+    engine.initializeEngine(cachedSkillsJson);
+    isEngineInitialized = true;
+    console.log("WASM Engine initialized with skill data.");
+  }
+}
+
 export async function runUmaSimulation(data: UmaStatusData) {
-  const engine = await loadUmasimEngine();
+  if (!isEngineInitialized) {
+    await initializeUmasimEngine();
+  }
+  const engine = cachedEngine;
 
   // マッピング処理
   const payload = {

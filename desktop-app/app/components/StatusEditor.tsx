@@ -2,12 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
 import { UmaStatusData } from '../lib/types';
-import { normalSkillData, uniqueSkillData } from '../lib/data/skillData';
+import { fetchSkillData } from '../lib/engine/umaemuAdapter';
 
-// スキル選択用のオプション
-const allSkills = [...normalSkillData({}), ...uniqueSkillData({})];
-const skillNames = allSkills.flatMap((s: any) => (s?.variants || []).map((v: any) => v?.name));
-const skillOptions = skillNames.map((name) => ({ value: name, label: name }));
+// スキル選択用のオプションはAPIから取得する
 
 const customStyles = {
   control: (base: any) => ({
@@ -60,12 +57,28 @@ const APTITUDE_GRADES = ["S", "A", "B", "C", "D", "E", "F", "G"];
 
 export function StatusEditor({ initialData, onSave }: StatusEditorProps) {
   const [data, setData] = useState<UmaStatusData>(initialData || emptyStatusData);
+  const [skillOptions, setSkillOptions] = useState<{value: string, label: string}[]>([]);
 
   useEffect(() => {
     if (initialData) {
       setData(initialData);
     }
   }, [initialData]);
+
+  useEffect(() => {
+    async function loadSkills() {
+      try {
+        const skillsData = await fetchSkillData();
+        // GitHubから取得したJSONの配列からスキル名だけを抽出
+        const names = Array.from(new Set(skillsData.map((s: any) => s.name)));
+        const options = names.map((name: any) => ({ value: name, label: name }));
+        setSkillOptions(options);
+      } catch (err) {
+        console.error("Failed to load skills for editor:", err);
+      }
+    }
+    loadSkills();
+  }, []);
 
   const updateStat = (key: keyof UmaStatusData, value: number) => {
     setData((prev) => ({ ...prev, [key]: value }));
