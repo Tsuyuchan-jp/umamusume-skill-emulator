@@ -39,6 +39,10 @@ export default function Home() {
   const [shortcutKey, setShortcutKey] = useState<string>("F9");
   const [isRecordingShortcut, setIsRecordingShortcut] = useState<boolean>(false);
 
+  // リサイズ用ステート
+  const [sidebarWidth, setSidebarWidth] = useState<number>(450);
+  const [isResizing, setIsResizing] = useState<boolean>(false);
+
   // OCR/エディタ関連ステート
   const [apiKey, setApiKey] = useState<string>("");
   const [showApiKeyModal, setShowApiKeyModal] = useState<boolean>(false);
@@ -67,6 +71,24 @@ export default function Home() {
   useEffect(() => { handleStartAutoCaptureRef.current = handleStartAutoCapture; }, [handleStartAutoCapture]);
   useEffect(() => { handleStopCaptureRef.current = handleStopCapture; }, [handleStopCapture]);
   useEffect(() => { isRecordingShortcutRef.current = isRecordingShortcut; }, [isRecordingShortcut]);
+
+  // リサイザー用のイベントハンドラ
+  useEffect(() => {
+    if (!isResizing) return;
+    const handleMouseMove = (e: MouseEvent) => {
+      let newWidth = e.clientX;
+      if (newWidth < 300) newWidth = 300; // 最小幅
+      if (newWidth > 800) newWidth = 800; // 最大幅
+      setSidebarWidth(newWidth);
+    };
+    const handleMouseUp = () => setIsResizing(false);
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isResizing]);
 
   // ショートカット変更モードに入った時の自動フォーカス処理
   useEffect(() => {
@@ -294,15 +316,18 @@ export default function Home() {
   return (
     <div className="flex w-full h-screen bg-[#09090b] font-sans text-zinc-100 selection:bg-emerald-500/30 overflow-hidden">
       {/* 左カラム (コントロールパネル) */}
-      <div className="w-[450px] flex-shrink-0 h-full overflow-y-auto border-r border-zinc-800/80 bg-zinc-950/40 p-6 flex flex-col gap-6 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent">
+      <div 
+        style={{ width: `${sidebarWidth}px` }}
+        className={`flex-shrink-0 h-full overflow-y-auto bg-zinc-950/40 p-6 flex flex-col gap-6 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent ${isResizing ? 'select-none pointer-events-none' : ''}`}
+      >
         {/* Title */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.15)] transition-all duration-300 hover:bg-emerald-500/20">
+          <div className="flex items-center justify-center w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.15)] transition-all duration-300 hover:bg-emerald-500/20 shrink-0">
             <svg className="w-5 h-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 10a8 8 0 0 1 16 0v4a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-4a2 2 0 0 0-4 0v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4z"></path>
             </svg>
           </div>
-          <h1 className="text-xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-100 to-zinc-400">
+          <h1 className="text-xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-100 to-zinc-400 shrink-0">
             ウマレシートキャプチャ
           </h1>
         </div>
@@ -310,7 +335,7 @@ export default function Home() {
         {/* オートキャプチャ & 自動結合 */}
         <div className="w-full backdrop-blur-xl bg-zinc-900/30 border border-zinc-800/80 rounded-2xl p-5 shadow-lg">
           <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-4">
               <div className="flex items-center gap-3">
                 <div className={`w-2 h-2 rounded-full ${statusCfg.color} ${statusCfg.pulse ? 'animate-pulse' : ''}`}></div>
                 <h2 className="text-sm font-semibold tracking-wide text-zinc-200">画面キャプチャ連携</h2>
@@ -428,8 +453,16 @@ export default function Home() {
         )}
       </div>
 
+      {/* Resizer */}
+      <div 
+        onMouseDown={() => setIsResizing(true)}
+        className="w-1.5 h-full bg-zinc-800/80 hover:bg-emerald-500/50 cursor-col-resize flex-shrink-0 transition-colors z-50 flex items-center justify-center group"
+      >
+        <div className="h-8 w-0.5 bg-zinc-600 group-hover:bg-emerald-400 rounded-full transition-colors"></div>
+      </div>
+
       {/* 右カラム (結果アリーナ) */}
-      <div className="flex-1 h-full overflow-y-auto p-10 bg-[#09090b] relative scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent">
+      <div className={`flex-1 h-full overflow-y-auto p-10 bg-[#09090b] relative scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent ${isResizing ? 'select-none pointer-events-none' : ''}`}>
         <div className="max-w-5xl mx-auto h-full">
           {simResultDump ? (
             <div className="animate-fadeIn">
