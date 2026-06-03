@@ -547,6 +547,7 @@ export default function Home() {
             >
               {isSimulating ? "実行中..." : `🚀 ${simulationCount.toLocaleString()}回シミュレーションを実行`}
             </button>
+            </div>
           </div>
         )}
       </div>
