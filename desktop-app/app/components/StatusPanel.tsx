@@ -1,10 +1,13 @@
 "use client";
 import React from 'react';
 import { UmaStatusData } from '../lib/types';
+import { RaceCondition } from './RaceConditionSelector';
+import { getCourseById, getSurfaceKey, getDistanceKey, getStyleKey } from '../lib/aptitudeHelper';
 
 interface StatusPanelProps {
   data: UmaStatusData;
   onChange: (data: UmaStatusData) => void;
+  raceCondition: RaceCondition;
 }
 
 const APTITUDE_GRADES = ["S", "A", "B", "C", "D", "E", "F", "G"];
@@ -23,7 +26,7 @@ const CONDITIONS = [
   { value: "WORST", label: "絶不調" },
 ];
 
-export function StatusPanel({ data, onChange }: StatusPanelProps) {
+export function StatusPanel({ data, onChange, raceCondition }: StatusPanelProps) {
   const updateStat = (key: keyof UmaStatusData, value: number | string) => {
     onChange({ ...data, [key]: value });
   };
@@ -66,6 +69,11 @@ export function StatusPanel({ data, onChange }: StatusPanelProps) {
       </select>
     </div>
   );
+
+  const course = getCourseById(raceCondition.locationId, raceCondition.courseId);
+  const surfaceKey = getSurfaceKey(course);
+  const distanceKey = getDistanceKey(course);
+  const styleKey = getStyleKey(data.strategy);
 
   return (
     <div className="w-full flex flex-col gap-4">
@@ -135,9 +143,9 @@ export function StatusPanel({ data, onChange }: StatusPanelProps) {
         <div className="flex-1 bg-zinc-900/50 border border-zinc-800 rounded-xl p-5 min-w-[280px]">
           <h3 className="text-zinc-200 font-bold mb-4 text-sm border-b border-zinc-800 pb-2">適性</h3>
           <div className="flex gap-4">
-            {renderAptitudeSelect('バ場適性', 'surfaceFit')}
-            {renderAptitudeSelect('距離適性', 'distanceFit')}
-            {renderAptitudeSelect('脚質適性', 'styleFit')}
+            {renderAptitudeSelect('バ場適性', surfaceKey)}
+            {renderAptitudeSelect('距離適性', distanceKey)}
+            {renderAptitudeSelect('脚質適性', styleKey)}
           </div>
         </div>
       </div>

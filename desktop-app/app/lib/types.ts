@@ -46,10 +46,6 @@ export interface UmaStatusData {
     senkou: string;
     sashi: string;
     oikomi: string;
-    // UI selections for the current race
-    distanceFit?: string;
-    surfaceFit?: string;
-    styleFit?: string;
   };
   skills: string[];
 }

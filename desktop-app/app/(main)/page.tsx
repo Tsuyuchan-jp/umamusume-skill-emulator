@@ -509,6 +509,7 @@ export default function Home() {
                 <StatusPanel 
                   data={umaData} 
                   onChange={setUmaData} 
+                  raceCondition={raceCondition}
                 />
 
                 {/* 3. スキル */}

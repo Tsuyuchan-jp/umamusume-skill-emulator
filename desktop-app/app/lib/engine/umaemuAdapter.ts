@@ -1,5 +1,6 @@
 import { UmaStatusData, RawSkillData } from "../types";
 import type { RaceCondition } from "../../components/RaceConditionSelector";
+import { getCourseById, getSurfaceKey, getDistanceKey, getStyleKey } from "../aptitudeHelper";
 
 let cachedEngine: any = null;
 let engineLoadPromise: Promise<any> | null = null;
@@ -80,6 +81,11 @@ export async function runUmaSimulation(data: UmaStatusData, raceCondition: RaceC
   }
   const engine = cachedEngine;
 
+  const course = getCourseById(raceCondition.locationId, raceCondition.courseId);
+  const distanceKey = getDistanceKey(course);
+  const surfaceKey = getSurfaceKey(course);
+  const styleKey = getStyleKey(data.strategy);
+
   // 1. UmaStatusData と RaceCondition から、WASMが要求するJSONスキーマに変換する
   const payload = {
     umaStatus: {
@@ -92,9 +98,9 @@ export async function runUmaSimulation(data: UmaStatusData, raceCondition: RaceC
       style: data.strategy || "NIGE",
       popularity: data.popularity || 1,
       gateNumber: data.gateNumber || 0,
-      distanceFit: data.aptitudes.distanceFit || "A",
-      surfaceFit: data.aptitudes.surfaceFit || "A",
-      styleFit: data.aptitudes.styleFit || "A",
+      distanceFit: data.aptitudes[distanceKey] || "A",
+      surfaceFit: data.aptitudes[surfaceKey] || "A",
+      styleFit: data.aptitudes[styleKey] || "A",
       skillNames: data.skills || []
     },
     track: {
