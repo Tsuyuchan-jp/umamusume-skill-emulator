@@ -1,14 +1,17 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
-import { useCapture } from "../hooks/useCapture";
+import React, { useState, useEffect, useRef } from "react";
+import { register, unregister, isRegistered } from "@tauri-apps/plugin-global-shortcut";
+import { open } from "@tauri-apps/plugin-dialog";
 import { invoke } from "@tauri-apps/api/core";
 import { emit } from "@tauri-apps/api/event";
-import { open } from "@tauri-apps/plugin-dialog";
-import { register, unregister, isRegistered } from "@tauri-apps/plugin-global-shortcut";
-import { Magnet, Camera, Square, Settings, Folder, Keyboard, Wand2, Copy, Sparkles, Key, AlertCircle } from "lucide-react";
-import { StatusEditor } from "../components/StatusEditor";
+import { Copy, Wand2 } from "lucide-react";
+import { useCapture } from "../hooks/useCapture";
+import { useToast } from "../hooks/useToast";
 import { ApiKeyModal } from "../components/ApiKeyModal";
+import { StatusEditor } from "../components/StatusEditor";
+import { SettingsPanel } from "../components/SettingsPanel";
+import { ToastNotification } from "../components/ToastNotification";
 import { analyzeStitchedImage } from "../lib/geminiOcr";
 import { UmaStatusData } from "../lib/types";
 
@@ -26,13 +29,12 @@ export default function Home() {
     handleResetCapture,
   } = useCapture();
 
+  const { showToast, toastMessage, toastType, showToastMessage } = useToast();
+
   const [autoCopyEnabled, setAutoCopyEnabled] = useState<boolean>(true);
   const [saveFolder, setSaveFolder] = useState<string>("");
   const [shortcutKey, setShortcutKey] = useState<string>("F9");
   const [isRecordingShortcut, setIsRecordingShortcut] = useState<boolean>(false);
-  const [showToast, setShowToast] = useState<boolean>(false);
-  const [toastMessage, setToastMessage] = useState<string>("");
-  const [toastType, setToastType] = useState<"success" | "error">("success");
 
   // OCR/エディタ関連ステート
   const [apiKey, setApiKey] = useState<string>("");
@@ -43,17 +45,6 @@ export default function Home() {
   const previewRef = useRef<HTMLDivElement>(null);
   const autoCopyTriggeredRef = useRef<boolean>(false);
   const shortcutInputRef = useRef<HTMLInputElement>(null);
-  const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  const showToastMessage = (msg: string, type: "success" | "error" = "success", durationMs: number = 3000) => {
-    setToastType(type);
-    setToastMessage(msg);
-    setShowToast(true);
-    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
-    if (durationMs > 0) {
-      toastTimeoutRef.current = setTimeout(() => setShowToast(false), durationMs);
-    }
-  };
 
   const captureStatusRef = useRef(captureStatus);
   const handleStartAutoCaptureRef = useRef(handleStartAutoCapture);
@@ -432,104 +423,20 @@ export default function Home() {
         </div>
 
         {/* 設定 */}
-        <div className="w-full backdrop-blur-xl bg-zinc-900/20 border border-zinc-800/80 rounded-2xl p-4 px-5 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] transition-all duration-500 hover:border-emerald-500/20 hover:shadow-[0_0_30px_0_rgba(16,185,129,0.03)]">
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center justify-between gap-4">
-              <h2 className="text-sm font-semibold tracking-wide text-zinc-300 flex items-center gap-2 whitespace-nowrap">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-settings w-4 h-4 text-emerald-400" aria-hidden="true"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"></path><circle cx="12" cy="12" r="3"></circle></svg> 設定
-              </h2>
-              <div className="flex flex-1 items-center justify-end gap-4 text-xs">
-                <label className="flex items-center gap-2 text-zinc-400 cursor-pointer select-none hover:text-zinc-300 transition-colors group">
-                  <div className="relative flex items-center justify-center w-4 h-4 rounded border border-zinc-800 bg-zinc-900/50 group-hover:border-emerald-500/50 transition-colors shrink-0">
-                    <input 
-                      type="checkbox" 
-                      className="absolute opacity-0 w-full h-full cursor-pointer z-10" 
-                      checked={autoCopyEnabled}
-                      onChange={(e) => handleToggleAutoCopy(e.target.checked)}
-                    />
-                    <svg className={`w-3 h-3 text-emerald-400 absolute transition-opacity ${autoCopyEnabled ? 'opacity-100' : 'opacity-0'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                  </div>
-                  <span className="hidden sm:inline">完了時にクリップボードへ自動コピー</span>
-                  <span className="sm:hidden">自動コピー</span>
-                </label>
-              </div>
-            </div>
-            
-            <div className="h-px w-full bg-white/[0.05]"></div>
-            
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              <div className="flex flex-col gap-0.5 shrink-0">
-                <span className="text-xs font-medium text-zinc-300">画像の保存先フォルダ</span>
-                <span className="text-[10px] text-zinc-500">未設定時は標準ダウンロードフォルダ</span>
-              </div>
-              <div className="flex w-full sm:max-w-md items-center bg-zinc-950/50 border border-zinc-800/80 rounded-lg overflow-hidden group focus-within:border-emerald-500/50 transition-colors">
-                <div className="pl-3 pr-2 text-zinc-500">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-folder w-3.5 h-3.5 text-zinc-500" aria-hidden="true"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg>
-                </div>
-                <input 
-                  type="text" 
-                  readOnly 
-                  placeholder="未設定" 
-                  className="flex-1 bg-transparent py-2 text-xs text-zinc-300 outline-none truncate" 
-                  title={saveFolder || "標準のダウンロードフォルダ"} 
-                  value={saveFolder}
-                />
-                <button 
-                  onClick={handleSelectFolder}
-                  className="shrink-0 bg-zinc-800 hover:bg-emerald-600 text-zinc-300 hover:text-white text-xs font-semibold px-4 py-2 border-l border-zinc-700/50 transition-all active:bg-emerald-700"
-                >
-                  変更
-                </button>
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-3 border-t border-white/[0.05]">
-              <div className="flex flex-col gap-0.5 shrink-0">
-                <span className="text-xs font-medium text-zinc-300">キャプチャ開始/停止キー</span>
-                <span className="text-[10px] text-zinc-500">グローバルでキャプチャをトグル</span>
-              </div>
-              <div className={`flex w-full sm:max-w-md items-center bg-zinc-950/50 border ${isRecordingShortcut ? 'border-emerald-500/50 shadow-[0_0_10px_rgba(16,185,129,0.1)]' : 'border-zinc-800/80'} rounded-lg overflow-hidden group focus-within:border-emerald-500/50 transition-colors`}>
-                <div className="pl-3 pr-2 text-zinc-500">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-keyboard w-3.5 h-3.5 text-zinc-500" aria-hidden="true"><path d="M10 8h.01"></path><path d="M12 12h.01"></path><path d="M14 8h.01"></path><path d="M16 12h.01"></path><path d="M18 8h.01"></path><path d="M6 8h.01"></path><path d="M7 16h10"></path><path d="M8 12h.01"></path><rect width="20" height="16" x="2" y="4" rx="2"></rect></svg>
-                </div>
-                <input 
-                  type="text" 
-                  readOnly 
-                  ref={shortcutInputRef}
-                  value={isRecordingShortcut ? "キーを入力してください..." : shortcutKey}
-                  placeholder="未設定" 
-                  onKeyDown={handleKeyDownForShortcut}
-                  onBlur={() => setIsRecordingShortcut(false)}
-                  className={`flex-1 bg-transparent py-2 text-xs outline-none truncate transition-colors ${isRecordingShortcut ? 'text-emerald-400 font-bold' : 'text-zinc-300'}`} 
-                />
-                <button 
-                  onClick={() => setIsRecordingShortcut(true)}
-                  className={`shrink-0 text-xs font-semibold px-4 py-2 border-l border-zinc-700/50 transition-all ${isRecordingShortcut ? 'bg-emerald-600 text-white hover:bg-emerald-500' : 'bg-zinc-800 hover:bg-emerald-600 text-zinc-300 hover:text-white active:bg-emerald-700'}`}
-                >
-                  {isRecordingShortcut ? "入力中" : "変更"}
-                </button>
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-3 border-t border-white/[0.05]">
-              <div className="flex flex-col gap-0.5 shrink-0">
-                <span className="text-xs font-medium text-zinc-300">Gemini APIキー</span>
-                <span className="text-[10px] text-zinc-500">OCR解析用</span>
-              </div>
-              <div className="flex w-full sm:max-w-md items-center justify-end">
-                <button 
-                  onClick={() => setShowApiKeyModal(true)}
-                  className="shrink-0 bg-zinc-800 hover:bg-emerald-600 text-zinc-300 hover:text-white text-xs font-semibold px-4 py-2 border border-zinc-700/50 rounded-lg transition-all active:bg-emerald-700 flex items-center gap-2"
-                >
-                  <Key className="w-3.5 h-3.5" />
-                  {apiKey ? "設定済み (変更)" : "未設定"}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <SettingsPanel 
+          autoCopyEnabled={autoCopyEnabled}
+          saveFolder={saveFolder}
+          shortcutKey={shortcutKey}
+          isRecordingShortcut={isRecordingShortcut}
+          apiKey={apiKey}
+          onToggleAutoCopy={handleToggleAutoCopy}
+          onSelectFolder={handleSelectFolder}
+          onRecordingShortcutStart={() => setIsRecordingShortcut(true)}
+          onRecordingShortcutBlur={() => setIsRecordingShortcut(false)}
+          onKeyDownForShortcut={handleKeyDownForShortcut as any}
+          onShowApiKeyModal={() => setShowApiKeyModal(true)}
+          shortcutInputRef={shortcutInputRef as any}
+        />
       </main>
 
       {/* 結合結果の画像プレビューエリア */}
@@ -605,17 +512,7 @@ export default function Home() {
       )}
 
       {/* トースト通知 */}
-      {showToast && (
-        <div className={`fixed bottom-8 right-8 z-50 animate-slideIn flex items-center gap-3 bg-zinc-900/95 border px-5 py-3 rounded-2xl shadow-2xl backdrop-blur-xl transition-all duration-300 ${toastType === 'error' ? 'border-rose-500/30 text-rose-400' : 'border-emerald-500/30 text-emerald-400'}`}>
-          {toastType === 'error' ? <AlertCircle className="w-5 h-5" /> : <Sparkles className="w-5 h-5" />}
-          <div className="flex flex-col">
-            <span className={`text-[12px] font-bold font-sans tracking-wide ${toastType === 'error' ? 'text-rose-300' : 'text-zinc-200'}`}>
-              {toastType === 'error' ? 'ERROR' : 'NOTIFICATION'}
-            </span>
-            <span className="text-[11px] text-zinc-400 font-sans font-medium">{toastMessage}</span>
-          </div>
-        </div>
-      )}
+      <ToastNotification show={showToast} type={toastType} message={toastMessage} />
 
       <ApiKeyModal
         isOpen={showApiKeyModal}
