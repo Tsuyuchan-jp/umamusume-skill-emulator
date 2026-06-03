@@ -578,13 +578,23 @@ export default function Home() {
                     const loc = trackData.find(l => l.id === cond.locationId);
                     const course = loc?.courses.find(c => c.id === cond.courseId);
                     const SURFACE_MAP: Record<number, string> = { 1: '良', 2: '稍重', 3: '重', 4: '不良' };
+                    const CONDITION_MAP: Record<string, string> = { "BEST": "絶好調", "GOOD": "好調", "NORMAL": "普通", "BAD": "不調", "WORST": "絶不調" };
+                    
                     const parts = [];
                     if (loc && course) parts.push(`${loc.name} ${course.name}`);
                     if (SURFACE_MAP[cond.surfaceCond]) parts.push(SURFACE_MAP[cond.surfaceCond]);
                     if (cond.playerNum) parts.push(`${cond.playerNum}人`);
-                    if (uma?.condition) parts.push(uma.condition);
-                    if (uma?.popularity) parts.push(`${uma.popularity}番人気`);
-                    if (uma?.gateNumber) parts.push(`${uma.gateNumber}番ゲート`);
+                    
+                    const conditionVal = uma?.condition || "BEST";
+                    parts.push(CONDITION_MAP[conditionVal] || conditionVal);
+                    
+                    const popularityVal = uma?.popularity || 1;
+                    parts.push(`${popularityVal}番人気`);
+                    
+                    if (uma?.gateNumber && uma.gateNumber > 0) {
+                      parts.push(`${uma.gateNumber}番ゲート`);
+                    }
+                    
                     parts.push('100走');
                     return parts.join(' / ');
                   })()}
