@@ -18,6 +18,7 @@ import { analyzeStitchedImage } from "../lib/geminiOcr";
 import { UmaStatusData, SimTab } from "../lib/types";
 import { ResultCard } from "../components/ResultCard";
 import { SkillVerifier } from "../components/SkillVerifier";
+import SimulationStatusView from "../components/SimulationStatusView";
 import { trackData } from "../lib/trackData";
 
 export default function Home() {
@@ -555,7 +556,7 @@ export default function Home() {
             >
               {isSimulating && simulationProgress && (
                 <div 
-                  className="absolute inset-y-0 left-0 bg-wave-pattern animate-wave-pan transition-all duration-100 ease-linear opacity-40"
+                  className="absolute inset-y-0 left-0 bg-emerald-400/50 transition-all duration-100 ease-linear"
                   style={{ width: `${(simulationProgress.current / simulationProgress.total) * 100}%` }}
                 />
               )}
@@ -666,6 +667,11 @@ export default function Home() {
                 </span>
               </div>
               <ResultCard result={activeTab.simResultDump} baseline={activeTab.baselineResult} />
+
+              {/* 実行時ステータス表示 */}
+              {activeTab.umaData && (
+                <SimulationStatusView umaData={activeTab.umaData} />
+              )}
 
               {/* スキル影響検証モード */}
               {activeTab.umaData && activeTab.baselineResult && (

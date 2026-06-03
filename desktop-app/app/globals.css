@@ -10,12 +10,6 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  
-  --animate-wave-pan: wave-pan 3s linear infinite;
-  @keyframes wave-pan {
-    0% { background-position-x: 0; }
-    100% { background-position-x: -800px; }
-  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -29,11 +23,4 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
-}
-
-/* Custom Utilities for Progress Bar */
-.bg-wave-pattern {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 88.7'%3E%3Cpath d='M800 56.9c-155.5 0-204.9-50-405.5-49.9-200 0-250 49.9-394.5 49.9v31.8h800v-.2-31.6z' fill='%2310b981' fill-opacity='0.6'/%3E%3C/svg%3E");
-  background-repeat: repeat-x;
-  background-size: 800px 100%;
 }
