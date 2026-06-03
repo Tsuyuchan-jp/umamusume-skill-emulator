@@ -97,7 +97,7 @@ export function StatusPanel({ data, onChange, raceCondition }: StatusPanelProps)
         {/* 1行目: 作戦・適性×3・調子 */}
         <div className="flex flex-wrap gap-4">
           <div className="flex flex-col gap-1">
-            <span className="text-xs font-bold text-amber-400">作戦</span>
+            <span className="text-xs font-semibold text-zinc-400">作戦</span>
             <select
               value={data.strategy || "NIGE"}
               onChange={(e) => updateStat('strategy', e.target.value)}
