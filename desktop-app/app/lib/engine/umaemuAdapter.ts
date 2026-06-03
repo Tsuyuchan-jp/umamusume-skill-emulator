@@ -150,25 +150,63 @@ export async function runMultipleSimulations(data: UmaStatusData, raceCondition:
   
   console.timeEnd(`Simulating ${iterations} times`);
 
-  // Basic aggregation for debug view
-  // Extract times
-  const times = results.map(r => r.time || 0);
-  const avgTime = times.reduce((a, b) => a + b, 0) / times.length;
-  const minTime = Math.min(...times);
-  const maxTime = Math.max(...times);
+  // Phase 16.5: 正しいキーによる集計ロジック
+  const aggregateGroup = (groupResults: any[]) => {
+    if (groupResults.length === 0) return null;
 
-  // Remaining Stamina
-  const remainingStaminas = results.map(r => r.spMin || 0); // Need to check actual fields in WASM result
-  const avgStamina = remainingStaminas.reduce((a, b) => a + b, 0) / remainingStaminas.length;
+    const times = groupResults.map(r => r.raceTime || 0);
+    const avgTime = times.reduce((a, b) => a + b, 0) / times.length;
+    const minTime = Math.min(...times);
+    const maxTime = Math.max(...times);
+
+    const staminas = groupResults.map(r => r.spDiff || 0);
+    const avgStamina = staminas.reduce((a, b) => a + b, 0) / staminas.length;
+    const maxStamina = Math.max(...staminas);
+    const minStamina = Math.min(...staminas);
+
+    const posAdjusts = groupResults.map(r => r.positionCompetitionCount || 0);
+    const avgPosAdjust = posAdjusts.reduce((a, b) => a + b, 0) / posAdjusts.length;
+
+    const staminaKeeps = groupResults.map(r => r.staminaKeepDistance || 0);
+    const staminaKeepCount = staminaKeeps.filter(d => d > 0).length;
+    const staminaKeepRate = staminaKeepCount / staminaKeeps.length;
+    const avgStaminaKeepDist = staminaKeepCount > 0 ? staminaKeeps.filter(d => d > 0).reduce((a, b) => a + b, 0) / staminaKeepCount : 0;
+
+    const competeFights: number[] = groupResults.map(r => r.competeFightFinished ? 1 : 0);
+    const competeFightRate = competeFights.reduce((a, b) => a + b, 0) / competeFights.length;
+    
+    const competeFightTimes = groupResults.map(r => r.competeFightTime || 0);
+    const competeFightTimesValid = competeFightTimes.filter(t => t > 0);
+    const avgCompeteFightTime = competeFightTimesValid.length > 0 ? competeFightTimesValid.reduce((a, b) => a + b, 0) / competeFightTimesValid.length : 0;
+
+    return {
+      count: groupResults.length,
+      rate: groupResults.length / iterations,
+      avgTime,
+      minTime,
+      maxTime,
+      avgStamina,
+      maxStamina,
+      minStamina,
+      avgPosAdjust,
+      staminaKeepRate,
+      avgStaminaKeepDist,
+      competeFightRate,
+      avgCompeteFightTime
+    };
+  };
+
+  const all = aggregateGroup(results);
+  const maxSpurtResults = results.filter(r => r.maxSpurt);
+  const nonMaxSpurtResults = results.filter(r => !r.maxSpurt);
 
   return {
     iterations,
     summary: {
-      avgTime,
-      minTime,
-      maxTime,
-      avgStamina
+      all,
+      maxSpurt: aggregateGroup(maxSpurtResults),
+      nonMaxSpurt: aggregateGroup(nonMaxSpurtResults)
     },
-    rawSample: results[0] // Return one sample to inspect fields
+    rawSample: results[0]
   };
 }
