@@ -1,0 +1,166 @@
+"use client";
+
+import React from "react";
+
+interface ResultSummary {
+  count: number;
+  rate: number;
+  avgTime: number;
+  minTime: number;
+  maxTime: number;
+  avgStamina: number;
+  maxStamina: number;
+  minStamina: number;
+  avgPosAdjust: number;
+  staminaKeepRate: number;
+  avgStaminaKeepDist: number;
+  competeFightRate: number;
+  avgCompeteFightTime: number;
+}
+
+interface SimResultDump {
+  iterations: number;
+  summary: {
+    all: ResultSummary;
+    maxSpurt: ResultSummary;
+    nonMaxSpurt: ResultSummary | null;
+  };
+  rawSample: any;
+}
+
+interface ResultCardProps {
+  result: SimResultDump;
+}
+
+const formatTime = (seconds: number) => {
+  if (seconds === 0) return "0:00.000";
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  const ms = Math.floor((seconds % 1) * 1000);
+  return `${m}:${s.toString().padStart(2, "0")}.${ms.toString().padStart(3, "0")}`;
+};
+
+const formatPercent = (rate: number) => {
+  return `${(rate * 100).toFixed(1)}%`;
+};
+
+export const ResultCard: React.FC<ResultCardProps> = ({ result }) => {
+  const { all, maxSpurt, nonMaxSpurt } = result.summary;
+
+  return (
+    <div className="flex flex-col gap-6">
+      {/* ヒーロー KPI */}
+      <div className="grid grid-cols-3 gap-4">
+        <div className="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-6 flex flex-col items-center justify-center shadow-lg relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-1 bg-blue-500/50"></div>
+          <span className="text-zinc-400 text-sm font-bold mb-1">最速タイム</span>
+          <span className="text-3xl font-black text-blue-400 font-mono tracking-tighter">
+            {formatTime(all.minTime)}
+          </span>
+        </div>
+        <div className="bg-zinc-900/80 border border-emerald-500/30 rounded-2xl p-6 flex flex-col items-center justify-center shadow-lg relative overflow-hidden scale-105 z-10 ring-1 ring-emerald-500/20">
+          <div className="absolute top-0 left-0 w-full h-1 bg-emerald-500"></div>
+          <span className="text-emerald-400/80 text-sm font-bold mb-1">平均タイム</span>
+          <span className="text-4xl font-black text-emerald-400 font-mono tracking-tighter shadow-emerald-500/20 drop-shadow-md">
+            {formatTime(all.avgTime)}
+          </span>
+        </div>
+        <div className="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-6 flex flex-col items-center justify-center shadow-lg relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-1 bg-orange-500/50"></div>
+          <span className="text-zinc-400 text-sm font-bold mb-1">最遅タイム</span>
+          <span className="text-3xl font-black text-orange-400 font-mono tracking-tighter">
+            {formatTime(all.maxTime)}
+          </span>
+        </div>
+      </div>
+
+      {/* サブKPI グリッド */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 flex flex-col">
+          <span className="text-zinc-500 text-xs font-bold mb-2">平均余剰体力</span>
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-bold text-zinc-100">{all.avgStamina.toFixed(1)}</span>
+            <span className="text-xs text-zinc-500">HP</span>
+          </div>
+          <div className="flex justify-between mt-2 text-[10px] text-zinc-500">
+            <span>最小: {all.minStamina.toFixed(1)}</span>
+            <span>最大: {all.maxStamina.toFixed(1)}</span>
+          </div>
+        </div>
+
+        <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 flex flex-col">
+          <span className="text-zinc-500 text-xs font-bold mb-2">位置取り調整 (平均)</span>
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-bold text-zinc-100">{all.avgPosAdjust.toFixed(2)}</span>
+            <span className="text-xs text-zinc-500">回</span>
+          </div>
+        </div>
+
+        <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 flex flex-col">
+          <span className="text-zinc-500 text-xs font-bold mb-2">持久力温存</span>
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-bold text-zinc-100">{formatPercent(all.staminaKeepRate)}</span>
+          </div>
+          <div className="mt-2 text-[10px] text-zinc-500">
+            <span>平均距離: {all.avgStaminaKeepDist.toFixed(1)}m</span>
+          </div>
+        </div>
+
+        <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 flex flex-col">
+          <span className="text-zinc-500 text-xs font-bold mb-2">追い比べ完走</span>
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-bold text-zinc-100">{formatPercent(all.competeFightRate)}</span>
+          </div>
+          <div className="mt-2 text-[10px] text-zinc-500">
+            <span>平均時間: {all.avgCompeteFightTime.toFixed(2)}秒</span>
+          </div>
+        </div>
+      </div>
+
+      {/* スパート分析 */}
+      <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-5">
+        <h3 className="text-sm font-bold text-zinc-300 mb-4 flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-indigo-500"></div>
+          スパート分析 (計 {result.iterations}走)
+        </h3>
+        
+        <div className="space-y-4">
+          <div className="flex items-center justify-between p-3 bg-zinc-950/50 rounded-lg border border-zinc-800/50">
+            <div className="flex flex-col">
+              <span className="text-zinc-300 font-bold text-sm">最大スパート成功</span>
+              <span className="text-zinc-500 text-xs">十分なスタミナでスパートしきれたレース</span>
+            </div>
+            <div className="flex items-center gap-6">
+              <div className="flex flex-col items-end">
+                <span className="text-xs text-zinc-500 mb-1">平均タイム</span>
+                <span className="text-sm font-mono text-emerald-400">{formatTime(maxSpurt?.avgTime || 0)}</span>
+              </div>
+              <div className="flex flex-col items-end w-20">
+                <span className="text-xs text-zinc-500 mb-1">発生率</span>
+                <span className="text-lg font-bold text-zinc-100">{formatPercent((maxSpurt?.count || 0) / result.iterations)}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between p-3 bg-zinc-950/50 rounded-lg border border-zinc-800/50">
+            <div className="flex flex-col">
+              <span className="text-zinc-400 font-bold text-sm">スタミナ切れ (非最大スパート)</span>
+              <span className="text-zinc-600 text-xs">スタミナが足りず失速したレース</span>
+            </div>
+            <div className="flex items-center gap-6 opacity-70">
+              <div className="flex flex-col items-end">
+                <span className="text-xs text-zinc-500 mb-1">平均タイム</span>
+                <span className="text-sm font-mono text-red-400">{nonMaxSpurt ? formatTime(nonMaxSpurt.avgTime) : "---"}</span>
+              </div>
+              <div className="flex flex-col items-end w-20">
+                <span className="text-xs text-zinc-500 mb-1">発生率</span>
+                <span className="text-lg font-bold text-zinc-400">{nonMaxSpurt ? formatPercent(nonMaxSpurt.count / result.iterations) : "0.0%"}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  );
+};
