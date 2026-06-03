@@ -1,0 +1,23 @@
+[
+  {
+    "name": "東京 芝2400m 重 9人",
+    "locationId": "10006",
+    "courseId": "10606",
+    "surfaceCond": 3,
+    "playerNum": 9
+  },
+  {
+    "name": "中山 芝3600m(内) 良 9人",
+    "locationId": "10005",
+    "courseId": "10507",
+    "surfaceCond": 1,
+    "playerNum": 9
+  },
+  {
+    "name": "中山 芝2000m(内) 良 12人",
+    "locationId": "10005",
+    "courseId": "10504",
+    "surfaceCond": 1,
+    "playerNum": 12
+  }
+]

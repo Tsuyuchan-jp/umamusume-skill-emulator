@@ -1,4 +1,5 @@
 import { UmaStatusData, RawSkillData } from "../types";
+import type { RaceCondition } from "../../components/RaceConditionSelector";
 
 let cachedEngine: any = null;
 let engineLoadPromise: Promise<any> | null = null;
@@ -73,13 +74,13 @@ export async function initializeUmasimEngine() {
   }
 }
 
-export async function runUmaSimulation(data: UmaStatusData) {
+export async function runUmaSimulation(data: UmaStatusData, raceCondition: RaceCondition): Promise<any> {
   if (!isEngineInitialized) {
     await initializeUmasimEngine();
   }
   const engine = cachedEngine;
 
-  // マッピング処理
+  // 1. UmaStatusData と RaceCondition から、WASMが要求するJSONスキーマに変換する
   const payload = {
     umaStatus: {
       speed: data.speed,
@@ -89,17 +90,16 @@ export async function runUmaSimulation(data: UmaStatusData) {
       wisdom: data.wisdom,
       condition: "BEST",
       style: "NIGE",
-      // とりあえずマイル・芝・逃げの評価を採用（必要に応じて変更可能）
       distanceFit: data.aptitudes.mile || "A",
       surfaceFit: data.aptitudes.turf || "A",
       styleFit: data.aptitudes.nige || "A",
       skillNames: data.skills || []
     },
     track: {
-      location: 10001, // 札幌
-      course: 10102, // 芝1500m
-      condition: "GOOD",
-      gateCount: 9
+      location: Number(raceCondition.locationId),
+      course: Number(raceCondition.courseId),
+      condition: ["", "GOOD", "YAYAOMO", "OMO", "BAD"][raceCondition.surfaceCond] || "GOOD",
+      gateCount: raceCondition.playerNum
     },
     season: 0,
     weather: 0,

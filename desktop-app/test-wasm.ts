@@ -24,7 +24,12 @@ async function test() {
   };
   try {
     await initializeUmasimEngine();
-    const result = await runUmaSimulation(data);
+    const result = await runUmaSimulation(data, {
+      locationId: "10001",
+      courseId: "10102",
+      surfaceCond: 1,
+      playerNum: 9
+    });
     console.log("Result raceTime:", result.raceTime);
   } catch (e) {
     console.error("Failed:", e);

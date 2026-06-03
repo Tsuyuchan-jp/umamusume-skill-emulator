@@ -12,6 +12,7 @@ import { ApiKeyModal } from "../components/ApiKeyModal";
 import { StatusEditor } from "../components/StatusEditor";
 import { SettingsPanel } from "../components/SettingsPanel";
 import { ToastNotification } from "../components/ToastNotification";
+import { RaceConditionSelector, RaceCondition } from "../components/RaceConditionSelector";
 import { analyzeStitchedImage } from "../lib/geminiOcr";
 import { UmaStatusData } from "../lib/types";
 
@@ -41,6 +42,14 @@ export default function Home() {
   const [showApiKeyModal, setShowApiKeyModal] = useState<boolean>(false);
   const [ocrResult, setOcrResult] = useState<UmaStatusData | null>(null);
   const [isOcrProcessing, setIsOcrProcessing] = useState<boolean>(false);
+
+  // レース環境ステート
+  const [raceCondition, setRaceCondition] = useState<RaceCondition>({
+    locationId: "10006",
+    courseId: "10606", // デフォルト: 東京 芝2400m
+    surfaceCond: 1, // 良
+    playerNum: 9
+  });
 
   const previewRef = useRef<HTMLDivElement>(null);
   const autoCopyTriggeredRef = useRef<boolean>(false);
@@ -488,7 +497,12 @@ export default function Home() {
             )}
 
             {ocrResult && (
-              <div className="w-full mt-4 animate-fadeIn">
+              <div className="w-full mt-4 animate-fadeIn flex flex-col gap-6">
+                <RaceConditionSelector 
+                  condition={raceCondition} 
+                  onChange={setRaceCondition} 
+                />
+
                 <StatusEditor 
                   initialData={ocrResult} 
                   onSave={async (data) => {
@@ -496,7 +510,7 @@ export default function Home() {
                     showToastMessage("シミュレーションを開始します...", "success", 3000);
                     try {
                       const { runUmaSimulation } = await import('../lib/engine/umaemuAdapter');
-                      const simResult = await runUmaSimulation(data);
+                      const simResult = await runUmaSimulation(data, raceCondition);
                       console.log("シミュレーション結果:", simResult);
                       showToastMessage(`シミュレーション完了！タイム: ${simResult.raceTime.toFixed(3)}秒`, "success", 5000);
                     } catch (e: any) {
