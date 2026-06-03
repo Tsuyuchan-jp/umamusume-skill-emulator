@@ -459,6 +459,10 @@ export default function Home() {
             <button
               onClick={async () => {
                 if (!umaData) return;
+                if (!umaData.strategy || umaData.strategy === "") {
+                  showToastMessage("作戦が未選択です。ステータス枠から作戦を選択してください！", "error", 5000);
+                  return;
+                }
                 setIsSimulating(true);
                 showToastMessage('100回シミュレーションを実行中...', 'success', 3000);
                 try {

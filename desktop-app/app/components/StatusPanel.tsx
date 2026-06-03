@@ -99,10 +99,15 @@ export function StatusPanel({ data, onChange, raceCondition }: StatusPanelProps)
           <div className="flex flex-col gap-1">
             <span className="text-xs font-semibold text-zinc-400">作戦</span>
             <select
-              value={data.strategy || "NIGE"}
+              value={data.strategy || ""}
               onChange={(e) => updateStat('strategy', e.target.value)}
-              className="bg-zinc-950 border border-amber-700/50 rounded-md px-2 py-1.5 text-sm outline-none focus:border-amber-500 text-zinc-200"
+              className={`rounded-md px-2 py-1.5 text-sm outline-none text-zinc-200 transition-all ${
+                !data.strategy || data.strategy === "" 
+                  ? "bg-rose-500/10 border-2 border-rose-500 animate-pulse focus:border-rose-400 shadow-[0_0_10px_rgba(244,63,94,0.3)]" 
+                  : "bg-zinc-950 border border-amber-700/50 focus:border-amber-500"
+              }`}
             >
+              <option value="" disabled>-- 選択 --</option>
               {STRATEGIES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
             </select>
           </div>
