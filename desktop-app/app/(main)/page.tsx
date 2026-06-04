@@ -546,6 +546,8 @@ export default function Home() {
                 <SkillVerifier
                   umaData={activeTab.umaData}
                   disabledSkills={activeTab.disabledSkills}
+                  appliedDisabledSkills={activeTab.appliedDisabledSkills || []}
+                  appliedAddedSkills={activeTab.appliedAddedSkills || []}
                   onToggleSkill={(skillName) => {
                     setTabs(prev => prev.map(t => {
                       if (t.id === activeTabId) {
@@ -566,6 +568,8 @@ export default function Home() {
                         return {
                           ...t,
                           disabledSkills: t.addedSkills ? [...t.addedSkills] : [],
+                          appliedDisabledSkills: t.addedSkills ? [...t.addedSkills] : [],
+                          appliedAddedSkills: t.addedSkills ? [...t.addedSkills] : [],
                           simResultDump: t.baselineResult
                         };
                       }
@@ -662,7 +666,12 @@ export default function Home() {
                       
                       setTabs(prev => prev.map(t => {
                         if (t.id === activeTabId) {
-                          return { ...t, simResultDump: simResult };
+                          return { 
+                            ...t, 
+                            simResultDump: simResult,
+                            appliedDisabledSkills: [...t.disabledSkills],
+                            appliedAddedSkills: t.addedSkills ? [...t.addedSkills] : []
+                          };
                         }
                         return t;
                       }));

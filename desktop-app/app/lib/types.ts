@@ -71,6 +71,8 @@ export interface SimTab {
   baselineResult: SimResultDump | null;
   disabledSkills: string[];
   addedSkills?: string[];
+  appliedDisabledSkills?: string[];
+  appliedAddedSkills?: string[];
   thumbnailUrl: string | null;
   isDuplicate?: boolean;
 }

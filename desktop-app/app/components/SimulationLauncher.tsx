@@ -59,6 +59,8 @@ export function SimulationLauncher(props: SimulationLauncherProps) {
         simResultDump: simResult,
         baselineResult: simResult,
         disabledSkills: [],
+        appliedDisabledSkills: [],
+        appliedAddedSkills: [],
         thumbnailUrl: thumbUrl
       };
       
