@@ -455,10 +455,11 @@ export default function Home() {
               />
 
               <div className="flex items-center gap-3 mb-8">
-                <div className="w-2 h-8 bg-blue-500 rounded-full"></div>
-                <h2 className="text-2xl font-bold text-zinc-100">シミュレーション結果</h2>
+                {/* 案B：光るステータスドット */}
+                <div className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse ring-4 ring-blue-500/20 ml-1"></div>
+
                 {activeTab && (
-                  <div className="flex items-center gap-2 ml-2">
+                  <div className="flex items-center gap-2">
                     {editingTabId === activeTab.id ? (
                       <input
                         type="text"
@@ -499,7 +500,9 @@ export default function Home() {
                 <div className="ml-auto flex items-center gap-3">
                   {/* ステータス確認モーダルボタン */}
                   {activeTab.umaData && activeTab.raceCondition && (
-                    <SimulationStatusView umaData={activeTab.umaData} raceCondition={activeTab.raceCondition} />
+                    <div className="flex items-center bg-zinc-900/80 rounded-lg p-1 border border-zinc-800/50">
+                      <SimulationStatusView umaData={activeTab.umaData} raceCondition={activeTab.raceCondition} />
+                    </div>
                   )}
 
                   {/* 単位切り替えトグル */}

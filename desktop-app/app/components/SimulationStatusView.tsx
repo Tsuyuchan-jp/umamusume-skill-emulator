@@ -38,25 +38,31 @@ export default function SimulationStatusView({ umaData, raceCondition }: Simulat
   };
 
   return (
-    <>
+    <div className="relative">
       <button
         onClick={() => setIsExpanded(true)}
-        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-zinc-400 bg-zinc-800/50 hover:bg-zinc-700 hover:text-zinc-200 rounded-md border border-zinc-700/50 transition-all shadow-sm"
+        title="ステータス・条件を確認"
+        className="flex items-center justify-center p-1.5 text-zinc-400 hover:bg-zinc-700/50 hover:text-zinc-200 rounded-md transition-all"
       >
-        <Activity className="w-3.5 h-3.5 text-emerald-500" />
-        ステータス確認
+        <Activity className="w-4 h-4 text-emerald-500" />
       </button>
 
       {isExpanded && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setIsExpanded(false)}>
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+        <>
+          {/* 見えないオーバーレイ（外側クリックで閉じる用） */}
+          <div 
+            className="fixed inset-0 z-[90]" 
+            onClick={() => setIsExpanded(false)}
+          />
+          
+          <div className="absolute right-0 top-full mt-3 z-[100] bg-zinc-900 border border-zinc-800 rounded-2xl w-max max-w-lg overflow-hidden shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200">
             <div className="flex items-center justify-between p-4 border-b border-zinc-800/50 bg-zinc-950/50">
               <div className="flex items-center gap-2">
-                <Activity className="w-5 h-5 text-emerald-500" />
-                <h3 className="text-lg font-bold text-zinc-100">実行時のステータス条件</h3>
+                <Activity className="w-4 h-4 text-emerald-500" />
+                <h3 className="text-sm font-bold text-zinc-100">実行時のステータス条件</h3>
               </div>
-              <button onClick={() => setIsExpanded(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-zinc-800/50 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700 transition-colors">
-                ✕
+              <button onClick={() => setIsExpanded(false)} className="w-6 h-6 flex items-center justify-center rounded-full bg-zinc-800/50 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700 transition-colors">
+                <span className="text-xs">✕</span>
               </button>
             </div>
 
@@ -108,8 +114,8 @@ export default function SimulationStatusView({ umaData, raceCondition }: Simulat
               </div>
             </div>
           </div>
-        </div>
+        </>
       )}
-    </>
+    </div>
   );
 }
