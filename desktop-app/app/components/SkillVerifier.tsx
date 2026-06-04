@@ -97,36 +97,37 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
         検証したいスキルのチェックを外して再シミュレーションすることで、そのスキルがない場合のタイムへの影響（Delta）を確認できます。
       </p>
 
-      {/* 変更サマリー（抽出UI） */}
-      {(excludedSkillsList.length > 0 || activeAddedSkillsList.length > 0) && (
-        <div className="flex flex-col gap-2 mb-4 p-3 bg-zinc-950/30 border border-zinc-800/50 rounded-lg">
-          <div className="text-xs font-bold text-zinc-500">構成の変更:</div>
-          
-          <div className="flex flex-col gap-1.5 ml-2">
-            {activeAddedSkillsList.length > 0 && (
-              <div className="flex flex-wrap gap-2 items-center">
-                <span className="text-[10px] font-bold text-emerald-500/70 w-6">追加</span>
-                {activeAddedSkillsList.map(skill => (
-                  <span key={`ad-${skill}`} className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">
-                    + {skill}
-                  </span>
-                ))}
-              </div>
-            )}
-            
-            {excludedSkillsList.length > 0 && (
-              <div className="flex flex-wrap gap-2 items-center">
-                <span className="text-[10px] font-bold text-rose-500/70 w-6">除外</span>
-                {excludedSkillsList.map(skill => (
-                  <span key={`ex-${skill}`} className="text-[10px] font-bold text-rose-400 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded">
-                    - {skill}
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
+      {/* 変更サマリー（抽出UI）常に表示してレイアウトシフトを防ぐ */}
+      <div className="flex flex-col gap-1.5 mb-4 p-3 bg-zinc-950/30 border border-zinc-800/50 rounded-lg min-h-[68px]">
+        
+        {/* 追加行 */}
+        <div className="flex flex-wrap gap-2 items-center min-h-[24px]">
+          <span className="text-[10px] font-bold text-emerald-500/70 w-8">追加</span>
+          {activeAddedSkillsList.length > 0 ? (
+            activeAddedSkillsList.map(skill => (
+              <span key={`ad-${skill}`} className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">
+                + {skill}
+              </span>
+            ))
+          ) : (
+            <span className="text-[10px] text-zinc-600 font-medium">なし</span>
+          )}
         </div>
-      )}
+        
+        {/* 除外行 */}
+        <div className="flex flex-wrap gap-2 items-center min-h-[24px]">
+          <span className="text-[10px] font-bold text-rose-500/70 w-8">除外</span>
+          {excludedSkillsList.length > 0 ? (
+            excludedSkillsList.map(skill => (
+              <span key={`ex-${skill}`} className="text-[10px] font-bold text-rose-400 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded">
+                - {skill}
+              </span>
+            ))
+          ) : (
+            <span className="text-[10px] text-zinc-600 font-medium">なし</span>
+          )}
+        </div>
+      </div>
 
       <div className="grid grid-cols-2 gap-2 mb-6 max-h-48 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent">
         {umaData.skills.map((skillName, index) => {
