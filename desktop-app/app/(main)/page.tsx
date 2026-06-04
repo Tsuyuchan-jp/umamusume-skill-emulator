@@ -526,7 +526,7 @@ export default function Home() {
                       if (t.id === activeTabId) {
                         return {
                           ...t,
-                          disabledSkills: [],
+                          disabledSkills: t.addedSkills ? [...t.addedSkills] : [],
                           simResultDump: t.baselineResult
                         };
                       }
@@ -568,6 +568,41 @@ export default function Home() {
                       showToastMessage(`タブを複製しました`, "success", 3000);
                     }
                   }}
+                  addedSkills={activeTab.addedSkills || []}
+                  onAddSkill={(skillName) => {
+                    setTabs(prev => prev.map(t => {
+                      if (t.id === activeTabId) {
+                        return {
+                          ...t,
+                          umaData: {
+                            ...t.umaData,
+                            skills: [...t.umaData.skills, skillName]
+                          },
+                          addedSkills: [...(t.addedSkills || []), skillName]
+                        };
+                      }
+                      return t;
+                    }));
+                    showToastMessage(`${skillName} を仮想追加しました！差分検証を実行してください。`, "success", 4000);
+                  }}
+                  onRemoveSkill={(skillName) => {
+                    setTabs(prev => prev.map(t => {
+                      if (t.id === activeTabId) {
+                        return {
+                          ...t,
+                          umaData: {
+                            ...t.umaData,
+                            skills: t.umaData.skills.filter(s => s !== skillName)
+                          },
+                          addedSkills: (t.addedSkills || []).filter(s => s !== skillName),
+                          disabledSkills: t.disabledSkills.filter(s => s !== skillName)
+                        };
+                      }
+                      return t;
+                    }));
+                    showToastMessage(`${skillName} を削除しました`, "success", 3000);
+                  }}
+                  onShowToast={showToastMessage}
                   onRunComparativeSimulation={async () => {
                     if (!activeTab.umaData) return;
                     setIsSimulating(true);

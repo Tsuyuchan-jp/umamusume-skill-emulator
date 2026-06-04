@@ -21,6 +21,7 @@ const formatPercent = (rate: number) => {
 };
 
 export const ResultCard: React.FC<ResultCardProps> = ({ result, baseline }) => {
+  if (!result) return null;
   const { all, maxSpurt, nonMaxSpurt } = result.summary;
   
   // 差分計算用のヘルパー

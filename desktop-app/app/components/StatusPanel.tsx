@@ -1,7 +1,6 @@
 "use client";
 import React from 'react';
-import { UmaStatusData } from '../lib/types';
-import { RaceCondition } from './RaceConditionSelector';
+import { UmaStatusData, RaceCondition } from '../lib/types';
 import { getCourseById, getSurfaceKey, getDistanceKey, getStyleKey } from '../lib/aptitudeHelper';
 
 interface StatusPanelProps {

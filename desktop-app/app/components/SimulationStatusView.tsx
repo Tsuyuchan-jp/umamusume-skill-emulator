@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp, Activity } from 'lucide-react';
-import { UmaStatusData } from '../lib/types';
+import { UmaStatusData, RaceCondition } from '../lib/types';
 import { getCourseById, getSurfaceKey, getDistanceKey, getStyleKey } from '../lib/aptitudeHelper';
-import { RaceCondition } from './RaceConditionSelector';
 import { STRATEGIES, CONDITIONS, APTITUDE_LABELS } from '../lib/constants';
 
 interface SimulationStatusViewProps {
