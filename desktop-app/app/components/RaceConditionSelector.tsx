@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { trackData } from '../lib/trackData';
 import { MapPin, Flag, CloudRain, Users, CalendarDays } from 'lucide-react';
 
@@ -30,6 +30,7 @@ const PLAYER_NUMS = [9, 12, 18];
 export function RaceConditionSelector({ condition, onChange }: RaceConditionSelectorProps) {
   const [presets, setPresets] = useState<RacePreset[]>([]);
   const [isAnimating, setIsAnimating] = useState(false);
+  const animTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isPresetActive = (preset: RacePreset) => {
     return condition.locationId === preset.locationId &&
@@ -97,7 +98,8 @@ export function RaceConditionSelector({ condition, onChange }: RaceConditionSele
                     playerNum: preset.playerNum
                   });
                   setIsAnimating(true);
-                  setTimeout(() => setIsAnimating(false), 500);
+                  if (animTimerRef.current) clearTimeout(animTimerRef.current);
+                  animTimerRef.current = setTimeout(() => setIsAnimating(false), 500);
                 }}
                 className={`px-3 py-1.5 text-sm rounded transition-all duration-300 border ${
                   isPresetActive(preset)

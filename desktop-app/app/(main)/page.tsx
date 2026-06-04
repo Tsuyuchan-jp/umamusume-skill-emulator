@@ -24,12 +24,9 @@ import { trackData } from "../lib/trackData";
 export default function Home() {
   const {
     captureStatus,
-    frameCount,
     captureMessage,
-    saveResult,
     captureError,
     resultImage,
-    handleStartCapture,
     handleStartAutoCapture,
     handleStopCapture,
     handleResetCapture,
@@ -66,6 +63,9 @@ export default function Home() {
   const [flyingThumbnail, setFlyingThumbnail] = useState<{ src: string, rect: DOMRect } | null>(null);
   const [highlightedTabId, setHighlightedTabId] = useState<string | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  // アニメーションタイマーのref（メモリリーク防止）
+  const flyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const highlightTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // リネーム用ステート
   const [editingTabId, setEditingTabId] = useState<string | null>(null);
@@ -328,9 +328,10 @@ export default function Home() {
   useEffect(() => {
     if (resultImage && previewRef.current) {
       // 少し遅延を入れてからスクロールする（DOMレンダリングを確実にするため）
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         previewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 100);
+      return () => clearTimeout(timer);
     }
     // キャプチャが新しくなったらOCR結果をリセット
     setUmaData(null);
@@ -700,7 +701,6 @@ export default function Home() {
                     const loc = trackData.find(l => l.id === cond.locationId);
                     const course = loc?.courses.find(c => c.id === cond.courseId);
                     const SURFACE_MAP: Record<number, string> = { 1: '良', 2: '稍重', 3: '重', 4: '不良' };
-                    const CONDITION_MAP: Record<string, string> = { "BEST": "絶好調", "GOOD": "好調", "NORMAL": "普通", "BAD": "不調", "WORST": "絶不調" };
                     
                     const parts = [];
                     if (loc && course) parts.push(`${loc.name} ${course.name}`);
@@ -771,11 +771,15 @@ export default function Home() {
                       }
                       setHighlightedTabId(newTab.id);
                       
-                      setTimeout(() => {
+                      // 既存タイマーをクリア
+                      if (flyTimerRef.current) clearTimeout(flyTimerRef.current);
+                      if (highlightTimerRef.current) clearTimeout(highlightTimerRef.current);
+
+                      flyTimerRef.current = setTimeout(() => {
                         setFlyingThumbnail(null);
                       }, 700);
                       
-                      setTimeout(() => {
+                      highlightTimerRef.current = setTimeout(() => {
                         setHighlightedTabId(null);
                       }, 2000);
                     } else {
@@ -795,7 +799,7 @@ export default function Home() {
                       };
                       const simResult = await runMultipleSimulations(
                         clonedUmaData, 
-                        raceCondition, 
+                        activeTab.raceCondition,
                         simulationCount,
                         (current, total) => setSimulationProgress({ current, total })
                       );
@@ -844,19 +848,6 @@ export default function Home() {
           <img src={flyingThumbnail.src} className="w-full h-full object-cover" />
         </div>
       )}
-
-      <style dangerouslySetInnerHTML={{__html: `
-        @keyframes flyToTab {
-          0% {
-            transform: translateY(0) scale(1);
-            opacity: 0.9;
-          }
-          100% {
-            transform: translateY(-80vh) scale(0.1);
-            opacity: 0;
-          }
-        }
-      `}} />
 
       {/* トースト通知 & モーダル */}
       <ToastNotification show={showToast} type={toastType} message={toastMessage} />

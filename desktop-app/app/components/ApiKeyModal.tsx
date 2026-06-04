@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface ApiKeyModalProps {
   isOpen: boolean;
@@ -9,6 +9,11 @@ interface ApiKeyModalProps {
 
 export function ApiKeyModal({ isOpen, initialKey, onSave, onClose }: ApiKeyModalProps) {
   const [inputKey, setInputKey] = useState(initialKey);
+
+  // initialKey が変わった場合（APIキーがlocalStorageからロードされた後など）に同期する
+  useEffect(() => {
+    setInputKey(initialKey);
+  }, [initialKey]);
 
   if (!isOpen) return null;
 

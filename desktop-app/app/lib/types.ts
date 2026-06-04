@@ -1,29 +1,3 @@
-export interface BasicFactor {
-  name: string;
-  star_reasoning?: string;
-  stars: number;
-}
-
-export interface WhiteFactor {
-  name: string;
-  star_reasoning?: string;
-  stars: number;
-}
-
-export interface CharacterFactors {
-  name: string;
-  blue_factor: BasicFactor | null;
-  red_factor: BasicFactor | null;
-  green_factor: BasicFactor | null;
-  white_factors: WhiteFactor[];
-}
-
-export interface FactorData {
-  favorite_icon_id?: number;
-  representative: CharacterFactors;
-  parent1: CharacterFactors | null;
-  parent2: CharacterFactors | null;
-}
 
 export interface UmaStatusData {
   name?: string;
