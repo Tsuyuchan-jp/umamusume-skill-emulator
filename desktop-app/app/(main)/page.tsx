@@ -64,7 +64,7 @@ export default function Home() {
   const [simulationProgress, setSimulationProgress] = useState<{current: number, total: number} | null>(null); // 進捗
 
   // アニメーション用ステート
-  const [flyingThumbnail, setFlyingThumbnail] = useState<{ src: string, rect: DOMRect } | null>(null);
+  const [flyingThumbnail, setFlyingThumbnail] = useState<{ id: number, src: string, rect: DOMRect } | null>(null);
   const [highlightedTabId, setHighlightedTabId] = useState<string | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   // アニメーションタイマーのref（メモリリーク防止）
@@ -495,7 +495,7 @@ export default function Home() {
                   <RaceInfoLabel activeTab={activeTab} simulationCount={simulationCount} />
                 </span>
               </div>
-              <ResultCard result={activeTab.simResultDump} baseline={activeTab.baselineResult} />
+              <ResultCard result={activeTab.simResultDump || undefined} baseline={activeTab.baselineResult || undefined} />
 
               {/* 実行時ステータス表示 */}
               {activeTab.umaData && activeTab.raceCondition && (
@@ -547,7 +547,7 @@ export default function Home() {
                     setActiveTabId(newTab.id);
 
                     if (rect && activeTab.thumbnailUrl) {
-                      setFlyingThumbnail({ src: activeTab.thumbnailUrl, rect });
+                      setFlyingThumbnail({ id: Date.now(), src: activeTab.thumbnailUrl, rect });
                       if (scrollContainerRef.current) {
                         scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
                       }
@@ -618,6 +618,7 @@ export default function Home() {
       {/* 飛翔アニメーション用要素 */}
       {flyingThumbnail && (
         <div
+          key={flyingThumbnail.id}
           className="fixed pointer-events-none z-[9999] rounded-xl overflow-hidden shadow-2xl shadow-emerald-500/50 border-2 border-emerald-400"
           style={{
             left: flyingThumbnail.rect.left,
@@ -630,6 +631,19 @@ export default function Home() {
           <img src={flyingThumbnail.src} className="w-full h-full object-cover" />
         </div>
       )}
+
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes flyToTab {
+          0% {
+            transform: translateY(0) scale(1);
+            opacity: 0.9;
+          }
+          100% {
+            transform: translateY(-80vh) scale(0.1);
+            opacity: 0;
+          }
+        }
+      `}} />
 
       {/* トースト通知 & モーダル */}
       <ToastNotification show={showToast} type={toastType} message={toastMessage} />

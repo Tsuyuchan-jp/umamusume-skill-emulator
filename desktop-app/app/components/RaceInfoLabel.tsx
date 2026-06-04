@@ -20,7 +20,7 @@ export function RaceInfoLabel({ activeTab, simulationCount }: RaceInfoLabelProps
   if (SURFACE_MAP[cond.surfaceCond]) parts.push(SURFACE_MAP[cond.surfaceCond]);
   if (cond.playerNum) parts.push(`${cond.playerNum}人`);
   
-  const runCount = activeTab.simResultDump?.length || simulationCount;
+  const runCount = activeTab.simResultDump?.iterations || simulationCount;
   parts.push(`${runCount.toLocaleString()}走`);
   
   return <span>{parts.join(' / ')}</span>;
