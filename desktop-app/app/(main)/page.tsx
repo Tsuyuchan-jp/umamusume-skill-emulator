@@ -606,7 +606,7 @@ export default function Home() {
                             className="w-full h-full object-cover"
                           />
                           <div className={`absolute inset-0 transition-opacity ${isActive ? 'bg-black/0' : 'bg-black/50 group-hover:bg-black/20'}`}></div>
-                          {tab.title.includes("コピー") && (
+                          {tab.isDuplicate && (
                             <div className="absolute top-1 left-1 bg-amber-500 text-black text-[10px] font-black px-1.5 py-0.5 rounded shadow-lg z-10">
                               🎨 コピー
                             </div>
@@ -645,7 +645,7 @@ export default function Home() {
                     <span className="text-sm font-bold text-zinc-400 bg-zinc-800 px-3 py-1 rounded-full border border-zinc-700/50">
                       {activeTab.title}
                     </span>
-                    {activeTab.title.includes("コピー") && (
+                    {activeTab.isDuplicate && (
                       <span className="text-[10px] font-black text-amber-400 bg-amber-500/10 px-2 py-1 rounded border border-amber-500/20 tracking-wider">
                         🎨 コピー
                       </span>
@@ -715,23 +715,15 @@ export default function Home() {
                   onDuplicateTab={() => {
                     if (!activeTab) return;
                     
-                    // ベースの名前から「 (コピーX)」を除外したクリーンな名前を取得
-                    const baseNameMatch = activeTab.title.match(/^(.*?)(?:\s*\(コピー\d*\))?$/);
-                    const baseName = baseNameMatch ? baseNameMatch[1] : activeTab.title;
-                    
-                    // 同じベース名を持つタブの数を数える
-                    const copyCount = tabs.filter(t => t.title.startsWith(baseName)).length;
-                    const newTitle = copyCount === 1 ? `${baseName} (コピー)` : `${baseName} (コピー${copyCount})`;
-                    
                     const newTab = {
                       ...activeTab,
                       id: Date.now().toString(),
-                      title: newTitle
+                      isDuplicate: true
                     };
                     
                     setTabs(prev => [...prev, newTab]);
                     setActiveTabId(newTab.id);
-                    showToastMessage(`「${newTitle}」としてタブを複製しました`, "success", 3000);
+                    showToastMessage(`タブを複製しました`, "success", 3000);
                   }}
                   onRunComparativeSimulation={async () => {
                     if (!activeTab.umaData) return;

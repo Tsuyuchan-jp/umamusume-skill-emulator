@@ -64,4 +64,5 @@ export interface SimTab {
   baselineResult: any;
   disabledSkills: string[];
   thumbnailUrl: string | null;
+  isDuplicate?: boolean;
 }
