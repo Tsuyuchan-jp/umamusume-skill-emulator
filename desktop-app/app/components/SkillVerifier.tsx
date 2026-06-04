@@ -117,7 +117,7 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
       </p>
 
       {/* 変更サマリー（抽出UI）常に表示してレイアウトシフトを防ぐ */}
-      <div className={`relative flex flex-col gap-1.5 mb-4 p-3 rounded-lg min-h-[68px] border transition-colors ${containerStyle}`}>
+      <div className={`relative flex flex-col gap-2 mb-4 p-3 rounded-lg min-h-[76px] border transition-colors ${containerStyle}`}>
         {isDirty && (
           <div className="absolute -top-2 -right-2 bg-orange-500 text-[10px] font-bold text-white px-2 py-0.5 rounded shadow-sm border border-orange-400">
             ⚠️ 未反映の変更があります
@@ -125,30 +125,30 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
         )}
         
         {/* 追加行 */}
-        <div className="flex flex-wrap gap-2 items-center min-h-[24px]">
-          <span className="text-[10px] font-bold text-emerald-500/70 w-8">追加</span>
+        <div className="flex flex-wrap gap-2 items-center min-h-[28px]">
+          <span className="text-xs font-bold text-emerald-500/70 w-8">追加</span>
           {activeAddedSkillsList.length > 0 ? (
             activeAddedSkillsList.map(skill => (
-              <span key={`ad-${skill}`} className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">
+              <span key={`ad-${skill}`} className="text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-md">
                 + {skill}
               </span>
             ))
           ) : (
-            <span className="text-[10px] text-zinc-600 font-medium">なし</span>
+            <span className="text-xs text-zinc-600 font-medium">なし</span>
           )}
         </div>
         
         {/* 除外行 */}
-        <div className="flex flex-wrap gap-2 items-center min-h-[24px]">
-          <span className="text-[10px] font-bold text-rose-500/70 w-8">除外</span>
+        <div className="flex flex-wrap gap-2 items-center min-h-[28px]">
+          <span className="text-xs font-bold text-rose-500/70 w-8">除外</span>
           {excludedSkillsList.length > 0 ? (
             excludedSkillsList.map(skill => (
-              <span key={`ex-${skill}`} className="text-[10px] font-bold text-rose-400 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded">
+              <span key={`ex-${skill}`} className="text-xs font-bold text-rose-400 bg-rose-500/10 border border-rose-500/20 px-2.5 py-1 rounded-md">
                 - {skill}
               </span>
             ))
           ) : (
-            <span className="text-[10px] text-zinc-600 font-medium">なし</span>
+            <span className="text-xs text-zinc-600 font-medium">なし</span>
           )}
         </div>
       </div>
