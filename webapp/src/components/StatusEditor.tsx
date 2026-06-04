@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
-import { FactorData, CharacterFactors, BasicFactor, WhiteFactor } from '../lib/types';
+import { FactorData, CharacterFactors, WhiteFactor } from '../lib/types';
 import masterData from '../lib/master_data.json';
 
 const charOptions = masterData.characters.map(c => ({ value: c.name, label: c.name }));
@@ -67,6 +68,7 @@ export function FactorEditor({ initialData, onSave }: FactorEditorProps) {
 
   // Sync state if initialData changes (e.g. OCR completes)
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setData(initialData || emptyFactorData);
   }, [initialData]);
 

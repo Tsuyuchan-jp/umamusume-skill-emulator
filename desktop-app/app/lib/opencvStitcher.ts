@@ -366,7 +366,7 @@ function findCropBounds(mat: any, cv: any): any {
   hsv.delete(); lowGreen.delete(); highGreen.delete(); mask.delete();
 
   if (headerY !== -1) {
-    let startY = headerY;
+    const startY = headerY;
     // X軸の決定：一番横幅が広い行の左右端をそのまま真のUI幅とする（角丸の影響を排除）
     const startX = widestLeftX;
     const uiWidth = widestRightX - widestLeftX + 1;

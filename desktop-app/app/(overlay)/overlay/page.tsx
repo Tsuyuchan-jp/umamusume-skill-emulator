@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { listen, UnlistenFn } from "@tauri-apps/api/event";
+import { listen } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { invoke } from "@tauri-apps/api/core";
 
@@ -33,7 +33,7 @@ export default function OverlayPage() {
           setShow(false);
           if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
           setTimeout(async () => {
-            try { await invoke("hide_overlay"); } catch (e) {}
+            try { await invoke("hide_overlay"); } catch { /* ignore */ }
           }, 300);
           return;
         }
@@ -63,7 +63,7 @@ export default function OverlayPage() {
             setShow(false);
             // アニメーション完了後にウィンドウ自体を非表示にする
             setTimeout(async () => {
-              try { await invoke("hide_overlay"); } catch (e) {}
+              try { await invoke("hide_overlay"); } catch { /* ignore */ }
             }, 300);
           }, 3000);
         }

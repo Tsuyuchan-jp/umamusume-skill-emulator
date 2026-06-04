@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, Activity } from 'lucide-react';
+import { Activity } from 'lucide-react';
 import { UmaStatusData, RaceCondition } from '../lib/types';
 import { getCourseById, getSurfaceKey, getDistanceKey, getStyleKey } from '../lib/aptitudeHelper';
 import { STRATEGIES, CONDITIONS, APTITUDE_LABELS } from '../lib/constants';

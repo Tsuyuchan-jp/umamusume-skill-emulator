@@ -1,4 +1,4 @@
-import { UmaStatusData, RawSkillData, SimResultDump, RaceCondition } from "../types";
+import { UmaStatusData, RawSkillData, RaceCondition } from "../types";
 import { getCourseById, getSurfaceKey, getDistanceKey, getStyleKey } from "../aptitudeHelper";
 
 let cachedSkillsJson: string | null = null;

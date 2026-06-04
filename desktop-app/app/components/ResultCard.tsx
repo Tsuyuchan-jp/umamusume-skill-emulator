@@ -32,18 +32,18 @@ export const ResultCard: React.FC<ResultCardProps> = ({
   umaData,
   raceCondition
 }) => {
-  if (!result) return null;
-  const { all, maxSpurt, nonMaxSpurt } = result.summary;
-  
   const spurtTargetSpeed = useMemo(() => {
     if (!umaData || !raceCondition) return 24.0;
     return estimateSpurtTargetSpeed(umaData, raceCondition);
   }, [umaData, raceCondition]);
+
+  if (!result) return null;
+  const { all, maxSpurt, nonMaxSpurt } = result.summary;
   
   // 差分計算用のヘルパー
   const renderDelta = (current: number, base: number, isTime: boolean = false, isPercent: boolean = false) => {
     if (base === undefined || current === base) return null;
-    let diff = current - base;
+    const diff = current - base;
     
     // isTime: タイムなどは少ない方が「良い（緑）」
     const isGood = isTime ? diff < 0 : diff > 0;

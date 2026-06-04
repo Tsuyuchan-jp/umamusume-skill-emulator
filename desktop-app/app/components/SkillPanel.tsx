@@ -1,6 +1,6 @@
 "use client";
-import React, { useState, useEffect, useRef } from 'react';
-import { UmaStatusData, RawSkillData } from '../lib/types';
+import React, { useState, useEffect } from 'react';
+import { UmaStatusData } from '../lib/types';
 import { fetchSkillData } from '../lib/engine/umaemuAdapter';
 import { useToast } from '../hooks/useToast';
 import { SkillCommandPalette } from './SkillCommandPalette';
@@ -11,7 +11,7 @@ interface SkillPanelProps {
 }
 
 export function SkillPanel({ data, onChange }: SkillPanelProps) {
-  const [skillOptions, setSkillOptions] = useState<{value: string, label: string}[]>([]);
+
   const [skillLoadError, setSkillLoadError] = useState<boolean>(false);
 
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);

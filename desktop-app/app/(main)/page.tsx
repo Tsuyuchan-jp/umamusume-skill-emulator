@@ -5,13 +5,13 @@ import { register, unregister, isRegistered } from "@tauri-apps/plugin-global-sh
 import { open } from "@tauri-apps/plugin-dialog";
 import { invoke } from "@tauri-apps/api/core";
 import { emit } from "@tauri-apps/api/event";
-import { Copy, Wand2, ChevronDown, ChevronUp } from "lucide-react";
+import { Wand2 } from "lucide-react";
 import { useCapture } from "../hooks/useCapture";
 import { useToast } from "../hooks/useToast";
 import { ApiKeyModal } from "../components/ApiKeyModal";
 import { StatusPanel } from "../components/StatusPanel";
 import { SkillPanel } from "../components/SkillPanel";
-import { SettingsPanel } from "../components/SettingsPanel";
+
 import { ToastNotification } from "../components/ToastNotification";
 import { RaceConditionSelector } from "../components/RaceConditionSelector";
 import { analyzeStitchedImage } from "../lib/geminiOcr";
@@ -23,7 +23,7 @@ import { CapturePanel } from "../components/CapturePanel";
 import { SimulationLauncher } from "../components/SimulationLauncher";
 import { TabBar } from "../components/TabBar";
 import { RaceInfoLabel } from "../components/RaceInfoLabel";
-import { trackData } from "../lib/trackData";
+
 
 export default function Home() {
   const {
@@ -246,7 +246,7 @@ export default function Home() {
       return;
     }
     
-    let keys = [];
+    const keys = [];
     if (e.ctrlKey || e.metaKey) keys.push("CommandOrControl");
     if (e.shiftKey) keys.push("Shift");
     if (e.altKey) keys.push("Alt");
@@ -310,7 +310,7 @@ export default function Home() {
   }, [shortcutKey]);
 
   // 画像をクリップボードにコピーする共通関数
-  const copyImageToClipboard = async (dataUrl: string) => {
+  const copyImageToClipboard = React.useCallback(async (dataUrl: string) => {
     try {
       await invoke("copy_image_to_clipboard", { dataUrl });
       showToastMessage("画像をクリップボードにコピーしました！", "success", 3000);
@@ -318,7 +318,7 @@ export default function Home() {
       console.error("Clipboard copy failed via Rust:", err);
       showToastMessage("コピーに失敗しました。アプリの状態を確認してください。", "error", 3000);
     }
-  };
+  }, [showToastMessage]);
 
   // 自動コピーの監視
   useEffect(() => {
@@ -328,7 +328,7 @@ export default function Home() {
         copyImageToClipboard(resultImage);
       }
     }
-  }, [resultImage, captureStatus, autoCopyEnabled]);
+  }, [resultImage, captureStatus, autoCopyEnabled, copyImageToClipboard]);
 
   useEffect(() => {
     if (resultImage && previewRef.current) {

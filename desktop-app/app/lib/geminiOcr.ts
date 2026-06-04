@@ -71,7 +71,7 @@ function cleanAndParseJSON(str: string): any {
     const jsonSub = candidate.substring(0, lastBraceIdx + 1);
     try {
       return JSON.parse(jsonSub);
-    } catch (e) {
+    } catch {
       candidate = candidate.substring(0, lastBraceIdx);
       lastBraceIdx = candidate.lastIndexOf('}');
     }
@@ -165,7 +165,7 @@ export async function analyzeStitchedImage(apiKey: string, dataUrl: string): Pro
     try {
       rawData = cleanAndParseJSON(jsonString);
       console.log("JSONの自動修復に成功しました！");
-    } catch (repairError) {
+    } catch {
       throw new Error("AIの機嫌が悪く解析に失敗しました！お手数ですがもう一度キャプチャをお試しください🙏");
     }
   }

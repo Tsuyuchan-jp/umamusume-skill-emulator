@@ -13,19 +13,7 @@ export function useCapture() {
   const [captureError, setCaptureError] = useState<string>("");
   const [resultImage, setResultImage] = useState<string>("");
 
-  useEffect(() => {
-    const unlistenPromise = listen<number>("capture-complete", (event) => {
-      setFrameCount(event.payload);
-      setCaptureStatus("done");
-      setCaptureMessage(
-        `${event.payload} フレームのキャプチャが完了しました。画像の結合と保存を自動で行います...`
-      );
-    });
 
-    return () => {
-      unlistenPromise.then((unlisten) => unlisten());
-    };
-  }, []);
 
   const handleStartCapture = useCallback(async () => {
     setCaptureStatus("recording");
@@ -128,12 +116,23 @@ export function useCapture() {
     }
   }, []);
 
-  // キャプチャ完了時に自動で結合・保存処理を実行する
+
   useEffect(() => {
-    if (captureStatus === "done") {
+    const unlistenPromise = listen<number>("capture-complete", (event) => {
+      setFrameCount(event.payload);
+      setCaptureStatus("done");
+      setCaptureMessage(
+        `${event.payload} フレームのキャプチャが完了しました。画像の結合と保存を自動で行います...`
+      );
+      
+      // 直接呼び出すことでカスケードレンダリングを防止
       handleSaveAndCopy();
-    }
-  }, [captureStatus, handleSaveAndCopy]);
+    });
+
+    return () => {
+      unlistenPromise.then((unlisten) => unlisten());
+    };
+  }, [handleSaveAndCopy]);
 
   return {
     captureStatus,

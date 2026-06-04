@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, no-useless-assignment, no-case-declarations */
 // ウマ娘 物理シミュレーターコア
 // uma-clock-emu (JS) の MixinRaceCore.vue / MixinConstants.vue をベースにTSへ移植
 
@@ -156,31 +157,31 @@ export class RaceSimulator {
 
   public calcModifiedSpeed(): number {
     // TODO: CourseSetStatus (コースによるステータス補正) は省略あるいは後日実装
-    let bonus = 0; // passiveBonus.speed
+    const bonus = 0; // passiveBonus.speed
     const mod = CONSTANTS.surfaceSpeedModify[this.trackDetail.surface]?.[this.trackDetail.surfaceCondition] || 0;
     const ret = this.calcExceedStatus(this.umaStatus.speed) * this.getCondCoef() + mod + bonus;
     return ret > 0 ? ret : 1;
   }
 
   public calcModifiedStamina(): number {
-    let bonus = 0; // passiveBonus.stamina
+    const bonus = 0; // passiveBonus.stamina
     return this.calcExceedStatus(this.umaStatus.stamina) * this.getCondCoef() + bonus;
   }
 
   public calcModifiedPower(): number {
-    let bonus = 0; // passiveBonus.power
+    const bonus = 0; // passiveBonus.power
     const mod = CONSTANTS.surfacePowerModify[this.trackDetail.surface]?.[this.trackDetail.surfaceCondition] || 0;
     const ret = this.calcExceedStatus(this.umaStatus.power) * this.getCondCoef() + mod + bonus;
     return ret > 0 ? ret : 1;
   }
 
   public calcModifiedGuts(): number {
-    let bonus = 0; // passiveBonus.guts
+    const bonus = 0; // passiveBonus.guts
     return this.calcExceedStatus(this.umaStatus.guts) * this.getCondCoef() + bonus;
   }
 
   public calcModifiedWisdom(): number {
-    let bonus = 0; // passiveBonus.wisdom
+    const bonus = 0; // passiveBonus.wisdom
     const styleFit = CONSTANTS.styleFitCoef[this.umaStatus.styleFit] || 1;
     return this.calcExceedStatus(this.umaStatus.wisdom) * this.getCondCoef() * styleFit + bonus;
   }
@@ -663,7 +664,7 @@ export class RaceSimulator {
       this.position += actualSpeed * timeAfterDelay;
       
       const bSpeed = this.isStartDash ? this.currentSpeed : this.baseSpeed;
-      let consume = this.consumePerSecond(bSpeed, this.currentSpeed, this.currentPhase) * elapsedTime;
+      const consume = this.consumePerSecond(bSpeed, this.currentSpeed, this.currentPhase) * elapsedTime;
       
       this.sp -= consume;
       
@@ -703,7 +704,7 @@ export class RaceSimulator {
       const startPhase = this.currentPhase;
       const spurting = this.spurtParameters !== null && this.position + this.spurtParameters.distance >= this.trackDetail.distance;
       
-      let skillTriggered: any[] = [];
+      const skillTriggered: any[] = [];
       skillTriggered.push(...this.skillManager.checkSkillTrigger(this.position));
       
       const frame: RaceFrame = {
