@@ -78,6 +78,7 @@ export function normalizeStatusData(data: any): UmaStatusData {
   const rawSkills = data.skills || [];
 
   return {
+    name: data.name,
     speed: parseInt(rawStats.speed) || 0,
     stamina: parseInt(rawStats.stamina) || 0,
     power: parseInt(rawStats.power) || 0,
