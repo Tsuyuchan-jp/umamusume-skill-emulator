@@ -500,9 +500,7 @@ export default function Home() {
                 <div className="ml-auto flex items-center gap-3">
                   {/* ステータス確認モーダルボタン */}
                   {activeTab.umaData && activeTab.raceCondition && (
-                    <div className="flex items-center bg-zinc-900/80 rounded-lg p-1 border border-zinc-800/50">
-                      <SimulationStatusView umaData={activeTab.umaData} raceCondition={activeTab.raceCondition} />
-                    </div>
+                    <SimulationStatusView umaData={activeTab.umaData} raceCondition={activeTab.raceCondition} />
                   )}
 
                   {/* 単位切り替えトグル */}

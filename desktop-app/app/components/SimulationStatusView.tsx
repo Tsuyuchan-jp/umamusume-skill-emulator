@@ -40,9 +40,13 @@ export default function SimulationStatusView({ umaData, raceCondition }: Simulat
   return (
     <div className="relative">
       <button
-        onClick={() => setIsExpanded(true)}
+        onClick={() => setIsExpanded(!isExpanded)}
         title="ステータス・条件を確認"
-        className="flex items-center justify-center p-1.5 text-zinc-400 hover:bg-zinc-700/50 hover:text-zinc-200 rounded-md transition-all"
+        className={`flex items-center justify-center p-2.5 rounded-lg border transition-all ${
+          isExpanded
+            ? "bg-zinc-800/80 border-zinc-700 text-zinc-200 shadow-inner"
+            : "bg-zinc-900/80 border-zinc-800/50 text-zinc-400 hover:bg-zinc-800/80 hover:text-zinc-200 shadow-sm"
+        }`}
       >
         <Activity className="w-4 h-4 text-emerald-500" />
       </button>
