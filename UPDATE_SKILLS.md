@@ -31,7 +31,7 @@ node tools/mdb-extractor/extract_master.js
 これにより、最新の固有スキル（緑）やレアスキル（金・紫）などの色分けが正しく反映されるようになります。
 
 ```bash
-node extract_skill_info.js
+node tools/mdb-extractor/extract_skill_info.js
 ```
 ※完了すると `desktop-app/app/lib/skillRarityData.ts` が出力され、更新されたスキル数が表示されます。
 

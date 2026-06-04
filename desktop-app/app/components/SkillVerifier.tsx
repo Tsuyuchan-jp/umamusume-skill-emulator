@@ -160,7 +160,7 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 mb-6 max-h-96 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent">
+      <div className="grid grid-cols-2 gap-2 mb-6 max-h-48 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent">
         {umaData.skills.map((skillName, index) => {
           const isDisabled = disabledSkills.includes(skillName);
           const isAdded = addedSkills.includes(skillName);
