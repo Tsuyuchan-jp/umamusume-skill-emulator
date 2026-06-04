@@ -62,6 +62,7 @@ export default function Home() {
   const [isSimulating, setIsSimulating] = useState<boolean>(false); // シミュレーション実行中
   const [simulationCount, setSimulationCount] = useState<number>(100); // シミュレーション回数
   const [simulationProgress, setSimulationProgress] = useState<{current: number, total: number} | null>(null); // 進捗
+  const [displayUnit, setDisplayUnit] = useState<'seconds' | 'lengths'>('seconds'); // 差分表示単位
 
   // アニメーション用ステート
   const [flyingThumbnail, setFlyingThumbnail] = useState<{ id: number, src: string, rect: DOMRect } | null>(null);
@@ -494,8 +495,41 @@ export default function Home() {
                 <span className="ml-auto text-zinc-500 text-sm font-medium">
                   <RaceInfoLabel activeTab={activeTab} simulationCount={simulationCount} />
                 </span>
+
+                <div className="ml-auto flex items-center bg-zinc-900/80 rounded-lg p-1 border border-zinc-800/50">
+                  <button
+                    onClick={() => setDisplayUnit('seconds')}
+                    className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${
+                      displayUnit === 'seconds' 
+                        ? 'bg-blue-500/20 text-blue-400 shadow-sm' 
+                        : 'text-zinc-500 hover:text-zinc-300'
+                    }`}
+                  >
+                    秒数
+                  </button>
+                  <button
+                    onClick={() => setDisplayUnit('lengths')}
+                    className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${
+                      displayUnit === 'lengths' 
+                        ? 'bg-emerald-500/20 text-emerald-400 shadow-sm' 
+                        : 'text-zinc-500 hover:text-zinc-300'
+                    }`}
+                  >
+                    バ身差
+                  </button>
+                </div>
               </div>
-              <ResultCard result={activeTab.simResultDump || undefined} baseline={activeTab.baselineResult || undefined} />
+
+              {activeTab.simResultDump ? (
+                <ResultCard
+                  result={activeTab.simResultDump}
+                  baseline={activeTab.baselineResult || undefined}
+                  disabledSkills={activeTab.disabledSkills}
+                  displayUnit={displayUnit}
+                  umaData={activeTab.umaData}
+                  raceCondition={activeTab.raceCondition}
+                />
+              ) : null}
 
               {/* 実行時ステータス表示 */}
               {activeTab.umaData && activeTab.raceCondition && (

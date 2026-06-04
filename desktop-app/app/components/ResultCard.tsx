@@ -1,11 +1,16 @@
 "use client";
 
-import React from "react";
-import { SimResultDump } from "../lib/types";
+import React, { useMemo } from "react";
+import { SimResultDump, UmaStatusData, RaceCondition } from "../lib/types";
+import { calculateHorseLength, estimateSpurtTargetSpeed } from "../lib/mathUtils";
 
 interface ResultCardProps {
   result?: SimResultDump;
   baseline?: SimResultDump;
+  disabledSkills?: string[];
+  displayUnit?: 'seconds' | 'lengths';
+  umaData?: UmaStatusData;
+  raceCondition?: RaceCondition;
 }
 
 const formatTime = (seconds: number) => {
@@ -20,22 +25,51 @@ const formatPercent = (rate: number) => {
   return `${(rate * 100).toFixed(1)}%`;
 };
 
-export const ResultCard: React.FC<ResultCardProps> = ({ result, baseline }) => {
+export const ResultCard: React.FC<ResultCardProps> = ({ 
+  result, 
+  baseline,
+  displayUnit = 'seconds',
+  umaData,
+  raceCondition
+}) => {
   if (!result) return null;
   const { all, maxSpurt, nonMaxSpurt } = result.summary;
   
+  const spurtTargetSpeed = useMemo(() => {
+    if (!umaData || !raceCondition) return 24.0;
+    return estimateSpurtTargetSpeed(umaData, raceCondition);
+  }, [umaData, raceCondition]);
+  
   // 差分計算用のヘルパー
-  const renderDelta = (current: number, base: number, inverse: boolean = false, isPercent: boolean = false) => {
+  const renderDelta = (current: number, base: number, isTime: boolean = false, isPercent: boolean = false) => {
     if (base === undefined || current === base) return null;
-    const diff = current - base;
+    let diff = current - base;
     
-    // inverse: タイムなどは少ない方が「良い（緑）」
-    const isGood = inverse ? diff < 0 : diff > 0;
+    // isTime: タイムなどは少ない方が「良い（緑）」
+    const isGood = isTime ? diff < 0 : diff > 0;
     const color = isGood ? 'text-emerald-400' : 'text-red-400';
+    
+    // バ身差モードの場合の処理
+    if (isTime && displayUnit === 'lengths') {
+      const lengths = calculateHorseLength(diff, spurtTargetSpeed);
+      // バ身差の符号は直感的に「-（マイナス）」が短縮（良い）、「+」が遅延
+      const sign = lengths > 0 ? '+' : '';
+      const displayValue = `${sign}${lengths.toFixed(2)}バ身`;
+      return (
+        <span className={`text-xs font-bold ml-2 ${color}`} title={`${diff > 0 ? '+' : ''}${diff.toFixed(3)}秒`}>
+          {displayValue}
+        </span>
+      );
+    }
+    
+    // 秒数・その他モードの処理
     const sign = diff > 0 ? '+' : '';
-    const formatted = isPercent 
-      ? `${sign}${(diff * 100).toFixed(1)}%`
-      : `${sign}${diff.toFixed(2)}`;
+    let formatted = '';
+    if (isPercent) {
+      formatted = `${sign}${(diff * 100).toFixed(1)}%`;
+    } else {
+      formatted = isTime ? `${sign}${diff.toFixed(3)}s` : `${sign}${diff.toFixed(2)}`;
+    }
       
     return (
       <span className={`text-xs font-bold ml-2 ${color}`}>
