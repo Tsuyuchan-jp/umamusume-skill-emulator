@@ -9,6 +9,7 @@ interface SkillVerifierProps {
   onToggleSkill: (skillName: string) => void;
   onRunComparativeSimulation: () => void;
   isSimulating: boolean;
+  onResetSkills: () => void;
 }
 
 export const SkillVerifier: React.FC<SkillVerifierProps> = ({
@@ -17,6 +18,7 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
   onToggleSkill,
   onRunComparativeSimulation,
   isSimulating,
+  onResetSkills,
 }) => {
   // スキルが無い場合は非表示
   if (!umaData.skills || umaData.skills.length === 0) {
@@ -32,9 +34,21 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
           <div className="w-2 h-2 rounded-full bg-purple-500"></div>
           スキル影響検証モード
         </h3>
-        <span className="text-xs text-zinc-500">
-          有効スキル: <span className="font-bold text-zinc-300">{activeSkillsCount}</span> / {umaData.skills.length}
-        </span>
+        <div className="flex items-center gap-4">
+          {disabledSkills.length > 0 && (
+            <button
+              onClick={onResetSkills}
+              disabled={isSimulating}
+              className="text-xs font-bold text-purple-400 hover:text-purple-300 flex items-center gap-1 transition-colors disabled:opacity-50"
+              title="初期状態のシミュレーション結果に戻します"
+            >
+              🔄 初期状態にリセット
+            </button>
+          )}
+          <span className="text-xs text-zinc-500">
+            有効スキル: <span className="font-bold text-zinc-300">{activeSkillsCount}</span> / {umaData.skills.length}
+          </span>
+        </div>
       </div>
 
       <p className="text-xs text-zinc-500 mb-4">

@@ -692,6 +692,19 @@ export default function Home() {
                     }));
                   }}
                   isSimulating={isSimulating}
+                  onResetSkills={() => {
+                    setTabs(prev => prev.map(t => {
+                      if (t.id === activeTabId) {
+                        return {
+                          ...t,
+                          disabledSkills: [],
+                          simResultDump: t.baselineResult
+                        };
+                      }
+                      return t;
+                    }));
+                    showToastMessage("スキル構成と結果を初期状態にリセットしました", "success", 3000);
+                  }}
                   onRunComparativeSimulation={async () => {
                     if (!activeTab.umaData) return;
                     setIsSimulating(true);
