@@ -51,8 +51,11 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
   }
 
   const activeSkillsCount = umaData.skills.length - disabledSkills.length;
-  const initialSkillsDisabledCount = disabledSkills.filter(s => !addedSkills.includes(s)).length;
-  const activeAddedSkillsCount = addedSkills.filter(s => !disabledSkills.includes(s)).length;
+  const excludedSkillsList = disabledSkills.filter(s => !addedSkills.includes(s));
+  const activeAddedSkillsList = addedSkills.filter(s => !disabledSkills.includes(s));
+  
+  const initialSkillsDisabledCount = excludedSkillsList.length;
+  const activeAddedSkillsCount = activeAddedSkillsList.length;
   
   const canSimulate = initialSkillsDisabledCount > 0 || activeAddedSkillsCount > 0;
   const hasChanges = initialSkillsDisabledCount > 0 || addedSkills.length > 0;
@@ -93,6 +96,23 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
       <p className="text-xs text-zinc-500 mb-4">
         検証したいスキルのチェックを外して再シミュレーションすることで、そのスキルがない場合のタイムへの影響（Delta）を確認できます。
       </p>
+
+      {/* 変更サマリー（抽出UI） */}
+      {(excludedSkillsList.length > 0 || activeAddedSkillsList.length > 0) && (
+        <div className="flex flex-wrap gap-2 mb-4 p-3 bg-zinc-950/30 border border-zinc-800/50 rounded-lg">
+          <span className="text-xs font-bold text-zinc-500 mr-1 flex items-center">構成の変更:</span>
+          {excludedSkillsList.map(skill => (
+            <span key={`ex-${skill}`} className="text-[10px] font-bold text-rose-400 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded">
+              - {skill}
+            </span>
+          ))}
+          {activeAddedSkillsList.map(skill => (
+            <span key={`ad-${skill}`} className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">
+              + {skill}
+            </span>
+          ))}
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-2 mb-6 max-h-48 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent">
         {umaData.skills.map((skillName, index) => {

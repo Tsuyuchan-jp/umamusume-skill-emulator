@@ -496,8 +496,15 @@ export default function Home() {
                   <RaceInfoLabel activeTab={activeTab} simulationCount={simulationCount} />
                 </span>
 
-                <div className="ml-auto flex items-center bg-zinc-900/80 rounded-lg p-1 border border-zinc-800/50">
-                  <button
+                <div className="ml-auto flex items-center gap-3">
+                  {/* ステータス確認モーダルボタン */}
+                  {activeTab.umaData && activeTab.raceCondition && (
+                    <SimulationStatusView umaData={activeTab.umaData} raceCondition={activeTab.raceCondition} />
+                  )}
+
+                  {/* 単位切り替えトグル */}
+                  <div className="flex items-center bg-zinc-900/80 rounded-lg p-1 border border-zinc-800/50">
+                    <button
                     onClick={() => setDisplayUnit('seconds')}
                     className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${
                       displayUnit === 'seconds' 
@@ -519,6 +526,7 @@ export default function Home() {
                   </button>
                 </div>
               </div>
+              </div>
 
               {activeTab.simResultDump ? (
                 <ResultCard
@@ -531,10 +539,6 @@ export default function Home() {
                 />
               ) : null}
 
-              {/* 実行時ステータス表示 */}
-              {activeTab.umaData && activeTab.raceCondition && (
-                <SimulationStatusView umaData={activeTab.umaData} raceCondition={activeTab.raceCondition} />
-              )}
 
               {/* スキル影響検証モード */}
               {activeTab.umaData && activeTab.baselineResult && (
