@@ -21,6 +21,7 @@ export function TabBar(props: TabBarProps) {
         return (
           <div 
             key={tab.id}
+            id={`tab-${tab.id}`}
             onClick={() => setActiveTabId(tab.id)}
             className={`group relative flex-shrink-0 cursor-pointer overflow-hidden rounded-xl border-2 transition-all duration-300 h-16 ${
               isActive 

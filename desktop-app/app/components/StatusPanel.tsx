@@ -80,11 +80,12 @@ export function StatusPanel({ data, onChange, raceCondition }: StatusPanelProps)
           <div className="flex flex-col gap-1">
             <span className="text-xs font-semibold text-zinc-400">作戦</span>
             <select
+              id="strategy-select"
               value={data.strategy || ""}
               onChange={(e) => updateStat('strategy', e.target.value)}
               className={`rounded-md px-2 py-1.5 text-sm outline-none text-zinc-200 transition-all ${
                 !data.strategy || data.strategy === "" 
-                  ? "bg-zinc-950 border-2 border-rose-500 animate-pulse focus:border-rose-400 shadow-[0_0_10px_rgba(244,63,94,0.3)]" 
+                  ? "bg-zinc-950 border border-rose-500 ring-1 ring-rose-500 animate-pulse focus:border-rose-400 shadow-[0_0_10px_rgba(244,63,94,0.3)]" 
                   : "bg-zinc-950 border border-zinc-800 focus:border-zinc-500"
               }`}
             >

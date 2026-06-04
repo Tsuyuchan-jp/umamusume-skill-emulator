@@ -65,7 +65,7 @@ export default function Home() {
   const [displayUnit, setDisplayUnit] = useState<'seconds' | 'lengths'>('seconds'); // 差分表示単位
 
   // アニメーション用ステート
-  const [flyingThumbnail, setFlyingThumbnail] = useState<{ id: number, src: string, rect: DOMRect } | null>(null);
+  const [flyingThumbnail, setFlyingThumbnail] = useState<{ id: number, src: string, rect: DOMRect, deltaX?: number, deltaY?: number } | null>(null);
   const [highlightedTabId, setHighlightedTabId] = useState<string | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   // アニメーションタイマーのref（メモリリーク防止）
@@ -427,6 +427,32 @@ export default function Home() {
               setTabs={setTabs}
               setActiveTabId={setActiveTabId}
               showToastMessage={showToastMessage}
+              onAnimateNewTab={(tabId, thumbUrl) => {
+                const rect = previewRef.current?.getBoundingClientRect();
+                if (rect && thumbUrl) {
+                  setTimeout(() => {
+                    let deltaX = 0;
+                    let deltaY = -window.innerHeight * 0.8;
+                    const targetTab = document.getElementById(`tab-${tabId}`);
+                    if (targetTab) {
+                      const targetRect = targetTab.getBoundingClientRect();
+                      deltaX = (targetRect.left + targetRect.width / 2) - (rect.left + rect.width / 2);
+                      deltaY = (targetRect.top + targetRect.height / 2) - (rect.top + rect.height / 2);
+                    }
+                    setFlyingThumbnail({ id: Date.now(), src: thumbUrl, rect, deltaX, deltaY });
+                  }, 10);
+                }
+                if (scrollContainerRef.current) {
+                  scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+                setHighlightedTabId(tabId);
+                
+                if (flyTimerRef.current) clearTimeout(flyTimerRef.current);
+                if (highlightTimerRef.current) clearTimeout(highlightTimerRef.current);
+
+                flyTimerRef.current = setTimeout(() => setFlyingThumbnail(null), 710);
+                highlightTimerRef.current = setTimeout(() => setHighlightedTabId(null), 2000);
+              }}
             />
           </div>
         )}
@@ -590,7 +616,19 @@ export default function Home() {
                     setActiveTabId(newTab.id);
 
                     if (rect && activeTab.thumbnailUrl) {
-                      setFlyingThumbnail({ id: Date.now(), src: activeTab.thumbnailUrl, rect });
+                      const thumbUrl = activeTab.thumbnailUrl;
+                      setTimeout(() => {
+                        let deltaX = 0;
+                        let deltaY = -window.innerHeight * 0.8;
+                        const targetTab = document.getElementById(`tab-${newTab.id}`);
+                        if (targetTab) {
+                          const targetRect = targetTab.getBoundingClientRect();
+                          deltaX = (targetRect.left + targetRect.width / 2) - (rect.left + rect.width / 2);
+                          deltaY = (targetRect.top + targetRect.height / 2) - (rect.top + rect.height / 2);
+                        }
+                        setFlyingThumbnail({ id: Date.now(), src: thumbUrl, rect, deltaX, deltaY });
+                      }, 10);
+
                       if (scrollContainerRef.current) {
                         scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
                       }
@@ -602,7 +640,7 @@ export default function Home() {
 
                       flyTimerRef.current = setTimeout(() => {
                         setFlyingThumbnail(null);
-                      }, 700);
+                      }, 710);
                       
                       highlightTimerRef.current = setTimeout(() => {
                         setHighlightedTabId(null);
@@ -708,8 +746,10 @@ export default function Home() {
             top: flyingThumbnail.rect.top,
             width: flyingThumbnail.rect.width,
             height: flyingThumbnail.rect.height,
+            '--delta-x': flyingThumbnail.deltaX ? `${flyingThumbnail.deltaX}px` : '0px',
+            '--delta-y': flyingThumbnail.deltaY ? `${flyingThumbnail.deltaY}px` : '-80vh',
             animation: 'flyToTab 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards'
-          }}
+          } as React.CSSProperties}
         >
           <img src={flyingThumbnail.src} className="w-full h-full object-cover" />
         </div>
@@ -718,11 +758,11 @@ export default function Home() {
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes flyToTab {
           0% {
-            transform: translateY(0) scale(1);
+            transform: translate(0px, 0px) scale(1);
             opacity: 0.9;
           }
           100% {
-            transform: translateY(-80vh) scale(0.1);
+            transform: translate(var(--delta-x), var(--delta-y)) scale(0.1);
             opacity: 0;
           }
         }
