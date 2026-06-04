@@ -99,18 +99,32 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
 
       {/* 変更サマリー（抽出UI） */}
       {(excludedSkillsList.length > 0 || activeAddedSkillsList.length > 0) && (
-        <div className="flex flex-wrap gap-2 mb-4 p-3 bg-zinc-950/30 border border-zinc-800/50 rounded-lg">
-          <span className="text-xs font-bold text-zinc-500 mr-1 flex items-center">構成の変更:</span>
-          {excludedSkillsList.map(skill => (
-            <span key={`ex-${skill}`} className="text-[10px] font-bold text-rose-400 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded">
-              - {skill}
-            </span>
-          ))}
-          {activeAddedSkillsList.map(skill => (
-            <span key={`ad-${skill}`} className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">
-              + {skill}
-            </span>
-          ))}
+        <div className="flex flex-col gap-2 mb-4 p-3 bg-zinc-950/30 border border-zinc-800/50 rounded-lg">
+          <div className="text-xs font-bold text-zinc-500">構成の変更:</div>
+          
+          <div className="flex flex-col gap-1.5 ml-2">
+            {activeAddedSkillsList.length > 0 && (
+              <div className="flex flex-wrap gap-2 items-center">
+                <span className="text-[10px] font-bold text-emerald-500/70 w-6">追加</span>
+                {activeAddedSkillsList.map(skill => (
+                  <span key={`ad-${skill}`} className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">
+                    + {skill}
+                  </span>
+                ))}
+              </div>
+            )}
+            
+            {excludedSkillsList.length > 0 && (
+              <div className="flex flex-wrap gap-2 items-center">
+                <span className="text-[10px] font-bold text-rose-500/70 w-6">除外</span>
+                {excludedSkillsList.map(skill => (
+                  <span key={`ex-${skill}`} className="text-[10px] font-bold text-rose-400 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded">
+                    - {skill}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
 
