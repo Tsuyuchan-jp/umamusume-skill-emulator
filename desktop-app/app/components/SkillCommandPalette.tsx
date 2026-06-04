@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { RawSkillData } from '../lib/types';
 import { fetchSkillData } from '../lib/engine/umaemuAdapter';
+import { getSkillRarityInfo } from '../lib/skillRarityData';
 
 interface SkillCommandPaletteProps {
   isOpen: boolean;
@@ -145,7 +146,9 @@ export function SkillCommandPalette({ isOpen, onClose, onSelect, existingSkills 
                           : 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]'
                         : 'bg-zinc-600'
                     }`} />
-                    <span className="text-sm font-medium">{option.label}</span>
+                    <span className={`text-sm font-medium ${getSkillRarityInfo(option.value).colorClass}`}>
+                      {getSkillRarityInfo(option.value).icon}{option.label}
+                    </span>
                   </div>
                   {isExisting && (
                     <span className="text-[10px] font-bold bg-zinc-800 text-zinc-400 px-1.5 py-0.5 rounded">

@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { UmaStatusData } from "../lib/types";
 import { SkillCommandPalette } from "./SkillCommandPalette";
+import { getSkillRarityInfo } from "../lib/skillRarityData";
 
 interface SkillVerifierProps {
   umaData: UmaStatusData;
@@ -128,11 +129,14 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
         <div className="flex flex-wrap gap-2 items-center min-h-[28px]">
           <span className="text-xs font-bold text-emerald-500/70 w-8">追加</span>
           {activeAddedSkillsList.length > 0 ? (
-            activeAddedSkillsList.map(skill => (
-              <span key={`ad-${skill}`} className="text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-md">
-                + {skill}
-              </span>
-            ))
+            activeAddedSkillsList.map(skill => {
+              const rarityInfo = getSkillRarityInfo(skill);
+              return (
+                <span key={`ad-${skill}`} className="text-xs font-bold px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-800 border-l-[3px] border-l-emerald-500">
+                  <span className={rarityInfo.colorClass}>{rarityInfo.icon}{skill}</span>
+                </span>
+              );
+            })
           ) : (
             <span className="text-xs text-zinc-600 font-medium">なし</span>
           )}
@@ -142,11 +146,14 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
         <div className="flex flex-wrap gap-2 items-center min-h-[28px]">
           <span className="text-xs font-bold text-rose-500/70 w-8">除外</span>
           {excludedSkillsList.length > 0 ? (
-            excludedSkillsList.map(skill => (
-              <span key={`ex-${skill}`} className="text-xs font-bold text-rose-400 bg-rose-500/10 border border-rose-500/20 px-2.5 py-1 rounded-md">
-                - {skill}
-              </span>
-            ))
+            excludedSkillsList.map(skill => {
+              const rarityInfo = getSkillRarityInfo(skill);
+              return (
+                <span key={`ex-${skill}`} className="text-xs font-bold px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-800 border-l-[3px] border-l-rose-500">
+                  <span className={rarityInfo.colorClass}>{rarityInfo.icon}{skill}</span>
+                </span>
+              );
+            })
           ) : (
             <span className="text-xs text-zinc-600 font-medium">なし</span>
           )}
@@ -175,8 +182,8 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
                   onChange={() => onToggleSkill(skillName)}
                   className="w-4 h-4 rounded border-zinc-700 text-purple-500 focus:ring-purple-500/30 focus:ring-offset-0 bg-zinc-900"
                 />
-                <span className={`text-xs font-bold truncate flex-1 ${isDisabled ? 'text-zinc-500 line-through' : 'text-zinc-200'}`}>
-                  {skillName}
+                <span className={`text-xs font-bold truncate flex-1 ${isDisabled ? 'text-zinc-500 line-through' : getSkillRarityInfo(skillName).colorClass}`}>
+                  {getSkillRarityInfo(skillName).icon}{skillName}
                 </span>
                 {isAdded && (
                   <span className="text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-1 py-0.5 rounded leading-none whitespace-nowrap">
