@@ -61,11 +61,15 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
   const initialSkillsDisabledCount = excludedSkillsList.length;
   const activeAddedSkillsCount = activeAddedSkillsList.length;
   
-  // 未反映ステータスの計算
-  const unappliedAddedCount = activeAddedSkillsList.filter(s => !appliedAddedSkills.includes(s)).length;
-  const removedAddedCount = appliedAddedSkills.filter(s => !activeAddedSkillsList.includes(s)).length;
-  const unappliedExcludedCount = excludedSkillsList.filter(s => !appliedDisabledSkills.includes(s)).length;
-  const removedExcludedCount = appliedDisabledSkills.filter(s => !excludedSkillsList.includes(s)).length;
+  // 確定済みの構成（確定状態でのサマリー）
+  const appliedActiveAddedSkillsList = appliedAddedSkills.filter(s => !appliedDisabledSkills.includes(s));
+  const appliedExcludedSkillsList = appliedDisabledSkills.filter(s => !appliedAddedSkills.includes(s));
+
+  // 未反映ステータスの計算（意味的なリスト同士の差分をとる）
+  const unappliedAddedCount = activeAddedSkillsList.filter(s => !appliedActiveAddedSkillsList.includes(s)).length;
+  const removedAddedCount = appliedActiveAddedSkillsList.filter(s => !activeAddedSkillsList.includes(s)).length;
+  const unappliedExcludedCount = excludedSkillsList.filter(s => !appliedExcludedSkillsList.includes(s)).length;
+  const removedExcludedCount = appliedExcludedSkillsList.filter(s => !excludedSkillsList.includes(s)).length;
   const totalUnappliedCount = unappliedAddedCount + removedAddedCount + unappliedExcludedCount + removedExcludedCount;
   const isDirty = totalUnappliedCount > 0;
 
