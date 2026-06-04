@@ -569,7 +569,7 @@ export default function Home() {
                           ...t,
                           disabledSkills: t.addedSkills ? [...t.addedSkills] : [],
                           appliedDisabledSkills: t.addedSkills ? [...t.addedSkills] : [],
-                          appliedAddedSkills: t.addedSkills ? [...t.addedSkills] : [],
+                          appliedAddedSkills: [],
                           simResultDump: t.baselineResult
                         };
                       }

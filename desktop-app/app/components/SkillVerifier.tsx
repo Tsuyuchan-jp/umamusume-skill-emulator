@@ -36,7 +36,6 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
   onShowToast,
 }) => {
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
-  const [previewMode, setPreviewMode] = useState<1 | 2>(1);
 
   // Global Ctrl+K / Cmd+K listener
   React.useEffect(() => {
@@ -81,9 +80,7 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
     simulateButtonText = `✅ 最新の構成が反映されています`;
   }
 
-  // プレビューモードに応じたスタイリング
-  const isIdea1Active = isDirty && previewMode === 1;
-  const containerStyle = isIdea1Active 
+  const containerStyle = isDirty 
     ? "bg-orange-950/10 border-orange-500/50 border-dashed" 
     : "bg-zinc-950/30 border-zinc-800/50";
 
@@ -115,18 +112,9 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
         検証したいスキルのチェックを外して再シミュレーションすることで、そのスキルがない場合のタイムへの影響（Delta）を確認できます。
       </p>
 
-      {/* 比較用トグル（一時的） */}
-      {isDirty && (
-        <div className="flex items-center gap-2 mb-2">
-          <span className="text-[10px] font-bold text-zinc-500">プレビュー切替:</span>
-          <button onClick={() => setPreviewMode(1)} className={`text-[10px] px-2 py-0.5 rounded-md border font-bold transition-colors ${previewMode === 1 ? 'bg-orange-500/20 text-orange-400 border-orange-500/50' : 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:bg-zinc-700'}`}>アイデア① (枠で警告)</button>
-          <button onClick={() => setPreviewMode(2)} className={`text-[10px] px-2 py-0.5 rounded-md border font-bold transition-colors ${previewMode === 2 ? 'bg-orange-500/20 text-orange-400 border-orange-500/50' : 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:bg-zinc-700'}`}>アイデア② (バッジで警告)</button>
-        </div>
-      )}
-
       {/* 変更サマリー（抽出UI）常に表示してレイアウトシフトを防ぐ */}
       <div className={`relative flex flex-col gap-1.5 mb-4 p-3 rounded-lg min-h-[68px] border transition-colors ${containerStyle}`}>
-        {isIdea1Active && (
+        {isDirty && (
           <div className="absolute -top-2 -right-2 bg-orange-500 text-[10px] font-bold text-white px-2 py-0.5 rounded shadow-sm border border-orange-400">
             ⚠️ 未反映の変更があります
           </div>
@@ -136,17 +124,11 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
         <div className="flex flex-wrap gap-2 items-center min-h-[24px]">
           <span className="text-[10px] font-bold text-emerald-500/70 w-8">追加</span>
           {activeAddedSkillsList.length > 0 ? (
-            activeAddedSkillsList.map(skill => {
-              const isApplied = appliedAddedSkills.includes(skill);
-              const badgeStyle = previewMode === 2 && !isApplied
-                ? "border-emerald-500/40 border-dashed opacity-70"
-                : "border-emerald-500/20";
-              return (
-                <span key={`ad-${skill}`} className={`text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border px-2 py-0.5 rounded transition-all ${badgeStyle}`}>
-                  + {skill}
-                </span>
-              );
-            })
+            activeAddedSkillsList.map(skill => (
+              <span key={`ad-${skill}`} className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">
+                + {skill}
+              </span>
+            ))
           ) : (
             <span className="text-[10px] text-zinc-600 font-medium">なし</span>
           )}
@@ -156,17 +138,11 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
         <div className="flex flex-wrap gap-2 items-center min-h-[24px]">
           <span className="text-[10px] font-bold text-rose-500/70 w-8">除外</span>
           {excludedSkillsList.length > 0 ? (
-            excludedSkillsList.map(skill => {
-              const isApplied = appliedDisabledSkills.includes(skill);
-              const badgeStyle = previewMode === 2 && !isApplied
-                ? "border-rose-500/40 border-dashed opacity-70"
-                : "border-rose-500/20";
-              return (
-                <span key={`ex-${skill}`} className={`text-[10px] font-bold text-rose-400 bg-rose-500/10 border px-2 py-0.5 rounded transition-all ${badgeStyle}`}>
-                  - {skill}
-                </span>
-              );
-            })
+            excludedSkillsList.map(skill => (
+              <span key={`ex-${skill}`} className="text-[10px] font-bold text-rose-400 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded">
+                - {skill}
+              </span>
+            ))
           ) : (
             <span className="text-[10px] text-zinc-600 font-medium">なし</span>
           )}
