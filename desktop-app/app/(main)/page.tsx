@@ -59,6 +59,7 @@ export default function Home() {
   const activeTab = tabs.find(t => t.id === activeTabId) || null;
   const [isPreviewExpanded, setIsPreviewExpanded] = useState<boolean>(true); // プレビューの開閉
   const [isSimulating, setIsSimulating] = useState<boolean>(false); // シミュレーション実行中
+  const [simulationCount, setSimulationCount] = useState<number>(100); // シミュレーション回数
   const [simulationProgress, setSimulationProgress] = useState<{current: number, total: number} | null>(null); // 進捗
 
   // アニメーション用ステート
