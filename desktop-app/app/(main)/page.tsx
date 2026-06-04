@@ -674,7 +674,7 @@ export default function Home() {
                       />
                     ) : (
                       <span 
-                        className="group flex items-center gap-1.5 cursor-pointer text-sm font-bold text-zinc-400 bg-zinc-800 hover:bg-zinc-700 px-3 py-1 rounded-full border border-zinc-700/50 transition-colors"
+                        className="group flex items-center cursor-pointer text-sm font-bold text-zinc-400 bg-zinc-800 hover:bg-zinc-700 px-3 py-1 rounded-full border border-zinc-700/50 transition-all duration-300"
                         onClick={() => {
                           setEditTitle(activeTab.title);
                           setEditingTabId(activeTab.id);
@@ -682,7 +682,7 @@ export default function Home() {
                         title="クリックしてタブの名前を変更"
                       >
                         {activeTab.title}
-                        <span className="opacity-0 group-hover:opacity-100 text-[10px]">✏️</span>
+                        <span className="max-w-0 opacity-0 overflow-hidden group-hover:max-w-[20px] group-hover:opacity-100 group-hover:ml-1.5 transition-all duration-300 ease-in-out text-[10px]">✏️</span>
                       </span>
                     )}
                     {activeTab.isDuplicate && (
