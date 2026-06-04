@@ -26,6 +26,7 @@ export interface FactorData {
 }
 
 export interface UmaStatusData {
+  name?: string;
   speed: number;
   stamina: number;
   power: number;

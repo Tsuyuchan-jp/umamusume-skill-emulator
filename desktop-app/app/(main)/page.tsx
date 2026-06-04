@@ -67,6 +67,10 @@ export default function Home() {
   const [highlightedTabId, setHighlightedTabId] = useState<string | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
+  // リネーム用ステート
+  const [editingTabId, setEditingTabId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState<string>("");
+
   // レース環境ステート
   const [raceCondition, setRaceCondition] = useState<RaceCondition>({
     locationId: "10006",
@@ -252,6 +256,14 @@ export default function Home() {
     setShortcutKey(newShortcut);
     localStorage.setItem("shortcutKey", newShortcut);
     setIsRecordingShortcut(false);
+  };
+
+  const handleRenameTab = (tabId: string, newTitle: string) => {
+    const trimmed = newTitle.trim();
+    if (trimmed) {
+      setTabs(prev => prev.map(t => t.id === tabId ? { ...t, title: trimmed } : t));
+    }
+    setEditingTabId(null);
   };
 
   // ショートカットキーの登録・更新処理
@@ -534,7 +546,7 @@ export default function Home() {
                   const newTabId = Date.now().toString();
                   const newTab: SimTab = {
                     id: newTabId,
-                    title: `ウマ娘 ${tabs.length + 1}`,
+                    title: umaData.name || `ウマ娘 ${tabs.length + 1}`,
                     umaData: { ...umaData },
                     raceCondition: { ...raceCondition },
                     simResultDump: simResult,
@@ -647,9 +659,32 @@ export default function Home() {
                 <h2 className="text-2xl font-bold text-zinc-100">シミュレーション結果</h2>
                 {activeTab && (
                   <div className="flex items-center gap-2 ml-2">
-                    <span className="text-sm font-bold text-zinc-400 bg-zinc-800 px-3 py-1 rounded-full border border-zinc-700/50">
-                      {activeTab.title}
-                    </span>
+                    {editingTabId === activeTab.id ? (
+                      <input
+                        type="text"
+                        autoFocus
+                        className="text-sm font-bold text-zinc-200 bg-zinc-800 px-3 py-1 rounded-full border border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 w-48"
+                        value={editTitle}
+                        onChange={(e) => setEditTitle(e.target.value)}
+                        onBlur={() => handleRenameTab(activeTab.id, editTitle)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') handleRenameTab(activeTab.id, editTitle);
+                          if (e.key === 'Escape') setEditingTabId(null);
+                        }}
+                      />
+                    ) : (
+                      <span 
+                        className="group flex items-center gap-1.5 cursor-pointer text-sm font-bold text-zinc-400 bg-zinc-800 hover:bg-zinc-700 px-3 py-1 rounded-full border border-zinc-700/50 transition-colors"
+                        onClick={() => {
+                          setEditTitle(activeTab.title);
+                          setEditingTabId(activeTab.id);
+                        }}
+                        title="クリックしてタブの名前を変更"
+                      >
+                        {activeTab.title}
+                        <span className="opacity-0 group-hover:opacity-100 text-[10px]">✏️</span>
+                      </span>
+                    )}
                     {activeTab.isDuplicate && (
                       <span className="text-[10px] font-black text-amber-400 bg-amber-500/10 px-2 py-1 rounded border border-amber-500/20 tracking-wider">
                         🎨 コピー
