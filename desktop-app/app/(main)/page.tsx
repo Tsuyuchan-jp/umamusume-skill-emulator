@@ -59,8 +59,12 @@ export default function Home() {
   const activeTab = tabs.find(t => t.id === activeTabId) || null;
   const [isPreviewExpanded, setIsPreviewExpanded] = useState<boolean>(true); // プレビューの開閉
   const [isSimulating, setIsSimulating] = useState<boolean>(false); // シミュレーション実行中
-  const [simulationCount, setSimulationCount] = useState<number>(100); // シミュレーション回数
   const [simulationProgress, setSimulationProgress] = useState<{current: number, total: number} | null>(null); // 進捗
+
+  // アニメーション用ステート
+  const [flyingThumbnail, setFlyingThumbnail] = useState<{ src: string, rect: DOMRect } | null>(null);
+  const [highlightedTabId, setHighlightedTabId] = useState<string | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // レース環境ステート
   const [raceCondition, setRaceCondition] = useState<RaceCondition>({
@@ -580,7 +584,7 @@ export default function Home() {
       </div>
 
       {/* 右カラム (結果アリーナ) */}
-      <div className={`flex-1 h-full overflow-y-auto p-10 bg-[#09090b] relative scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent ${isResizing ? 'select-none pointer-events-none' : ''}`}>
+      <div ref={scrollContainerRef} className={`flex-1 h-full overflow-y-auto p-10 bg-[#09090b] relative scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent ${isResizing ? 'select-none pointer-events-none' : ''}`}>
         <div className="max-w-5xl mx-auto h-full">
           {activeTab ? (
             <div className="animate-fadeIn">
@@ -596,7 +600,7 @@ export default function Home() {
                         isActive 
                           ? 'border-emerald-500 w-56 opacity-100 shadow-[0_0_15px_rgba(16,185,129,0.3)] z-10' 
                           : 'border-transparent w-48 opacity-60 hover:opacity-100 hover:border-zinc-700'
-                      }`}
+                      } ${highlightedTabId === tab.id ? 'ring-4 ring-emerald-400 animate-pulse' : ''}`}
                     >
                       {tab.thumbnailUrl ? (
                         <div className="w-full h-full relative bg-zinc-900 pointer-events-none">
@@ -712,7 +716,7 @@ export default function Home() {
                     }));
                     showToastMessage("スキル構成と結果を初期状態にリセットしました", "success", 3000);
                   }}
-                  onDuplicateTab={() => {
+                  onDuplicateTab={(rect?: DOMRect) => {
                     if (!activeTab) return;
                     
                     const newTab = {
@@ -723,7 +727,24 @@ export default function Home() {
                     
                     setTabs(prev => [...prev, newTab]);
                     setActiveTabId(newTab.id);
-                    showToastMessage(`タブを複製しました`, "success", 3000);
+
+                    if (rect && activeTab.thumbnailUrl) {
+                      setFlyingThumbnail({ src: activeTab.thumbnailUrl, rect });
+                      if (scrollContainerRef.current) {
+                        scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+                      }
+                      setHighlightedTabId(newTab.id);
+                      
+                      setTimeout(() => {
+                        setFlyingThumbnail(null);
+                      }, 700);
+                      
+                      setTimeout(() => {
+                        setHighlightedTabId(null);
+                      }, 2000);
+                    } else {
+                      showToastMessage(`タブを複製しました`, "success", 3000);
+                    }
                   }}
                   onRunComparativeSimulation={async () => {
                     if (!activeTab.umaData) return;
@@ -772,6 +793,34 @@ export default function Home() {
           )}
         </div>
       </div>
+      {/* 飛翔アニメーション用要素 */}
+      {flyingThumbnail && (
+        <div
+          className="fixed pointer-events-none z-[9999] rounded-xl overflow-hidden shadow-2xl shadow-emerald-500/50 border-2 border-emerald-400"
+          style={{
+            left: flyingThumbnail.rect.left,
+            top: flyingThumbnail.rect.top,
+            width: flyingThumbnail.rect.width,
+            height: flyingThumbnail.rect.height,
+            animation: 'flyToTab 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards'
+          }}
+        >
+          <img src={flyingThumbnail.src} className="w-full h-full object-cover" />
+        </div>
+      )}
+
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes flyToTab {
+          0% {
+            transform: translateY(0) scale(1);
+            opacity: 0.9;
+          }
+          100% {
+            transform: translateY(-80vh) scale(0.1);
+            opacity: 0;
+          }
+        }
+      `}} />
 
       {/* トースト通知 & モーダル */}
       <ToastNotification show={showToast} type={toastType} message={toastMessage} />

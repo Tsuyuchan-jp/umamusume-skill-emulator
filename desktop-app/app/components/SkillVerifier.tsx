@@ -10,7 +10,7 @@ interface SkillVerifierProps {
   onRunComparativeSimulation: () => void;
   isSimulating: boolean;
   onResetSkills: () => void;
-  onDuplicateTab: () => void;
+  onDuplicateTab: (rect?: DOMRect) => void;
 }
 
 export const SkillVerifier: React.FC<SkillVerifierProps> = ({
@@ -101,7 +101,10 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
           )}
         </button>
         <button
-          onClick={onDuplicateTab}
+          onClick={(e) => {
+            const rect = e.currentTarget.getBoundingClientRect();
+            onDuplicateTab(rect);
+          }}
           disabled={isSimulating}
           className="px-4 bg-zinc-800/50 hover:bg-zinc-800 border border-zinc-700/50 text-zinc-300 text-xs font-bold rounded-xl transition-all active:scale-[0.98] flex flex-col items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed group"
           title="現在の状態を新しいタブとして複製します"
