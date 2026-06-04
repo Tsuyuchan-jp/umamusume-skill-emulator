@@ -79,7 +79,7 @@ export function CapturePanel(props: CapturePanelProps) {
                 : 'bg-rose-600/90 hover:bg-rose-500 text-white animate-pulse'
             }`}
           >
-            {captureStatus === 'idle' || captureStatus === 'saved' ? '自動キャプチャ' : '録画停止'}
+            {captureStatus === 'idle' || captureStatus === 'saved' ? '自動キャプチャ' : 'キャプチャ停止'}
           </button>
 
           {(captureStatus === 'done' || captureStatus === 'saved' || captureStatus === 'saving') && (
