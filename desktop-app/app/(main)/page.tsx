@@ -606,6 +606,11 @@ export default function Home() {
                             className="w-full h-full object-cover"
                           />
                           <div className={`absolute inset-0 transition-opacity ${isActive ? 'bg-black/0' : 'bg-black/50 group-hover:bg-black/20'}`}></div>
+                          {tab.title.includes("コピー") && (
+                            <div className="absolute top-1 left-1 bg-amber-500 text-black text-[10px] font-black px-1.5 py-0.5 rounded shadow-lg z-10">
+                              🎨 コピー
+                            </div>
+                          )}
                         </div>
                       ) : (
                         <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
@@ -635,6 +640,18 @@ export default function Home() {
               <div className="flex items-center gap-3 mb-8">
                 <div className="w-2 h-8 bg-blue-500 rounded-full"></div>
                 <h2 className="text-2xl font-bold text-zinc-100">シミュレーション結果</h2>
+                {activeTab && (
+                  <div className="flex items-center gap-2 ml-2">
+                    <span className="text-sm font-bold text-zinc-400 bg-zinc-800 px-3 py-1 rounded-full border border-zinc-700/50">
+                      {activeTab.title}
+                    </span>
+                    {activeTab.title.includes("コピー") && (
+                      <span className="text-[10px] font-black text-amber-400 bg-amber-500/10 px-2 py-1 rounded border border-amber-500/20 tracking-wider">
+                        🎨 コピー
+                      </span>
+                    )}
+                  </div>
+                )}
                 <span className="ml-auto text-zinc-500 text-sm font-medium">
                   {(() => {
                     if (!activeTab || !activeTab.raceCondition) return "東京 芝 2400m / 100走";
@@ -649,16 +666,6 @@ export default function Home() {
                     if (loc && course) parts.push(`${loc.name} ${course.name}`);
                     if (SURFACE_MAP[cond.surfaceCond]) parts.push(SURFACE_MAP[cond.surfaceCond]);
                     if (cond.playerNum) parts.push(`${cond.playerNum}人`);
-                    
-                    const conditionVal = uma?.condition || "BEST";
-                    parts.push(CONDITION_MAP[conditionVal] || conditionVal);
-                    
-                    const popularityVal = uma?.popularity || 1;
-                    parts.push(`${popularityVal}番人気`);
-                    
-                    if (uma?.gateNumber && uma.gateNumber > 0) {
-                      parts.push(`${uma.gateNumber}番ゲート`);
-                    }
                     
                     const runCount = activeTab.simResultDump?.length || simulationCount;
                     parts.push(`${runCount.toLocaleString()}走`);
@@ -704,6 +711,27 @@ export default function Home() {
                       return t;
                     }));
                     showToastMessage("スキル構成と結果を初期状態にリセットしました", "success", 3000);
+                  }}
+                  onDuplicateTab={() => {
+                    if (!activeTab) return;
+                    
+                    // ベースの名前から「 (コピーX)」を除外したクリーンな名前を取得
+                    const baseNameMatch = activeTab.title.match(/^(.*?)(?:\s*\(コピー\d*\))?$/);
+                    const baseName = baseNameMatch ? baseNameMatch[1] : activeTab.title;
+                    
+                    // 同じベース名を持つタブの数を数える
+                    const copyCount = tabs.filter(t => t.title.startsWith(baseName)).length;
+                    const newTitle = copyCount === 1 ? `${baseName} (コピー)` : `${baseName} (コピー${copyCount})`;
+                    
+                    const newTab = {
+                      ...activeTab,
+                      id: Date.now().toString(),
+                      title: newTitle
+                    };
+                    
+                    setTabs(prev => [...prev, newTab]);
+                    setActiveTabId(newTab.id);
+                    showToastMessage(`「${newTitle}」としてタブを複製しました`, "success", 3000);
                   }}
                   onRunComparativeSimulation={async () => {
                     if (!activeTab.umaData) return;
