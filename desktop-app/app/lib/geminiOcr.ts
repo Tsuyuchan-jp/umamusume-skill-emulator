@@ -1,8 +1,8 @@
 import { UmaStatusData } from "./types";
 import { normalizeStatusData } from "./fuzzyMatcher";
 
-const MODEL_PRIMARY = "gemini-2.5-flash";
-const MODEL_FALLBACK = "gemini-1.5-pro";
+const MODEL_PRIMARY = "gemini-3.5-flash";
+const MODEL_FALLBACK = "gemini-3.1-flash-lite";
 
 class ApiError extends Error {
   status: number;
