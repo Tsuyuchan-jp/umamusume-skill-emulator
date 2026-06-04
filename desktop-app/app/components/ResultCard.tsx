@@ -1,35 +1,10 @@
 "use client";
 
 import React from "react";
-
-interface ResultSummary {
-  count: number;
-  rate: number;
-  avgTime: number;
-  minTime: number;
-  maxTime: number;
-  avgStamina: number;
-  maxStamina: number;
-  minStamina: number;
-  avgPosAdjust: number;
-  staminaKeepRate: number;
-  avgStaminaKeepDist: number;
-  competeFightRate: number;
-  avgCompeteFightTime: number;
-}
-
-interface SimResultDump {
-  iterations: number;
-  summary: {
-    all: ResultSummary;
-    maxSpurt: ResultSummary;
-    nonMaxSpurt: ResultSummary | null;
-  };
-  rawSample: any;
-}
+import { SimResultDump } from "../lib/types";
 
 interface ResultCardProps {
-  result: SimResultDump;
+  result?: SimResultDump;
   baseline?: SimResultDump;
 }
 

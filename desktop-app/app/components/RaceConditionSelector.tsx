@@ -1,13 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { trackData } from '../lib/trackData';
 import { MapPin, Flag, CloudRain, Users, CalendarDays } from 'lucide-react';
-
-export interface RaceCondition {
-  locationId: string;
-  courseId: string;
-  surfaceCond: number;
-  playerNum: number;
-}
+import { RaceCondition } from '../lib/types';
 
 interface RacePreset extends RaceCondition {
   name: string;

@@ -1,3 +1,35 @@
+export interface RaceCondition {
+  locationId: string;
+  courseId: string;
+  surfaceCond: number;
+  playerNum: number;
+}
+
+export interface ResultSummary {
+  count: number;
+  rate: number;
+  avgTime: number;
+  minTime: number;
+  maxTime: number;
+  avgStamina: number;
+  maxStamina: number;
+  minStamina: number;
+  avgPosAdjust: number;
+  staminaKeepRate: number;
+  avgStaminaKeepDist: number;
+  competeFightRate: number;
+  avgCompeteFightTime: number;
+}
+
+export interface SimResultDump {
+  iterations: number;
+  summary: {
+    all: ResultSummary;
+    maxSpurt: ResultSummary;
+    nonMaxSpurt: ResultSummary | null;
+  };
+  rawSample: any;
+}
 
 export interface UmaStatusData {
   name?: string;
@@ -34,9 +66,9 @@ export interface SimTab {
   id: string;
   title: string;
   umaData: UmaStatusData;
-  raceCondition: any; // RaceCondition from components
-  simResultDump: any;
-  baselineResult: any;
+  raceCondition: RaceCondition;
+  simResultDump: SimResultDump | null;
+  baselineResult: SimResultDump | null;
   disabledSkills: string[];
   thumbnailUrl: string | null;
   isDuplicate?: boolean;

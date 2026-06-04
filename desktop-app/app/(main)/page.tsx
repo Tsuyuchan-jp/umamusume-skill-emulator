@@ -13,12 +13,16 @@ import { StatusPanel } from "../components/StatusPanel";
 import { SkillPanel } from "../components/SkillPanel";
 import { SettingsPanel } from "../components/SettingsPanel";
 import { ToastNotification } from "../components/ToastNotification";
-import { RaceConditionSelector, RaceCondition } from "../components/RaceConditionSelector";
+import { RaceConditionSelector } from "../components/RaceConditionSelector";
 import { analyzeStitchedImage } from "../lib/geminiOcr";
-import { UmaStatusData, SimTab } from "../lib/types";
+import { UmaStatusData, SimTab, RaceCondition } from "../lib/types";
 import { ResultCard } from "../components/ResultCard";
 import { SkillVerifier } from "../components/SkillVerifier";
 import SimulationStatusView from "../components/SimulationStatusView";
+import { CapturePanel } from "../components/CapturePanel";
+import { SimulationLauncher } from "../components/SimulationLauncher";
+import { TabBar } from "../components/TabBar";
+import { RaceInfoLabel } from "../components/RaceInfoLabel";
 import { trackData } from "../lib/trackData";
 
 export default function Home() {
@@ -232,7 +236,7 @@ export default function Home() {
     }
   };
 
-  const handleKeyDownForShortcut = (e: React.KeyboardEvent) => {
+  const handleKeyDownForShortcut = (e: React.KeyboardEvent<HTMLInputElement>) => {
     e.preventDefault();
     if (!isRecordingShortcut) return;
     
@@ -367,108 +371,34 @@ export default function Home() {
         </div>
 
         {/* オートキャプチャ & 自動結合 */}
-        <div className="w-full backdrop-blur-xl bg-zinc-900/30 border border-zinc-800/80 rounded-2xl p-5 shadow-lg">
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center gap-3">
-                <div className={`w-2 h-2 rounded-full ${statusCfg.color} ${statusCfg.pulse ? 'animate-pulse' : ''}`}></div>
-                <h2 className="text-sm font-semibold tracking-wide text-zinc-200">画面キャプチャ連携</h2>
-              </div>
-              <SettingsPanel
-                autoCopyEnabled={autoCopyEnabled}
-                onToggleAutoCopy={handleToggleAutoCopy}
-                saveFolder={saveFolder}
-                onSelectFolder={handleSelectFolder}
-                shortcutKey={shortcutKey}
-                isRecordingShortcut={isRecordingShortcut}
-                onRecordingShortcutStart={() => setIsRecordingShortcut(true)}
-                onRecordingShortcutBlur={() => setIsRecordingShortcut(false)}
-                onKeyDownForShortcut={handleKeyDownForShortcut as any}
-                shortcutInputRef={shortcutInputRef as any}
-                apiKey={apiKey}
-                onShowApiKeyModal={() => setShowApiKeyModal(true)}
-              />
-            </div>
-
-            <p className="text-xs text-zinc-400">{captureMessage}</p>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={captureStatus === 'idle' || captureStatus === 'saved' ? handleStartAutoCapture : handleStopCapture}
-                className={`flex-1 font-bold py-2.5 px-4 rounded-xl shadow-lg transition-all active:scale-[0.98] text-sm flex justify-center items-center gap-2 ${
-                  captureStatus === 'idle' || captureStatus === 'saved'
-                    ? 'bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-700'
-                    : 'bg-rose-600/90 hover:bg-rose-500 text-white animate-pulse'
-                }`}
-              >
-                {captureStatus === 'idle' || captureStatus === 'saved' ? '自動キャプチャ' : '録画停止'}
-              </button>
-
-              {(captureStatus === 'done' || captureStatus === 'saved' || captureStatus === 'saving') && (
-                <button
-                  onClick={handleResetCapture}
-                  disabled={captureStatus === 'saving'}
-                  className="bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-2.5 px-4 rounded-xl transition-all shadow-md active:scale-[0.98] text-sm disabled:opacity-50"
-                >
-                  リセット
-                </button>
-              )}
-            </div>
-
-            {captureStatus === 'saved' && resultImage && (
-              <div className="mt-2" ref={previewRef}>
-                <div className="flex items-center justify-between mb-2">
-                  <button 
-                    onClick={() => setIsPreviewExpanded(!isPreviewExpanded)}
-                    className="flex items-center gap-1.5 text-xs font-bold text-zinc-300 hover:text-white transition-colors"
-                  >
-                    {isPreviewExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                    結合結果プレビュー
-                  </button>
-                  {!autoCopyEnabled && (
-                    <button
-                      onClick={() => copyImageToClipboard(resultImage)}
-                      className="flex items-center gap-1.5 bg-emerald-600/90 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-all shadow-md active:scale-[0.98]"
-                    >
-                      <Copy className="w-3.5 h-3.5" /> コピー
-                    </button>
-                  )}
-                </div>
-                <button 
-                  onClick={() => setIsPreviewExpanded(!isPreviewExpanded)}
-                  className="block w-full rounded-xl border border-white/[0.04] bg-black/50 p-2 shadow-inner transition-all duration-500 cursor-pointer hover:border-white/[0.1]"
-                >
-                  <div className={`w-full relative overflow-hidden rounded-lg transition-all duration-500 ${isPreviewExpanded ? 'aspect-auto' : 'aspect-[100/28]'}`}>
-                    <img 
-                      src={resultImage} 
-                      alt="Combined Status" 
-                      className={`w-full h-auto block transition-all duration-500 ${isPreviewExpanded ? 'mt-0' : '-mt-[9.5%]'}`} 
-                    />
-                  </div>
-                </button>
-              </div>
-            )}
-            
-            {!umaData && resultImage && (
-              <button
-                onClick={handleOcrStart}
-                disabled={isOcrProcessing}
-                className="w-full mt-2 bg-gradient-to-r from-emerald-600 to-indigo-600 hover:from-emerald-500 hover:to-indigo-500 text-white font-bold py-3 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none active:scale-[0.98] text-sm"
-              >
-                {isOcrProcessing ? (
-                  <>
-                    <svg className="animate-spin h-4 w-4 text-white inline-block mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                    解析中...
-                  </>
-                ) : (
-                  <>
-                    <Wand2 className="w-4 h-4 inline-block mr-2" /> 画像からステータスを読込
-                  </>
-                )}
-              </button>
-            )}
-          </div>
-        </div>
+        <CapturePanel
+          statusCfg={statusCfg}
+          captureStatus={captureStatus}
+          captureMessage={captureMessage}
+          resultImage={resultImage}
+          umaData={umaData}
+          autoCopyEnabled={autoCopyEnabled}
+          saveFolder={saveFolder}
+          shortcutKey={shortcutKey}
+          isRecordingShortcut={isRecordingShortcut}
+          apiKey={apiKey}
+          isPreviewExpanded={isPreviewExpanded}
+          isOcrProcessing={isOcrProcessing}
+          previewRef={previewRef}
+          shortcutInputRef={shortcutInputRef}
+          onToggleAutoCopy={handleToggleAutoCopy}
+          onSelectFolder={handleSelectFolder}
+          onRecordingShortcutStart={() => setIsRecordingShortcut(true)}
+          onRecordingShortcutBlur={() => setIsRecordingShortcut(false)}
+          onKeyDownForShortcut={handleKeyDownForShortcut}
+          onShowApiKeyModal={() => setShowApiKeyModal(true)}
+          onStartAutoCapture={handleStartAutoCapture}
+          onStopCapture={handleStopCapture}
+          onResetCapture={handleResetCapture}
+          onTogglePreviewExpanded={() => setIsPreviewExpanded(!isPreviewExpanded)}
+          onCopyImage={copyImageToClipboard}
+          onOcrStart={handleOcrStart}
+        />
 
         {umaData && (
           <div className="flex flex-col gap-5 animate-fadeIn pb-10">
@@ -482,109 +412,21 @@ export default function Home() {
             <SkillPanel data={umaData} onChange={setUmaData} />
 
             {/* シミュレーション設定 & 実行 */}
-            <div className="flex flex-col gap-3 sticky bottom-0 z-20 pb-4 bg-[#09090b] pt-4 border-t border-zinc-900/50">
-              <div className="flex items-center gap-3 bg-zinc-900/80 border border-zinc-800 rounded-xl p-3 backdrop-blur-md">
-                <span className="text-sm font-bold text-zinc-300 whitespace-nowrap">試行回数</span>
-                <input
-                  type="number"
-                  min="1"
-                  max="100000"
-                  value={simulationCount}
-                  onChange={(e) => {
-                    const val = parseInt(e.target.value) || 100;
-                    setSimulationCount(val);
-                    localStorage.setItem("simulationCount", val.toString());
-                  }}
-                  className="bg-zinc-950 border border-zinc-700 rounded-lg px-3 py-1.5 text-sm text-zinc-100 outline-none focus:border-emerald-500 w-24 font-mono font-bold"
-                />
-                <div className="flex items-center gap-1.5 ml-auto">
-                  {[100, 1000, 10000].map(num => (
-                    <button
-                      key={num}
-                      onClick={() => {
-                        setSimulationCount(num);
-                        localStorage.setItem("simulationCount", num.toString());
-                      }}
-                      className={`px-2.5 py-1 text-xs font-bold rounded-md transition-all ${
-                        simulationCount === num
-                          ? 'bg-emerald-500 text-white shadow-md'
-                          : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200'
-                      }`}
-                    >
-                      {num.toLocaleString()}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <button
-                onClick={async () => {
-                  if (!umaData) return;
-                  if (!umaData.strategy || umaData.strategy === "") {
-                    showToastMessage("作戦が未選択です。ステータス枠から作戦を選択してください！", "error", 5000);
-                    return;
-                  }
-                  setIsSimulating(true);
-                  setSimulationProgress({ current: 0, total: simulationCount });
-                  showToastMessage(`${simulationCount.toLocaleString()}回シミュレーションを実行中...`, 'success', 3000);
-                  try {
-                    const { runMultipleSimulations } = await import('../lib/engine/umaemuAdapter');
-                    const simResult = await runMultipleSimulations(
-                      umaData, 
-                      raceCondition, 
-                      simulationCount,
-                      (current, total) => setSimulationProgress({ current, total })
-                    );
-                  
-                  // サムネイル画像の生成
-                  let thumbUrl = null;
-                  if (resultImage) {
-                    const { cropThumbnail } = await import('../lib/imageUtils');
-                    thumbUrl = await cropThumbnail(resultImage);
-                  }
-
-                  // タブを追加
-                  const newTabId = Date.now().toString();
-                  const newTab: SimTab = {
-                    id: newTabId,
-                    title: umaData.name || `ウマ娘 ${tabs.length + 1}`,
-                    umaData: { ...umaData },
-                    raceCondition: { ...raceCondition },
-                    simResultDump: simResult,
-                    baselineResult: simResult,
-                    disabledSkills: [],
-                    thumbnailUrl: thumbUrl
-                  };
-                  
-                  setTabs(prev => [...prev, newTab]);
-                  setActiveTabId(newTabId);
-                  
-                  showToastMessage(`${simulationCount.toLocaleString()}回のシミュレーションが完了しました！`, 'success', 5000);
-                } catch (e: any) {
-                  console.error("Simulation error:", e);
-                  const msg = e && e.message ? e.message : String(e);
-                  showToastMessage(`シミュレーションエラー: ${msg}`, 'error', 5000);
-                } finally {
-                  setIsSimulating(false);
-                  setSimulationProgress(null);
-                }
-              }}
-              disabled={isSimulating}
-              className="relative overflow-hidden w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg hover:shadow-emerald-500/20 active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50"
-            >
-              {isSimulating && simulationProgress && (
-                <div 
-                  className="absolute inset-y-0 left-0 bg-emerald-400/50 transition-all duration-100 ease-linear"
-                  style={{ width: `${(simulationProgress.current / simulationProgress.total) * 100}%` }}
-                />
-              )}
-              <span className="relative z-10 flex items-center gap-2 drop-shadow-md">
-                {isSimulating && simulationProgress 
-                  ? `実行中... ${Math.floor((simulationProgress.current / simulationProgress.total) * 100)}% (${simulationProgress.current.toLocaleString()} / ${simulationProgress.total.toLocaleString()})` 
-                  : `🚀 ${simulationCount.toLocaleString()}回シミュレーションを実行`}
-              </span>
-            </button>
-            </div>
+            <SimulationLauncher
+              simulationCount={simulationCount}
+              setSimulationCount={setSimulationCount}
+              isSimulating={isSimulating}
+              setIsSimulating={setIsSimulating}
+              simulationProgress={simulationProgress}
+              setSimulationProgress={setSimulationProgress}
+              umaData={umaData}
+              raceCondition={raceCondition}
+              resultImage={resultImage}
+              tabs={tabs}
+              setTabs={setTabs}
+              setActiveTabId={setActiveTabId}
+              showToastMessage={showToastMessage}
+            />
           </div>
         )}
       </div>
@@ -603,57 +445,13 @@ export default function Home() {
           {activeTab ? (
             <div className="animate-fadeIn">
               {/* Tab Bar UI */}
-              <div className="flex gap-3 mb-6 border-b border-zinc-800 pb-4 overflow-x-auto scrollbar-thin">
-                {tabs.map(tab => {
-                  const isActive = activeTabId === tab.id;
-                  return (
-                    <div 
-                      key={tab.id}
-                      onClick={() => setActiveTabId(tab.id)}
-                      className={`group relative flex-shrink-0 cursor-pointer overflow-hidden rounded-xl border-2 transition-all duration-300 h-16 ${
-                        isActive 
-                          ? 'border-emerald-500 w-56 opacity-100 shadow-[0_0_15px_rgba(16,185,129,0.3)] z-10' 
-                          : 'border-transparent w-48 opacity-60 hover:opacity-100 hover:border-zinc-700'
-                      } ${highlightedTabId === tab.id ? 'ring-4 ring-emerald-400 animate-pulse' : ''}`}
-                    >
-                      {tab.thumbnailUrl ? (
-                        <div className="w-full h-full relative bg-zinc-900 pointer-events-none">
-                          <img 
-                            src={tab.thumbnailUrl} 
-                            alt={tab.title} 
-                            className="w-full h-full object-cover"
-                          />
-                          <div className={`absolute inset-0 transition-opacity ${isActive ? 'bg-black/0' : 'bg-black/50 group-hover:bg-black/20'}`}></div>
-                          {tab.isDuplicate && (
-                            <div className="absolute top-1 left-1 bg-amber-500 text-black text-[10px] font-black px-1.5 py-0.5 rounded shadow-lg z-10">
-                              🎨 コピー
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
-                          <span className="text-sm font-bold text-zinc-400">{tab.title}</span>
-                        </div>
-                      )}
-                      
-                      {/* Close button */}
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setTabs(prev => prev.filter(t => t.id !== tab.id));
-                          if (activeTabId === tab.id) {
-                            const remaining = tabs.filter(t => t.id !== tab.id);
-                            setActiveTabId(remaining.length > 0 ? remaining[remaining.length - 1].id : null);
-                          }
-                        }}
-                        className={`absolute top-1.5 right-1.5 w-6 h-6 flex items-center justify-center rounded-full bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500 hover:text-white backdrop-blur-md`}
-                      >
-                        ×
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
+              <TabBar
+                tabs={tabs}
+                setTabs={setTabs}
+                activeTabId={activeTabId}
+                setActiveTabId={setActiveTabId}
+                highlightedTabId={highlightedTabId}
+              />
 
               <div className="flex items-center gap-3 mb-8">
                 <div className="w-2 h-8 bg-blue-500 rounded-full"></div>
@@ -694,23 +492,7 @@ export default function Home() {
                   </div>
                 )}
                 <span className="ml-auto text-zinc-500 text-sm font-medium">
-                  {(() => {
-                    if (!activeTab || !activeTab.raceCondition) return "東京 芝 2400m / 100走";
-                    const cond = activeTab.raceCondition;
-                    const uma = activeTab.umaData;
-                    const loc = trackData.find(l => l.id === cond.locationId);
-                    const course = loc?.courses.find(c => c.id === cond.courseId);
-                    const SURFACE_MAP: Record<number, string> = { 1: '良', 2: '稍重', 3: '重', 4: '不良' };
-                    
-                    const parts = [];
-                    if (loc && course) parts.push(`${loc.name} ${course.name}`);
-                    if (SURFACE_MAP[cond.surfaceCond]) parts.push(SURFACE_MAP[cond.surfaceCond]);
-                    if (cond.playerNum) parts.push(`${cond.playerNum}人`);
-                    
-                    const runCount = activeTab.simResultDump?.length || simulationCount;
-                    parts.push(`${runCount.toLocaleString()}走`);
-                    return parts.join(' / ');
-                  })()}
+                  <RaceInfoLabel activeTab={activeTab} simulationCount={simulationCount} />
                 </span>
               </div>
               <ResultCard result={activeTab.simResultDump} baseline={activeTab.baselineResult} />

@@ -1,8 +1,17 @@
 import { UmaStatusData } from "./types";
 import { normalizeStatusData } from "./fuzzyMatcher";
 
-const MODEL_PRIMARY = "gemini-3.5-flash";
-const MODEL_FALLBACK = "gemini-3.1-flash-lite";
+const MODEL_PRIMARY = "gemini-2.5-flash";
+const MODEL_FALLBACK = "gemini-1.5-pro";
+
+class ApiError extends Error {
+  status: number;
+  constructor(status: number, message: string) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+  }
+}
 
 const SYSTEM_INSTRUCTION = `あなたはゲーム「ウマ娘 プリティーダービー」の詳細ステータス画面の画像を解析するAIです。
 画像から以下の情報をJSON形式で抽出してください。
@@ -114,27 +123,32 @@ export async function analyzeStitchedImage(apiKey: string, dataUrl: string): Pro
     });
     if (!res.ok) {
       const errorText = await res.text();
-      throw { status: res.status, message: errorText };
+      throw new ApiError(res.status, errorText);
     }
     return res.json();
   };
 
   try {
     responseData = await callApi(MODEL_PRIMARY);
-  } catch (err: any) {
-    if (err.status === 429 || err.status === 503) {
+  } catch (err: unknown) {
+    const status = err instanceof ApiError ? err.status : 500;
+    const message = err instanceof Error ? err.message : String(err);
+
+    if (status === 429 || status === 503) {
       console.warn(`[Auto-Fallback] ${MODEL_PRIMARY} is busy/limited. Switching to ${MODEL_FALLBACK}...`);
       modelUsed = MODEL_FALLBACK;
       try {
         responseData = await callApi(MODEL_FALLBACK);
-      } catch (fallbackErr: any) {
-        if (fallbackErr.status === 429 || fallbackErr.status === 503) {
+      } catch (fallbackErr: unknown) {
+        const fbStatus = fallbackErr instanceof ApiError ? fallbackErr.status : 500;
+        const fbMessage = fallbackErr instanceof Error ? fallbackErr.message : String(fallbackErr);
+        if (fbStatus === 429 || fbStatus === 503) {
           throw new Error(`Gemini APIの制限またはサーバー混雑に達しました。数秒〜数分待ってから再度お試しください。`);
         }
-        throw new Error(`Gemini API Error (Fallback ${fallbackErr.status}): ${fallbackErr.message}`);
+        throw new Error(`Gemini API Error (Fallback ${fbStatus}): ${fbMessage}`);
       }
     } else {
-      throw new Error(`Gemini API Error (${err.status}): ${err.message}`);
+      throw new Error(`Gemini API Error (${status}): ${message}`);
     }
   }
 
