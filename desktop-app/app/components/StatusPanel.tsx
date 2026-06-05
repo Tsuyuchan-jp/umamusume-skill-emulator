@@ -10,8 +10,12 @@ interface StatusPanelProps {
 }
 
 import { APTITUDE_GRADES, APTITUDE_LABELS, STRATEGIES, CONDITIONS } from '../lib/constants';
+import { useToast } from '../hooks/useToast';
+import { getSkillNameById } from '../lib/umasimSkillData';
+import { ToastNotification } from './ToastNotification';
 
 export function StatusPanel({ data, onChange, raceCondition }: StatusPanelProps) {
+  const { showToast, toastMessage, toastType, showToastMessage } = useToast();
   const updateStat = (key: keyof UmaStatusData, value: number | string) => {
     onChange({ ...data, [key]: value });
   };
@@ -60,9 +64,52 @@ export function StatusPanel({ data, onChange, raceCondition }: StatusPanelProps)
   const distanceKey = getDistanceKey(course);
   const styleKey = getStyleKey(data.strategy);
 
+  const handleExport = () => {
+    const surfaceApt = data.aptitudes[surfaceKey] || "A";
+    const distanceApt = data.aptitudes[distanceKey] || "A";
+    const strategyApt = data.aptitudes[styleKey] || "A";
+
+    const skillNames = (data.skillIds || []).map(id => getSkillNameById(id));
+
+    const parts = [
+      data.name || "名称未設定",
+      data.speed || 0,
+      data.stamina || 0,
+      data.power || 0,
+      data.guts || 0,
+      data.wisdom || 0,
+      surfaceApt,
+      distanceApt,
+      strategyApt,
+      ...skillNames
+    ];
+
+    const csvText = parts.join(',');
+
+    navigator.clipboard.writeText(csvText).then(() => {
+      showToastMessage("umasim/race形式でクリップボードにコピーしました", "success");
+    }).catch(err => {
+      console.error("Failed to copy:", err);
+      showToastMessage("コピーに失敗しました", "error");
+    });
+  };
+
   return (
+    <>
     <div className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl p-5 flex flex-col gap-5">
-      <h3 className="text-zinc-200 font-bold text-sm border-b border-zinc-800 pb-2">ステータス</h3>
+      <div className="flex justify-between items-center border-b border-zinc-800 pb-2">
+        <h3 className="text-zinc-200 font-bold text-sm">ステータス</h3>
+        <button
+          onClick={handleExport}
+          className="text-xs flex items-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 px-2.5 py-1 rounded-md transition-colors border border-zinc-700/50"
+          title="umasim/raceでインポートできるCSV形式でクリップボードにコピーします"
+        >
+          <svg className="w-3.5 h-3.5 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+          </svg>
+          umasim形式でコピー
+        </button>
+      </div>
       
       {/* 基礎能力 */}
       <div className="flex flex-wrap gap-4">
@@ -141,5 +188,7 @@ export function StatusPanel({ data, onChange, raceCondition }: StatusPanelProps)
         </div>
       </div>
     </div>
+    <ToastNotification show={showToast} message={toastMessage} type={toastType} />
+    </>
   );
 }
