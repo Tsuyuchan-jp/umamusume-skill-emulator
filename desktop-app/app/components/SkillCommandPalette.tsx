@@ -28,7 +28,11 @@ export function SkillCommandPalette({ isOpen, onClose, onSelect, existingSkills 
     const loadSkills = async () => {
       try {
         const skillsData = await fetchSkillData();
-        const names = Array.from(new Set(skillsData.map((s: RawSkillData) => s.name)));
+        const names = Array.from(new Set(
+          skillsData
+            .filter((s: RawSkillData) => s.rarity !== 'unique')
+            .map((s: RawSkillData) => s.name)
+        ));
         const options = names.map((name: string) => ({ value: name, label: name }));
         setSkillOptions(options);
       } catch (err) {
