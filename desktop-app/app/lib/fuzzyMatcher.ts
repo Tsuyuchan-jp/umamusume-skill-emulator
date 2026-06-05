@@ -1,50 +1,55 @@
 import stringSimilarity from 'string-similarity';
-import { umasimSkillNames } from './umasimSkillData';
+import { umasimSkillDataList, umasimSkillNames } from './umasimSkillData';
 import { UmaStatusData } from './types';
-
-// マスターデータからスキル名の文字列配列を抽出 (umasimの最新データを使用)
-const skillNames = umasimSkillNames;
 
 // 全角英数字を半角に変換するユーティリティ（さらに漢数字のゼロ「〇」を記号の丸「○」に正規化）
 function toHalfWidth(str: string): string {
-  let s = str.replace(/[Ａ-Ｚａ-ｚ０-９]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xFEE0));
-  // AIが誤出力しやすい漢数字のゼロをマスターデータで使われる白丸記号に変換
+  let s = str.replace(/[！-～]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xFEE0));
   s = s.replace(/〇/g, '○');
   return s;
 }
 
-// 汎用的なFuzzyMatch生成関数
-function createFuzzyMatcher(targetList: string[]) {
-  return function(rawInput: string | null | undefined): string {
-    if (!rawInput) return "";
-    // 空白や改行を除去し、全角英数字を半角化、〇を○に正規化
-    let cleanInput = rawInput.replace(/[\s\u3000]+/g, "");
-    cleanInput = toHalfWidth(cleanInput);
-    if (!cleanInput) return "";
+export function fuzzyMatchSkillId(rawInput: string | null | undefined, isFirstSkill: boolean): string {
+  if (!rawInput) return "";
+  let cleanInput = rawInput.replace(/[\s\u3000]+/g, "");
+  cleanInput = toHalfWidth(cleanInput);
+  if (!cleanInput) return "";
 
-    const matches = stringSimilarity.findBestMatch(cleanInput, targetList);
-    let bestMatch = matches.bestMatch;
+  const matches = stringSimilarity.findBestMatch(cleanInput, umasimSkillNames);
+  let bestMatch = matches.bestMatch;
 
-    // ○、◎、× の特例ルール: 末尾記号が一致するものを優先する
-    const inputSuffix = cleanInput.slice(-1);
-    const hasSymbol = ['○', '◎', '×'].includes(inputSuffix);
-    if (hasSymbol) {
-      // 一定以上のスコアがあり、かつ末尾記号が完全一致する候補を探す
-      const exactSymbolMatches = matches.ratings.filter(r => r.target.endsWith(inputSuffix) && r.rating > 0.4);
-      if (exactSymbolMatches.length > 0) {
-        exactSymbolMatches.sort((a, b) => b.rating - a.rating); // スコア順
-        bestMatch = exactSymbolMatches[0];
-      }
+  const inputSuffix = cleanInput.slice(-1);
+  const hasSymbol = ['○', '◎', '×'].includes(inputSuffix);
+  if (hasSymbol) {
+    const exactSymbolMatches = matches.ratings.filter(r => r.target.endsWith(inputSuffix) && r.rating > 0.4);
+    if (exactSymbolMatches.length > 0) {
+      exactSymbolMatches.sort((a, b) => b.rating - a.rating);
+      bestMatch = exactSymbolMatches[0];
     }
+  }
 
-    // スコアが低すぎる場合は誤変換（AIの幻覚）とみなし空欄を返す
-    // 0.45未満は誤検出として厳格に弾く
-    if (bestMatch.rating < 0.45) return "";
-    return bestMatch.target;
-  };
+  if (bestMatch.rating < 0.45) return "";
+
+  // Find the exact skill objects that match the best matched name
+  const matchedSkills = umasimSkillDataList.filter(s => s.name === bestMatch.target);
+  if (matchedSkills.length === 0) return "";
+
+  if (matchedSkills.length === 1) {
+    return String(matchedSkills[0].id);
+  }
+
+  // If there are multiple skills with the same name, decide based on isFirstSkill
+  if (isFirstSkill) {
+    const uniqueSkill = matchedSkills.find(s => s.rarity === 'unique');
+    if (uniqueSkill) return String(uniqueSkill.id);
+  } else {
+    const nonUniqueSkill = matchedSkills.find(s => s.rarity !== 'unique');
+    if (nonUniqueSkill) return String(nonUniqueSkill.id);
+  }
+
+  // Fallback to the first one
+  return String(matchedSkills[0].id);
 }
-
-export const fuzzyMatchSkillName = createFuzzyMatcher(skillNames);
 
 // 適性の補正用 (A~G, S)
 const validAptitudes = ["A", "B", "C", "D", "E", "F", "G", "S"];
@@ -69,7 +74,7 @@ export function normalizeStatusData(data: any): UmaStatusData {
     return {
       speed: 0, stamina: 0, power: 0, guts: 0, wisdom: 0,
       aptitudes: { turf: 'G', dirt: 'G', short: 'G', mile: 'G', medium: 'G', long: 'G', nige: 'G', senkou: 'G', sashi: 'G', oikomi: 'G' },
-      skills: []
+      skillIds: []
     };
   }
 
@@ -96,6 +101,6 @@ export function normalizeStatusData(data: any): UmaStatusData {
       sashi: normalizeAptitude(rawAptitudes.sashi),
       oikomi: normalizeAptitude(rawAptitudes.oikomi),
     },
-    skills: rawSkills.map((s: string) => fuzzyMatchSkillName(s)).filter((s: string) => s !== ""),
+    skillIds: rawSkills.map((s: string, index: number) => fuzzyMatchSkillId(s, index === 0)).filter((id: string) => id !== ""),
   };
 }

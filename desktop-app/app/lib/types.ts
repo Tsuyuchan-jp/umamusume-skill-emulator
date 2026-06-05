@@ -54,7 +54,7 @@ export interface UmaStatusData {
     sashi: string;
     oikomi: string;
   };
-  skills: string[];
+  skillIds: string[];
 }
 
 export interface RawSkillData {
@@ -69,10 +69,10 @@ export interface SimTab {
   raceCondition: RaceCondition;
   simResultDump: SimResultDump | null;
   baselineResult: SimResultDump | null;
-  disabledSkills: string[];
-  addedSkills?: string[];
-  appliedDisabledSkills?: string[];
-  appliedAddedSkills?: string[];
+  disabledSkillIds: string[];
+  addedSkillIds?: string[];
+  appliedDisabledSkillIds?: string[];
+  appliedAddedSkillIds?: string[];
   thumbnailUrl: string | null;
   isDuplicate?: boolean;
 }
