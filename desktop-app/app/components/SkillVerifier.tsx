@@ -38,7 +38,6 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
   onShowToast,
 }) => {
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
-  const [isUniquePaletteOpen, setIsUniquePaletteOpen] = useState(false);
 
   // Global Ctrl+K / Cmd+K listener
   React.useEffect(() => {
@@ -78,11 +77,6 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
 
   const canSimulate = initialSkillsDisabledCount > 0 || activeAddedSkillsCount > 0;
   const hasChanges = initialSkillsDisabledCount > 0 || addedSkillIds.length > 0;
-  
-  const hasUniqueSkill = [
-    ...umaData.skillIds.filter(id => !disabledSkillIds.includes(id)),
-    ...addedSkillIds
-  ].some(id => isUniqueSkillId(id));
 
   // ボタンテキストの動的生成
   let simulateButtonText = "変更がありません";
@@ -119,21 +113,6 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
           </span>
         </div>
       </div>
-
-      {!hasUniqueSkill && (
-        <div className="bg-rose-950/40 border border-rose-500/50 rounded-lg p-3 mb-4 animate-shake">
-          <p className="text-sm font-bold text-rose-400 mb-2">⚠️ 通常固有スキルが認識されませんでした</p>
-          <p className="text-xs text-rose-300/80 mb-3">シミュレーションの精度が著しく落ちるため、実行をブロックしています。手動で正しい固有スキルを追加してください。</p>
-          <button
-            onClick={() => {
-              setIsUniquePaletteOpen(true);
-            }}
-            className="w-full flex items-center justify-center gap-2 py-2 rounded-lg border border-rose-500/50 hover:bg-rose-500/20 text-rose-300 transition-colors text-xs font-bold bg-rose-500/10"
-          >
-            ＋ 通常固有スキルを選択する
-          </button>
-        </div>
-      )}
 
       <p className="text-xs text-zinc-500 mb-4">
         検証したいスキルのチェックを外して再シミュレーションすることで、そのスキルがない場合のタイムへの影響（Delta）を確認できます。
@@ -243,9 +222,9 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
       <div className="flex gap-2">
         <button
           onClick={onRunComparativeSimulation}
-          disabled={isSimulating || !isDirty || !hasUniqueSkill}
+          disabled={isSimulating || !isDirty}
           className={`flex-1 font-bold py-3 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${
-            isDirty && hasUniqueSkill
+            isDirty
               ? 'bg-purple-600 hover:bg-purple-500 text-white hover:shadow-purple-500/20 active:scale-[0.98] animate-pulse' 
               : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
           }`}
@@ -282,18 +261,6 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
         existingSkills={umaData.skillIds}
         onError={(msg) => onShowToast(msg, 'error', 3000)}
         variant="verifier"
-      />
-      <SkillCommandPalette
-        isOpen={isUniquePaletteOpen}
-        onClose={() => setIsUniquePaletteOpen(false)}
-        onSelect={(id) => {
-          onAddSkill(id);
-          setIsUniquePaletteOpen(false);
-        }}
-        existingSkills={umaData.skillIds}
-        onError={(msg) => onShowToast(msg, 'error', 3000)}
-        variant="default"
-        onlyUnique={true}
       />
     </div>
   );
