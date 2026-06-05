@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { UmaStatusData } from "../lib/types";
 import { SkillCommandPalette } from "./SkillCommandPalette";
 import { getSkillRarityInfo } from "../lib/skillRarityData";
-import { getSkillNameById, isUniqueSkillId } from "../lib/umasimSkillData";
+import { getSkillNameById, isUniqueSkillId, getSkillRarityById } from "../lib/umasimSkillData";
 
 interface SkillVerifierProps {
   umaData: UmaStatusData;
@@ -133,9 +133,11 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
             activeAddedSkillsList.map(skillId => {
               const skillName = getSkillNameById(skillId);
               const rarityInfo = getSkillRarityInfo(skillName);
+              const rarityType = getSkillRarityById(skillId);
+              const prefix = rarityType === 'unique' ? '【通】' : rarityType === 'inherit' ? '【継】' : '';
               return (
                 <span key={`ad-${skillId}`} className="text-xs font-bold px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-800 border-l-[3px] border-l-emerald-500">
-                  <span className={rarityInfo.colorClass}>{rarityInfo.icon}{skillName}</span>
+                  <span className={rarityInfo.colorClass}>{rarityInfo.icon}{prefix}{skillName}</span>
                 </span>
               );
             })
@@ -151,9 +153,11 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
             excludedSkillsList.map(skillId => {
               const skillName = getSkillNameById(skillId);
               const rarityInfo = getSkillRarityInfo(skillName);
+              const rarityType = getSkillRarityById(skillId);
+              const prefix = rarityType === 'unique' ? '【通】' : rarityType === 'inherit' ? '【継】' : '';
               return (
                 <span key={`ex-${skillId}`} className="text-xs font-bold px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-800 border-l-[3px] border-l-rose-500">
-                  <span className={rarityInfo.colorClass}>{rarityInfo.icon}{skillName}</span>
+                  <span className={rarityInfo.colorClass}>{rarityInfo.icon}{prefix}{skillName}</span>
                 </span>
               );
             })
@@ -168,6 +172,8 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
           const skillName = getSkillNameById(skillId);
           const isDisabled = disabledSkillIds.includes(skillId);
           const isAdded = addedSkillIds.includes(skillId);
+          const rarityType = getSkillRarityById(skillId);
+          const prefix = rarityType === 'unique' ? '【通】' : rarityType === 'inherit' ? '【継】' : '';
           return (
             <div
               key={index}
@@ -187,7 +193,7 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
                   className="w-4 h-4 rounded border-zinc-700 text-purple-500 focus:ring-purple-500/30 focus:ring-offset-0 bg-zinc-900"
                 />
                 <span className={`text-xs font-bold truncate flex-1 ${isDisabled ? 'text-zinc-500 line-through' : getSkillRarityInfo(skillName).colorClass}`}>
-                  {getSkillRarityInfo(skillName).icon}{skillName}
+                  {getSkillRarityInfo(skillName).icon}{prefix}{skillName}
                 </span>
                 {isAdded && (
                   <span className="text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-1 py-0.5 rounded leading-none whitespace-nowrap">

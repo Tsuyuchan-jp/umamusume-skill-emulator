@@ -5,7 +5,7 @@ import { fetchSkillData } from '../lib/engine/umaemuAdapter';
 import { useToast } from '../hooks/useToast';
 import { SkillCommandPalette } from './SkillCommandPalette';
 
-import { getSkillNameById, isUniqueSkillId } from '../lib/umasimSkillData';
+import { getSkillNameById, isUniqueSkillId, getSkillRarityById } from '../lib/umasimSkillData';
 import { getSkillRarityInfo } from '../lib/skillRarityData';
 
 interface SkillPanelProps {
@@ -109,6 +109,8 @@ export function SkillPanel({ data, onChange }: SkillPanelProps) {
           {data.skillIds && data.skillIds.map((skillId, idx) => {
             const skillName = getSkillNameById(skillId);
             const rarityInfo = getSkillRarityInfo(skillName);
+            const rarityType = getSkillRarityById(skillId);
+            const prefix = rarityType === 'unique' ? '【通】' : rarityType === 'inherit' ? '【継】' : '';
             return (
               <div 
                 key={idx} 
@@ -116,7 +118,7 @@ export function SkillPanel({ data, onChange }: SkillPanelProps) {
               >
                 <div className="flex items-center gap-2.5 overflow-hidden">
                   <span className={`text-sm font-medium truncate ${rarityInfo.colorClass}`} title={skillName}>
-                    {rarityInfo.icon}{skillName}
+                    {rarityInfo.icon}{prefix}{skillName}
                   </span>
                 </div>
                 <button
