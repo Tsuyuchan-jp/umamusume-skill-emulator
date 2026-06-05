@@ -10096,8 +10096,3 @@ export function isUniqueSkillId(id: string): boolean {
   const skill = umasimSkillDataList.find(s => String(s.id) === String(id));
   return skill?.rarity === 'unique';
 }
-
-export function getSkillRarityById(id: string): string {
-  const skill = umasimSkillDataList.find(s => String(s.id) === String(id));
-  return skill?.rarity || 'normal';
-}
