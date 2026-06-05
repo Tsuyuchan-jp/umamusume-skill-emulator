@@ -7,14 +7,14 @@ use std::sync::atomic::AtomicBool;
 /// - 全 Tauri コマンドの登録
 /// - 既存コマンドの互換維持（Step 1 / Step 2 のフロントエンドへの後方互換）
 use std::sync::{Arc, Mutex};
-use tauri::Manager;
-use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 use tauri::menu::{Menu, MenuItem};
+use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
+use tauri::Manager;
 use tauri::WindowEvent;
 mod capture;
+mod overlay;
 mod stitch;
 mod window;
-mod overlay;
 
 // ============================================================
 // 共有エラー型
@@ -75,6 +75,13 @@ impl CaptureSessionState {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.show();
+                let _ = window.unminimize();
+                let _ = window.set_focus();
+            }
+        }))
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .plugin(tauri_plugin_window_state::Builder::default().build())
@@ -126,7 +133,8 @@ pub fn run() {
                         button: MouseButton::Left,
                         button_state: MouseButtonState::Up,
                         ..
-                    } = event {
+                    } = event
+                    {
                         let app = tray.app_handle();
                         if let Some(window) = app.get_webview_window("main") {
                             let _ = window.show();

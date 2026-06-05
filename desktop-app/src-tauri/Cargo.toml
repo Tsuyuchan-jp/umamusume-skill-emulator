@@ -46,3 +46,6 @@ tokio = { version = "1", features = ["time"] }
 imageproc = "0.25.1"
 tauri-plugin-dialog = "2"
 tauri-plugin-global-shortcut = "2.3.2"
+
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-single-instance = "2"
