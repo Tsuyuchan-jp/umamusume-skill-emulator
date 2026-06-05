@@ -366,8 +366,9 @@ export default function Home() {
               <path d="M4 10a8 8 0 0 1 16 0v4a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-4a2 2 0 0 0-4 0v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4z"></path>
             </svg>
           </div>
-          <h1 className="text-xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-100 to-zinc-400 shrink-0">
+          <h1 className="text-xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-100 to-zinc-400 shrink-0 flex items-baseline">
             ウマ娘 レースアナライザー
+            <span className="text-xs text-zinc-500 font-medium ml-2">v1.0.2</span>
           </h1>
         </div>
 
