@@ -10086,3 +10086,13 @@ export const umasimSkillDataList = [
   }
 ];
 export const umasimSkillNames = umasimSkillDataList.map(s => s.name);
+
+export function getSkillNameById(id: string): string {
+  const skill = umasimSkillDataList.find(s => String(s.id) === String(id));
+  return skill ? skill.name : id;
+}
+
+export function isUniqueSkillId(id: string): boolean {
+  const skill = umasimSkillDataList.find(s => String(s.id) === String(id));
+  return skill?.rarity === 'unique';
+}

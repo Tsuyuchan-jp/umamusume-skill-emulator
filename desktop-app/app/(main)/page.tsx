@@ -559,7 +559,7 @@ export default function Home() {
                 <ResultCard
                   result={activeTab.simResultDump}
                   baseline={activeTab.baselineResult || undefined}
-                  disabledSkills={activeTab.disabledSkills}
+                  disabledSkillIds={activeTab.disabledSkillIds}
                   displayUnit={displayUnit}
                   umaData={activeTab.umaData}
                   raceCondition={activeTab.raceCondition}
@@ -571,17 +571,17 @@ export default function Home() {
               {activeTab.umaData && activeTab.baselineResult && (
                 <SkillVerifier
                   umaData={activeTab.umaData}
-                  disabledSkills={activeTab.disabledSkills}
-                  appliedDisabledSkills={activeTab.appliedDisabledSkills || []}
-                  appliedAddedSkills={activeTab.appliedAddedSkills || []}
-                  onToggleSkill={(skillName) => {
+                  disabledSkillIds={activeTab.disabledSkillIds}
+                  appliedDisabledSkillIds={activeTab.appliedDisabledSkillIds || []}
+                  appliedAddedSkillIds={activeTab.appliedAddedSkillIds || []}
+                  onToggleSkill={(skillId) => {
                     setTabs(prev => prev.map(t => {
                       if (t.id === activeTabId) {
                         return {
                           ...t,
-                          disabledSkills: t.disabledSkills.includes(skillName)
-                            ? t.disabledSkills.filter(s => s !== skillName)
-                            : [...t.disabledSkills, skillName]
+                          disabledSkillIds: t.disabledSkillIds.includes(skillId)
+                            ? t.disabledSkillIds.filter(s => s !== skillId)
+                            : [...t.disabledSkillIds, skillId]
                         };
                       }
                       return t;
@@ -593,9 +593,9 @@ export default function Home() {
                       if (t.id === activeTabId) {
                         return {
                           ...t,
-                          disabledSkills: t.addedSkills ? [...t.addedSkills] : [],
-                          appliedDisabledSkills: t.addedSkills ? [...t.addedSkills] : [],
-                          appliedAddedSkills: t.addedSkills ? [...t.addedSkills] : [],
+                          disabledSkillIds: t.addedSkillIds ? [...t.addedSkillIds] : [],
+                          appliedDisabledSkillIds: t.addedSkillIds ? [...t.addedSkillIds] : [],
+                          appliedAddedSkillIds: t.addedSkillIds ? [...t.addedSkillIds] : [],
                           simResultDump: t.baselineResult
                         };
                       }
@@ -649,39 +649,39 @@ export default function Home() {
                       showToastMessage(`タブを複製しました`, "success", 3000);
                     }
                   }}
-                  addedSkills={activeTab.addedSkills || []}
-                  onAddSkill={(skillName) => {
+                  addedSkillIds={activeTab.addedSkillIds || []}
+                  onAddSkill={(skillId) => {
                     setTabs(prev => prev.map(t => {
                       if (t.id === activeTabId) {
                         return {
                           ...t,
                           umaData: {
                             ...t.umaData,
-                            skills: [...t.umaData.skills, skillName]
+                            skillIds: [...t.umaData.skillIds, skillId]
                           },
-                          addedSkills: [...(t.addedSkills || []), skillName]
+                          addedSkillIds: [...(t.addedSkillIds || []), skillId]
                         };
                       }
                       return t;
                     }));
-                    showToastMessage(`${skillName} を仮想追加しました！差分検証を実行してください。`, "success", 4000);
+                    showToastMessage(`仮想追加しました！差分検証を実行してください。`, "success", 4000);
                   }}
-                  onRemoveSkill={(skillName) => {
+                  onRemoveSkill={(skillId) => {
                     setTabs(prev => prev.map(t => {
                       if (t.id === activeTabId) {
                         return {
                           ...t,
                           umaData: {
                             ...t.umaData,
-                            skills: t.umaData.skills.filter(s => s !== skillName)
+                            skillIds: t.umaData.skillIds.filter(s => s !== skillId)
                           },
-                          addedSkills: (t.addedSkills || []).filter(s => s !== skillName),
-                          disabledSkills: t.disabledSkills.filter(s => s !== skillName)
+                          addedSkillIds: (t.addedSkillIds || []).filter(s => s !== skillId),
+                          disabledSkillIds: t.disabledSkillIds.filter(s => s !== skillId)
                         };
                       }
                       return t;
                     }));
-                    showToastMessage(`${skillName} を削除しました`, "success", 3000);
+                    showToastMessage(`削除しました`, "success", 3000);
                   }}
                   onShowToast={showToastMessage}
                   onRunComparativeSimulation={async () => {
@@ -693,7 +693,7 @@ export default function Home() {
                       const { runMultipleSimulations } = await import('../lib/engine/umaemuAdapter');
                       const clonedUmaData = {
                         ...activeTab.umaData,
-                        skills: activeTab.umaData.skills.filter(s => !activeTab.disabledSkills.includes(s))
+                        skillIds: activeTab.umaData.skillIds.filter(s => !activeTab.disabledSkillIds.includes(s))
                       };
                       const simResult = await runMultipleSimulations(
                         clonedUmaData, 
@@ -707,8 +707,8 @@ export default function Home() {
                           return { 
                             ...t, 
                             simResultDump: simResult,
-                            appliedDisabledSkills: [...t.disabledSkills],
-                            appliedAddedSkills: t.addedSkills ? [...t.addedSkills] : []
+                            appliedDisabledSkillIds: [...t.disabledSkillIds],
+                            appliedAddedSkillIds: t.addedSkillIds ? [...t.addedSkillIds] : []
                           };
                         }
                         return t;

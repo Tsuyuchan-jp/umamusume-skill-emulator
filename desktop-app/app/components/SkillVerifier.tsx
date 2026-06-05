@@ -4,39 +4,41 @@ import React, { useState } from "react";
 import { UmaStatusData } from "../lib/types";
 import { SkillCommandPalette } from "./SkillCommandPalette";
 import { getSkillRarityInfo } from "../lib/skillRarityData";
+import { getSkillNameById, isUniqueSkillId } from "../lib/umasimSkillData";
 
 interface SkillVerifierProps {
   umaData: UmaStatusData;
-  disabledSkills: string[];
-  onToggleSkill: (skillName: string) => void;
+  disabledSkillIds: string[];
+  onToggleSkill: (skillId: string) => void;
   onRunComparativeSimulation: () => void;
   isSimulating: boolean;
   onResetSkills: () => void;
   onDuplicateTab: (rect?: DOMRect) => void;
-  addedSkills?: string[];
-  appliedDisabledSkills?: string[];
-  appliedAddedSkills?: string[];
-  onAddSkill: (skillName: string) => void;
-  onRemoveSkill: (skillName: string) => void;
+  addedSkillIds?: string[];
+  appliedDisabledSkillIds?: string[];
+  appliedAddedSkillIds?: string[];
+  onAddSkill: (skillId: string) => void;
+  onRemoveSkill: (skillId: string) => void;
   onShowToast: (msg: string, type: 'error'|'success', dur: number) => void;
 }
 
 export const SkillVerifier: React.FC<SkillVerifierProps> = ({
   umaData,
-  disabledSkills,
+  disabledSkillIds,
   onToggleSkill,
   onRunComparativeSimulation,
   isSimulating,
   onResetSkills,
   onDuplicateTab,
-  addedSkills = [],
-  appliedDisabledSkills = [],
-  appliedAddedSkills = [],
+  addedSkillIds = [],
+  appliedDisabledSkillIds = [],
+  appliedAddedSkillIds = [],
   onAddSkill,
   onRemoveSkill,
   onShowToast,
 }) => {
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
+  const [isUniquePaletteOpen, setIsUniquePaletteOpen] = useState(false);
 
   // Global Ctrl+K / Cmd+K listener
   React.useEffect(() => {
@@ -51,20 +53,20 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
   }, []);
 
   // スキルが無い場合は非表示
-  if (!umaData.skills || umaData.skills.length === 0) {
+  if (!umaData.skillIds || umaData.skillIds.length === 0) {
     return null;
   }
 
-  const activeSkillsCount = umaData.skills.length - disabledSkills.length;
-  const excludedSkillsList = disabledSkills.filter(s => !addedSkills.includes(s));
-  const activeAddedSkillsList = addedSkills.filter(s => !disabledSkills.includes(s));
+  const activeSkillsCount = umaData.skillIds.length - disabledSkillIds.length;
+  const excludedSkillsList = disabledSkillIds.filter(s => !addedSkillIds.includes(s));
+  const activeAddedSkillsList = addedSkillIds.filter(s => !disabledSkillIds.includes(s));
   
   const initialSkillsDisabledCount = excludedSkillsList.length;
   const activeAddedSkillsCount = activeAddedSkillsList.length;
   
   // 確定済みの構成（確定状態でのサマリー）
-  const appliedActiveAddedSkillsList = appliedAddedSkills.filter(s => !appliedDisabledSkills.includes(s));
-  const appliedExcludedSkillsList = appliedDisabledSkills.filter(s => !appliedAddedSkills.includes(s));
+  const appliedActiveAddedSkillsList = appliedAddedSkillIds.filter(s => !appliedDisabledSkillIds.includes(s));
+  const appliedExcludedSkillsList = appliedDisabledSkillIds.filter(s => !appliedAddedSkillIds.includes(s));
 
   // 未反映ステータスの計算（意味的なリスト同士の差分をとる）
   const unappliedAddedCount = activeAddedSkillsList.filter(s => !appliedActiveAddedSkillsList.includes(s)).length;
@@ -75,7 +77,12 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
   const isDirty = totalUnappliedCount > 0;
 
   const canSimulate = initialSkillsDisabledCount > 0 || activeAddedSkillsCount > 0;
-  const hasChanges = initialSkillsDisabledCount > 0 || addedSkills.length > 0;
+  const hasChanges = initialSkillsDisabledCount > 0 || addedSkillIds.length > 0;
+  
+  const hasUniqueSkill = [
+    ...umaData.skillIds.filter(id => !disabledSkillIds.includes(id)),
+    ...addedSkillIds
+  ].some(id => isUniqueSkillId(id));
 
   // ボタンテキストの動的生成
   let simulateButtonText = "変更がありません";
@@ -108,10 +115,25 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
             </button>
           )}
           <span className="text-xs text-zinc-500">
-            有効スキル: <span className="font-bold text-zinc-300">{activeSkillsCount}</span> / {umaData.skills.length}
+            有効スキル: <span className="font-bold text-zinc-300">{activeSkillsCount}</span> / {umaData.skillIds.length}
           </span>
         </div>
       </div>
+
+      {!hasUniqueSkill && (
+        <div className="bg-rose-950/40 border border-rose-500/50 rounded-lg p-3 mb-4 animate-shake">
+          <p className="text-sm font-bold text-rose-400 mb-2">⚠️ 通常固有スキルが認識されませんでした</p>
+          <p className="text-xs text-rose-300/80 mb-3">シミュレーションの精度が著しく落ちるため、実行をブロックしています。手動で正しい固有スキルを追加してください。</p>
+          <button
+            onClick={() => {
+              setIsUniquePaletteOpen(true);
+            }}
+            className="w-full flex items-center justify-center gap-2 py-2 rounded-lg border border-rose-500/50 hover:bg-rose-500/20 text-rose-300 transition-colors text-xs font-bold bg-rose-500/10"
+          >
+            ＋ 通常固有スキルを選択する
+          </button>
+        </div>
+      )}
 
       <p className="text-xs text-zinc-500 mb-4">
         検証したいスキルのチェックを外して再シミュレーションすることで、そのスキルがない場合のタイムへの影響（Delta）を確認できます。
@@ -129,11 +151,12 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
         <div className="flex flex-wrap gap-2 items-center min-h-[28px]">
           <span className="text-xs font-bold text-emerald-500/70 w-8">追加</span>
           {activeAddedSkillsList.length > 0 ? (
-            activeAddedSkillsList.map(skill => {
-              const rarityInfo = getSkillRarityInfo(skill);
+            activeAddedSkillsList.map(skillId => {
+              const skillName = getSkillNameById(skillId);
+              const rarityInfo = getSkillRarityInfo(skillName);
               return (
-                <span key={`ad-${skill}`} className="text-xs font-bold px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-800 border-l-[3px] border-l-emerald-500">
-                  <span className={rarityInfo.colorClass}>{rarityInfo.icon}{skill}</span>
+                <span key={`ad-${skillId}`} className="text-xs font-bold px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-800 border-l-[3px] border-l-emerald-500">
+                  <span className={rarityInfo.colorClass}>{rarityInfo.icon}{skillName}</span>
                 </span>
               );
             })
@@ -146,11 +169,12 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
         <div className="flex flex-wrap gap-2 items-center min-h-[28px]">
           <span className="text-xs font-bold text-rose-500/70 w-8">除外</span>
           {excludedSkillsList.length > 0 ? (
-            excludedSkillsList.map(skill => {
-              const rarityInfo = getSkillRarityInfo(skill);
+            excludedSkillsList.map(skillId => {
+              const skillName = getSkillNameById(skillId);
+              const rarityInfo = getSkillRarityInfo(skillName);
               return (
-                <span key={`ex-${skill}`} className="text-xs font-bold px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-800 border-l-[3px] border-l-rose-500">
-                  <span className={rarityInfo.colorClass}>{rarityInfo.icon}{skill}</span>
+                <span key={`ex-${skillId}`} className="text-xs font-bold px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-800 border-l-[3px] border-l-rose-500">
+                  <span className={rarityInfo.colorClass}>{rarityInfo.icon}{skillName}</span>
                 </span>
               );
             })
@@ -161,9 +185,10 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
       </div>
 
       <div className="grid grid-cols-2 gap-2 mb-6 max-h-48 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent">
-        {umaData.skills.map((skillName, index) => {
-          const isDisabled = disabledSkills.includes(skillName);
-          const isAdded = addedSkills.includes(skillName);
+        {umaData.skillIds.map((skillId, index) => {
+          const skillName = getSkillNameById(skillId);
+          const isDisabled = disabledSkillIds.includes(skillId);
+          const isAdded = addedSkillIds.includes(skillId);
           return (
             <div
               key={index}
@@ -179,7 +204,7 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
                 <input
                   type="checkbox"
                   checked={!isDisabled}
-                  onChange={() => onToggleSkill(skillName)}
+                  onChange={() => onToggleSkill(skillId)}
                   className="w-4 h-4 rounded border-zinc-700 text-purple-500 focus:ring-purple-500/30 focus:ring-offset-0 bg-zinc-900"
                 />
                 <span className={`text-xs font-bold truncate flex-1 ${isDisabled ? 'text-zinc-500 line-through' : getSkillRarityInfo(skillName).colorClass}`}>
@@ -193,7 +218,7 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
               </label>
               {isAdded && (
                 <button
-                  onClick={() => onRemoveSkill(skillName)}
+                  onClick={() => onRemoveSkill(skillId)}
                   className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-md text-zinc-500 hover:text-red-400 hover:bg-red-400/10 transition-colors opacity-0 group-hover:opacity-100"
                   title="この仮想スキルを削除"
                 >
@@ -218,9 +243,9 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
       <div className="flex gap-2">
         <button
           onClick={onRunComparativeSimulation}
-          disabled={isSimulating || !isDirty}
+          disabled={isSimulating || !isDirty || !hasUniqueSkill}
           className={`flex-1 font-bold py-3 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${
-            isDirty 
+            isDirty && hasUniqueSkill
               ? 'bg-purple-600 hover:bg-purple-500 text-white hover:shadow-purple-500/20 active:scale-[0.98] animate-pulse' 
               : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
           }`}
@@ -254,9 +279,21 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
         isOpen={isPaletteOpen}
         onClose={() => setIsPaletteOpen(false)}
         onSelect={onAddSkill}
-        existingSkills={umaData.skills}
+        existingSkills={umaData.skillIds}
         onError={(msg) => onShowToast(msg, 'error', 3000)}
         variant="verifier"
+      />
+      <SkillCommandPalette
+        isOpen={isUniquePaletteOpen}
+        onClose={() => setIsUniquePaletteOpen(false)}
+        onSelect={(id) => {
+          onAddSkill(id);
+          setIsUniquePaletteOpen(false);
+        }}
+        existingSkills={umaData.skillIds}
+        onError={(msg) => onShowToast(msg, 'error', 3000)}
+        variant="default"
+        onlyUnique={true}
       />
     </div>
   );

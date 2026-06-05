@@ -11,9 +11,10 @@ interface SkillCommandPaletteProps {
   existingSkills?: string[];
   onError?: (message: string) => void;
   variant?: 'default' | 'verifier';
+  onlyUnique?: boolean;
 }
 
-export function SkillCommandPalette({ isOpen, onClose, onSelect, existingSkills = [], onError, variant = 'default' }: SkillCommandPaletteProps) {
+export function SkillCommandPalette({ isOpen, onClose, onSelect, existingSkills = [], onError, variant = 'default', onlyUnique = false }: SkillCommandPaletteProps) {
   const [skillOptions, setSkillOptions] = useState<{value: string, label: string}[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [focusedIndex, setFocusedIndex] = useState(0);
@@ -30,10 +31,14 @@ export function SkillCommandPalette({ isOpen, onClose, onSelect, existingSkills 
         const skillsData = await fetchSkillData();
         const names = Array.from(new Set(
           skillsData
-            .filter((s: RawSkillData) => s.rarity !== 'unique')
+            .filter((s: RawSkillData) => onlyUnique ? s.rarity === 'unique' : s.rarity !== 'unique')
             .map((s: RawSkillData) => s.name)
         ));
-        const options = names.map((name: string) => ({ value: name, label: name }));
+        const options = names.map((name: string) => {
+          // Find the exact ID for this skill name. Since names are unique within the rarity subset (unique vs non-unique)
+          const matchedSkill = skillsData.find(s => s.name === name && (onlyUnique ? s.rarity === 'unique' : s.rarity !== 'unique'));
+          return { value: matchedSkill ? String(matchedSkill.id) : name, label: name };
+        });
         setSkillOptions(options);
       } catch (err) {
         console.error("Failed to load skills for palette:", err);
@@ -150,8 +155,8 @@ export function SkillCommandPalette({ isOpen, onClose, onSelect, existingSkills 
                           : 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]'
                         : 'bg-zinc-600'
                     }`} />
-                    <span className={`text-sm font-medium ${getSkillRarityInfo(option.value).colorClass}`}>
-                      {getSkillRarityInfo(option.value).icon}{option.label}
+                    <span className={`text-sm font-medium ${getSkillRarityInfo(option.label).colorClass}`}>
+                      {getSkillRarityInfo(option.label).icon}{option.label}
                     </span>
                   </div>
                   {isExisting && (

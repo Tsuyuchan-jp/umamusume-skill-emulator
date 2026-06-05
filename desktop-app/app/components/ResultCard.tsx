@@ -7,7 +7,7 @@ import { calculateHorseLength, estimateSpurtTargetSpeed } from "../lib/mathUtils
 interface ResultCardProps {
   result?: SimResultDump;
   baseline?: SimResultDump;
-  disabledSkills?: string[];
+  disabledSkillIds?: string[];
   displayUnit?: 'seconds' | 'lengths';
   umaData?: UmaStatusData;
   raceCondition?: RaceCondition;

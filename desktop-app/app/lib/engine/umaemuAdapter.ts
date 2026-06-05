@@ -89,7 +89,7 @@ function createPayload(data: UmaStatusData, raceCondition: RaceCondition) {
       distanceFit: data.aptitudes[distanceKey] || "A",
       surfaceFit: data.aptitudes[surfaceKey] || "A",
       styleFit: data.aptitudes[styleKey] || "A",
-      skillNames: data.skills || []
+      skillIds: data.skillIds || []
     },
     track: {
       location: Number(raceCondition.locationId),
