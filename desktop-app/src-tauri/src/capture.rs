@@ -9,8 +9,8 @@ use std::sync::atomic::Ordering;
 use tauri::Emitter;
 
 use windows_sys::Win32::Graphics::Gdi::{
-    BitBlt, CreateCompatibleBitmap, CreateCompatibleDC, DeleteDC, DeleteObject, GetDC, GetDIBits,
-    ReleaseDC, SelectObject, BITMAPINFO, BITMAPINFOHEADER, BI_RGB, DIB_RGB_COLORS, SRCCOPY,
+    CreateCompatibleBitmap, CreateCompatibleDC, DeleteDC, DeleteObject, GetDC, GetDIBits,
+    ReleaseDC, SelectObject, BITMAPINFO, BITMAPINFOHEADER, BI_RGB, DIB_RGB_COLORS,
 };
 
 use crate::{CaptureError, CaptureSessionState};
@@ -30,8 +30,6 @@ pub fn capture_window(
 ) -> Result<image::RgbImage, CaptureError> {
     let width = game_window.client_width as i32;
     let height = game_window.client_height as i32;
-    let src_x = game_window.client_x;
-    let src_y = game_window.client_y;
 
     if width <= 0 || height <= 0 {
         return Err(CaptureError::CaptureFailed(
@@ -40,27 +38,28 @@ pub fn capture_window(
     }
 
     unsafe {
-        // スクリーン DC を取得（nullptr = 画面全体）
-        let hdc_screen = GetDC(std::ptr::null_mut());
-        if hdc_screen.is_null() {
+        let hwnd = game_window.hwnd as windows_sys::Win32::Foundation::HWND;
+        // ゲームウィンドウ専用の DC を取得
+        let hdc_window = GetDC(hwnd);
+        if hdc_window.is_null() {
             return Err(CaptureError::CaptureFailed(
-                "GetDC(screen) の呼び出しに失敗しました".to_string(),
+                "GetDC(hwnd) の呼び出しに失敗しました".to_string(),
             ));
         }
 
-        // スクリーン互換のメモリ DC とビットマップを作成
-        let hdc_mem = CreateCompatibleDC(hdc_screen);
+        // ウィンドウ互換のメモリ DC とビットマップを作成
+        let hdc_mem = CreateCompatibleDC(hdc_window);
         if hdc_mem.is_null() {
-            ReleaseDC(std::ptr::null_mut(), hdc_screen);
+            ReleaseDC(hwnd, hdc_window);
             return Err(CaptureError::CaptureFailed(
                 "CreateCompatibleDC の呼び出しに失敗しました".to_string(),
             ));
         }
 
-        let hbm = CreateCompatibleBitmap(hdc_screen, width, height);
+        let hbm = CreateCompatibleBitmap(hdc_window, width, height);
         if hbm.is_null() {
             DeleteDC(hdc_mem);
-            ReleaseDC(std::ptr::null_mut(), hdc_screen);
+            ReleaseDC(hwnd, hdc_window);
             return Err(CaptureError::CaptureFailed(
                 "CreateCompatibleBitmap の呼び出しに失敗しました".to_string(),
             ));
@@ -69,20 +68,25 @@ pub fn capture_window(
         // ビットマップをメモリ DC に選択（戻り値 = 元のオブジェクト）
         let old_obj = SelectObject(hdc_mem, hbm);
 
-        // スクリーンからゲームウィンドウのクライアント領域をコピー
-        let blt_ok = BitBlt(
-            hdc_mem, 0, 0, width, height, // 転送先: メモリ DC 全体
-            hdc_screen, src_x, src_y, // 転送元: スクリーンのゲーム領域
-            SRCCOPY,
-        );
+        const PW_CLIENTONLY: u32 = 1;
+        const PW_RENDERFULLCONTENT: u32 = 2;
+        extern "system" {
+            fn PrintWindow(
+                hwnd: windows_sys::Win32::Foundation::HWND,
+                hdcBlt: windows_sys::Win32::Graphics::Gdi::HDC,
+                nFlags: u32,
+            ) -> i32;
+        }
 
-        if blt_ok == 0 {
+        let pw_ok = PrintWindow(hwnd, hdc_mem, PW_CLIENTONLY | PW_RENDERFULLCONTENT);
+
+        if pw_ok == 0 {
             SelectObject(hdc_mem, old_obj);
             DeleteObject(hbm);
             DeleteDC(hdc_mem);
-            ReleaseDC(std::ptr::null_mut(), hdc_screen);
+            ReleaseDC(hwnd, hdc_window);
             return Err(CaptureError::CaptureFailed(
-                "BitBlt の呼び出しに失敗しました".to_string(),
+                "PrintWindow の呼び出しに失敗しました".to_string(),
             ));
         }
 
@@ -113,7 +117,7 @@ pub fn capture_window(
         SelectObject(hdc_mem, old_obj);
         DeleteObject(hbm);
         DeleteDC(hdc_mem);
-        ReleaseDC(std::ptr::null_mut(), hdc_screen);
+        ReleaseDC(hwnd, hdc_window);
 
         if lines_copied == 0 {
             return Err(CaptureError::CaptureFailed(
