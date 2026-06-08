@@ -118,7 +118,11 @@ pub async fn copy_image_to_clipboard(data_url: String) -> Result<(), String> {
 
 /// Base64形式の画像をデコードし、指定したディレクトリに保存する。
 #[tauri::command]
-pub async fn save_stitched_image(base64_data: String, directory: String, filename: String) -> Result<String, String> {
+pub async fn save_stitched_image(
+    base64_data: String,
+    directory: String,
+    filename: String,
+) -> Result<String, String> {
     // 1. Data URLのヘッダを取り除く
     let base64_str = if let Some(pos) = base64_data.find(",") {
         &base64_data[pos + 1..]
@@ -133,8 +137,7 @@ pub async fn save_stitched_image(base64_data: String, directory: String, filenam
 
     // 3. パスの構築と保存
     let path = std::path::Path::new(&directory).join(filename);
-    std::fs::write(&path, img_bytes)
-        .map_err(|e| format!("ファイル書き込みエラー: {}", e))?;
+    std::fs::write(&path, img_bytes).map_err(|e| format!("ファイル書き込みエラー: {}", e))?;
 
     Ok(path.to_string_lossy().to_string())
 }

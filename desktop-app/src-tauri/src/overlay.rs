@@ -1,28 +1,24 @@
-use tauri::{AppHandle, Manager, WebviewUrl, WebviewWindowBuilder};
-use tauri::webview::Color;
 use crate::window::find_game_window;
+use tauri::webview::Color;
+use tauri::{AppHandle, Manager, WebviewUrl, WebviewWindowBuilder};
 
 /// アプリ起動時にオーバーレイウィンドウを裏で生成しておく（事前ロード）
 #[tauri::command]
 pub async fn init_overlay(app: AppHandle) -> Result<(), String> {
     if app.get_webview_window("overlay").is_none() {
-        let builder = WebviewWindowBuilder::new(
-            &app,
-            "overlay",
-            WebviewUrl::App("overlay".into())
-        )
-        .title("Umamusume Tracker Overlay")
-        .transparent(true)
-        .shadow(false)
-        .background_color(Color(0, 0, 0, 0))
-        .decorations(false)
-        .always_on_top(true)
-        .skip_taskbar(true)
-        .resizable(false)
-        .focused(false)
-        .visible(false) // 初回は非表示のままロードさせる
-        .inner_size(320.0, 120.0)
-        .position(0.0, 0.0);
+        let builder = WebviewWindowBuilder::new(&app, "overlay", WebviewUrl::App("overlay".into()))
+            .title("Umamusume Tracker Overlay")
+            .transparent(true)
+            .shadow(false)
+            .background_color(Color(0, 0, 0, 0))
+            .decorations(false)
+            .always_on_top(true)
+            .skip_taskbar(true)
+            .resizable(false)
+            .focused(false)
+            .visible(false) // 初回は非表示のままロードさせる
+            .inner_size(320.0, 120.0)
+            .position(0.0, 0.0);
 
         if let Err(e) = builder.build() {
             return Err(format!("オーバーレイ初期化エラー: {}", e));
@@ -52,22 +48,18 @@ pub async fn show_overlay(app: AppHandle) -> Result<(), String> {
         let _ = overlay.show();
     } else {
         // 新規作成
-        let builder = WebviewWindowBuilder::new(
-            &app,
-            "overlay",
-            WebviewUrl::App("overlay".into())
-        )
-        .title("Umamusume Tracker Overlay")
-        .transparent(true)
-        .shadow(false)
-        .background_color(Color(0, 0, 0, 0))
-        .decorations(false)
-        .always_on_top(true)
-        .skip_taskbar(true)
-        .resizable(false)
-        .focused(false)
-        .inner_size(280.0, 60.0)
-        .position(pos_x, pos_y);
+        let builder = WebviewWindowBuilder::new(&app, "overlay", WebviewUrl::App("overlay".into()))
+            .title("Umamusume Tracker Overlay")
+            .transparent(true)
+            .shadow(false)
+            .background_color(Color(0, 0, 0, 0))
+            .decorations(false)
+            .always_on_top(true)
+            .skip_taskbar(true)
+            .resizable(false)
+            .focused(false)
+            .inner_size(280.0, 60.0)
+            .position(pos_x, pos_y);
 
         if let Err(e) = builder.build() {
             return Err(format!("オーバーレイウィンドウの作成に失敗しました: {}", e));
