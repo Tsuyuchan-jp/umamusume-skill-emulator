@@ -57,6 +57,8 @@ pub struct CaptureSessionState {
     pub is_recording: Arc<AtomicBool>,
     /// キャプチャ済みフレームのバッファ（クロップ済み）
     pub frames: Arc<Mutex<Vec<image::RgbImage>>>,
+    /// キャプチャ完了時にフレーム保存先ディレクトリのパスを記録するために使用
+    pub last_frame_dir: Arc<Mutex<Option<String>>>,
 }
 
 impl CaptureSessionState {
@@ -64,6 +66,7 @@ impl CaptureSessionState {
         CaptureSessionState {
             is_recording: Arc::new(AtomicBool::new(false)),
             frames: Arc::new(Mutex::new(Vec::new())),
+            last_frame_dir: Arc::new(Mutex::new(None)),
         }
     }
 }
