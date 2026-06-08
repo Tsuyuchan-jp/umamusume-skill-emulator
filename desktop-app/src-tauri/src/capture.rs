@@ -297,6 +297,14 @@ pub async fn start_capture_session(
     let frame_count = state.frames.lock().unwrap().len();
     println!("[Rust] キャプチャ完了: {} フレーム取得", frame_count);
 
+    // 0フレームの場合はエラーとして返し、capture-complete を発火しない
+    // （発火すると TS 側で save_and_copy_result が呼ばれ「フレームなし」エラーになるため）
+    if frame_count == 0 {
+        return Err(CaptureError::CaptureFailed(
+            "キャプチャは完了しましたが、有効なフレームが1枚も取得できませんでした。スクロールが正しく実行されたか確認してください。".to_string(),
+        ));
+    }
+
     // フロントエンドにキャプチャ完了を通知
     let _ = app_handle.emit("capture-complete", frame_count);
 
@@ -608,6 +616,15 @@ pub async fn start_auto_scroll_capture_session(
 
     state.is_recording.store(false, Ordering::SeqCst);
     let frame_count = state.frames.lock().unwrap().len();
+    println!("[Rust] 自動キャプチャ完了: {} フレーム取得", frame_count);
+
+    // 0フレームの場合はエラーとして返し、capture-complete を発火しない
+    if frame_count == 0 {
+        return Err(CaptureError::CaptureFailed(
+            "キャプチャは完了しましたが、有効なフレームが1枚も取得できませんでした。ゲーム画面が正しく表示されているか確認してください。".to_string(),
+        ));
+    }
+
     let _ = app_handle.emit("capture-complete", frame_count);
 
     Ok(format!(
