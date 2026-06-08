@@ -1,8 +1,15 @@
 // @ts-nocheck
 
 export async function stitchWithOpenCV(imageUrls: string[]): Promise<{ cleanDataUrl: string }> {
+  // OpenCV.js のロードを最大3秒間待機する（200ms × 15回）
+  let retries = 15;
+  while (!window.cv && retries > 0) {
+    await new Promise(resolve => setTimeout(resolve, 200));
+    retries--;
+  }
+
   if (!window.cv) {
-    throw new Error("OpenCV.js is not loaded yet.");
+    throw new Error("OpenCV.js is not loaded yet. アプリを再起動するか、少し待ってから再度お試しください。");
   }
   const cv = window.cv;
 
