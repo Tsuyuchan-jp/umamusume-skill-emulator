@@ -7,6 +7,7 @@
 /// - `stop_capture_session`: キャプチャの手動中断
 use std::sync::atomic::Ordering;
 use tauri::Emitter;
+use tauri::Manager;
 
 use windows_sys::Win32::Graphics::Gdi::{
     CreateCompatibleBitmap, CreateCompatibleDC, DeleteDC, DeleteObject, GetDC, GetDIBits,
@@ -339,8 +340,56 @@ pub async fn start_capture_session(
         ));
     }
 
-    // フロントエンドにキャプチャ完了を通知
-    let _ = app_handle.emit("capture-complete", frame_count);
+    // フレームをディスクに即時保存（メモリバッファの競合を回避するため）
+    let cache_dir = app_handle
+        .path()
+        .app_cache_dir()
+        .map_err(|e| CaptureError::IoError(format!("キャッシュフォルダの取得に失敗: {}", e)))?;
+
+    // 古いセッションフォルダを削除
+    if let Ok(entries) = std::fs::read_dir(&cache_dir) {
+        for entry in entries.flatten() {
+            let name = entry.file_name();
+            let name_str = name.to_string_lossy();
+            if name_str.starts_with("umamusume_frames") && entry.path().is_dir() {
+                let _ = std::fs::remove_dir_all(entry.path());
+            }
+        }
+    }
+
+    let session_id = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_millis();
+
+    let output_dir = cache_dir.join(format!("umamusume_frames_{}", session_id));
+    std::fs::create_dir_all(&output_dir)
+        .map_err(|e| CaptureError::IoError(format!("フォルダ作成エラー: {}", e)))?;
+
+    // フレームをPNGとして保存
+    {
+        let frames = state.frames.lock().unwrap();
+        for (i, frame) in frames.iter().enumerate() {
+            let file_path = output_dir.join(format!("frame_{:03}.png", i));
+            frame.save(&file_path)
+                .map_err(|e| CaptureError::IoError(format!("フレーム保存エラー: {}", e)))?;
+        }
+    }
+
+    // 保存先パスを共有状態に記録
+    {
+        let mut dir_guard = state.last_frame_dir.lock().unwrap();
+        *dir_guard = Some(output_dir.to_string_lossy().to_string());
+    }
+
+    println!("[Rust] フレームを {} に保存しました", output_dir.display());
+
+    // capture-complete イベントにフレーム数とディレクトリパスを含める
+    let payload = serde_json::json!({
+        "frameCount": frame_count,
+        "frameDir": output_dir.to_string_lossy().to_string()
+    });
+    let _ = app_handle.emit("capture-complete", payload);
 
     Ok(format!(
         "キャプチャ完了: {} フレームを取得しました。「保存して結合」ボタンで画像を生成できます。",
@@ -675,7 +724,56 @@ pub async fn start_auto_scroll_capture_session(
         ));
     }
 
-    let _ = app_handle.emit("capture-complete", frame_count);
+    // フレームをディスクに即時保存（メモリバッファの競合を回避するため）
+    let cache_dir = app_handle
+        .path()
+        .app_cache_dir()
+        .map_err(|e| CaptureError::IoError(format!("キャッシュフォルダの取得に失敗: {}", e)))?;
+
+    // 古いセッションフォルダを削除
+    if let Ok(entries) = std::fs::read_dir(&cache_dir) {
+        for entry in entries.flatten() {
+            let name = entry.file_name();
+            let name_str = name.to_string_lossy();
+            if name_str.starts_with("umamusume_frames") && entry.path().is_dir() {
+                let _ = std::fs::remove_dir_all(entry.path());
+            }
+        }
+    }
+
+    let session_id = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_millis();
+
+    let output_dir = cache_dir.join(format!("umamusume_frames_{}", session_id));
+    std::fs::create_dir_all(&output_dir)
+        .map_err(|e| CaptureError::IoError(format!("フォルダ作成エラー: {}", e)))?;
+
+    // フレームをPNGとして保存
+    {
+        let frames = state.frames.lock().unwrap();
+        for (i, frame) in frames.iter().enumerate() {
+            let file_path = output_dir.join(format!("frame_{:03}.png", i));
+            frame.save(&file_path)
+                .map_err(|e| CaptureError::IoError(format!("フレーム保存エラー: {}", e)))?;
+        }
+    }
+
+    // 保存先パスを共有状態に記録
+    {
+        let mut dir_guard = state.last_frame_dir.lock().unwrap();
+        *dir_guard = Some(output_dir.to_string_lossy().to_string());
+    }
+
+    println!("[Rust] フレームを {} に保存しました", output_dir.display());
+
+    // capture-complete イベントにフレーム数とディレクトリパスを含める
+    let payload = serde_json::json!({
+        "frameCount": frame_count,
+        "frameDir": output_dir.to_string_lossy().to_string()
+    });
+    let _ = app_handle.emit("capture-complete", payload);
 
     Ok(format!(
         "自動キャプチャ完了: {} フレームを取得しました。",
