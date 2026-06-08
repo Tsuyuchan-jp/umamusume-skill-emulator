@@ -1,73 +1,62 @@
 use crate::CaptureError;
 /// stitch.rs — フレーム保存用（旧結合処理モジュール）
-use tauri::Manager;
 
-/// 蓄積されたフレームを一時フォルダに保存し、そのパスのリストを返す。
-/// OpenCV.js（フロントエンド）での結合処理に使用される。
+/// キャプチャ済みフレームのファイルパスリストを返す。
+/// フレームはキャプチャ完了時にディスクに保存済みのため、
+/// ここではパスの読み出しのみを行う。
 #[tauri::command]
 pub async fn save_and_copy_result(
-    app_handle: tauri::AppHandle,
     state: tauri::State<'_, crate::CaptureSessionState>,
 ) -> Result<Vec<String>, CaptureError> {
-    // std::mem::take を用いて、コピーを発生させずにフレームの所有権を効率的にすり替えて取得する
-    let frames = {
-        let mut guard = state.frames.lock().unwrap();
-        std::mem::take(&mut *guard)
+    // キャプチャ時に保存されたフレームディレクトリを取得
+    let frame_dir = {
+        let guard = state.last_frame_dir.lock().unwrap();
+        guard.clone()
     };
 
-    if frames.is_empty() {
+    let frame_dir = frame_dir.ok_or_else(|| {
+        CaptureError::StitchFailed(
+            "保存するフレームがありません。先にキャプチャを実行してください。".to_string(),
+        )
+    })?;
+
+    let dir_path = std::path::Path::new(&frame_dir);
+    if !dir_path.exists() {
+        return Err(CaptureError::StitchFailed(
+            "フレームの保存フォルダが見つかりません。再度キャプチャを実行してください。".to_string(),
+        ));
+    }
+
+    // ディレクトリ内の frame_*.png をソートして返す
+    let mut file_paths: Vec<String> = Vec::new();
+    let mut entries: Vec<_> = std::fs::read_dir(dir_path)
+        .map_err(|e| CaptureError::IoError(format!("フォルダ読み込みエラー: {}", e)))?
+        .filter_map(|e| e.ok())
+        .filter(|e| {
+            e.path()
+                .file_name()
+                .map(|n| n.to_string_lossy().starts_with("frame_") && n.to_string_lossy().ends_with(".png"))
+                .unwrap_or(false)
+        })
+        .collect();
+
+    // ファイル名でソート（frame_000.png, frame_001.png, ...）
+    entries.sort_by_key(|e| e.file_name());
+
+    for entry in entries {
+        file_paths.push(entry.path().to_string_lossy().to_string());
+    }
+
+    if file_paths.is_empty() {
         return Err(CaptureError::StitchFailed(
             "保存するフレームがありません。先にキャプチャを実行してください。".to_string(),
         ));
     }
 
-    // キャッシュディレクトリを取得
-    let cache_dir = app_handle
-        .path()
-        .app_cache_dir()
-        .map_err(|e| CaptureError::IoError(format!("キャッシュフォルダの取得に失敗: {}", e)))?;
-
-    // 古いセッションフォルダ（umamusume_frames_*）を全て削除する
-    if let Ok(entries) = std::fs::read_dir(&cache_dir) {
-        for entry in entries.flatten() {
-            let name = entry.file_name();
-            let name_str = name.to_string_lossy();
-            if name_str.starts_with("umamusume_frames") && entry.path().is_dir() {
-                if let Err(e) = std::fs::remove_dir_all(entry.path()) {
-                    println!(
-                        "[Rust/stitch] 古いキャッシュ削除失敗 (スキップ): {} - {}",
-                        name_str, e
-                    );
-                }
-            }
-        }
-    }
-
-    // タイムスタンプ付きのユニークなセッションフォルダを作成
-    let session_id = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap_or_default()
-        .as_millis();
-    let output_dir = cache_dir.join(format!("umamusume_frames_{}", session_id));
-    std::fs::create_dir_all(&output_dir)
-        .map_err(|e| CaptureError::IoError(format!("フォルダ作成エラー: {}", e)))?;
-
-    let mut file_paths = Vec::new();
-
-    // 各フレームを連番でPNG保存
-    for (i, frame) in frames.iter().enumerate() {
-        let file_path = output_dir.join(format!("frame_{:03}.png", i));
-        frame
-            .save(&file_path)
-            .map_err(|e| CaptureError::IoError(format!("PNG 保存エラー: {}", e)))?;
-
-        file_paths.push(file_path.to_string_lossy().to_string());
-    }
-
     println!(
-        "[Rust/stitch] {} フレームをセッション {} に一時保存しました",
+        "[Rust/stitch] ディスクから {} フレームを読み込みました: {}",
         file_paths.len(),
-        session_id
+        frame_dir
     );
 
     Ok(file_paths)
