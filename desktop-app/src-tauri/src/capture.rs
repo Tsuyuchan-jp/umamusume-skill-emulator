@@ -222,6 +222,7 @@ pub async fn start_capture_session(
     let mut prev_frame: Option<image::RgbImage> = None;
     let mut phase = 1;
     let mut stop_counter = 0; // スクロール停止の猶予カウンタ
+    let mut consecutive_capture_errors = 0u32; // 連続キャプチャ失敗カウンタ
 
     // ── キャプチャループ ──────────────────────────────────────
     loop {
@@ -231,11 +232,22 @@ pub async fn start_capture_session(
             break;
         }
 
-        // フレームキャプチャ（失敗しても継続）
+        // フレームキャプチャ（失敗した場合は連続エラーをカウントし、3回で強制終了）
         let raw_frame = match capture_window(&game_window) {
-            Ok(f) => f,
+            Ok(f) => {
+                consecutive_capture_errors = 0; // 成功したらカウンタをリセット
+                f
+            }
             Err(e) => {
-                log::warn!("フレームキャプチャ失敗 (スキップ): {}", e);
+                consecutive_capture_errors += 1;
+                log::warn!("フレームキャプチャ失敗 ({}/3): {}", consecutive_capture_errors, e);
+                if consecutive_capture_errors >= 3 {
+                    state.is_recording.store(false, Ordering::SeqCst);
+                    return Err(CaptureError::CaptureFailed(format!(
+                        "連続してキャプチャに失敗しました。原因: {}。ハードウェアアクセラレーションやオーバーレイ系ソフトの影響の可能性があります。",
+                        e
+                    )));
+                }
                 tokio::time::sleep(std::time::Duration::from_millis(200)).await;
                 continue;
             }
@@ -567,6 +579,8 @@ pub async fn start_auto_scroll_capture_session(
     let absolute_target_x = game_window.client_x + target_client_x;
     let absolute_target_y = game_window.client_y + target_client_y;
 
+    let mut consecutive_capture_errors = 0u32; // 連続キャプチャ失敗カウンタ
+
     // スクロール＆キャプチャループ
     loop {
         if !state.is_recording.load(Ordering::Relaxed) {
@@ -581,8 +595,22 @@ pub async fn start_auto_scroll_capture_session(
         tokio::time::sleep(std::time::Duration::from_millis(300)).await;
 
         let raw_frame = match capture_window(&game_window) {
-            Ok(f) => f,
-            Err(_) => continue,
+            Ok(f) => {
+                consecutive_capture_errors = 0;
+                f
+            }
+            Err(e) => {
+                consecutive_capture_errors += 1;
+                log::warn!("キャプチャ失敗 ({}/3): {}", consecutive_capture_errors, e);
+                if consecutive_capture_errors >= 3 {
+                    state.is_recording.store(false, Ordering::SeqCst);
+                    return Err(CaptureError::CaptureFailed(format!(
+                        "連続してキャプチャに失敗しました。原因: {}。ハードウェアアクセラレーションやオーバーレイ系ソフトの影響の可能性があります。",
+                        e
+                    )));
+                }
+                continue;
+            }
         };
 
         // --- ストッパー1: 継承履歴到達時の早期終了（ダイナミックセーフボックス検知） ---
