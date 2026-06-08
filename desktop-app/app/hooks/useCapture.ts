@@ -8,18 +8,27 @@ export type CaptureStatus = "idle" | "recording" | "done" | "saving" | "saved";
 export function useCapture() {
   const [captureStatus, setCaptureStatus] = useState<CaptureStatus>("idle");
   const [frameCount, setFrameCount] = useState<number>(0);
+  const [debugFramePaths, setDebugFramePaths] = useState<string[]>([]);
   const [captureMessage, setCaptureMessage] = useState<string>("");
   const [saveResult, setSaveResult] = useState<string>("");
   const [captureError, setCaptureError] = useState<string>("");
   const [resultImage, setResultImage] = useState<string>("");
 
   useEffect(() => {
-    const unlistenPromise = listen<number>("capture-complete", (event) => {
-      setFrameCount(event.payload);
+    const unlistenPromise = listen<{ frameCount: number; frameDir: string }>("capture-complete", (event) => {
+      const { frameCount: count, frameDir } = event.payload;
+      setFrameCount(count);
       setCaptureStatus("done");
       setCaptureMessage(
-        `${event.payload} フレームのキャプチャが完了しました。画像の結合と保存を自動で行います...`
+        `${count} フレームのキャプチャが完了しました。画像の結合と保存を自動で行います...`
       );
+      // デバッグ用: フレームファイルのパスを生成
+      const paths: string[] = [];
+      for (let i = 0; i < count; i++) {
+        const framePath = `${frameDir}\\frame_${String(i).padStart(3, '0')}.png`;
+        paths.push(`${convertFileSrc(framePath)}?t=${Date.now()}`);
+      }
+      setDebugFramePaths(paths);
     });
 
     return () => {
@@ -108,6 +117,7 @@ export function useCapture() {
     setSaveResult("");
     setCaptureError("");
     setResultImage("");
+    setDebugFramePaths([]); // ← 追加
   }, []);
 
   const handleStartAutoCapture = useCallback(async () => {
@@ -142,6 +152,7 @@ export function useCapture() {
     saveResult,
     captureError,
     resultImage,
+    debugFramePaths, // ← 追加
     handleStartCapture,
     handleStartAutoCapture,
     handleStopCapture,

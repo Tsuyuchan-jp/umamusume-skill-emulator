@@ -7,6 +7,8 @@ interface CapturePanelProps {
   statusCfg: { color: string; pulse: boolean; label: string };
   captureStatus: string;
   captureMessage: string;
+  captureError: string;
+  debugFramePaths: string[];
   resultImage: string | null;
   umaData: UmaStatusData | null;
   autoCopyEnabled: boolean;
@@ -36,7 +38,8 @@ interface CapturePanelProps {
 
 export function CapturePanel(props: CapturePanelProps) {
   const {
-    statusCfg, captureStatus, captureMessage, resultImage, umaData,
+    statusCfg, captureStatus, captureMessage, captureError, debugFramePaths,
+    resultImage, umaData,
     autoCopyEnabled, saveFolder, shortcutKey, isRecordingShortcut, apiKey,
     isPreviewExpanded, isOcrProcessing, previewRef, shortcutInputRef,
     onToggleAutoCopy, onSelectFolder, onRecordingShortcutStart, onRecordingShortcutBlur,
@@ -69,6 +72,38 @@ export function CapturePanel(props: CapturePanelProps) {
         </div>
 
         <p className="text-xs text-zinc-400">{captureMessage}</p>
+
+        {/* エラーメッセージ表示 */}
+        {captureError && (
+          <p className="text-xs text-rose-400 bg-rose-500/10 border border-rose-500/20 rounded-lg px-3 py-2">
+            {captureError}
+          </p>
+        )}
+
+        {/* キャプチャフレーム確認パネル（折りたたみ式） */}
+        {debugFramePaths.length > 0 && (
+          <details className="group">
+            <summary className="text-xs font-semibold text-zinc-400 cursor-pointer hover:text-zinc-200 transition-colors flex items-center gap-1.5 select-none">
+              <svg className="w-3 h-3 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+              キャプチャフレーム確認（{debugFramePaths.length}枚）
+            </summary>
+            <div className="mt-2 grid grid-cols-3 gap-1.5 max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent rounded-lg bg-black/30 p-2 border border-zinc-800/50">
+              {debugFramePaths.map((path, i) => (
+                <div key={i} className="relative group/frame">
+                  <img
+                    src={path}
+                    alt={`Frame ${i}`}
+                    className="w-full h-auto rounded border border-zinc-700/50 hover:border-emerald-500/50 transition-colors cursor-pointer"
+                    onClick={() => window.open(path, '_blank')}
+                  />
+                  <span className="absolute bottom-0.5 right-0.5 text-[9px] bg-black/70 text-zinc-400 px-1 rounded">
+                    {i + 1}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </details>
+        )}
 
         <div className="flex items-center gap-2">
           <button

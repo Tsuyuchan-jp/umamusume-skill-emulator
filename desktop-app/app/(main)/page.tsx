@@ -31,6 +31,7 @@ export default function Home() {
     captureMessage,
     captureError,
     resultImage,
+    debugFramePaths, // ← 追加
     handleStartAutoCapture,
     handleStopCapture,
     handleResetCapture,
@@ -377,6 +378,8 @@ export default function Home() {
           statusCfg={statusCfg}
           captureStatus={captureStatus}
           captureMessage={captureMessage}
+          captureError={captureError}   // ← 追加
+          debugFramePaths={debugFramePaths}  // ← 追加
           resultImage={resultImage}
           umaData={umaData}
           autoCopyEnabled={autoCopyEnabled}
