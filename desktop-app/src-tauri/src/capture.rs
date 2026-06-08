@@ -134,9 +134,18 @@ pub fn capture_window(
             rgb_buf.push(chunk[0]); // B
         }
 
-        image::RgbImage::from_raw(width as u32, height as u32, rgb_buf).ok_or_else(|| {
+        let img = image::RgbImage::from_raw(width as u32, height as u32, rgb_buf).ok_or_else(|| {
             CaptureError::CaptureFailed("RgbImage バッファの変換に失敗しました".to_string())
-        })
+        })?;
+
+        // 単一色（真っ黒など）チェック: APIが成功しても描画されていない場合を検出
+        if is_solid_color(&img) {
+            return Err(CaptureError::CaptureFailed(
+                "キャプチャ画像が単一色（真っ黒等）でした。ハードウェアアクセラレーションやDiscord等のオーバーレイの影響で画面が正しく取得できていない可能性があります。".to_string(),
+            ));
+        }
+
+        Ok(img)
     }
 }
 
@@ -164,6 +173,19 @@ pub fn calculate_frame_diff(a: &image::RgbImage, b: &image::RgbImage) -> u64 {
         .zip(b.as_raw().iter())
         .map(|(&x, &y)| (x as i64 - y as i64).unsigned_abs())
         .sum()
+}
+
+/// 画像の全ピクセルが同一色かどうかを判定する。
+///
+/// PrintWindow / BitBlt がAPIレベルでは成功しているが、実際の描画が
+/// 取得できていない場合（真っ黒など）を検出するために使用する。
+fn is_solid_color(frame: &image::RgbImage) -> bool {
+    let mut iter = frame.pixels();
+    if let Some(first_pixel) = iter.next() {
+        iter.all(|pixel| pixel == first_pixel)
+    } else {
+        true // 空の画像も単一色と見なす
+    }
 }
 
 // ============================================================
