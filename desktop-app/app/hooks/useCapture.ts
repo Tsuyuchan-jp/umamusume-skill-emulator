@@ -96,7 +96,7 @@ export function useCapture() {
 
     } catch (error: unknown) {
       const msg = typeof error === "string" ? error : (error instanceof Error ? error.message : JSON.stringify(error));
-      setCaptureStatus("done");
+      setCaptureStatus("idle"); // "done"に戻すとuseEffectが再発火して無限ループになるため "idle" に変更
       setCaptureError(`保存エラー: ${msg}`);
     }
   }, []);
