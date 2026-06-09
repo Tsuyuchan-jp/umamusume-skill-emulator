@@ -26,8 +26,7 @@ alwaysApply: true
 
 ## Git
 
-- コミット方針は `git-commit.mdc` に従う（毎作業コミット必須）
-- `git push` はユーザーが明示的に依頼した場合のみ
+- コミット・push の詳細は `git-commit.mdc` に従う
 
 ## 廃止済みの機能
 
