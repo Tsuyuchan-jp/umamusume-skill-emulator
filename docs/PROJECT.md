@@ -48,6 +48,7 @@ umamusume-skill-emulator/
 - **実装**: Agent mode + 新チャット
 - **調査**: Ask mode + 新チャット
 - **検証**: Agent mode + 新チャット（実装チャットとは分離）
+- **日時記録**: `docs/` の更新・ログは `YYYY-MM-DD HH:mm`（`.cursor/rules/docs-management.mdc`）
 
 ### コメント・応答言語
 

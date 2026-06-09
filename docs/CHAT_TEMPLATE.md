@@ -87,7 +87,8 @@
 - 新機能追加はしない（バグがあれば最小修正のみ）
 
 ## 結果の記録
-検証完了後、docs/TODO.md の「完了済み」または「既知の問題」に追記する
+検証完了後、docs/TODO.md の「完了済み」または「既知の問題」に追記する。
+日時は `YYYY-MM-DD HH:mm` 形式（`.cursor/rules/docs-management.mdc`）
 ```
 
 ---
