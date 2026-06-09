@@ -1,6 +1,6 @@
 # REQ-skill-display: スキル表示・パレット整備
 
-- **ステータス**: in-progress
+- **ステータス**: done（実機確認待ち）
 - **作成日**: 2026-06-10
 - **関連コミット**: `8e6ff01`, `2d20a50`, `570a1f2`
 
@@ -59,6 +59,7 @@
 | `app/lib/umasimSkillData.ts` | 色分け・ガード関数 |
 | `app/components/SkillCommandPalette.tsx` | パレットフィルタ・色表示 |
 | `app/components/SkillPanel.tsx` | 所持スキル色表示 |
+| `app/components/SkillVerifier.tsx` | 検証モードの色表示（実装済み） |
 
 ---
 
@@ -67,7 +68,8 @@
 - [x] 先頭=通常固有（青）、継承=緑、進化=赤、金=金、白=白
 - [x] 2つ目以降に通常固有が入らない
 - [x] パレット先頭が `inherit` から始まる（special/minus 非表示）
-- [ ] SkillVerifier 側の表示統一（未着手なら Backlog へ）
+- [x] SkillVerifier 側の色分け表示（`getSkillRarityInfoById` 使用済み）
+- [ ] 最終実機確認（`docs/TODO.md` P0 参照）
 
 ---
 
@@ -77,7 +79,7 @@
 2. 「＋ スキルを追加」でパレットを開く
 3. 先頭が継承スキル（緑）から始まること
 4. `日本総大将` 等の special スキルが検索に出ないこと
-5. スキル追加後、所持一覧で色・アイコンが正しいこと
+5. スキル追加後、SkillPanel / SkillVerifier で色・アイコンが正しいこと
 
 ---
 

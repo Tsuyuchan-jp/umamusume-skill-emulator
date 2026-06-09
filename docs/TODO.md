@@ -9,49 +9,78 @@
 
 ## 現在のフォーカス
 
-<!-- 今いちばん優先度が高いテーマを1行で -->
-スキル UI の整備（色分け・パレット表示）
+スキル UI 整備の仕上げ（実機確認）→ 次はセキュリティ改善
 
 ---
 
 ## 進行中
 
-<!-- 今まさに着手しているタスク。なければ「なし」 -->
 なし
 
 ---
 
 ## 次にやること（Backlog）
 
-<!-- 優先度順。作業チャット起票時にここから1件取る -->
-- [ ] （例）スキル Verifier 画面の色分け表示を SkillPanel と統一
-- [ ] （例）API キーのセキュアストレージ化（`docs/tasks/REQ-secure-api-key.md` 参照）
+優先度順。作業チャット起票時は **P0 から1件** 取る。
+
+### P0 — 次に着手
+
+- [ ] **スキル UI 最終実機確認**（検証チャット向け）
+  - 確認: パレット先頭が `inherit`（緑）から始まる
+  - 確認: `special` / `minus` が検索・一覧に出ない
+  - 確認: SkillPanel / SkillVerifier / パレットで色・アイコンが一致
+  - 触らない: OCR / fuzzyMatcher / src-tauri
+  - 完了後: `REQ-skill-display.md` を done に更新
+
+### P1 — 重要（急がない）
+
+- [ ] **Gemini API キーのセキュアストレージ化**
+  - 現状: `localStorage`（`geminiApiKey`）に平文保存
+  - 目標: Tauri のセキュアストレージへ移行
+  - 参照: `docs/tasks/REQ-secure-api-key.md`
+  - 触る想定: `page.tsx`, `ApiKeyModal.tsx`, `src-tauri/`
+
+- [ ] **パレットのスキルデータ参照をローカルに統一**
+  - 現状: パレット一覧は `fetchSkillData()`（GitHub）、色分けは `umasimSkillData.ts`（ローカル）の二重参照
+  - 目標: `umasimSkillDataList` を正本にして不整合リスクを減らす
+  - 触る想定: `SkillCommandPalette.tsx`, `umaemuAdapter.ts`
+  - 注意: フィルタ条件（special/minus 除外）は維持
+
+### P2 — 改善・アイデア
+
+- [ ] **ゲームアップデート後のスキルデータ更新**
+  - 手順: `UPDATE_SKILLS.md`
+  - コマンド: `npm run extract-umasim-skills`（必須）、`npm run extract-skill-info`（mdb あり時）
+
+- [ ] **StatusPanel のスキル表示に色分けを追加**（任意）
+  - 現状: スキル名のみ（`getSkillNameById`）
+  - 低優先: SkillPanel / Verifier で足りるなら見送り可
 
 ---
 
 ## 完了済み
 
-<!-- 新しいものを上に追加 -->
 - [x] パレットから `special` / `minus` スキルを除外（`570a1f2`）
 - [x] スキルアイコンの不要な末尾スペースを削除（`2d20a50`）
 - [x] スキル5色表示（ID ベース）+ 通常固有ガード（`8e6ff01` 付近）
 - [x] パレット先頭15件が白表示になる原因調査（`special`/`minus` が色分け対象外だった）
+- [x] SkillVerifier の色分け表示（`getSkillRarityInfoById` 適用済み・コード確認）
+- [x] Cursor 運用ドキュメント整備（`945d18f`）
 
 ---
 
 ## 保留 / ブロック中
 
-<!-- 判断待ち・実機確認待ち・外部依存など -->
 なし
 
 ---
 
 ## 既知の問題・メモ
 
-<!-- 調査で分かったこと。次の作業者が迷わないように -->
 - パレットのスキル一覧は `fetchSkillData()`（GitHub）から取得。色分けは `umasimSkillData.ts`（ローカル）の ID 参照
 - `special`（14件）+ `minus`（1件）が `unique` 直後に並んでいたため、除外前は先頭がすべて白表示だった
-- 16番目以降は `inherit` から始まり、色分けが正常に見える
+- API キーは README にも記載の通り、セキュアストレージ化が今後の改善項目
+- 因子管理 DB・Tesseract OCR・Supabase 連携は **開発予定なし**（`.cursor/rules/development.mdc`）
 
 ---
 
@@ -59,5 +88,6 @@
 
 1. 作業開始時: 「進行中」に1件だけ移す
 2. 作業完了時: 「完了済み」に移し、コミットハッシュを添える
-3. 新タスク発生時: 「次にやること」に追加
+3. 新タスク発生時: 優先度を決めて Backlog に追加
 4. フォーカスが変わったら「現在のフォーカス」を書き換える
+5. 大きめの機能は `docs/tasks/REQ-*.md` を作成してリンクする
