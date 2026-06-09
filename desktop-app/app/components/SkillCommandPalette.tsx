@@ -14,6 +14,15 @@ interface SkillCommandPaletteProps {
   onlyUnique?: boolean;
 }
 
+/** パレットに表示しないレアリティ（育成外の特殊スキル・マイナス効果スキル） */
+const PALETTE_EXCLUDED_RARITIES = new Set(['special', 'minus']);
+
+function isPaletteVisibleSkill(skill: RawSkillData, onlyUnique: boolean): boolean {
+  if (onlyUnique) return skill.rarity === 'unique';
+  if (skill.rarity === 'unique') return false;
+  return !PALETTE_EXCLUDED_RARITIES.has(skill.rarity);
+}
+
 export function SkillCommandPalette({ isOpen, onClose, onSelect, existingSkills = [], onError, variant = 'default', onlyUnique = false }: SkillCommandPaletteProps) {
   const [skillOptions, setSkillOptions] = useState<{value: string, label: string}[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -31,12 +40,11 @@ export function SkillCommandPalette({ isOpen, onClose, onSelect, existingSkills 
         const skillsData = await fetchSkillData();
         const names = Array.from(new Set(
           skillsData
-            .filter((s: RawSkillData) => onlyUnique ? s.rarity === 'unique' : s.rarity !== 'unique')
+            .filter((s: RawSkillData) => isPaletteVisibleSkill(s, onlyUnique))
             .map((s: RawSkillData) => s.name)
         ));
         const options = names.map((name: string) => {
-          // Find the exact ID for this skill name. Since names are unique within the rarity subset (unique vs non-unique)
-          const matchedSkill = skillsData.find(s => s.name === name && (onlyUnique ? s.rarity === 'unique' : s.rarity !== 'unique'));
+          const matchedSkill = skillsData.find(s => s.name === name && isPaletteVisibleSkill(s, onlyUnique));
           return { value: matchedSkill ? String(matchedSkill.id) : name, label: name };
         });
         setSkillOptions(options);
