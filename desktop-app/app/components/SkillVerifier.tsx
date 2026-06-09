@@ -3,8 +3,7 @@
 import React, { useState } from "react";
 import { UmaStatusData } from "../lib/types";
 import { SkillCommandPalette } from "./SkillCommandPalette";
-import { getSkillRarityInfo } from "../lib/skillRarityData";
-import { getSkillNameById, isUniqueSkillId } from "../lib/umasimSkillData";
+import { getSkillNameById, getSkillRarityInfoById } from "../lib/umasimSkillData";
 
 interface SkillVerifierProps {
   umaData: UmaStatusData;
@@ -132,7 +131,7 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
           {activeAddedSkillsList.length > 0 ? (
             activeAddedSkillsList.map(skillId => {
               const skillName = getSkillNameById(skillId);
-              const rarityInfo = getSkillRarityInfo(skillName);
+              const rarityInfo = getSkillRarityInfoById(skillId);
               return (
                 <span key={`ad-${skillId}`} className="text-xs font-bold px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-800 border-l-[3px] border-l-emerald-500">
                   <span className={rarityInfo.colorClass}>{rarityInfo.icon}{skillName}</span>
@@ -150,7 +149,7 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
           {excludedSkillsList.length > 0 ? (
             excludedSkillsList.map(skillId => {
               const skillName = getSkillNameById(skillId);
-              const rarityInfo = getSkillRarityInfo(skillName);
+              const rarityInfo = getSkillRarityInfoById(skillId);
               return (
                 <span key={`ex-${skillId}`} className="text-xs font-bold px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-800 border-l-[3px] border-l-rose-500">
                   <span className={rarityInfo.colorClass}>{rarityInfo.icon}{skillName}</span>
@@ -186,8 +185,8 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
                   onChange={() => onToggleSkill(skillId)}
                   className="w-4 h-4 rounded border-zinc-700 text-purple-500 focus:ring-purple-500/30 focus:ring-offset-0 bg-zinc-900"
                 />
-                <span className={`text-xs font-bold truncate flex-1 ${isDisabled ? 'text-zinc-500 line-through' : getSkillRarityInfo(skillName).colorClass}`}>
-                  {getSkillRarityInfo(skillName).icon}{skillName}
+                <span className={`text-xs font-bold truncate flex-1 ${isDisabled ? 'text-zinc-500 line-through' : getSkillRarityInfoById(skillId).colorClass}`}>
+                  {getSkillRarityInfoById(skillId).icon}{skillName}
                 </span>
                 {isAdded && (
                   <span className="text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-1 py-0.5 rounded leading-none whitespace-nowrap">

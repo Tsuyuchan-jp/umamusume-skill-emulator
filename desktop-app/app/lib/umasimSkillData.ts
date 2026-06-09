@@ -10090,12 +10090,60 @@ export const umasimSkillDataList = [
 ];
 export const umasimSkillNames = umasimSkillDataList.map(s => s.name);
 
+export function getSkillById(id: string) {
+  return umasimSkillDataList.find(s => String(s.id) === String(id));
+}
+
 export function getSkillNameById(id: string): string {
-  const skill = umasimSkillDataList.find(s => String(s.id) === String(id));
+  const skill = getSkillById(id);
   return skill ? skill.name : id;
 }
 
+/** 通常固有スキル（先頭スロット専用） */
 export function isUniqueSkillId(id: string): boolean {
-  const skill = umasimSkillDataList.find(s => String(s.id) === String(id));
-  return skill?.rarity === 'unique';
+  return getSkillById(id)?.rarity === 'unique';
+}
+
+export type SkillDisplayRarity = 'unique' | 'inherit' | 'evo' | 'rare' | 'white';
+
+export interface SkillRarityDisplayInfo {
+  rarity: SkillDisplayRarity;
+  icon: string;
+  colorClass: string;
+}
+
+const WHITE_DISPLAY: SkillRarityDisplayInfo = {
+  rarity: 'white',
+  icon: '',
+  colorClass: 'text-zinc-200',
+};
+
+/** スキル ID から UI 色分け情報を取得（名前では判別不可なため ID 必須） */
+export function getSkillRarityInfoById(skillId: string): SkillRarityDisplayInfo {
+  const skill = getSkillById(skillId);
+  if (!skill) return WHITE_DISPLAY;
+
+  switch (skill.rarity) {
+    case 'unique':
+      return { rarity: 'unique', icon: '◆ ', colorClass: 'text-blue-400' };
+    case 'inherit':
+      return { rarity: 'inherit', icon: '❖ ', colorClass: 'text-emerald-400' };
+    case 'evo':
+      return { rarity: 'evo', icon: '★ ', colorClass: 'text-red-400' };
+    case 'rare':
+      return { rarity: 'rare', icon: '✦ ', colorClass: 'text-amber-400' };
+    default:
+      return WHITE_DISPLAY;
+  }
+}
+
+/** 通常固有は先頭（index 0）のみ配置可能 */
+export function canPlaceSkillAtIndex(skillId: string, index: number): boolean {
+  if (index === 0) return true;
+  return !isUniqueSkillId(skillId);
+}
+
+/** 2つ目以降に混入した通常固有を除去 */
+export function sanitizeSkillIds(skillIds: string[]): string[] {
+  return skillIds.filter((id, index) => index === 0 || !isUniqueSkillId(id));
 }

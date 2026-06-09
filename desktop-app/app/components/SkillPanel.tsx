@@ -5,8 +5,7 @@ import { fetchSkillData } from '../lib/engine/umaemuAdapter';
 import { useToast } from '../hooks/useToast';
 import { SkillCommandPalette } from './SkillCommandPalette';
 
-import { getSkillNameById, isUniqueSkillId } from '../lib/umasimSkillData';
-import { getSkillRarityInfo } from '../lib/skillRarityData';
+import { canPlaceSkillAtIndex, getSkillNameById, getSkillRarityInfoById, isUniqueSkillId } from '../lib/umasimSkillData';
 
 interface SkillPanelProps {
   data: UmaStatusData;
@@ -39,20 +38,27 @@ export function SkillPanel({ data, onChange }: SkillPanelProps) {
 
   const addSkill = (skillId: string) => {
     if (!skillId) return;
-    if (!data.skillIds.includes(skillId)) {
-      // If it's a unique skill, put it at the very beginning
-      if (isUniqueSkillId(skillId)) {
-        onChange({
-          ...data,
-          skillIds: [skillId, ...data.skillIds]
-        });
-      } else {
-        onChange({
-          ...data,
-          skillIds: [...data.skillIds, skillId]
-        });
-      }
+    if (data.skillIds.includes(skillId)) return;
+
+    if (isUniqueSkillId(skillId)) {
+      const others = data.skillIds.filter(id => !isUniqueSkillId(id));
+      onChange({
+        ...data,
+        skillIds: [skillId, ...others],
+      });
+      return;
     }
+
+    const insertIndex = data.skillIds.length;
+    if (!canPlaceSkillAtIndex(skillId, insertIndex)) {
+      showToastMessage('通常固有スキルは先頭スロットのみ配置できます', 'error', 3000);
+      return;
+    }
+
+    onChange({
+      ...data,
+      skillIds: [...data.skillIds, skillId],
+    });
   };
 
   const removeSkill = (index: number) => {
@@ -65,7 +71,8 @@ export function SkillPanel({ data, onChange }: SkillPanelProps) {
     onChange({ ...data, skillIds: [] });
   };
 
-  const hasUniqueSkill = data.skillIds && data.skillIds.some(id => isUniqueSkillId(id));
+  const hasNormalUniqueAtFirst =
+    data.skillIds?.length > 0 && isUniqueSkillId(data.skillIds[0]);
 
   return (
     <div className="w-full relative">
@@ -92,7 +99,7 @@ export function SkillPanel({ data, onChange }: SkillPanelProps) {
           </div>
         )}
         
-        {!hasUniqueSkill && (
+        {!hasNormalUniqueAtFirst && (
           <div className="bg-rose-950/40 border border-rose-500/50 rounded-lg p-3 mb-4 animate-shake">
             <p className="text-sm font-bold text-rose-400 mb-2">⚠️ 通常固有スキルが設定されていません</p>
             <p className="text-xs text-rose-300/80 mb-3">シミュレーションの精度が著しく落ちるため、正しい固有スキルを追加してください。</p>
@@ -108,7 +115,7 @@ export function SkillPanel({ data, onChange }: SkillPanelProps) {
         <div className="grid grid-cols-2 gap-3 mb-4">
           {data.skillIds && data.skillIds.map((skillId, idx) => {
             const skillName = getSkillNameById(skillId);
-            const rarityInfo = getSkillRarityInfo(skillName);
+            const rarityInfo = getSkillRarityInfoById(skillId);
             return (
               <div 
                 key={idx} 

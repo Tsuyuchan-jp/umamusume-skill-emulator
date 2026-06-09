@@ -15,7 +15,7 @@ import { SkillPanel } from "../components/SkillPanel";
 import { ToastNotification } from "../components/ToastNotification";
 import { RaceConditionSelector } from "../components/RaceConditionSelector";
 import { analyzeStitchedImage } from "../lib/geminiOcr";
-import { UmaStatusData, SimTab, RaceCondition } from "../lib/types";
+import { canPlaceSkillAtIndex } from "../lib/umasimSkillData";
 import { ResultCard } from "../components/ResultCard";
 import { SkillVerifier } from "../components/SkillVerifier";
 import SimulationStatusView from "../components/SimulationStatusView";
@@ -655,6 +655,11 @@ export default function Home() {
                   }}
                   addedSkillIds={activeTab.addedSkillIds || []}
                   onAddSkill={(skillId) => {
+                    const insertIndex = activeTab.umaData.skillIds.length;
+                    if (!canPlaceSkillAtIndex(skillId, insertIndex)) {
+                      showToastMessage('通常固有スキルは先頭スロットのみ配置できます', 'error', 3000);
+                      return;
+                    }
                     setTabs(prev => prev.map(t => {
                       if (t.id === activeTabId) {
                         return {

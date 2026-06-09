@@ -26,7 +26,8 @@ export function SimulationLauncher(props: SimulationLauncherProps) {
     resultImage, tabs, setTabs, setActiveTabId, showToastMessage
   } = props;
 
-  const hasUniqueSkill = umaData && umaData.skillIds && umaData.skillIds.some(id => isUniqueSkillId(id));
+  const hasNormalUniqueAtFirst =
+    umaData?.skillIds?.length > 0 && isUniqueSkillId(umaData.skillIds[0]);
 
   const handleRunSimulation = async () => {
     if (!umaData) return;
@@ -129,9 +130,9 @@ export function SimulationLauncher(props: SimulationLauncherProps) {
 
       <button
         onClick={handleRunSimulation}
-        disabled={isSimulating || !hasUniqueSkill}
+        disabled={isSimulating || !hasNormalUniqueAtFirst}
         className={`relative overflow-hidden w-full font-bold py-3.5 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 ${
-          !hasUniqueSkill 
+          !hasNormalUniqueAtFirst 
             ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' 
             : 'bg-emerald-600 hover:bg-emerald-500 text-white hover:shadow-emerald-500/20 active:scale-[0.98]'
         }`}
@@ -143,7 +144,7 @@ export function SimulationLauncher(props: SimulationLauncherProps) {
           />
         )}
         <span className="relative z-10 flex items-center gap-2 drop-shadow-md">
-          {!hasUniqueSkill
+          {!hasNormalUniqueAtFirst
             ? '⚠️ 固有スキルを選択してください'
             : isSimulating && simulationProgress 
               ? `実行中... ${Math.floor((simulationProgress.current / simulationProgress.total) * 100)}% (${simulationProgress.current.toLocaleString()} / ${simulationProgress.total.toLocaleString()})` 

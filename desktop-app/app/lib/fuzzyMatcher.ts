@@ -1,5 +1,5 @@
 import stringSimilarity from 'string-similarity';
-import { umasimSkillDataList, umasimSkillNames } from './umasimSkillData';
+import { isUniqueSkillId, sanitizeSkillIds, umasimSkillDataList, umasimSkillNames } from './umasimSkillData';
 import { UmaStatusData } from './types';
 
 // 全角英数字を半角に変換するユーティリティ（さらに漢数字のゼロ「〇」を記号の丸「○」に正規化）
@@ -35,20 +35,21 @@ export function fuzzyMatchSkillId(rawInput: string | null | undefined, isFirstSk
   if (matchedSkills.length === 0) return "";
 
   if (matchedSkills.length === 1) {
-    return String(matchedSkills[0].id);
+    const only = matchedSkills[0];
+    if (!isFirstSkill && only.rarity === 'unique') return '';
+    return String(only.id);
   }
 
-  // If there are multiple skills with the same name, decide based on isFirstSkill
+  // 同名スキルが複数ある場合、先頭のみ通常固有（unique）を優先
   if (isFirstSkill) {
     const uniqueSkill = matchedSkills.find(s => s.rarity === 'unique');
     if (uniqueSkill) return String(uniqueSkill.id);
-  } else {
-    const nonUniqueSkill = matchedSkills.find(s => s.rarity !== 'unique');
-    if (nonUniqueSkill) return String(nonUniqueSkill.id);
+    return String(matchedSkills[0].id);
   }
 
-  // Fallback to the first one
-  return String(matchedSkills[0].id);
+  const nonUniqueSkill = matchedSkills.find(s => s.rarity !== 'unique');
+  if (nonUniqueSkill) return String(nonUniqueSkill.id);
+  return '';
 }
 
 // 適性の補正用 (A~G, S)
@@ -101,6 +102,10 @@ export function normalizeStatusData(data: any): UmaStatusData {
       sashi: normalizeAptitude(rawAptitudes.sashi),
       oikomi: normalizeAptitude(rawAptitudes.oikomi),
     },
-    skillIds: rawSkills.map((s: string, index: number) => fuzzyMatchSkillId(s, index === 0)).filter((id: string) => id !== ""),
+    skillIds: sanitizeSkillIds(
+      rawSkills
+        .map((s: string, index: number) => fuzzyMatchSkillId(s, index === 0))
+        .filter((id: string) => id !== "")
+    ),
   };
 }

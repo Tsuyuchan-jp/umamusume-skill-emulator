@@ -2,12 +2,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { RawSkillData } from '../lib/types';
 import { fetchSkillData } from '../lib/engine/umaemuAdapter';
-import { getSkillRarityInfo } from '../lib/skillRarityData';
+import { canPlaceSkillAtIndex, getSkillNameById, getSkillRarityInfoById } from '../lib/umasimSkillData';
 
 interface SkillCommandPaletteProps {
   isOpen: boolean;
   onClose: () => void;
-  onSelect: (skillName: string) => void;
+  onSelect: (skillId: string) => void;
   existingSkills?: string[];
   onError?: (message: string) => void;
   variant?: 'default' | 'verifier';
@@ -49,7 +49,7 @@ export function SkillCommandPalette({ isOpen, onClose, onSelect, existingSkills 
     setTimeout(() => inputRef.current?.focus(), 50);
     setSearchQuery("");
     setFocusedIndex(0);
-  }, [isOpen]);
+  }, [isOpen, onlyUnique]);
 
   useEffect(() => {
     if (listRef.current) {
@@ -64,20 +64,27 @@ export function SkillCommandPalette({ isOpen, onClose, onSelect, existingSkills 
     o.label.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const triggerError = (skillName: string) => {
+  const triggerError = (message: string) => {
     setIsShaking(true);
-    setTimeout(() => setIsShaking(false), 400); // match animation duration
+    setTimeout(() => setIsShaking(false), 400);
     if (onError) {
-      onError(`${skillName} は既に所持しています`);
+      onError(message);
     }
   };
 
-  const handleSelect = (skillName: string) => {
-    if (existingSkills.includes(skillName)) {
-      triggerError(skillName);
+  const handleSelect = (skillId: string) => {
+    if (existingSkills.includes(skillId)) {
+      triggerError(`${getSkillNameById(skillId)} は既に所持しています`);
       return;
     }
-    onSelect(skillName);
+
+    const insertIndex = onlyUnique ? 0 : existingSkills.length;
+    if (!canPlaceSkillAtIndex(skillId, insertIndex)) {
+      triggerError('通常固有スキルは先頭スロットのみ配置できます');
+      return;
+    }
+
+    onSelect(skillId);
     onClose();
   };
 
@@ -155,8 +162,8 @@ export function SkillCommandPalette({ isOpen, onClose, onSelect, existingSkills 
                           : 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]'
                         : 'bg-zinc-600'
                     }`} />
-                    <span className={`text-sm font-medium ${getSkillRarityInfo(option.label).colorClass}`}>
-                      {getSkillRarityInfo(option.label).icon}{option.label}
+                    <span className={`text-sm font-medium ${getSkillRarityInfoById(option.value).colorClass}`}>
+                      {getSkillRarityInfoById(option.value).icon}{option.label}
                     </span>
                   </div>
                   {isExisting && (
