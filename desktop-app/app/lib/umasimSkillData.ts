@@ -10125,13 +10125,13 @@ export function getSkillRarityInfoById(skillId: string): SkillRarityDisplayInfo 
 
   switch (skill.rarity) {
     case 'unique':
-      return { rarity: 'unique', icon: '◆ ', colorClass: 'text-blue-400' };
+      return { rarity: 'unique', icon: '◆', colorClass: 'text-blue-400' };
     case 'inherit':
-      return { rarity: 'inherit', icon: '❖ ', colorClass: 'text-emerald-400' };
+      return { rarity: 'inherit', icon: '❖', colorClass: 'text-emerald-400' };
     case 'evo':
-      return { rarity: 'evo', icon: '★ ', colorClass: 'text-red-400' };
+      return { rarity: 'evo', icon: '★', colorClass: 'text-red-400' };
     case 'rare':
-      return { rarity: 'rare', icon: '✦ ', colorClass: 'text-amber-400' };
+      return { rarity: 'rare', icon: '✦', colorClass: 'text-amber-400' };
     default:
       return WHITE_DISPLAY;
   }
