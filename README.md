@@ -54,16 +54,22 @@ npm run tauri dev
     → Gemini OCR → スキル名マッチング → umasim WASM シミュレーション → 結果表示
 ```
 
-## スキルデータの更新
+## データ更新（ゲームアップデート後）
 
-ゲームアップデート後は [UPDATE_SKILLS.md](./UPDATE_SKILLS.md) を参照。
+詳細は [UPDATE_SKILLS.md](./UPDATE_SKILLS.md) を参照。
 
 ```powershell
-# master.mdb をリポジトリルートに配置してから
+# master.mdb をルートに配置できる場合（フル更新）
 cd desktop-app
-npm run extract-db          # → webapp/src/engine/data/SkillDataGen.ts
-npm run extract-skill-info  # → desktop-app/app/lib/skillRarityData.ts
+npm run extract-db              # webapp 用 SkillDataGen.ts
+npm run extract-skill-info      # UI 色分け
+npm run extract-umasim-skills   # OCR スキル名マッチング（本番で重要）
+
+# master.mdb がない場合の最低限
+npm run extract-umasim-skills   # ネットワーク必須
 ```
+
+手動更新: `trackData.ts`（コース）、`race_presets.json`（プリセット）
 
 ## 動作確認済み（P0）
 

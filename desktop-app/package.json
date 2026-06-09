@@ -9,7 +9,8 @@
     "lint": "eslint",
     "tauri": "tauri",
     "extract-db": "node ../tools/mdb-extractor/extract_master.js",
-    "extract-skill-info": "node ../tools/mdb-extractor/extract_skill_info.js"
+    "extract-skill-info": "node ../tools/mdb-extractor/extract_skill_info.js",
+    "extract-umasim-skills": "node ../tools/mdb-extractor/extract_umasim_skill_data.js"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.11.0",

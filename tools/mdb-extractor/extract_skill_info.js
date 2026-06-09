@@ -1,6 +1,11 @@
 const fs = require('fs');
+const path = require('path');
 
-const content = fs.readFileSync('webapp/src/engine/data/SkillDataGen.ts', 'utf-8');
+const rootDir = path.join(__dirname, '../..');
+const content = fs.readFileSync(
+  path.join(rootDir, 'webapp/src/engine/data/SkillDataGen.ts'),
+  'utf-8'
+);
 
 function extractArray(content, varName) {
   const startIdx = content.indexOf(`export const ${varName} = [`);
@@ -83,7 +88,7 @@ export function getSkillRarityInfo(skillName: string) {
 }
 `;
 
-  fs.writeFileSync('desktop-app/app/lib/skillRarityData.ts', tsContent);
+  fs.writeFileSync(path.join(rootDir, 'desktop-app/app/lib/skillRarityData.ts'), tsContent);
   console.log('Successfully generated skillRarityData.ts with ' + Object.keys(skillRarityMap).length + ' skills.');
 
 } catch(e) {
