@@ -71,8 +71,7 @@ npm run extract-umasim-skills   # ネットワーク必須
 
 ## 開発ルール
 
-- Cursor 用ルール: `.cursor/rules/`
-- 人間向け要約: `desktop-app/AI_DEVELOPMENT_RULES.md`
+- `.cursor/rules/`（Cursor Agent 用・正本）
 
 ## 廃止済み
 
