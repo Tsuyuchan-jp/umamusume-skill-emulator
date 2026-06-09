@@ -59,10 +59,9 @@ npm run tauri dev
 詳細は [UPDATE_SKILLS.md](./UPDATE_SKILLS.md) を参照。
 
 ```powershell
-# master.mdb をルートに配置できる場合（フル更新）
+# master.mdb をルートに配置できる場合
 cd desktop-app
-npm run extract-db              # webapp 用 SkillDataGen.ts
-npm run extract-skill-info      # UI 色分け
+npm run extract-skill-info      # UI 色分け（master.mdb 直結）
 npm run extract-umasim-skills   # OCR スキル名マッチング（本番で重要）
 
 # master.mdb がない場合の最低限

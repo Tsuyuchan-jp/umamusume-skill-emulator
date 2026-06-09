@@ -8,12 +8,12 @@
 
 | データ | 出力先 | 更新方法 | 本番での役割 |
 |--------|--------|----------|-------------|
-| `SkillDataGen.ts` | `webapp/src/engine/data/` | `master.mdb` → `extract_master.js` | **webapp R&D のみ**（TS エンジン・parity テスト） |
-| `skillRarityData.ts` | `desktop-app/app/lib/` | `extract_skill_info.js` | スキル一覧の色分け（金・緑など） |
+| `skillRarityData.ts` | `desktop-app/app/lib/` | `master.mdb` → `extract_rarity_from_mdb.js` | スキル一覧の色分け（金・緑など） |
 | `umasimSkillData.ts` | `desktop-app/app/lib/` | `extract_umasim_skill_data.js` | **OCR 後のスキル名→ID 変換**（`fuzzyMatcher.ts`） |
 | `skill_data.txt` | （GitHub・実行時取得） | 自動（ネットワーク） | **WASM エンジン初期化**（`umaemuAdapter.ts`） |
 | `trackData.ts` | `desktop-app/app/lib/` | **手動編集** | コース選択 UI・レース条件の ID 変換 |
 | `race_presets.json` | `desktop-app/public/` | **手動編集** | レース条件プリセット |
+| `SkillDataGen.ts` | `webapp/src/engine/data/` | `extract_master.js` | **webapp のみ**（本番では未使用） |
 
 ### 重要: 二重管理になっている部分
 
@@ -26,13 +26,12 @@
 
 ## クイックチェックリスト（ゲームアップデート後）
 
-`master.mdb` がある場合（推奨・フル更新）:
+`master.mdb` がある場合（推奨）:
 
 ```powershell
 # 1. master.mdb をリポジトリルートに配置
 
 cd desktop-app
-npm run extract-db              # SkillDataGen.ts（webapp 用）
 npm run extract-skill-info      # skillRarityData.ts（UI 色分け）
 npm run extract-umasim-skills   # umasimSkillData.ts（OCR マッチング）
 ```
@@ -64,7 +63,7 @@ npm run tauri dev
 
 ## 詳細手順
 
-### 1. `master.mdb` の配置（フル更新時）
+### 1. `master.mdb` の配置
 
 ウマ娘公式アプリから抽出した `master.mdb`（SQLite3）をリポジトリルートに配置します。
 
@@ -78,30 +77,19 @@ umamusume-skill-emulator/
 
 > `master.mdb` は `.gitignore` 対象です。リポジトリには含めません。
 
-### 2. `SkillDataGen.ts` の更新（webapp 用）
-
-```powershell
-cd desktop-app
-npm run extract-db
-```
-
-- スクリプト: `tools/mdb-extractor/extract_master.js`
-- 出力: `webapp/src/engine/data/SkillDataGen.ts`
-- 用途: webapp の `RaceSimulator` / Vitest parity テスト
-
-### 3. `skillRarityData.ts` の更新（UI 色分け）
-
-**手順 2 の後**に実行してください（`SkillDataGen.ts` を入力に使います）。
+### 2. `skillRarityData.ts` の更新（UI 色分け）
 
 ```powershell
 cd desktop-app
 npm run extract-skill-info
 ```
 
-- スクリプト: `tools/mdb-extractor/extract_skill_info.js`
+- スクリプト: `tools/mdb-extractor/extract_rarity_from_mdb.js`
+- 入力: `master.mdb`（ルート）
 - 出力: `desktop-app/app/lib/skillRarityData.ts`
+- `SkillDataGen.ts` は **不要**
 
-### 4. `umasimSkillData.ts` の更新（OCR マッチング）★本番で重要
+### 3. `umasimSkillData.ts` の更新（OCR マッチング）★本番で重要
 
 ```powershell
 cd desktop-app
@@ -119,7 +107,7 @@ npm run extract-umasim-skills
 node tools/mdb-extractor/extract_umasim_skill_data.js path/to/skill_data.txt
 ```
 
-### 5. WASM エンジンの `skill_data.txt`（実行時・自動）
+### 4. WASM エンジンの `skill_data.txt`（実行時・自動）
 
 本番アプリはシミュレーション開始時に GitHub から最新データを fetch します。
 
@@ -128,12 +116,11 @@ node tools/mdb-extractor/extract_umasim_skill_data.js path/to/skill_data.txt
 
 通常は **手動更新不要** ですが、オフライン時や umasim のフォークを使う場合は取得 URL の変更が必要です。
 
-### 6. `trackData.ts` の更新（手動）
+### 5. `trackData.ts` の更新（手動）
 
 コース選択 UI とシミュレーション payload の `location` / `course` ID に使われます。
 
 - ファイル: `desktop-app/app/lib/trackData.ts`
-- コメント: `Generated from umasim rawCourseData`
 - **自動生成スクリプトは現状なし**
 
 新競馬場・新距離が追加された場合:
@@ -142,14 +129,11 @@ node tools/mdb-extractor/extract_umasim_skill_data.js path/to/skill_data.txt
 2. `trackData.ts` に競馬場（`TrackLocation`）とコース（`TrackCourse`）を追記
 3. `RaceConditionSelector` で選択できることを確認
 
-関連コード: `aptitudeHelper.ts`, `umaemuAdapter.ts` の `createPayload`
-
-### 7. `race_presets.json` の更新（手動）
+### 6. `race_presets.json` の更新（手動）
 
 チャンピオンズミーティングやリーグオブヒーローズ等のワンタッチプリセットです。
 
 - ファイル: `desktop-app/public/race_presets.json`
-- レース条件（競馬場 ID、コース ID、馬場状態、頭数など）を JSON で追記
 
 ---
 
@@ -157,9 +141,9 @@ node tools/mdb-extractor/extract_umasim_skill_data.js path/to/skill_data.txt
 
 | コマンド | スクリプト | 入力 |
 |----------|-----------|------|
-| `npm run extract-db` | `extract_master.js` | `master.mdb`（ルート） |
-| `npm run extract-skill-info` | `extract_skill_info.js` | `SkillDataGen.ts` |
+| `npm run extract-skill-info` | `extract_rarity_from_mdb.js` | `master.mdb`（ルート） |
 | `npm run extract-umasim-skills` | `extract_umasim_skill_data.js` | umasim `skill_data.txt`（ネットワーク or ローカル） |
+| `npm run extract-db` | `extract_master.js` | `master.mdb`（ルート）— **webapp 用のみ** |
 
 > いずれも `desktop-app/` から実行できます。パスはスクリプト内でリポジトリルート基準に解決されます。
 
@@ -170,17 +154,13 @@ node tools/mdb-extractor/extract_umasim_skill_data.js path/to/skill_data.txt
 | 症状 | 疑わしい原因 | 対処 |
 |------|-------------|------|
 | 新スキルが OCR 後に空欄になる | `umasimSkillData.ts` が古い | `npm run extract-umasim-skills` |
-| スキル色がずれる | `skillRarityData.ts` が古い | `npm run extract-skill-info` |
+| スキル色がずれる | `skillRarityData.ts` が古い | `npm run extract-skill-info`（要 `master.mdb`） |
 | シミュレーションだけ失敗 | `race.js` が古い / ネットワーク | P2-2（`race.js` 更新手順）を参照 |
-| 新コースが選べない | `trackData.ts` 未更新 | 手順 6 で追記 |
-| `extract-db` が失敗 | `master.mdb` 未配置 | ルートに配置して再実行 |
+| 新コースが選べない | `trackData.ts` 未更新 | 手順 5 で追記 |
+| `extract-skill-info` が失敗 | `master.mdb` 未配置 | ルートに配置して再実行 |
 
 ---
 
-## webapp との関係
+## webapp について（参考）
 
-| 更新 | desktop-app（本番） | webapp（R&D） |
-|------|---------------------|---------------|
-| `extract-db` | 間接的（extract-skill-info の入力） | `SkillDataGen.ts` を直接更新 |
-| `extract-umasim-skills` | **必須** | 不要 |
-| `RaceSimulator.test.ts` | 不要 | `SkillDataGen.ts` 更新後に `npx vitest` で確認 |
+`npm run extract-db` は webapp の `SkillDataGen.ts` 生成用です。**本番アプリ（desktop-app）の更新には不要**です。
