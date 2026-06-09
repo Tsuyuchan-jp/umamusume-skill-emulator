@@ -59,7 +59,7 @@ npm run extract-umasim-skills   # OCR スキル名マッチング（本番で重
 npm run extract-umasim-skills   # ネットワーク必須
 ```
 
-手動更新: `trackData.ts`（コース）、`race_presets.json`（プリセット）
+手動更新: `trackData.ts`（コース）、`race_presets.json`（プリセット）、`race.js` / WASM エンジン（[手順 7](UPDATE_SKILLS.md#7-racejs--wasm-エンジンの更新)）
 
 ## 動作確認済み（P0）
 

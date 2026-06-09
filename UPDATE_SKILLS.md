@@ -11,6 +11,7 @@
 | `skillRarityData.ts` | `desktop-app/app/lib/` | `master.mdb` → `extract_rarity_from_mdb.js` | スキル一覧の色分け（金・緑など） |
 | `umasimSkillData.ts` | `desktop-app/app/lib/` | `extract_umasim_skill_data.js` | **OCR 後のスキル名→ID 変換**（`fuzzyMatcher.ts`） |
 | `skill_data.txt` | （GitHub・実行時取得） | 自動（ネットワーク） | **WASM エンジン初期化**（`umaemuAdapter.ts`） |
+| `race.js` / `*.wasm` | `desktop-app/public/umaemu/` | umasim `:race` ビルド → 手動コピー（[手順 7](#7-racejs--wasm-エンジンの更新)） | **レースシミュレーション本体**（`worker.js` 経由） |
 | `trackData.ts` | `desktop-app/app/lib/` | **手動編集** | コース選択 UI・レース条件の ID 変換 |
 | `race_presets.json` | `desktop-app/public/` | **手動編集** | レース条件プリセット |
 
@@ -46,6 +47,7 @@ npm run extract-umasim-skills   # OCR マッチング用（ネットワーク必
 
 - [ ] `desktop-app/public/race_presets.json` — 新しい CM / LoH プリセット
 - [ ] `desktop-app/app/lib/trackData.ts` — 新コース・新競馬場
+- [ ] `desktop-app/public/umaemu/race.js` 等 — シミュレーションだけ失敗する場合（[手順 7](#7-racejs--wasm-エンジンの更新)）
 
 検証:
 
@@ -132,6 +134,126 @@ node tools/mdb-extractor/extract_umasim_skill_data.js path/to/skill_data.txt
 
 - ファイル: `desktop-app/public/race_presets.json`
 
+### 7. `race.js` / WASM エンジンの更新
+
+本番アプリのレースシミュレーションは、Git 同梱の **Kotlin/Wasm エンジン**（`race.js` + ハッシュ名 `*.wasm`）を Web Worker（`worker.js`）経由で実行します。実行時の自動更新はありません。
+
+> **技術メモ**: エンジンは Kotlin/Wasm（webpack バンドル）です。`worker.js` 内の「Emscripten」コメントは古い記述で、実装とは一致しません。
+
+#### いつ更新するか
+
+- umasim の `:race` モジュールにレースロジックの更新が入ったとき
+- ゲームアップデート後、OCR・スキル表示は正常だが **シミュレーションだけ失敗** する
+- 新コース・新スキル機構でエンジン側の対応が必要なとき
+
+#### 前提環境
+
+- **JDK 17 以上**（`JAVA_HOME` 設定済み）
+- Git
+- ネットワーク（初回 Gradle 依存取得）
+
+#### 使わないもの（混同注意）
+
+| 対象 | 用途 | 本アプリとの関係 |
+|------|------|------------------|
+| `build_wasm.bat` | `:compose` モジュール用（`wasm.js` を `docs/race/` へコピー） | **使用しない** — 出力は Compose UI 付き `wasm.js` |
+| GitHub Releases の `umasim.zip` | umasim **デスクトップアプリ**配布 | **使用しない** — レース WASM エンジンとは別物 |
+| `docs/race/wasm.js`（umasim リポジトリ内） | Compose ベースのレースエミュレータ Web UI | **使用しない** — 本アプリはヘッドレス `race.js` を使用 |
+
+#### umasim のビルド
+
+```powershell
+# 1. umasim をクローン（作業用。本リポジトリに含めない）
+git clone https://github.com/mee1080/umasim.git
+cd umasim
+
+# 2. :race モジュールの Wasm 配布物をビルド
+.\gradlew.bat :race:wasmJsBrowserDistribution
+```
+
+ビルド成功後、出力は次のディレクトリに生成されます（Kotlin/Wasm の標準パス）:
+
+```text
+umasim/race/build/dist/wasmJs/productionExecutable/
+```
+
+ビルド後に実在を確認してください:
+
+```powershell
+dir race\build\dist\wasmJs\productionExecutable\
+```
+
+想定される主なファイル:
+
+| ファイル | 必須 | 説明 |
+|----------|------|------|
+| `race.js` | ✅ | webpack バンドル。`self.race` として `initializeEngine` / `runSimulation` を公開 |
+| `race.js.map` | 推奨 | ソースマップ（デバッグ用） |
+| `*.wasm`（ハッシュ名） | ✅ | Kotlin/Wasm バイナリ。ビルドごとにファイル名が変わることがある |
+| `index.html` 等 | ❌ | コピー不要 |
+
+#### 本リポジトリへのコピー
+
+コピー元: `umasim/race/build/dist/wasmJs/productionExecutable/`  
+コピー先: `desktop-app/public/umaemu/`
+
+```powershell
+# 本リポジトリのルートから（パスは環境に合わせて調整）
+$src = "..\umasim\race\build\dist\wasmJs\productionExecutable"
+$dst = "desktop-app\public\umaemu"
+
+Copy-Item "$src\race.js" $dst -Force
+Copy-Item "$src\race.js.map" $dst -Force
+Copy-Item "$src\*.wasm" $dst -Force
+```
+
+**コピーしないもの**
+
+- `worker.js` — 本プロジェクト固有の Web Worker ラッパー（umasim からは来ない）
+- `index.html`、画像、その他 UI 用アセット
+
+#### 古い `*.wasm` の削除
+
+`race.js` は内容ハッシュ付きの `*.wasm` を参照します。更新時は **コピー先に残っている古い `*.wasm` を削除** してください。放置すると不要ファイルが蓄積し、参照先と不一致になることがあります。
+
+```powershell
+# 新しい wasm をコピーしたあと、古いハッシュ名の wasm を手動削除
+dir desktop-app\public\umaemu\*.wasm
+# 新ビルドに含まれないファイルを Remove-Item
+```
+
+#### `skill_data.txt` との関係
+
+エンジン（`race.js`）とスキルマスタは **別経路** で管理されています。
+
+| データ | 更新方法 | 役割 |
+|--------|----------|------|
+| `race.js` / `*.wasm` | 手順 7（本節） | レース計算ロジック |
+| `skill_data.txt` | 実行時 GitHub 取得（[手順 4](#4-wasm-エンジンの-skill_datatxt実行時自動)） | エンジン初期化時のスキル定義 |
+| `umasimSkillData.ts` | `npm run extract-umasim-skills`（[手順 3](#3-umasimskilldatats-の更新ocr-マッチング本番で重要)） | OCR スキル名 → ID 変換 |
+
+エンジン更新時は、併せて次を実行することを推奨します:
+
+```powershell
+cd desktop-app
+npm run extract-umasim-skills   # OCR マッチング用 TS を同期
+```
+
+`skill_data.txt` 自体はネットワーク接続時に自動取得されるため、通常は手動コピー不要です（オフライン時は [手順 4](#4-wasm-エンジンの-skill_datatxt実行時自動) を参照）。
+
+#### 検証手順
+
+```powershell
+cd desktop-app
+npm run tauri dev
+```
+
+確認項目:
+
+- [ ] シミュレーションがエラーなく完了する
+- [ ] ブラウザ DevTools の Console に WASM 読み込みエラーがない
+- [ ] `desktop-app/public/umaemu/` に `race.js` と対応する `*.wasm` が存在する
+
 ---
 
 ## npm スクリプト一覧（desktop-app）
@@ -151,6 +273,6 @@ node tools/mdb-extractor/extract_umasim_skill_data.js path/to/skill_data.txt
 |------|-------------|------|
 | 新スキルが OCR 後に空欄になる | `umasimSkillData.ts` が古い | `npm run extract-umasim-skills` |
 | スキル色がずれる | `skillRarityData.ts` が古い | `npm run extract-skill-info`（要 `master.mdb`） |
-| シミュレーションだけ失敗 | `race.js` が古い / ネットワーク | P2-2（`race.js` 更新手順）を参照 |
+| シミュレーションだけ失敗 | `race.js` が古い / ネットワーク | [手順 7（race.js / WASM エンジンの更新）](#7-racejs--wasm-エンジンの更新) を参照 |
 | 新コースが選べない | `trackData.ts` 未更新 | 手順 5 で追記 |
 | `extract-skill-info` が失敗 | `master.mdb` 未配置 | ルートに配置して再実行 |
