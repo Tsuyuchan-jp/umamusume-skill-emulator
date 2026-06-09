@@ -8,20 +8,11 @@ Steam版「ウマ娘 プリティーダービー」向けのレースアナラ�
 
 ```
 umamusume-skill-emulator/
-├── desktop-app/     ★ 本番アプリ（Next.js 16 + Tauri 2 + React 19）
-├── webapp/          エミュレータ R&D 用（TS 物理エンジン・Vitest・parity 検証）
-├── tools/mdb-extractor/  master.mdb からスキルデータを抽出
-├── .cursor/rules/   Cursor Agent 用プロジェクトルール
-└── UPDATE_SKILLS.md スキルデータ更新手順
+├── desktop-app/          ★ 本番アプリ（Next.js 16 + Tauri 2 + React 19）
+├── tools/mdb-extractor/  master.mdb / umasim からスキルデータを抽出
+├── .cursor/rules/        Cursor Agent 用プロジェクトルール
+└── UPDATE_SKILLS.md      スキルデータ更新手順
 ```
-
-### desktop-app と webapp の関係
-
-| | desktop-app | webapp |
-|--|-------------|--------|
-| 状態 | **本番** | 研究・検証用（維持） |
-| シミュレーション | umasim WASM (`race.js`) | 自前 TS `RaceSimulator` |
-| 用途 | キャプチャ → OCR → シミュレーション → 分析 | umasim/race のリバースエンジニアリング、エンジン改良 |
 
 ## 開発環境セットアップ
 
@@ -85,4 +76,5 @@ npm run extract-umasim-skills   # ネットワーク必須
 
 ## 廃止済み
 
-因子管理 DB・Tesseract OCR・Supabase 連携（旧要件 v1.3）は開発予定なし。
+- 因子管理 DB・Tesseract OCR・Supabase 連携（旧要件 v1.3）は開発予定なし
+- `webapp/`（旧 TS 物理エンジン原型・Vitest parity 検証用）は削除済み。シミュレーションは umasim WASM のみ

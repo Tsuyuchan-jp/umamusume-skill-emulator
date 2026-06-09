@@ -8,7 +8,6 @@
     "start": "next start",
     "lint": "eslint",
     "tauri": "tauri",
-    "extract-db": "node ../tools/mdb-extractor/extract_master.js",
     "extract-skill-info": "node ../tools/mdb-extractor/extract_rarity_from_mdb.js",
     "extract-umasim-skills": "node ../tools/mdb-extractor/extract_umasim_skill_data.js"
   },

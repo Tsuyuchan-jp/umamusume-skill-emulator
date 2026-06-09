@@ -8,8 +8,7 @@ alwaysApply: true
 ## プロジェクト構成
 
 - **本番アプリ**: `desktop-app/`（Next.js + Tauri）— メンテ・機能追加はここを対象とする
-- **研究用**: `webapp/` — umasim/race エミュレータのリバースエンジニアリング・TS 物理エンジン（`RaceSimulator`）の検証用。削除しない
-- **データ抽出**: `tools/mdb-extractor/` — `master.mdb` からスキルデータを生成
+- **データ抽出**: `tools/mdb-extractor/` — `master.mdb` / umasim からスキルデータを生成
 
 ## 環境制約
 
