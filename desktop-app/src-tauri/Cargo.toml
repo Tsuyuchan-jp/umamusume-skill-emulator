@@ -46,8 +46,8 @@ tokio = { version = "1", features = ["time"] }
 imageproc = "0.25.1"
 tauri-plugin-dialog = "2"
 tauri-plugin-global-shortcut = "2.3.2"
-# Windows Credential Manager 連携
-keyring = "3"
+# Windows Credential Manager 連携（windows-native 必須。未指定時は mock で永続化されない）
+keyring = { version = "3", features = ["windows-native"] }
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-single-instance = "2"

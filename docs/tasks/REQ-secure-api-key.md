@@ -54,6 +54,7 @@ Gemini API キーを `localStorage` の平文保存から、Windows Credential M
 |------|------|
 | 2026-06-10 08:42 | 案A（keyring + Credential Manager）採用。Stronghold 不採用 |
 | 2026-06-10 11:30 | 実装完了。削除 UI なし。移行失敗は console.error のみ |
+| 2026-06-10 12:00 | 再起動後未設定バグ: keyring に `windows-native` 未指定で mock ストア使用。Cargo.toml 修正 |
 
 ---
 
