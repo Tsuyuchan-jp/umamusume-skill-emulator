@@ -6,7 +6,7 @@
 
 - **ステータス**: done（Phase S1+S2 完了。S3 コンテナクエリは見送り）
 - **作成日**: 2026-06-10 18:56
-- **関連コミット**: `4e5e7dc`（Phase S1）、Phase S2 コミット後に追記
+- **関連コミット**: `4e5e7dc`（Phase S1）、`d8ddb66`（Phase S2）
 - **前提**: Cockpit Phase 1（`98c8739`）+ minWidth 1150（`41b6e77`）
 
 ---
