@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { SimResultDump, UmaStatusData, RaceCondition } from "../lib/types";
 import { calculateHorseLength, estimateSpurtTargetSpeed } from "../lib/mathUtils";
+import { RaceDetailChart } from "./RaceDetailChart";
+import { ChevronDown, ChevronRight } from "lucide-react";
 
 interface ResultCardProps {
   result?: SimResultDump;
@@ -32,6 +34,8 @@ export const ResultCard: React.FC<ResultCardProps> = ({
   umaData,
   raceCondition
 }) => {
+  const [detailOpen, setDetailOpen] = useState(false);
+
   const spurtTargetSpeed = useMemo(() => {
     if (!umaData || !raceCondition) return 24.0;
     return estimateSpurtTargetSpeed(umaData, raceCondition);
@@ -182,6 +186,28 @@ export const ResultCard: React.FC<ResultCardProps> = ({
           </div>
         </div>
       </div>
+
+      {/* 直近レース詳細グラフ（折りたたみ・デフォルト閉） */}
+      {result.raceDetail && (
+        <div className="border border-zinc-800 rounded-xl overflow-hidden">
+          <button
+            type="button"
+            onClick={() => setDetailOpen((v) => !v)}
+            className="w-full flex items-center justify-between px-4 py-3 bg-zinc-900/60 hover:bg-zinc-900/80 transition-colors text-left"
+          >
+            <span className="text-sm font-bold text-zinc-200">直近レース詳細</span>
+            <span className="flex items-center gap-2 text-xs text-zinc-500">
+              速度・体力・走行レーン
+              {detailOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+            </span>
+          </button>
+          {detailOpen && (
+            <div className="px-4 py-3 bg-zinc-950/50 border-t border-zinc-800">
+              <RaceDetailChart detail={result.raceDetail} />
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

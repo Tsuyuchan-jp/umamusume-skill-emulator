@@ -1,4 +1,4 @@
-import { UmaStatusData, RawSkillData, RaceCondition } from "../types";
+import { UmaStatusData, RawSkillData, RaceCondition, RaceDetailDump } from "../types";
 import { getCourseById, getSurfaceKey, getDistanceKey, getStyleKey } from "../aptitudeHelper";
 
 let cachedSkillsJson: string | null = null;
@@ -58,6 +58,25 @@ function getWorker(): Worker {
     worker = null;
   };
   return worker;
+}
+
+/** N 走完了後に同一 payload で詳細1走を取得 */
+async function fetchRaceDetail(jsonInput: string): Promise<RaceDetailDump> {
+  const w = getWorker();
+  const id = ++currentMessageId;
+
+  const detailPromise = new Promise<RaceDetailDump>((resolve, reject) => {
+    pendingRequests.set(id, { resolve, reject });
+  });
+
+  w.postMessage({
+    id,
+    type: 'SIMULATE_DETAIL',
+    payload: jsonInput,
+    skillData: cachedSkillsJson
+  });
+
+  return detailPromise;
 }
 
 export function terminateWorker() {
@@ -193,6 +212,16 @@ export async function runMultipleSimulations(
   const maxSpurtResults = results.filter(r => r.maxSpurt);
   const nonMaxSpurtResults = results.filter(r => !r.maxSpurt);
 
+  // 詳細1走を自動取得（グラフ表示用）
+  let raceDetail: RaceDetailDump | null = null;
+  try {
+    console.time('Fetching race detail via Worker');
+    raceDetail = await fetchRaceDetail(jsonInput);
+    console.timeEnd('Fetching race detail via Worker');
+  } catch (error) {
+    console.warn("Race detail fetch failed (graph will be unavailable):", error);
+  }
+
   return {
     iterations,
     summary: {
@@ -200,7 +229,8 @@ export async function runMultipleSimulations(
       maxSpurt: aggregateGroup(maxSpurtResults),
       nonMaxSpurt: aggregateGroup(nonMaxSpurtResults)
     },
-    rawSample: results[0]
+    rawSample: results[0],
+    raceDetail,
   };
 }
 

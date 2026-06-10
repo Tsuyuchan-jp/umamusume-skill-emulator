@@ -3,7 +3,7 @@
 > Cursor 作業チャット起票時に `@docs/TODO.md` で参照する正本。
 > **作業完了のたびに必ず更新**し、コミットに含める。
 
-最終更新: 2026-06-10 15:55
+最終更新: 2026-06-10 16:12
 
 ---
 
@@ -37,13 +37,6 @@
 
 ### P2 — 改善・アイデア
 
-- [ ] **直近レース詳細グラフ（Phase 1 MVP）**
-  - REQ: `docs/tasks/REQ-race-detail-graph.md`
-  - 目標: 速度・体力・レーンの折れ線 + ResultCard 下折りたたみ。シミュ後に詳細1走を自動取得
-  - 前提: umasim `:race` WASM に詳細出力 API 追加（現行 rawSample では frames なし）
-  - Phase 4: baseline グラフ diff（核機能・高優先）
-  - 触る想定: `umaemu/`（race.js, worker.js）, `umaemuAdapter.ts`, `RaceDetailChart.tsx`（新規）
-
 - [ ] **ゲームアップデート後のスキルデータ更新**
   - 手順: `UPDATE_SKILLS.md`
   - コマンド: `npm run extract-umasim-skills`（必須）、`npm run extract-skill-info`（mdb あり時）
@@ -56,6 +49,7 @@
 
 ## 完了済み
 
+- [x] 直近レース詳細グラフ（Phase 1 MVP）— `runSimulationDetail` WASM + recharts 折りたたみ UI（コミット後にハッシュ追記）
 - [x] Gemini API キーのセキュアストレージ化（Windows Credential Manager + localStorage 移行）（`fa7c5b3`）
 - [x] スキル UI 最終実機確認（パレット先頭 inherit・special/minus 除外・色分け一致）
 - [x] パレットから `special` / `minus` スキルを除外（`570a1f2`）

@@ -39,6 +39,11 @@ self.onmessage = async (event) => {
       }
       
       self.postMessage({ id, type: 'SUCCESS', results });
+    } else if (type === 'SIMULATE_DETAIL') {
+      const engine = await initEngine(skillData);
+      const jsonOutput = engine.runSimulationDetail(payload);
+      const detail = JSON.parse(jsonOutput);
+      self.postMessage({ id, type: 'SUCCESS', results: detail });
     }
   } catch (error) {
     self.postMessage({ id, type: 'ERROR', error: error.message || String(error) });

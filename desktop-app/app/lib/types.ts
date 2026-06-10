@@ -21,6 +21,35 @@ export interface ResultSummary {
   avgCompeteFightTime: number;
 }
 
+/** WASM runSimulationDetail の1フレーム */
+export interface RaceFrameDump {
+  speed: number;
+  sp: number;
+  startPosition: number;
+  currentLane: number;
+}
+
+/** 直近1走の詳細データ（グラフ用） */
+export interface RaceDetailDump {
+  summary: {
+    raceTime: number;
+    raceTimeDelta: number;
+    raceTimeWithoutRunUp: number;
+    maxSpurt: boolean;
+    spDiff: number;
+    positionCompetitionCount: number;
+    staminaKeepDistance: number;
+    competeFightFinished: boolean;
+    competeFightTime: number;
+  };
+  frames: RaceFrameDump[];
+  courseLength: number;
+  phase1Start: number;
+  phase2Start: number;
+  gateCount: number;
+  initialLaneAdjuster: number;
+}
+
 export interface SimResultDump {
   iterations: number;
   summary: {
@@ -29,6 +58,7 @@ export interface SimResultDump {
     nonMaxSpurt: ResultSummary | null;
   };
   rawSample: any;
+  raceDetail?: RaceDetailDump | null;
 }
 
 export interface UmaStatusData {

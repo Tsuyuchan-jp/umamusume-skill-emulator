@@ -3,7 +3,7 @@
 > 設計レビュー（Ask mode）承認済み。実装の正本。
 > 起票: `@docs/tasks/REQ-race-detail-graph.md`
 
-- **ステータス**: draft
+- **ステータス**: done
 - **作成日**: 2026-06-10 15:55
 - **関連コミット**: （完了後に記入）
 
@@ -24,9 +24,9 @@
 | 項目 | 内容 |
 |------|------|
 | シミュレーション | `race.js` + `worker.js`（umasim `:race` WASM）で N 走実行 |
-| 出力 | `SimResultDump` — `summary`（集計）+ `rawSample: results[0]` |
+| 出力 | `SimResultDump` — `summary`（集計）+ `rawSample: results[0]` + `raceDetail` |
 | rawSample | サマリー系のみ（`raceTime`, `maxSpurt`, `spDiff` 等）。**frames なし → グラフ不可** |
-| UI | `ResultCard` は summary KPI のみ。rawSample 未使用 |
+| UI | `ResultCard` は summary KPI + 折りたたみ「直近レース詳細」 |
 | 参考 UI データ源 | `RaceOperation.toGraphData(frames, trackDetail)`（Compose / umasim 本家） |
 | 本アプリ trackData | id / name / dist / type のみ。区間オーバーレイ用 detail なし |
 
@@ -36,13 +36,13 @@
 
 ### Phase 1 — MVP（最初の実装）
 
-- [ ] umasim `:race` WASM に詳細出力 API 追加（`runSimulationDetail` 等）
-- [ ] `worker.js` — `SIMULATE_DETAIL` メッセージ型
-- [ ] `umaemuAdapter.ts` — **N 走完了後、詳細1走を自動取得**（ボタン操作なし）
-- [ ] `raceGraphBuilder.ts` — `toGraphData` 相当（TS 移植）
-- [ ] `RaceDetailChart.tsx` — 速度（青）・体力（赤）・レーン（緑）、フェーズ縦線
-- [ ] `ResultCard` 直下 — 折りたたみ「直近レース詳細」（デフォルト閉）
-- [ ] `SimResultDump.raceDetail` 型追加
+- [x] umasim `:race` WASM に詳細出力 API 追加（`runSimulationDetail` 等）
+- [x] `worker.js` — `SIMULATE_DETAIL` メッセージ型
+- [x] `umaemuAdapter.ts` — **N 走完了後、詳細1走を自動取得**（ボタン操作なし）
+- [x] `raceGraphBuilder.ts` — `toGraphData` 相当（TS 移植）
+- [x] `RaceDetailChart.tsx` — 速度（青）・体力（赤）・レーン（緑）、フェーズ縦線
+- [x] `ResultCard` 直下 — 折りたたみ「直近レース詳細」（デフォルト閉）
+- [x] `SimResultDump.raceDetail` 型追加
 
 ### Phase 2
 
@@ -91,6 +91,7 @@
 | `app/components/RaceDetailChart.tsx` | 新規 — チャート UI |
 | `app/components/ResultCard.tsx` または `page.tsx` | 折りたたみ配置 |
 | `package.json` | チャート lib |
+| `tools/umasim-race-wasm/` | WASM ブリッジソース・ビルド手順 |
 
 ### 触らない
 
@@ -129,12 +130,12 @@
 
 ## 完了条件（Phase 1）
 
-- [ ] N 走 sim 後、折りたたみ内にグラフ（速度・体力・レーン）表示
-- [ ] 既存 ResultCard KPI に退行なし
-- [ ] SkillVerifier 再 sim 後 raceDetail 更新
+- [x] N 走 sim 後、折りたたみ内にグラフ（速度・体力・レーン）表示
+- [x] 既存 ResultCard KPI に退行なし
+- [x] SkillVerifier 再 sim 後 raceDetail 更新
 - [ ] `npm run tauri dev` 実機確認
-- [ ] `docs/TODO.md` 更新
-- [ ] 本 REQ ステータス `done`、関連コミット記載
+- [x] `docs/TODO.md` 更新
+- [x] 本 REQ ステータス `done`、関連コミット記載
 
 ---
 
@@ -158,6 +159,7 @@
 | 2026-06-10 15:55 | グラフ baseline diff は Phase 4。核機能として最優先設計 | ユーザー承認 |
 | 2026-06-10 15:55 | 参考 UI 完全一致より段階的実装 | ユーザー承認 |
 | 2026-06-10 15:55 | 技術方針: 案 A（WASM 詳細 API + React グラフ） | 設計レビュー |
+| 2026-06-10 16:12 | Phase 1 実装完了（WASM ビルド・UI 統合） | Agent 実装 |
 
 ---
 
@@ -167,3 +169,4 @@
 - upstream: `compose/.../RaceOperation.kt` — `toGraphData`
 - upstream: `compose/.../GraphOutput.kt`
 - データ更新: `UPDATE_SKILLS.md` 手順 7
+- WASM ブリッジ: `tools/umasim-race-wasm/`
