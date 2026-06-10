@@ -105,8 +105,8 @@ function buildAreaBands(
     ...toBands(corners, 0, 0.1, AREA_CORNER_FILL, AREA_CORNER_FILL, "3 2"),
     ...toBands(
       slopes.filter((s) => s.slope > 0),
-      0.1,
       0.15,
+      0.2,
       AREA_UPSLOPE_FILL,
       undefined,
       undefined,
@@ -114,8 +114,8 @@ function buildAreaBands(
     ),
     ...toBands(
       slopes.filter((s) => s.slope < 0),
+      0.1,
       0.15,
-      0.2,
       AREA_DOWNSLOPE_FILL,
       undefined,
       undefined,
