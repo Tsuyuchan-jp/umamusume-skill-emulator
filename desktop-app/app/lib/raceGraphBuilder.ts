@@ -38,14 +38,20 @@ export interface AreaBand {
   stroke?: string;
   /** 上端ボーダー線種。未指定は実線 */
   strokeDasharray?: string;
+  /** 帯の不透明度。未指定は 0.15 */
+  fillOpacity?: number;
 }
 
 /** 明るめシアン（直線）— 速度線 #3b82f6 と被りにくいトーン */
 const AREA_STRAIGHT_FILL = "#5BA8E8";
 /** 暗め赤紫（コーナー）— 直線帯と明度差で区別 */
 const AREA_CORNER_FILL = "#9B5FB8";
-const AREA_UPSLOPE_FILL = "#00FF80";
-const AREA_DOWNSLOPE_FILL = "#FFFF00";
+/** 落ち着いたティール（上り）— レーン緑 #22c55e と被りにくい */
+const AREA_UPSLOPE_FILL = "#4A9E7A";
+/** 落ち着いた琥珀（下り） */
+const AREA_DOWNSLOPE_FILL = "#C9A227";
+/** 坂帯は半分高さのためやや濃く */
+const AREA_SLOPE_FILL_OPACITY = 0.18;
 
 export interface RaceGraphData {
   points: GraphPoint[];
@@ -78,6 +84,7 @@ function buildAreaBands(
     fill: string,
     stroke?: string,
     strokeDasharray?: string,
+    fillOpacity?: number,
   ): AreaBand[] =>
     areas
       .filter((a) => a.end > a.start)
@@ -88,6 +95,7 @@ function buildAreaBands(
         const band: AreaBand = { x1, x2, y1, y2, fill };
         if (stroke) band.stroke = stroke;
         if (strokeDasharray) band.strokeDasharray = strokeDasharray;
+        if (fillOpacity !== undefined) band.fillOpacity = fillOpacity;
         return band;
       })
       .filter((band): band is AreaBand => band !== null);
@@ -98,14 +106,20 @@ function buildAreaBands(
     ...toBands(
       slopes.filter((s) => s.slope > 0),
       0.1,
-      0.2,
+      0.15,
       AREA_UPSLOPE_FILL,
+      undefined,
+      undefined,
+      AREA_SLOPE_FILL_OPACITY,
     ),
     ...toBands(
       slopes.filter((s) => s.slope < 0),
-      0.1,
+      0.15,
       0.2,
       AREA_DOWNSLOPE_FILL,
+      undefined,
+      undefined,
+      AREA_SLOPE_FILL_OPACITY,
     ),
   ];
 }

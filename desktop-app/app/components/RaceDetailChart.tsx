@@ -54,7 +54,7 @@ export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
                 y2={band.y2}
                 yAxisId="percent"
                 fill={band.fill}
-                fillOpacity={0.15}
+                fillOpacity={band.fillOpacity ?? 0.15}
                 strokeOpacity={0}
                 ifOverflow="visible"
               />
@@ -196,8 +196,8 @@ export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
       </ResponsiveContainer>
       {graphData.areaBands.length > 0 && (
         <div className="pointer-events-none absolute bottom-1 left-1 flex flex-col gap-0.5 text-[10px] text-zinc-300">
-          <span className="rounded bg-black/50 px-1.5 py-0.5">直線(明るい青・実線)/コーナー(暗め紫・点線)</span>
-          <span className="rounded bg-black/50 px-1.5 py-0.5">上り坂(緑)/下り坂(黄)</span>
+          <span className="rounded bg-black/50 px-1.5 py-0.5">直線 / コーナー</span>
+          <span className="rounded bg-black/50 px-1.5 py-0.5">上り(上) / 下り(下)</span>
         </div>
       )}
     </div>
