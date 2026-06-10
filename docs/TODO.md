@@ -3,7 +3,7 @@
 > Cursor 作業チャット起票時に `@docs/TODO.md` で参照する正本。
 > **作業完了のたびに必ず更新**し、コミットに含める。
 
-最終更新: 2026-06-10 18:30
+最終更新: 2026-06-10 18:56
 
 ---
 
@@ -32,6 +32,15 @@
   - 触らない: WASM, OCR, `src-tauri/`, race-detail-graph Phase 2 以降
 
 ### P1 — 重要（急がない）
+
+- [ ] **サイドバー狭幅 UI 整備**
+  - 現状: 380px 時に Settings「変更」ボタンがクリップ、二重カードで窮屈（実機確認済み）
+  - 原因: viewport `sm:` と 380px サイドバーのミスマッチ + 過剰 padding
+  - REQ: [`docs/tasks/REQ-sidebar-compact-layout.md`](tasks/REQ-sidebar-compact-layout.md)
+  - 起票: REQ 末尾の「設計レビュー起票プロンプト」を **Ask mode 新チャット** に貼る
+  - 承認後: Phase S1 から Agent mode で実装
+  - 触る想定: `SettingsPanel.tsx`, `CapturePanel.tsx`, `page.tsx`（sidebar のみ）
+  - 触らない: 右カラム Cockpit Phase 2/3、OCR、WASM、`src-tauri/`
 
 - [ ] **パレットのスキルデータ参照をローカルに統一**
   - 現状: パレット一覧は `fetchSkillData()`（GitHub）、色分けは `umasimSkillData.ts`（ローカル）の二重参照
@@ -77,6 +86,7 @@
 - パレットのスキル一覧は `fetchSkillData()`（GitHub）から取得。色分けは `umasimSkillData.ts`（ローカル）の ID 参照
 - `special`（14件）+ `minus`（1件）が `unique` 直後に並んでいたため、除外前は先頭がすべて白表示だった
 - Gemini API キーは Windows 資格情報マネージャー（`com.umamusume.race-analyzer` / `gemini_api_key`）に保存
+- サイドバー 380px: SettingsPanel の `sm:flex-row` が viewport 640px+ で有効になり「変更」ボタンがクリップ（[`REQ-sidebar-compact-layout.md`](tasks/REQ-sidebar-compact-layout.md)）
 - 因子管理 DB・Tesseract OCR・Supabase 連携は **開発予定なし**（`.cursor/rules/development.mdc`）
 
 ---
