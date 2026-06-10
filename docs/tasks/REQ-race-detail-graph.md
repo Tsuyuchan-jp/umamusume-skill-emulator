@@ -5,7 +5,7 @@
 
 - **ステータス**: Phase 1 完了（シリーズ継続中）
 - **作成日**: 2026-06-10 15:55
-- **最終更新**: 2026-06-11 04:54
+- **最終更新**: 2026-06-11 07:50
 
 ---
 
@@ -21,7 +21,7 @@
 |----|-------|-----|-----------|-----------|
 | 1 | MVP（3本線） | [`REQ-race-detail-graph-phase1.md`](REQ-race-detail-graph-phase1.md) | **done** | → axis |
 | 1.5 | Y軸・単位改善 | [`REQ-race-detail-graph-axis.md`](REQ-race-detail-graph-axis.md) | **done** | → Phase 2 |
-| 2 | 区間オーバーレイ | [`REQ-race-detail-graph-phase2.md`](REQ-race-detail-graph-phase2.md) | draft | → Phase 3 |
+| 2 | 区間オーバーレイ | [`REQ-race-detail-graph-phase2.md`](REQ-race-detail-graph-phase2.md) | **done** | → Phase 3 |
 | 3 | スキル帯・表示切替 | [`REQ-race-detail-graph-phase3.md`](REQ-race-detail-graph-phase3.md) | draft | → Phase 4 |
 | 4 | baseline diff（核） | [`REQ-race-detail-graph-phase4.md`](REQ-race-detail-graph-phase4.md) | draft | シリーズ本線完了 |
 
@@ -59,6 +59,7 @@
 | 2026-06-10 15:55 | Phase 1〜4 の段階実装 | 設計レビュー承認 |
 | 2026-06-11 04:47 | 親 REQ ステータスを `done（Phase 1 完了）` に明確化 | 誤解防止 |
 | 2026-06-11 04:54 | Phase 1〜4 を sibling REQ に分割、本ファイルをロードマップ索引化 | 開発速度・スコープ明確化 |
+| 2026-06-11 07:50 | Phase 2 完了（`5e2b401`）。次は Phase 3 設計レビュー | 実機確認・UX 改善含む完全完了 |
 
 ---
 

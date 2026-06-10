@@ -13,7 +13,7 @@
 
 | 項目 | 内容 |
 |------|------|
-| **前** | [`REQ-race-detail-graph-phase2.md`](REQ-race-detail-graph-phase2.md)（区間オーバーレイ） |
+| **前** | [`REQ-race-detail-graph-phase2.md`](REQ-race-detail-graph-phase2.md)（区間オーバーレイ・**完了**） |
 | **本 Phase** | スキル発動帯・デバフ、`GraphDisplaySetting` 相当のチェックボックス、縦方向拡大 |
 | **次** | [`REQ-race-detail-graph-phase4.md`](REQ-race-detail-graph-phase4.md)（baseline グラフ diff・核機能） |
 | **着手順** | **Ask mode 設計レビュー** → 承認 → **Agent mode 実装** |
@@ -37,7 +37,7 @@
 ### やらないこと
 
 - Phase 4（baseline diff）— [`REQ-race-detail-graph-phase4.md`](REQ-race-detail-graph-phase4.md)
-- Phase 2 未完了の区間オーバーレイ（前提: Phase 2 完了後に着手）
+- Phase 2 の区間オーバーレイ再設計（**完了済み** `5e2b401`）
 - WASM 詳細 API の Phase 1 部分の再設計
 
 ---
