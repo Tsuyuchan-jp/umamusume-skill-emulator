@@ -61,7 +61,7 @@
 
 ## 完了済み
 
-- [x] 直近レース詳細グラフ Phase 2 — 区間オーバーレイ（直線/コーナー/坂 + WASM trackDetail）（本コミット / [`REQ-race-detail-graph-phase2.md`](tasks/REQ-race-detail-graph-phase2.md)）
+- [x] 直近レース詳細グラフ Phase 2 — 区間オーバーレイ（直線/コーナー/坂 + WASM trackDetail）（`0af28c7` / [`REQ-race-detail-graph-phase2.md`](tasks/REQ-race-detail-graph-phase2.md)）
 - [x] レース詳細グラフ Y軸・単位改善 — 双 Y 軸・体力/レーン床リマップ・速度 m/s（`206b9ee` / [`REQ-race-detail-graph-axis.md`](tasks/REQ-race-detail-graph-axis.md)）
 - [x] 全画面 Cockpit UI（Phase 1〜3 + UX ポリッシュ）— SkillVerifier 右ペイン・トースト Portal・KPI ストリップ等（`98c8739`〜`a75ec9c` / [`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)）
 - [x] サイドバー狭幅 UI 整備（Phase S1+S2）— 行レイアウト修正・二重カード解消・padding 圧縮（`d8ddb66` / [`REQ-sidebar-compact-layout.md`](tasks/REQ-sidebar-compact-layout.md)）
