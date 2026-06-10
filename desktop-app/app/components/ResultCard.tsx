@@ -181,11 +181,13 @@ export const ResultCard: React.FC<ResultCardProps> = ({
           <div className="text-sm font-bold text-zinc-200">直近レース詳細</div>
           <div className="text-xs text-zinc-500">速度・体力・走行レーン</div>
         </div>
-        <div className="flex-1 min-h-0 min-w-0 px-4 py-3 bg-zinc-950/50">
+        <div className="relative flex-1 min-h-[320px] min-w-0 px-4 py-3 bg-zinc-950/50">
           {result.raceDetail ? (
-            <RaceDetailChart detail={result.raceDetail} />
+            <div className="absolute inset-0 min-h-0">
+              <RaceDetailChart detail={result.raceDetail} />
+            </div>
           ) : (
-            <div className="h-full min-h-[320px] flex items-center justify-center">
+            <div className="absolute inset-0 flex items-center justify-center">
               <p className="text-sm text-zinc-500">グラフデータを取得中…</p>
             </div>
           )}

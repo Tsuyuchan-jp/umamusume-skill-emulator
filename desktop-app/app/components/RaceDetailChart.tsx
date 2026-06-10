@@ -29,12 +29,14 @@ export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
 
   if (graphData.points.length === 0) {
     return (
-      <p className="text-sm text-zinc-500 py-4 text-center">グラフデータがありません</p>
+      <div className="w-full h-full flex items-center justify-center">
+        <p className="text-sm text-zinc-500">グラフデータがありません</p>
+      </div>
     );
   }
 
   return (
-    <div className="w-full h-full min-w-0">
+    <div className="w-full h-full min-h-0 min-w-0">
       <ResponsiveContainer
         width="100%"
         height="100%"
