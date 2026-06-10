@@ -34,12 +34,12 @@ export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
   }
 
   return (
-    <div className="w-full h-72 min-w-0">
+    <div className="w-full h-full min-w-0">
       <ResponsiveContainer
         width="100%"
-        height={288}
+        height="100%"
         minWidth={0}
-        initialDimension={{ width: 800, height: 288 }}
+        initialDimension={{ width: 800, height: 360 }}
       >
         <LineChart data={graphData.points} margin={{ top: 8, right: 16, left: 0, bottom: 4 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#3f3f46" />

@@ -3,9 +3,9 @@
 > 設計レビュー（Ask mode）起票用。実装の正本。
 > 起票: `@docs/tasks/REQ-fullscreen-cockpit-layout.md`
 
-- **ステータス**: in-progress（Phase 1 完了）
+- **ステータス**: in-progress（Phase 2 完了）
 - **作成日**: 2026-06-10 17:45
-- **関連コミット**: `98c8739`（Phase 1）
+- **関連コミット**: `98c8739`（Phase 1）、Phase 2 未コミット
 - **前提**: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md) Phase 1 完了 + Tooltip Phase 1.5（`0e25cda`）
 
 ---
@@ -86,19 +86,19 @@ FHD 1920×1080 目安（サイドバー 380px）:
 
 ### Phase 2 — KPI コンパクト化 + グラフ常時表示
 
-- [ ] `ResultCard.tsx`: ヒーロー KPI + サブ KPI + スパートバッジを **1〜2 行 dense ストリップ** に再構成
-- [ ] 折りたたみ UI 削除（`detailOpen` / Chevron ボタン）
-- [ ] `RaceDetailChart.tsx`: `h-72` 固定 → 親 `flex-1 min-h-[360px]` + `ResponsiveContainer height="100%"`
-- [ ] Tooltip / `initialDimension` 修正は **退行させない**
-- [ ] `raceDetail` 未取得時: プレースホルダー領域を確保
+- [x] `ResultCard.tsx`: ヒーロー KPI + サブ KPI + スパートバッジを **1〜2 行 dense ストリップ** に再構成
+- [x] 折りたたみ UI 削除（`detailOpen` / Chevron ボタン）
+- [x] `RaceDetailChart.tsx`: `h-72` 固定 → 親 `flex-1 min-h-[360px]` + `ResponsiveContainer height="100%"`
+- [x] Tooltip / `initialDimension` 修正は **退行させない**（height のみ 360 に変更）
+- [x] `raceDetail` 未取得時: プレースホルダー領域を確保
 
 **Phase 2 完了条件**
 
-- [ ] グラフが常時表示、折りたたみ UI なし
-- [ ] FHD でグラフ高が viewport の大部分を使用
-- [ ] Tooltip / Legend 重なり解消が維持
-- [ ] DevTools 新規警告なし（ResponsiveContainer 含む）
-- [ ] REQ チェック更新 + コミット
+- [x] グラフが常時表示、折りたたみ UI なし
+- [ ] FHD でグラフ高が viewport の大部分を使用（Phase 3 の flex チェーン整備後に最終確認）
+- [x] Tooltip / Legend 重なり解消が維持（position / offset / z-index 未変更）
+- [ ] DevTools 新規警告なし（ResponsiveContainer 含む）— 実機確認待ち
+- [x] REQ チェック更新 + コミット
 
 ### Phase 3 — SkillVerifier 右ペイン + ヘッダー整理
 
