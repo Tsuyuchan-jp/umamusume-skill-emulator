@@ -121,7 +121,7 @@ export function SettingsPanel({
             className="shrink-0 bg-zinc-800 hover:bg-emerald-600 text-zinc-300 hover:text-white text-xs font-semibold px-4 py-2 border border-zinc-700/50 rounded-lg transition-all active:bg-emerald-700 flex items-center gap-2"
           >
             <Key className="w-3.5 h-3.5" />
-            {apiKey ? "変更" : "未設定"}
+            {apiKey ? "修正済み" : "未設定"}
           </button>
         </div>
       </div>
