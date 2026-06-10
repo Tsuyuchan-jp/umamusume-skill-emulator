@@ -6,7 +6,7 @@ export const SPEED_MIN = 13;
 export const SPEED_MAX = 30;
 const STAMINA_MIN = -200;
 const HORSE_LANE = 11.25 / 18;
-const STAMINA_PLOT_FLOOR = 0.1;
+const STAMINA_PLOT_FLOOR = 0.05;
 const LANE_PLOT_FLOOR = 0.05;
 
 function clamp01(value: number): number {
@@ -17,7 +17,7 @@ export interface GraphPoint {
   time: number;
   /** 生値 m/s */
   speed: number;
-  /** プロット座標 [0.1, 1] */
+  /** プロット座標 [0.05, 1] */
   stamina: number;
   /** プロット座標 [0.05, 1] */
   lane: number;

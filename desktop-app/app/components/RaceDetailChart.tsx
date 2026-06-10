@@ -119,8 +119,10 @@ export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
             <ReferenceLine
               key={phase.label}
               x={phase.time}
+              yAxisId="percent"
               stroke="#a1a1aa"
               strokeDasharray="4 4"
+              ifOverflow="visible"
               label={{ value: phase.label, position: "top", fill: "#a1a1aa", fontSize: 10 }}
             />
           ))}
