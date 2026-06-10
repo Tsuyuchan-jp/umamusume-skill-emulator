@@ -49,8 +49,8 @@ export function buildRaceGraphData(detail: RaceDetailDump): RaceGraphData {
 
   const phaseLines = [
     { label: "スタート", time: toTime(phase0Index) },
-    { label: "序盤→中盤", time: toTime(phase1Index) },
-    { label: "中盤→終盤", time: toTime(phase2Index) },
+    { label: "中盤へ", time: toTime(phase1Index) },
+    { label: "終盤へ", time: toTime(phase2Index) },
   ].filter((p) => p.time > 0);
 
   return { points, phaseLines, staminaMax };

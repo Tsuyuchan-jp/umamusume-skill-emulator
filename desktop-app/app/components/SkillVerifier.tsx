@@ -87,7 +87,7 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
   // ボタンテキストの動的生成
   let simulateButtonText = "変更がありません";
   if (isDirty) {
-    simulateButtonText = `📊 検証して結果を更新 (未反映: ${totalUnappliedCount}件)`;
+    simulateButtonText = "検証して結果を更新";
   } else if (canSimulate) {
     simulateButtonText = `✅ 最新の構成が反映されています`;
   }

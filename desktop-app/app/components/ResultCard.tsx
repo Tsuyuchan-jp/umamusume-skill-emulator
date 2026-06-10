@@ -91,9 +91,9 @@ export const ResultCard: React.FC<ResultCardProps> = ({
         <div className="flex flex-1 gap-2 min-w-0">
           <div className="flex-1 min-w-0 bg-zinc-900/80 border border-zinc-800 rounded-lg px-3 py-2 flex flex-col justify-center relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-0.5 bg-blue-500/50" />
-            <span className="text-zinc-500 text-[10px] font-bold leading-none mb-0.5">最速</span>
+            <span className="text-zinc-500 text-xs font-bold leading-none mb-0.5">最速</span>
             <div className="flex items-baseline min-w-0">
-              <span className="text-lg font-black text-blue-400 font-mono tracking-tighter truncate">
+              <span className="text-xl font-black text-blue-400 font-mono tracking-tighter truncate">
                 {formatTime(all.minTime)}
               </span>
               {baseline && renderDelta(all.minTime, baseline.summary.all.minTime, true)}
@@ -101,9 +101,9 @@ export const ResultCard: React.FC<ResultCardProps> = ({
           </div>
           <div className="flex-1 min-w-0 bg-zinc-900/80 border border-emerald-500/30 rounded-lg px-3 py-2 flex flex-col justify-center relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-0.5 bg-emerald-500" />
-            <span className="text-emerald-400/80 text-[10px] font-bold leading-none mb-0.5">平均</span>
+            <span className="text-emerald-400/80 text-xs font-bold leading-none mb-0.5">平均</span>
             <div className="flex items-baseline min-w-0">
-              <span className="text-lg font-black text-emerald-400 font-mono tracking-tighter truncate">
+              <span className="text-xl font-black text-emerald-400 font-mono tracking-tighter truncate">
                 {formatTime(all.avgTime)}
               </span>
               {baseline && renderDelta(all.avgTime, baseline.summary.all.avgTime, true)}
@@ -111,9 +111,9 @@ export const ResultCard: React.FC<ResultCardProps> = ({
           </div>
           <div className="flex-1 min-w-0 bg-zinc-900/80 border border-zinc-800 rounded-lg px-3 py-2 flex flex-col justify-center relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-0.5 bg-orange-500/50" />
-            <span className="text-zinc-500 text-[10px] font-bold leading-none mb-0.5">最遅</span>
+            <span className="text-zinc-500 text-xs font-bold leading-none mb-0.5">最遅</span>
             <div className="flex items-baseline min-w-0">
-              <span className="text-lg font-black text-orange-400 font-mono tracking-tighter truncate">
+              <span className="text-xl font-black text-orange-400 font-mono tracking-tighter truncate">
                 {formatTime(all.maxTime)}
               </span>
               {baseline && renderDelta(all.maxTime, baseline.summary.all.maxTime, true)}
@@ -141,39 +141,45 @@ export const ResultCard: React.FC<ResultCardProps> = ({
         </div>
       </div>
 
-      {/* 行2: サブ KPI 横ストリップ */}
-      <div className="shrink-0 flex items-center gap-3 px-3 py-2 min-h-[36px] bg-zinc-900/50 border border-zinc-800 rounded-lg">
-        <div
-          className="flex-1 min-w-0 flex items-baseline gap-1"
-          title={`最小: ${all.minStamina.toFixed(1)} / 最大: ${all.maxStamina.toFixed(1)} HP`}
-        >
-          <span className="text-zinc-500 text-xs font-bold shrink-0">余剰体力</span>
-          <span className="text-sm font-bold text-zinc-100 font-mono">{all.avgStamina.toFixed(1)}</span>
-          {baseline && renderDelta(all.avgStamina, baseline.summary.all.avgStamina, false)}
+      {/* 行2: サブ KPI（2列 dense + サブ項目表示） */}
+      <div className="shrink-0 grid grid-cols-2 gap-x-4 gap-y-2 px-3 py-2 min-h-[52px] bg-zinc-900/50 border border-zinc-800 rounded-lg">
+        <div className="min-w-0">
+          <span className="text-zinc-500 text-xs font-bold">余剰体力</span>
+          <div className="flex items-baseline gap-1 min-w-0">
+            <span className="text-base font-bold text-zinc-100 font-mono">{all.avgStamina.toFixed(1)}</span>
+            {baseline && renderDelta(all.avgStamina, baseline.summary.all.avgStamina, false)}
+          </div>
+          <span className="text-[10px] text-zinc-500 font-medium leading-tight">
+            最小 {all.minStamina.toFixed(1)} / 最大 {all.maxStamina.toFixed(1)} HP
+          </span>
         </div>
-        <div className="w-px h-4 bg-zinc-700 shrink-0" />
-        <div className="flex-1 min-w-0 flex items-baseline gap-1">
-          <span className="text-zinc-500 text-xs font-bold shrink-0">位置取り</span>
-          <span className="text-sm font-bold text-zinc-100 font-mono">{all.avgPosAdjust.toFixed(2)}</span>
-          {baseline && renderDelta(all.avgPosAdjust, baseline.summary.all.avgPosAdjust, false)}
+        <div className="min-w-0">
+          <span className="text-zinc-500 text-xs font-bold">位置取り</span>
+          <div className="flex items-baseline gap-1 min-w-0">
+            <span className="text-base font-bold text-zinc-100 font-mono">{all.avgPosAdjust.toFixed(2)}</span>
+            {baseline && renderDelta(all.avgPosAdjust, baseline.summary.all.avgPosAdjust, false)}
+          </div>
+          <span className="text-[10px] text-zinc-500 font-medium leading-tight">平均位置取り補正</span>
         </div>
-        <div className="w-px h-4 bg-zinc-700 shrink-0" />
-        <div
-          className="flex-1 min-w-0 flex items-baseline gap-1"
-          title={`平均距離: ${all.avgStaminaKeepDist.toFixed(1)}m`}
-        >
-          <span className="text-zinc-500 text-xs font-bold shrink-0">持久力温存</span>
-          <span className="text-sm font-bold text-zinc-100 font-mono">{formatPercent(all.staminaKeepRate)}</span>
-          {baseline && renderDelta(all.staminaKeepRate, baseline.summary.all.staminaKeepRate, false, true)}
+        <div className="min-w-0">
+          <span className="text-zinc-500 text-xs font-bold">持久力温存</span>
+          <div className="flex items-baseline gap-1 min-w-0">
+            <span className="text-base font-bold text-zinc-100 font-mono">{formatPercent(all.staminaKeepRate)}</span>
+            {baseline && renderDelta(all.staminaKeepRate, baseline.summary.all.staminaKeepRate, false, true)}
+          </div>
+          <span className="text-[10px] text-zinc-500 font-medium leading-tight">
+            平均距離 {all.avgStaminaKeepDist.toFixed(1)}m
+          </span>
         </div>
-        <div className="w-px h-4 bg-zinc-700 shrink-0" />
-        <div
-          className="flex-1 min-w-0 flex items-baseline gap-1"
-          title={`平均時間: ${all.avgCompeteFightTime.toFixed(2)}秒`}
-        >
-          <span className="text-zinc-500 text-xs font-bold shrink-0">追い比べ</span>
-          <span className="text-sm font-bold text-zinc-100 font-mono">{formatPercent(all.competeFightRate)}</span>
-          {baseline && renderDelta(all.competeFightRate, baseline.summary.all.competeFightRate, false, true)}
+        <div className="min-w-0">
+          <span className="text-zinc-500 text-xs font-bold">追い比べ</span>
+          <div className="flex items-baseline gap-1 min-w-0">
+            <span className="text-base font-bold text-zinc-100 font-mono">{formatPercent(all.competeFightRate)}</span>
+            {baseline && renderDelta(all.competeFightRate, baseline.summary.all.competeFightRate, false, true)}
+          </div>
+          <span className="text-[10px] text-zinc-500 font-medium leading-tight">
+            平均時間 {all.avgCompeteFightTime.toFixed(2)}秒
+          </span>
         </div>
       </div>
 
