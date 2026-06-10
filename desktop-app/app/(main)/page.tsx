@@ -523,11 +523,10 @@ export default function Home() {
 
       {/* 右カラム (結果アリーナ) */}
       <div className={`flex-1 flex flex-col h-full overflow-hidden min-w-0 p-3 bg-[#09090b] relative ${isResizing ? 'select-none pointer-events-none' : ''}`}>
-        <div ref={scrollContainerRef} className="flex-1 min-h-0 min-w-0 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent">
-          <div className="w-full min-w-0">
           {activeTab ? (
-            <div className="animate-fadeIn min-w-0">
-              {/* Tab Bar UI */}
+            <div className="flex flex-col h-full min-h-0 overflow-hidden animate-fadeIn min-w-0">
+              {/* ヘッダー: TabBar + レース情報行 */}
+              <div ref={scrollContainerRef} className="shrink-0 min-w-0">
               <TabBar
                 tabs={tabs}
                 setTabs={setTabs}
@@ -536,7 +535,7 @@ export default function Home() {
                 highlightedTabId={highlightedTabId}
               />
 
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-2 min-w-0 mb-8">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-2 min-w-0 mb-3">
                 {/* 案B：光るステータスドット */}
                 <div className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse ring-4 ring-blue-500/20 ml-1"></div>
 
@@ -610,7 +609,10 @@ export default function Home() {
                 </div>
               </div>
               </div>
+              </div>
 
+              {/* Body: ResultCard + SkillVerifier 右ペイン */}
+              <div className="flex-1 min-h-0 overflow-hidden">
               {activeTab.simResultDump ? (
                 <ResultCard
                   result={activeTab.simResultDump}
@@ -619,175 +621,174 @@ export default function Home() {
                   displayUnit={displayUnit}
                   umaData={activeTab.umaData}
                   raceCondition={activeTab.raceCondition}
+                  rightPane={
+                    activeTab.umaData && activeTab.baselineResult ? (
+                      <SkillVerifier
+                        umaData={activeTab.umaData}
+                        disabledSkillIds={activeTab.disabledSkillIds}
+                        appliedDisabledSkillIds={activeTab.appliedDisabledSkillIds || []}
+                        appliedAddedSkillIds={activeTab.appliedAddedSkillIds || []}
+                        onToggleSkill={(skillId) => {
+                          setTabs(prev => prev.map(t => {
+                            if (t.id === activeTabId) {
+                              return {
+                                ...t,
+                                disabledSkillIds: t.disabledSkillIds.includes(skillId)
+                                  ? t.disabledSkillIds.filter(s => s !== skillId)
+                                  : [...t.disabledSkillIds, skillId]
+                              };
+                            }
+                            return t;
+                          }));
+                        }}
+                        isSimulating={isSimulating}
+                        onResetSkills={() => {
+                          setTabs(prev => prev.map(t => {
+                            if (t.id === activeTabId) {
+                              return {
+                                ...t,
+                                disabledSkillIds: t.addedSkillIds ? [...t.addedSkillIds] : [],
+                                appliedDisabledSkillIds: t.addedSkillIds ? [...t.addedSkillIds] : [],
+                                appliedAddedSkillIds: t.addedSkillIds ? [...t.addedSkillIds] : [],
+                                simResultDump: t.baselineResult
+                              };
+                            }
+                            return t;
+                          }));
+                          showToastMessage("スキル構成と結果を初期状態にリセットしました", "success", 3000);
+                        }}
+                        onDuplicateTab={() => {
+                          if (!activeTab) return;
+                          
+                          const newTab = {
+                            ...activeTab,
+                            id: Date.now().toString(),
+                            isDuplicate: true
+                          };
+                          
+                          setTabs(prev => [...prev, newTab]);
+                          setActiveTabId(newTab.id);
+
+                          const thumbUrl = activeTab.thumbnailUrl;
+                          const rect = previewRef.current?.getBoundingClientRect();
+                          if (rect && thumbUrl) {
+                            setTimeout(() => {
+                              let deltaX = 0;
+                              let deltaY = -window.innerHeight * 0.8;
+                              const targetTab = document.getElementById(`tab-${newTab.id}`);
+                              if (targetTab) {
+                                const targetRect = targetTab.getBoundingClientRect();
+                                deltaX = (targetRect.left + targetRect.width / 2) - (rect.left + rect.width / 2);
+                                deltaY = (targetRect.top + targetRect.height / 2) - (rect.top + rect.height / 2);
+                              }
+                              setFlyingThumbnail({ id: Date.now(), src: thumbUrl, rect, deltaX, deltaY });
+                            }, 10);
+
+                            if (scrollContainerRef.current) {
+                              scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+                            }
+                            setHighlightedTabId(newTab.id);
+                            
+                            if (flyTimerRef.current) clearTimeout(flyTimerRef.current);
+                            if (highlightTimerRef.current) clearTimeout(highlightTimerRef.current);
+
+                            flyTimerRef.current = setTimeout(() => {
+                              setFlyingThumbnail(null);
+                            }, 710);
+                            
+                            highlightTimerRef.current = setTimeout(() => {
+                              setHighlightedTabId(null);
+                            }, 2000);
+                          } else {
+                            showToastMessage(`タブを複製しました`, "success", 3000);
+                          }
+                        }}
+                        addedSkillIds={activeTab.addedSkillIds || []}
+                        onAddSkill={(skillId) => {
+                          const insertIndex = activeTab.umaData.skillIds.length;
+                          if (!canPlaceSkillAtIndex(skillId, insertIndex)) {
+                            showToastMessage('通常固有スキルは先頭スロットのみ配置できます', 'error', 3000);
+                            return;
+                          }
+                          setTabs(prev => prev.map(t => {
+                            if (t.id === activeTabId) {
+                              return {
+                                ...t,
+                                umaData: {
+                                  ...t.umaData,
+                                  skillIds: [...t.umaData.skillIds, skillId]
+                                },
+                                addedSkillIds: [...(t.addedSkillIds || []), skillId]
+                              };
+                            }
+                            return t;
+                          }));
+                          showToastMessage(`仮想追加しました！差分検証を実行してください。`, "success", 4000);
+                        }}
+                        onRemoveSkill={(skillId) => {
+                          setTabs(prev => prev.map(t => {
+                            if (t.id === activeTabId) {
+                              return {
+                                ...t,
+                                umaData: {
+                                  ...t.umaData,
+                                  skillIds: t.umaData.skillIds.filter(s => s !== skillId)
+                                },
+                                addedSkillIds: (t.addedSkillIds || []).filter(s => s !== skillId),
+                                disabledSkillIds: t.disabledSkillIds.filter(s => s !== skillId)
+                              };
+                            }
+                            return t;
+                          }));
+                          showToastMessage(`削除しました`, "success", 3000);
+                        }}
+                        onShowToast={showToastMessage}
+                        onRunComparativeSimulation={async () => {
+                          if (!activeTab.umaData) return;
+                          setIsSimulating(true);
+                          setSimulationProgress({ current: 0, total: simulationCount });
+                          showToastMessage('検証シミュレーションを実行中...', 'success', 3000);
+                          try {
+                            const { runMultipleSimulations } = await import('../lib/engine/umaemuAdapter');
+                            const clonedUmaData = {
+                              ...activeTab.umaData,
+                              skillIds: activeTab.umaData.skillIds.filter(s => !activeTab.disabledSkillIds.includes(s))
+                            };
+                            const simResult = await runMultipleSimulations(
+                              clonedUmaData, 
+                              activeTab.raceCondition,
+                              simulationCount,
+                              (current, total) => setSimulationProgress({ current, total })
+                            );
+                            
+                            setTabs(prev => prev.map(t => {
+                              if (t.id === activeTabId) {
+                                return { 
+                                  ...t, 
+                                  simResultDump: simResult,
+                                  appliedDisabledSkillIds: [...t.disabledSkillIds],
+                                  appliedAddedSkillIds: t.addedSkillIds ? [...t.addedSkillIds] : []
+                                };
+                              }
+                              return t;
+                            }));
+                            
+                            showToastMessage(`比較検証が完了しました！`, 'success', 5000);
+                          } catch (e: any) {
+                            console.error("Verification error:", e);
+                            const msg = e && e.message ? e.message : String(e);
+                            showToastMessage(`検証エラー: ${msg}`, 'error', 5000);
+                          } finally {
+                            setIsSimulating(false);
+                            setSimulationProgress(null);
+                          }
+                        }}
+                      />
+                    ) : undefined
+                  }
                 />
               ) : null}
-
-
-              {/* スキル影響検証モード */}
-              {activeTab.umaData && activeTab.baselineResult && (
-                <SkillVerifier
-                  umaData={activeTab.umaData}
-                  disabledSkillIds={activeTab.disabledSkillIds}
-                  appliedDisabledSkillIds={activeTab.appliedDisabledSkillIds || []}
-                  appliedAddedSkillIds={activeTab.appliedAddedSkillIds || []}
-                  onToggleSkill={(skillId) => {
-                    setTabs(prev => prev.map(t => {
-                      if (t.id === activeTabId) {
-                        return {
-                          ...t,
-                          disabledSkillIds: t.disabledSkillIds.includes(skillId)
-                            ? t.disabledSkillIds.filter(s => s !== skillId)
-                            : [...t.disabledSkillIds, skillId]
-                        };
-                      }
-                      return t;
-                    }));
-                  }}
-                  isSimulating={isSimulating}
-                  onResetSkills={() => {
-                    setTabs(prev => prev.map(t => {
-                      if (t.id === activeTabId) {
-                        return {
-                          ...t,
-                          disabledSkillIds: t.addedSkillIds ? [...t.addedSkillIds] : [],
-                          appliedDisabledSkillIds: t.addedSkillIds ? [...t.addedSkillIds] : [],
-                          appliedAddedSkillIds: t.addedSkillIds ? [...t.addedSkillIds] : [],
-                          simResultDump: t.baselineResult
-                        };
-                      }
-                      return t;
-                    }));
-                    showToastMessage("スキル構成と結果を初期状態にリセットしました", "success", 3000);
-                  }}
-                  onDuplicateTab={() => {
-                    if (!activeTab) return;
-                    
-                    const newTab = {
-                      ...activeTab,
-                      id: Date.now().toString(),
-                      isDuplicate: true
-                    };
-                    
-                    setTabs(prev => [...prev, newTab]);
-                    setActiveTabId(newTab.id);
-
-                    const thumbUrl = activeTab.thumbnailUrl;
-                    const rect = previewRef.current?.getBoundingClientRect();
-                    if (rect && thumbUrl) {
-                      setTimeout(() => {
-                        let deltaX = 0;
-                        let deltaY = -window.innerHeight * 0.8;
-                        const targetTab = document.getElementById(`tab-${newTab.id}`);
-                        if (targetTab) {
-                          const targetRect = targetTab.getBoundingClientRect();
-                          deltaX = (targetRect.left + targetRect.width / 2) - (rect.left + rect.width / 2);
-                          deltaY = (targetRect.top + targetRect.height / 2) - (rect.top + rect.height / 2);
-                        }
-                        setFlyingThumbnail({ id: Date.now(), src: thumbUrl, rect, deltaX, deltaY });
-                      }, 10);
-
-                      if (scrollContainerRef.current) {
-                        scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
-                      }
-                      setHighlightedTabId(newTab.id);
-                      
-                      // 既存タイマーをクリア
-                      if (flyTimerRef.current) clearTimeout(flyTimerRef.current);
-                      if (highlightTimerRef.current) clearTimeout(highlightTimerRef.current);
-
-                      flyTimerRef.current = setTimeout(() => {
-                        setFlyingThumbnail(null);
-                      }, 710);
-                      
-                      highlightTimerRef.current = setTimeout(() => {
-                        setHighlightedTabId(null);
-                      }, 2000);
-                    } else {
-                      showToastMessage(`タブを複製しました`, "success", 3000);
-                    }
-                  }}
-                  addedSkillIds={activeTab.addedSkillIds || []}
-                  onAddSkill={(skillId) => {
-                    const insertIndex = activeTab.umaData.skillIds.length;
-                    if (!canPlaceSkillAtIndex(skillId, insertIndex)) {
-                      showToastMessage('通常固有スキルは先頭スロットのみ配置できます', 'error', 3000);
-                      return;
-                    }
-                    setTabs(prev => prev.map(t => {
-                      if (t.id === activeTabId) {
-                        return {
-                          ...t,
-                          umaData: {
-                            ...t.umaData,
-                            skillIds: [...t.umaData.skillIds, skillId]
-                          },
-                          addedSkillIds: [...(t.addedSkillIds || []), skillId]
-                        };
-                      }
-                      return t;
-                    }));
-                    showToastMessage(`仮想追加しました！差分検証を実行してください。`, "success", 4000);
-                  }}
-                  onRemoveSkill={(skillId) => {
-                    setTabs(prev => prev.map(t => {
-                      if (t.id === activeTabId) {
-                        return {
-                          ...t,
-                          umaData: {
-                            ...t.umaData,
-                            skillIds: t.umaData.skillIds.filter(s => s !== skillId)
-                          },
-                          addedSkillIds: (t.addedSkillIds || []).filter(s => s !== skillId),
-                          disabledSkillIds: t.disabledSkillIds.filter(s => s !== skillId)
-                        };
-                      }
-                      return t;
-                    }));
-                    showToastMessage(`削除しました`, "success", 3000);
-                  }}
-                  onShowToast={showToastMessage}
-                  onRunComparativeSimulation={async () => {
-                    if (!activeTab.umaData) return;
-                    setIsSimulating(true);
-                    setSimulationProgress({ current: 0, total: simulationCount });
-                    showToastMessage('検証シミュレーションを実行中...', 'success', 3000);
-                    try {
-                      const { runMultipleSimulations } = await import('../lib/engine/umaemuAdapter');
-                      const clonedUmaData = {
-                        ...activeTab.umaData,
-                        skillIds: activeTab.umaData.skillIds.filter(s => !activeTab.disabledSkillIds.includes(s))
-                      };
-                      const simResult = await runMultipleSimulations(
-                        clonedUmaData, 
-                        activeTab.raceCondition,
-                        simulationCount,
-                        (current, total) => setSimulationProgress({ current, total })
-                      );
-                      
-                      setTabs(prev => prev.map(t => {
-                        if (t.id === activeTabId) {
-                          return { 
-                            ...t, 
-                            simResultDump: simResult,
-                            appliedDisabledSkillIds: [...t.disabledSkillIds],
-                            appliedAddedSkillIds: t.addedSkillIds ? [...t.addedSkillIds] : []
-                          };
-                        }
-                        return t;
-                      }));
-                      
-                      showToastMessage(`比較検証が完了しました！`, 'success', 5000);
-                    } catch (e: any) {
-                      console.error("Verification error:", e);
-                      const msg = e && e.message ? e.message : String(e);
-                      showToastMessage(`検証エラー: ${msg}`, 'error', 5000);
-                    } finally {
-                      setIsSimulating(false);
-                      setSimulationProgress(null);
-                    }
-                  }}
-                />
-              )}
+              </div>
             </div>
           ) : (
             <div className="w-full h-full flex flex-col items-center justify-center text-zinc-600 gap-4 opacity-50">
@@ -796,8 +797,6 @@ export default function Home() {
               <p className="text-sm">左側のパネルで設定を入力し、シミュレーションを実行してください</p>
             </div>
           )}
-          </div>
-        </div>
       </div>
       {/* 飛翔アニメーション用要素 */}
       {flyingThumbnail && (

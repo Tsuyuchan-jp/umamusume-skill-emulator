@@ -12,6 +12,7 @@ interface ResultCardProps {
   displayUnit?: 'seconds' | 'lengths';
   umaData?: UmaStatusData;
   raceCondition?: RaceCondition;
+  rightPane?: React.ReactNode;
 }
 
 const formatTime = (seconds: number) => {
@@ -31,7 +32,8 @@ export const ResultCard: React.FC<ResultCardProps> = ({
   baseline,
   displayUnit = 'seconds',
   umaData,
-  raceCondition
+  raceCondition,
+  rightPane,
 }) => {
   const spurtTargetSpeed = useMemo(() => {
     if (!umaData || !raceCondition) return 24.0;
@@ -175,24 +177,47 @@ export const ResultCard: React.FC<ResultCardProps> = ({
         </div>
       </div>
 
-      {/* 直近レース詳細グラフ（常時表示） */}
-      <div className="flex flex-col flex-1 min-h-[360px] min-w-0 border border-zinc-800 rounded-xl overflow-hidden">
-        <div className="shrink-0 px-4 py-2 bg-zinc-900/60 border-b border-zinc-800">
-          <div className="text-sm font-bold text-zinc-200">直近レース詳細</div>
-          <div className="text-xs text-zinc-500">速度・体力・走行レーン</div>
-        </div>
-        <div className="relative flex-1 min-h-[320px] min-w-0 px-4 py-3 bg-zinc-950/50">
-          {result.raceDetail ? (
-            <div className="absolute inset-0 min-h-0">
-              <RaceDetailChart detail={result.raceDetail} />
+      {/* 直近レース詳細グラフ + 右ペイン（SkillVerifier） */}
+      {rightPane ? (
+        <div className="grid grid-cols-[1fr_360px] gap-3 flex-1 min-h-0">
+          <div className="flex flex-col flex-1 min-h-[360px] min-w-0 border border-zinc-800 rounded-xl overflow-hidden">
+            <div className="shrink-0 px-4 py-2 bg-zinc-900/60 border-b border-zinc-800">
+              <div className="text-sm font-bold text-zinc-200">直近レース詳細</div>
+              <div className="text-xs text-zinc-500">速度・体力・走行レーン</div>
             </div>
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <p className="text-sm text-zinc-500">グラフデータを取得中…</p>
+            <div className="relative flex-1 min-h-[320px] min-w-0 px-4 py-3 bg-zinc-950/50">
+              {result.raceDetail ? (
+                <div className="absolute inset-0 min-h-0">
+                  <RaceDetailChart detail={result.raceDetail} />
+                </div>
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <p className="text-sm text-zinc-500">グラフデータを取得中…</p>
+                </div>
+              )}
             </div>
-          )}
+          </div>
+          <div className="min-w-0 h-full min-h-0">{rightPane}</div>
         </div>
-      </div>
+      ) : (
+        <div className="flex flex-col flex-1 min-h-[360px] min-w-0 border border-zinc-800 rounded-xl overflow-hidden">
+          <div className="shrink-0 px-4 py-2 bg-zinc-900/60 border-b border-zinc-800">
+            <div className="text-sm font-bold text-zinc-200">直近レース詳細</div>
+            <div className="text-xs text-zinc-500">速度・体力・走行レーン</div>
+          </div>
+          <div className="relative flex-1 min-h-[320px] min-w-0 px-4 py-3 bg-zinc-950/50">
+            {result.raceDetail ? (
+              <div className="absolute inset-0 min-h-0">
+                <RaceDetailChart detail={result.raceDetail} />
+              </div>
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <p className="text-sm text-zinc-500">グラフデータを取得中…</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

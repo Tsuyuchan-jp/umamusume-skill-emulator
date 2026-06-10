@@ -3,13 +3,13 @@
 > Cursor 作業チャット起票時に `@docs/TODO.md` で参照する正本。
 > **作業完了のたびに必ず更新**し、コミットに含める。
 
-最終更新: 2026-06-10 20:03
+最終更新: 2026-06-10 20:10
 
 ---
 
 ## 現在のフォーカス
 
-全画面 Analytics Cockpit UI — Phase 3 着手待ち（[`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)）
+パレットのスキルデータ参照をローカルに統一（P1）
 
 ---
 
@@ -25,11 +25,7 @@
 
 ### P0 — 次に着手
 
-- [ ] **全画面 Analytics Cockpit UI（Phase 3）**
-  - Phase 2 完了・実機検証済み: KPI dense ストリップ、グラフ常時表示、FHD グラフ高・Tooltip・DevTools 警告なし（`6b8b13b` / `c9412ee`）
-  - 次: Phase 3 SkillVerifier 右ペイン + TabBar コンパクト化（[`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)）
-  - 触る想定: `page.tsx`, `SkillVerifier.tsx`, `TabBar.tsx`（Phase 3）
-  - 触らない: WASM, OCR, `src-tauri/`, race-detail-graph Phase 2 以降
+なし（全画面 Cockpit UI Phase 3 完了）
 
 ### P1 — 重要（急がない）
 
@@ -53,6 +49,7 @@
 
 ## 完了済み
 
+- [x] 全画面 Cockpit UI Phase 3 — SkillVerifier 右ペイン 360px + TabBar コンパクト化 + ページスクロール廃止（[`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)）
 - [x] サイドバー狭幅 UI 整備（Phase S1+S2）— 行レイアウト修正・二重カード解消・padding 圧縮（`d8ddb66` / [`REQ-sidebar-compact-layout.md`](tasks/REQ-sidebar-compact-layout.md)）
 - [x] 全画面 Cockpit UI Phase 2 — KPI ストリップ + グラフ常時表示 + 実機検証済み（`6b8b13b` / `c9412ee`）
 - [x] 全画面 Cockpit UI Phase 1 — サイドバー折りたたみ + 右カラム全幅化 + min-w-0 縮退（`98c8739`）
@@ -80,6 +77,7 @@
 - `special`（14件）+ `minus`（1件）が `unique` 直後に並んでいたため、除外前は先頭がすべて白表示だった
 - Gemini API キーは Windows 資格情報マネージャー（`com.umamusume.race-analyzer` / `gemini_api_key`）に保存
 - サイドバー狭幅 UI（380px / min 320px）は Phase S1+S2 で完了（[`REQ-sidebar-compact-layout.md`](tasks/REQ-sidebar-compact-layout.md)）。S3 コンテナクエリは見送り
+- 全画面 Cockpit UI（Phase 1〜3）は完了（[`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)）
 - 因子管理 DB・Tesseract OCR・Supabase 連携は **開発予定なし**（`.cursor/rules/development.mdc`）
 
 ---

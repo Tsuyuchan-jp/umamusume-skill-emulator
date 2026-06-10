@@ -3,7 +3,7 @@
 > 設計レビュー（Ask mode）起票用。実装の正本。
 > 起票: `@docs/tasks/REQ-fullscreen-cockpit-layout.md`
 
-- **ステータス**: in-progress（Phase 2 完了）
+- **ステータス**: done（Phase 3 完了）
 - **作成日**: 2026-06-10 17:45
 - **関連コミット**: `98c8739`（Phase 1）、`6b8b13b`（Phase 2）、`c9412ee`（Phase 2 高さ修復）
 - **前提**: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md) Phase 1 完了 + Tooltip Phase 1.5（`0e25cda`）
@@ -102,17 +102,17 @@ FHD 1920×1080 目安（サイドバー 380px）:
 
 ### Phase 3 — SkillVerifier 右ペイン + ヘッダー整理
 
-- [ ] `page.tsx`: Body を 2 列 grid（例: `grid-cols-[1fr_360px]`、幅は設計レビューで確定）
-- [ ] `SkillVerifier` を右ペインへ移動、リストのみ内部スクロール
-- [ ] TabBar / レース情報行をコンパクト化（`mb-8` 縮小、Tab `h-16` → `h-10` 等）
-- [ ] （任意）`ResultsCockpitLayout.tsx` 新規 — レイアウト責務分離
+- [x] `page.tsx`: Body を 2 列 grid（`grid-cols-[1fr_360px]`、右ペイン 360px 固定）
+- [x] `SkillVerifier` を右ペインへ移動、リストのみ内部スクロール
+- [x] TabBar / レース情報行をコンパクト化（`mb-8` → `mb-3`、Tab `h-16` → `h-10` 等）
+- [x] `ResultsCockpitLayout.tsx` 新規は見送り（`page.tsx` + `ResultCard` 外枠で完結）
 
 **Phase 3 完了条件**
 
-- [ ] グラフ + SkillVerifier が横並び、ページ全体の縦スクロール最小
-- [ ] SkillVerifier 操作（トグル・検証 sim・リセット）に退行なし
-- [ ] タブ複製アニメ・ハイライトに退行なし
-- [ ] REQ ステータス `done` + `docs/TODO.md` 更新 + コミット
+- [x] グラフ + SkillVerifier が横並び、ページ全体の縦スクロール最小
+- [x] SkillVerifier 操作（トグル・検証 sim・リセット）に退行なし
+- [x] タブ複製アニメ・ハイライトに退行なし
+- [x] REQ ステータス `done` + `docs/TODO.md` 更新 + コミット
 
 ### やらないこと
 
@@ -159,11 +159,11 @@ FHD 1920×1080 目安（サイドバー 380px）:
 
 ## 完了条件（全体）
 
-- [ ] FHD 最大化でグラフが viewport 高の大部分を使用
-- [ ] サイドバー折りたたみ / 展開が動作
-- [ ] KPI・SkillVerifier・Tooltip に退行なし
-- [ ] DevTools 新規警告なし
-- [ ] 各 Phase 完了ごとに REQ チェック + コミット（push なし）
+- [x] FHD 最大化でグラフが viewport 高の大部分を使用
+- [x] サイドバー折りたたみ / 展開が動作
+- [x] KPI・SkillVerifier・Tooltip に退行なし
+- [x] DevTools 新規警告なし
+- [x] 各 Phase 完了ごとに REQ チェック + コミット（push なし）
 
 ---
 
@@ -201,6 +201,7 @@ FHD 1920×1080 目安（サイドバー 380px）:
 | 2026-06-10 17:45 | グラフ常時表示 | ユーザー承認 |
 | 2026-06-10 17:45 | Phase 1→2→3 分割実装 | ユーザー承認（大規模改修） |
 | 2026-06-10 20:03 | Phase 2 実機検証完了（FHD グラフ高・Tooltip・DevTools 警告なし） | ユーザー実機確認 |
+| 2026-06-10 20:10 | Phase 3 実装完了（SkillVerifier 右ペイン 360px・TabBar コンパクト化・ページスクロール廃止） | Agent 実装 |
 
 ---
 

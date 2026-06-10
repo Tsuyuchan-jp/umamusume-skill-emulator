@@ -90,8 +90,8 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
     : "bg-zinc-950/30 border-zinc-800/50";
 
   return (
-    <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-5 mt-6 animate-fadeIn">
-      <div className="flex items-center justify-between mb-4">
+    <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-3 h-full min-h-0 flex flex-col animate-fadeIn">
+      <div className="shrink-0 flex items-center justify-between mb-3">
         <h3 className="text-sm font-bold text-zinc-300 flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-purple-500"></div>
           スキル影響検証モード
@@ -113,12 +113,12 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
         </div>
       </div>
 
-      <p className="text-xs text-zinc-500 mb-4">
+      <p className="shrink-0 text-xs text-zinc-500 mb-3">
         検証したいスキルのチェックを外して再シミュレーションすることで、そのスキルがない場合のタイムへの影響（Delta）を確認できます。
       </p>
 
       {/* 変更サマリー（抽出UI）常に表示してレイアウトシフトを防ぐ */}
-      <div className={`relative flex flex-col gap-2 mb-4 p-3 rounded-lg min-h-[76px] border transition-colors ${containerStyle}`}>
+      <div className={`shrink-0 relative flex flex-col gap-2 mb-3 p-3 rounded-lg min-h-[76px] border transition-colors ${containerStyle}`}>
         {isDirty && (
           <div className="absolute -top-2 -right-2 bg-orange-500 text-[10px] font-bold text-white px-2 py-0.5 rounded shadow-sm border border-orange-400">
             ⚠️ 未反映の変更があります
@@ -162,7 +162,8 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 mb-6 max-h-48 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent">
+      <div className="flex-1 min-h-0 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent">
+        <div className="grid grid-cols-2 gap-2">
         {umaData.skillIds.map((skillId, index) => {
           const skillName = getSkillNameById(skillId);
           const isDisabled = disabledSkillIds.includes(skillId);
@@ -206,11 +207,12 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
             </div>
           );
         })}
+        </div>
       </div>
 
       <button
         onClick={() => setIsPaletteOpen(true)}
-        className="w-full flex items-center justify-center gap-2 py-2 mb-4 rounded-lg border border-dashed border-zinc-700 hover:border-zinc-500 bg-zinc-900/30 hover:bg-zinc-800/50 text-zinc-400 hover:text-zinc-200 transition-colors text-xs font-bold"
+        className="shrink-0 w-full flex items-center justify-center gap-2 py-2 mb-3 rounded-lg border border-dashed border-zinc-700 hover:border-zinc-500 bg-zinc-900/30 hover:bg-zinc-800/50 text-zinc-400 hover:text-zinc-200 transition-colors text-xs font-bold"
       >
         <span>＋ 未所持スキルを追加</span>
         <kbd className="hidden sm:inline-block px-1.5 py-0.5 rounded-md bg-zinc-800 border border-zinc-700 text-[9px] font-sans font-normal">
@@ -218,7 +220,7 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
         </kbd>
       </button>
 
-      <div className="flex gap-2">
+      <div className="shrink-0 flex gap-2">
         <button
           onClick={onRunComparativeSimulation}
           disabled={isSimulating || !isDirty}
