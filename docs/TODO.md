@@ -49,7 +49,7 @@
 
 ## 完了済み
 
-- [x] Gemini API キーのセキュアストレージ化（Windows Credential Manager + localStorage 移行）
+- [x] Gemini API キーのセキュアストレージ化（Windows Credential Manager + localStorage 移行）（`fa7c5b3`）
 - [x] スキル UI 最終実機確認（パレット先頭 inherit・special/minus 除外・色分け一致）
 - [x] パレットから `special` / `minus` スキルを除外（`570a1f2`）
 - [x] スキルアイコンの不要な末尾スペースを削除（`2d20a50`）
