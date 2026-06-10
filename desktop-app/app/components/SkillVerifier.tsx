@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { ChevronDown, RotateCcw } from "lucide-react";
 import { UmaStatusData } from "../lib/types";
 import { SkillCommandPalette } from "./SkillCommandPalette";
 import { getSkillNameById, getSkillRarityInfoById } from "../lib/umasimSkillData";
@@ -37,6 +38,7 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
   onShowToast,
 }) => {
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
+  const [isSummaryExpanded, setIsSummaryExpanded] = useState(false);
 
   // Global Ctrl+K / Cmd+K listener
   React.useEffect(() => {
@@ -75,7 +77,12 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
   const isDirty = totalUnappliedCount > 0;
 
   const canSimulate = initialSkillsDisabledCount > 0 || activeAddedSkillsCount > 0;
-  const hasChanges = initialSkillsDisabledCount > 0 || addedSkillIds.length > 0;
+  // 元スキルの除外 or 有効な仮想スキルがあるときのみリセット表示（仮想がオフのまま残っているだけでは非表示）
+  const hasChanges = excludedSkillsList.length > 0 || activeAddedSkillsList.length > 0;
+
+  const addedSummaryCount = activeAddedSkillsList.length;
+  const excludedSummaryCount = excludedSkillsList.length;
+  const hasSummaryItems = addedSummaryCount > 0 || excludedSummaryCount > 0;
 
   // ボタンテキストの動的生成
   let simulateButtonText = "変更がありません";
@@ -89,26 +96,42 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
     ? "bg-orange-950/10 border-orange-500/50 border-dashed" 
     : "bg-zinc-950/30 border-zinc-800/50";
 
+  const renderSummaryChip = (skillId: string, variant: 'added' | 'excluded') => {
+    const skillName = getSkillNameById(skillId);
+    const rarityInfo = getSkillRarityInfoById(skillId);
+    const borderColor = variant === 'added' ? 'border-l-emerald-500' : 'border-l-rose-500';
+    return (
+      <span
+        key={`${variant}-${skillId}`}
+        title={skillName}
+        className={`block max-w-[140px] min-w-0 truncate text-xs font-bold px-2 py-1 rounded-md bg-zinc-900 border border-zinc-800 border-l-[3px] ${borderColor} ${rarityInfo.colorClass}`}
+      >
+        {rarityInfo.icon}{skillName}
+      </span>
+    );
+  };
+
   return (
     <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-3 h-full min-h-0 flex flex-col animate-fadeIn">
-      <div className="shrink-0 flex items-center justify-between mb-3">
-        <h3 className="text-sm font-bold text-zinc-300 flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-purple-500"></div>
-          スキル影響検証モード
+      <div className="shrink-0 flex items-center justify-between mb-3 gap-2">
+        <h3 className="text-sm font-bold text-zinc-300 flex items-center gap-2 min-w-0">
+          <div className="w-2 h-2 rounded-full bg-purple-500 shrink-0"></div>
+          <span className="truncate">スキル影響検証モード</span>
         </h3>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 shrink-0">
           {hasChanges && (
             <button
+              type="button"
               onClick={onResetSkills}
               disabled={isSimulating}
-              className="text-xs font-bold text-purple-400 hover:text-purple-300 flex items-center gap-1 transition-colors disabled:opacity-50"
-              title="追加・除外したスキルをすべてリセットし、初期状態のシミュレーション結果に戻します"
+              className="flex items-center justify-center w-8 h-8 rounded-lg text-purple-400 hover:text-purple-300 hover:bg-purple-500/10 border border-transparent hover:border-purple-500/30 transition-colors disabled:opacity-50"
+              title="元スキルの除外を解除し、仮想スキルをオフにして結果を初期状態に戻します（仮想スキルはリストに残ります）"
             >
-              🔄 初期状態にリセット
+              <RotateCcw className="w-5 h-5" strokeWidth={2.25} />
             </button>
           )}
-          <span className="text-xs text-zinc-500">
-            有効スキル: <span className="font-bold text-zinc-300">{activeSkillsCount}</span> / {umaData.skillIds.length}
+          <span className="text-xs text-zinc-500 whitespace-nowrap">
+            有効: <span className="font-bold text-zinc-300">{activeSkillsCount}</span>/{umaData.skillIds.length}
           </span>
         </div>
       </div>
@@ -117,49 +140,51 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
         検証したいスキルのチェックを外して再シミュレーションすることで、そのスキルがない場合のタイムへの影響（Delta）を確認できます。
       </p>
 
-      {/* 変更サマリー（抽出UI）常に表示してレイアウトシフトを防ぐ */}
-      <div className={`shrink-0 relative flex flex-col gap-2 mb-3 p-3 rounded-lg min-h-[76px] border transition-colors ${containerStyle}`}>
+      {/* 変更サマリー（折りたたみ） */}
+      <div className={`shrink-0 relative mb-3 rounded-lg border transition-colors ${containerStyle}`}>
         {isDirty && (
           <div className="absolute -top-2 -right-2 bg-orange-500 text-[10px] font-bold text-white px-2 py-0.5 rounded shadow-sm border border-orange-400">
             ⚠️ 未反映の変更があります
           </div>
         )}
-        
-        {/* 追加行 */}
-        <div className="flex flex-wrap gap-2 items-center min-h-[28px]">
-          <span className="text-xs font-bold text-emerald-500/70 w-8">追加</span>
-          {activeAddedSkillsList.length > 0 ? (
-            activeAddedSkillsList.map(skillId => {
-              const skillName = getSkillNameById(skillId);
-              const rarityInfo = getSkillRarityInfoById(skillId);
-              return (
-                <span key={`ad-${skillId}`} className="text-xs font-bold px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-800 border-l-[3px] border-l-emerald-500">
-                  <span className={rarityInfo.colorClass}>{rarityInfo.icon}{skillName}</span>
-                </span>
-              );
-            })
-          ) : (
-            <span className="text-xs text-zinc-600 font-medium">なし</span>
+
+        <button
+          type="button"
+          onClick={() => hasSummaryItems && setIsSummaryExpanded(!isSummaryExpanded)}
+          disabled={!hasSummaryItems}
+          className={`w-full flex items-center justify-between gap-2 px-3 py-2 text-left ${hasSummaryItems ? 'cursor-pointer hover:bg-zinc-800/30' : 'cursor-default'} rounded-lg transition-colors`}
+        >
+          <div className="flex items-center gap-3 min-w-0 text-xs">
+            <span className="font-bold text-emerald-500/70 shrink-0">
+              追加 <span className="text-zinc-300 font-bold">{addedSummaryCount > 0 ? `${addedSummaryCount}件` : 'なし'}</span>
+            </span>
+            <span className="font-bold text-rose-500/70 shrink-0">
+              除外 <span className="text-zinc-300 font-bold">{excludedSummaryCount > 0 ? `${excludedSummaryCount}件` : 'なし'}</span>
+            </span>
+          </div>
+          {hasSummaryItems && (
+            <ChevronDown
+              className={`w-4 h-4 shrink-0 text-zinc-500 transition-transform ${isSummaryExpanded ? 'rotate-180' : ''}`}
+            />
           )}
-        </div>
-        
-        {/* 除外行 */}
-        <div className="flex flex-wrap gap-2 items-center min-h-[28px]">
-          <span className="text-xs font-bold text-rose-500/70 w-8">除外</span>
-          {excludedSkillsList.length > 0 ? (
-            excludedSkillsList.map(skillId => {
-              const skillName = getSkillNameById(skillId);
-              const rarityInfo = getSkillRarityInfoById(skillId);
-              return (
-                <span key={`ex-${skillId}`} className="text-xs font-bold px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-800 border-l-[3px] border-l-rose-500">
-                  <span className={rarityInfo.colorClass}>{rarityInfo.icon}{skillName}</span>
-                </span>
-              );
-            })
-          ) : (
-            <span className="text-xs text-zinc-600 font-medium">なし</span>
-          )}
-        </div>
+        </button>
+
+        {isSummaryExpanded && hasSummaryItems && (
+          <div className="px-3 pb-3 flex flex-col gap-2 max-h-[80px] overflow-y-auto border-t border-zinc-800/50 pt-2 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent">
+            {activeAddedSkillsList.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 items-center">
+                <span className="text-[10px] font-bold text-emerald-500/70 w-8 shrink-0">追加</span>
+                {activeAddedSkillsList.map(skillId => renderSummaryChip(skillId, 'added'))}
+              </div>
+            )}
+            {excludedSkillsList.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 items-center">
+                <span className="text-[10px] font-bold text-rose-500/70 w-8 shrink-0">除外</span>
+                {excludedSkillsList.map(skillId => renderSummaryChip(skillId, 'excluded'))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="flex-1 min-h-0 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent">
@@ -171,7 +196,7 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
           return (
             <div
               key={index}
-              className={`flex items-center gap-2 pr-2 rounded-lg border transition-colors group ${
+              className={`flex min-w-0 items-center gap-1 pr-1 rounded-lg border transition-colors group ${
                 isDisabled 
                   ? 'bg-zinc-900/80 border-zinc-800/50 opacity-60' 
                   : isAdded 
@@ -179,26 +204,30 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
                     : 'bg-zinc-800/50 border-zinc-700/50 hover:bg-zinc-800'
               }`}
             >
-              <label className="flex items-center gap-2 p-2 flex-1 cursor-pointer">
+              <label className="flex min-w-0 flex-1 items-center gap-1.5 p-2 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={!isDisabled}
                   onChange={() => onToggleSkill(skillId)}
-                  className="w-4 h-4 rounded border-zinc-700 text-purple-500 focus:ring-purple-500/30 focus:ring-offset-0 bg-zinc-900"
+                  className="w-4 h-4 shrink-0 rounded border-zinc-700 text-purple-500 focus:ring-purple-500/30 focus:ring-offset-0 bg-zinc-900"
                 />
-                <span className={`text-xs font-bold truncate flex-1 ${isDisabled ? 'text-zinc-500 line-through' : getSkillRarityInfoById(skillId).colorClass}`}>
+                <span
+                  title={skillName}
+                  className={`min-w-0 truncate text-xs font-bold flex-1 ${isDisabled ? 'text-zinc-500 line-through' : getSkillRarityInfoById(skillId).colorClass}`}
+                >
                   {getSkillRarityInfoById(skillId).icon}{skillName}
                 </span>
                 {isAdded && (
-                  <span className="text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-1 py-0.5 rounded leading-none whitespace-nowrap">
+                  <span className="shrink-0 text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-1 py-0.5 rounded leading-none whitespace-nowrap">
                     ✨仮想
                   </span>
                 )}
               </label>
               {isAdded && (
                 <button
+                  type="button"
                   onClick={() => onRemoveSkill(skillId)}
-                  className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-md text-zinc-500 hover:text-red-400 hover:bg-red-400/10 transition-colors opacity-0 group-hover:opacity-100"
+                  className="shrink-0 flex items-center justify-center w-6 h-6 rounded-md text-zinc-500 hover:text-red-400 hover:bg-red-400/10 transition-colors opacity-0 group-hover:opacity-100"
                   title="この仮想スキルを削除"
                 >
                   ✕
@@ -211,6 +240,7 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
       </div>
 
       <button
+        type="button"
         onClick={() => setIsPaletteOpen(true)}
         className="shrink-0 w-full flex items-center justify-center gap-2 py-2 mb-3 rounded-lg border border-dashed border-zinc-700 hover:border-zinc-500 bg-zinc-900/30 hover:bg-zinc-800/50 text-zinc-400 hover:text-zinc-200 transition-colors text-xs font-bold"
       >
@@ -222,6 +252,7 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
 
       <div className="shrink-0 flex gap-2">
         <button
+          type="button"
           onClick={onRunComparativeSimulation}
           disabled={isSimulating || !isDirty}
           className={`flex-1 font-bold py-3 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${
@@ -242,6 +273,7 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
           )}
         </button>
         <button
+          type="button"
           onClick={onDuplicateTab}
           disabled={isSimulating}
           className="px-4 bg-zinc-800/50 hover:bg-zinc-800 border border-zinc-700/50 text-zinc-300 text-xs font-bold rounded-xl transition-all active:scale-[0.98] flex flex-col items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed group"
