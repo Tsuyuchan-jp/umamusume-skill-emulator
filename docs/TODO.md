@@ -3,7 +3,7 @@
 > Cursor 作業チャット起票時に `@docs/TODO.md` で参照する正本。
 > **作業完了のたびに必ず更新**し、コミットに含める。
 
-最終更新: 2026-06-10 21:30
+最終更新: 2026-06-10 22:03
 
 ---
 
@@ -52,8 +52,7 @@
 
 ## 完了済み
 
-- [x] Cockpit UX ポリッシュ — 検証ボタン文言・トースト上部中央・KPI 拡大・位相ラベル（`6324663` / [`REQ-race-detail-graph-axis.md`](tasks/REQ-race-detail-graph-axis.md) 位相部分）
-- [x] 全画面 Cockpit UI Phase 3 — SkillVerifier 右ペイン等（`52c7e5c` 付近 / [`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)）
+- [x] 全画面 Cockpit UI（Phase 1〜3 + UX ポリッシュ）— SkillVerifier 右ペイン・トースト Portal・KPI ストリップ等（`98c8739`〜`a75ec9c` / [`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)）
 - [x] サイドバー狭幅 UI 整備（Phase S1+S2）— 行レイアウト修正・二重カード解消・padding 圧縮（`d8ddb66` / [`REQ-sidebar-compact-layout.md`](tasks/REQ-sidebar-compact-layout.md)）
 - [x] 全画面 Cockpit UI Phase 2 — KPI ストリップ + グラフ常時表示 + 実機検証済み（`6b8b13b` / `c9412ee`）
 - [x] 全画面 Cockpit UI Phase 1 — サイドバー折りたたみ + 右カラム全幅化 + min-w-0 縮退（`98c8739`）

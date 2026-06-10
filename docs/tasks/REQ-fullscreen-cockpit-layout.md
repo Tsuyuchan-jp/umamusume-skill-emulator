@@ -5,7 +5,7 @@
 
 - **ステータス**: done（Phase 3 完了）
 - **作成日**: 2026-06-10 17:45
-- **関連コミット**: `98c8739`（Phase 1）、`6b8b13b`（Phase 2）、`c9412ee`（Phase 2 高さ修復）
+- **関連コミット**: `98c8739`（Phase 1）、`6b8b13b`（Phase 2）、`c9412ee`（Phase 2 高さ修復）、`8fda669`（Phase 3 flex 修復）、`52c7e5c`〜`a75ec9c`（Phase 3 UX ポリッシュ）
 - **前提**: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md) Phase 1 完了 + Tooltip Phase 1.5（`0e25cda`）
 
 ---
@@ -202,6 +202,7 @@ FHD 1920×1080 目安（サイドバー 380px）:
 | 2026-06-10 17:45 | Phase 1→2→3 分割実装 | ユーザー承認（大規模改修） |
 | 2026-06-10 20:03 | Phase 2 実機検証完了（FHD グラフ高・Tooltip・DevTools 警告なし） | ユーザー実機確認 |
 | 2026-06-10 20:10 | Phase 3 実装完了（SkillVerifier 右ペイン 360px・TabBar コンパクト化・ページスクロール廃止） | Agent 実装 |
+| 2026-06-10 22:03 | REQ 全体 `done` — SkillVerifier UX・トースト Portal・KPI ストリップ・位相ラベルまで実機確認済み | ユーザー UI レビュー完了 |
 
 ---
 
