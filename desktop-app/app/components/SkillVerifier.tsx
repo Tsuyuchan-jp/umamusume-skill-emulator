@@ -153,11 +153,14 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
           className={`w-full flex items-center justify-between gap-2 px-3 py-2 text-left ${hasSummaryItems ? 'cursor-pointer hover:bg-zinc-800/30' : 'cursor-default'} rounded-lg transition-colors`}
         >
           <div className="flex items-center gap-2 min-w-0 text-xs flex-1">
-            {isDirty && (
-              <span className="shrink-0 text-[10px] font-bold text-orange-400 bg-orange-500/15 border border-orange-500/30 px-1.5 py-0.5 rounded">
-                未反映 {totalUnappliedCount}
-              </span>
-            )}
+            {/* 常時スロット確保で未反映ピル出現時のレイアウトシフトを防止 */}
+            <div className="shrink-0 w-[4.75rem] h-[22px] flex items-center">
+              {isDirty ? (
+                <span className="text-[10px] font-bold text-orange-400 bg-orange-500/15 border border-orange-500/30 px-1.5 py-0.5 rounded whitespace-nowrap">
+                  未反映 {totalUnappliedCount}
+                </span>
+              ) : null}
+            </div>
             <span className="font-bold text-emerald-500/70 shrink-0">
               追加 <span className="text-zinc-300 font-bold">{addedSummaryCount > 0 ? `${addedSummaryCount}件` : 'なし'}</span>
             </span>
