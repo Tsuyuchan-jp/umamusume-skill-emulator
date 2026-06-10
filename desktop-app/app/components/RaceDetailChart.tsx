@@ -46,18 +46,33 @@ export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
       >
         <LineChart data={graphData.points} margin={{ top: 24, right: 48, left: 4, bottom: 4 }}>
           {graphData.areaBands.map((band, index) => (
-            <ReferenceArea
-              key={`area-${index}`}
-              x1={band.x1}
-              x2={band.x2}
-              y1={band.y1}
-              y2={band.y2}
-              yAxisId="percent"
-              fill={band.fill}
-              fillOpacity={0.15}
-              strokeOpacity={0}
-              ifOverflow="visible"
-            />
+            <React.Fragment key={`area-${index}`}>
+              <ReferenceArea
+                x1={band.x1}
+                x2={band.x2}
+                y1={band.y1}
+                y2={band.y2}
+                yAxisId="percent"
+                fill={band.fill}
+                fillOpacity={0.15}
+                strokeOpacity={0}
+                ifOverflow="visible"
+              />
+              {band.stroke && (
+                <ReferenceLine
+                  segment={[
+                    { x: band.x1, y: band.y2 },
+                    { x: band.x2, y: band.y2 },
+                  ]}
+                  yAxisId="percent"
+                  stroke={band.stroke}
+                  strokeWidth={1}
+                  strokeOpacity={0.7}
+                  strokeDasharray={band.strokeDasharray}
+                  ifOverflow="visible"
+                />
+              )}
+            </React.Fragment>
           ))}
           <CartesianGrid strokeDasharray="3 3" stroke="#3f3f46" />
           <XAxis
@@ -181,7 +196,7 @@ export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
       </ResponsiveContainer>
       {graphData.areaBands.length > 0 && (
         <div className="pointer-events-none absolute bottom-1 left-1 flex flex-col gap-0.5 text-[10px] text-zinc-300">
-          <span className="rounded bg-black/50 px-1.5 py-0.5">直線(青)/コーナー(紫)</span>
+          <span className="rounded bg-black/50 px-1.5 py-0.5">直線(明るい青・実線)/コーナー(暗め紫・点線)</span>
           <span className="rounded bg-black/50 px-1.5 py-0.5">上り坂(緑)/下り坂(黄)</span>
         </div>
       )}

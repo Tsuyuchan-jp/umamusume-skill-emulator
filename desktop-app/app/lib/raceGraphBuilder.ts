@@ -34,10 +34,16 @@ export interface AreaBand {
   y1: number;
   y2: number;
   fill: string;
+  /** 上端ボーダー色（直線/コーナーの色弱対策） */
+  stroke?: string;
+  /** 上端ボーダー線種。未指定は実線 */
+  strokeDasharray?: string;
 }
 
-const AREA_STRAIGHT_FILL = "#0080FF";
-const AREA_CORNER_FILL = "#8000FF";
+/** 明るめシアン（直線）— 速度線 #3b82f6 と被りにくいトーン */
+const AREA_STRAIGHT_FILL = "#5BA8E8";
+/** 暗め赤紫（コーナー）— 直線帯と明度差で区別 */
+const AREA_CORNER_FILL = "#9B5FB8";
 const AREA_UPSLOPE_FILL = "#00FF80";
 const AREA_DOWNSLOPE_FILL = "#FFFF00";
 
@@ -70,19 +76,25 @@ function buildAreaBands(
     y1: number,
     y2: number,
     fill: string,
+    stroke?: string,
+    strokeDasharray?: string,
   ): AreaBand[] =>
     areas
       .filter((a) => a.end > a.start)
       .map((area) => {
         const x1 = distanceToTime(frames, area.start);
         const x2 = distanceToTime(frames, area.end);
-        return x1 < x2 ? { x1, x2, y1, y2, fill } : null;
+        if (x1 >= x2) return null;
+        const band: AreaBand = { x1, x2, y1, y2, fill };
+        if (stroke) band.stroke = stroke;
+        if (strokeDasharray) band.strokeDasharray = strokeDasharray;
+        return band;
       })
       .filter((band): band is AreaBand => band !== null);
 
   return [
-    ...toBands(straights, 0, 0.1, AREA_STRAIGHT_FILL),
-    ...toBands(corners, 0, 0.1, AREA_CORNER_FILL),
+    ...toBands(straights, 0, 0.1, AREA_STRAIGHT_FILL, AREA_STRAIGHT_FILL),
+    ...toBands(corners, 0, 0.1, AREA_CORNER_FILL, AREA_CORNER_FILL, "3 2"),
     ...toBands(
       slopes.filter((s) => s.slope > 0),
       0.1,
