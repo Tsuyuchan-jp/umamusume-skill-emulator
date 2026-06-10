@@ -3,7 +3,7 @@
 > Cursor 作業チャット起票時に `@docs/TODO.md` で参照する正本。
 > **作業完了のたびに必ず更新**し、コミットに含める。
 
-最終更新: 2026-06-10 23:50
+最終更新: 2026-06-11 04:47
 
 ---
 
@@ -35,7 +35,24 @@
   - 触る想定: `SkillCommandPalette.tsx`, `umaemuAdapter.ts`
   - 注意: フィルタ条件（special/minus 除外）は維持
 
+- [ ] **直近レース詳細グラフ Phase 2 — 区間オーバーレイ**
+  - 直線 / コーナー / 上り坂 / 下り坂の区間表示、`trackDetail` データ整備
+  - 親 REQ: [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md) Phase 2
+  - 触る想定: `RaceDetailChart.tsx`, `raceGraphBuilder.ts`, WASM or 抽出 JSON
+  - 前提: Phase 1 + [`REQ-race-detail-graph-axis.md`](tasks/REQ-race-detail-graph-axis.md) 完了
+
+- [ ] **直近レース詳細グラフ Phase 4 — baseline グラフ diff（核機能）**
+  - SkillVerifier: baseline / current の2系列 or 差分表示、両方 raceDetail 保持
+  - 親 REQ: [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md) Phase 4
+  - 触る想定: `SkillVerifier.tsx`, `RaceDetailChart.tsx`, `umaemuAdapter.ts`
+  - 注意: Phase 2 以降の設計と整合。着手前に Ask mode 設計レビュー推奨
+
 ### P2 — 改善・アイデア
+
+- [ ] **直近レース詳細グラフ Phase 3 — スキル帯・表示切替**
+  - スキル発動帯・デバフ、`GraphDisplaySetting` 相当のチェックボックス、縦方向拡大
+  - 親 REQ: [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md) Phase 3
+  - 触る想定: `RaceDetailChart.tsx`, `raceGraphBuilder.ts`
 
 - [ ] **ゲームアップデート後のスキルデータ更新**
   - 手順: `UPDATE_SKILLS.md`
@@ -80,6 +97,7 @@
 - サイドバー狭幅 UI（380px / min 320px）は Phase S1+S2 で完了（[`REQ-sidebar-compact-layout.md`](tasks/REQ-sidebar-compact-layout.md)）。S3 コンテナクエリは見送り
 - 全画面 Cockpit UI（Phase 1〜3）は完了（[`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)）
 - グラフ Y軸・m/s は [`REQ-race-detail-graph-axis.md`](tasks/REQ-race-detail-graph-axis.md) で対応済み
+- 直近レース詳細グラフ: 親 REQ [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md) は **Phase 1 完了**。Phase 2〜4 は TODO Backlog に追加済み
 - 因子管理 DB・Tesseract OCR・Supabase 連携は **開発予定なし**（`.cursor/rules/development.mdc`）
 
 ---

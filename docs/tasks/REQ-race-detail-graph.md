@@ -3,7 +3,7 @@
 > 設計レビュー（Ask mode）承認済み。実装の正本。
 > 起票: `@docs/tasks/REQ-race-detail-graph.md`
 
-- **ステータス**: done
+- **ステータス**: done（Phase 1 完了）
 - **作成日**: 2026-06-10 15:55
 - **関連コミット**: `2abda5a`
 
