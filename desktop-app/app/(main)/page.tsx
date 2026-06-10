@@ -15,6 +15,7 @@ import { SkillPanel } from "../components/SkillPanel";
 import { ToastNotification } from "../components/ToastNotification";
 import { RaceConditionSelector } from "../components/RaceConditionSelector";
 import { analyzeStitchedImage } from "../lib/geminiOcr";
+import { migrateFromLocalStorage, saveApiKey } from "../lib/apiKeyStorage";
 import { canPlaceSkillAtIndex } from "../lib/umasimSkillData";
 import { ResultCard } from "../components/ResultCard";
 import { SkillVerifier } from "../components/SkillVerifier";
@@ -170,10 +171,18 @@ export default function Home() {
     if (savedShortcut) {
       setShortcutKey(savedShortcut);
     }
-    const savedApiKey = localStorage.getItem("geminiApiKey");
-    if (savedApiKey) {
-      setApiKey(savedApiKey);
-    }
+    const initApiKey = async () => {
+      try {
+        const key = await migrateFromLocalStorage();
+        if (key) {
+          setApiKey(key);
+        }
+      } catch (err) {
+        console.error("Failed to load API key:", err);
+      }
+    };
+    initApiKey();
+
     const savedSimCount = localStorage.getItem("simulationCount");
     if (savedSimCount) {
       setSimulationCount(parseInt(savedSimCount, 10));
@@ -207,13 +216,18 @@ export default function Home() {
     }
   };
 
-  const handleSaveApiKey = (key: string) => {
-    setApiKey(key);
-    localStorage.setItem("geminiApiKey", key);
-    setShowApiKeyModal(false);
-    if (captureStatus === "saved" && resultImage) {
-      // APIキー保存後にすぐOCRを開始するかはユーザーに任せる
-      showToastMessage("APIキーを保存しました。", "success", 3000);
+  const handleSaveApiKey = async (key: string) => {
+    try {
+      await saveApiKey(key);
+      setApiKey(key);
+      setShowApiKeyModal(false);
+      if (captureStatus === "saved" && resultImage) {
+        // APIキー保存後にすぐOCRを開始するかはユーザーに任せる
+        showToastMessage("APIキーを保存しました。", "success", 3000);
+      }
+    } catch (err) {
+      console.error("Failed to save API key:", err);
+      showToastMessage("APIキーの保存に失敗しました。", "error", 3000);
     }
   };
 

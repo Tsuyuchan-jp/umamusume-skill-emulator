@@ -1,62 +1,65 @@
 # REQ-secure-api-key: Gemini API キーのセキュアストレージ化
 
-- **ステータス**: draft
-- **作成日**: 2026-06-10
+- **ステータス**: done
+- **作成日**: 2026-06-10 08:42
+- **完了日**: 2026-06-10 11:30
 - **優先度**: P1
 
 ---
 
 ## 目的
 
-Gemini API キーを `localStorage` の平文保存から、Tauri のセキュアストレージへ移行し、ローカル環境での漏洩リスクを下げる。
+Gemini API キーを `localStorage` の平文保存から、Windows Credential Manager（Tauri カスタム invoke + Rust keyring crate）へ移行し、ローカル環境での漏洩リスクを下げる。
 
 ---
 
-## 現状
+## 採用方針
 
-- 保存先: `localStorage` キー `geminiApiKey`
-- 読み書き: `desktop-app/app/(main)/page.tsx`, `ApiKeyModal.tsx`
-- README にも「セキュアストレージ化は今後の改善予定」と記載
-
----
-
-## スコープ
-
-### やること
-
-- Tauri プラグイン等で API キーを安全に保存・取得
-- 既存ユーザーの `localStorage` からの移行（初回起動時に移して削除）
-- 設定 UI（ApiKeyModal）の動作維持
-
-### やらないこと
-
-- API キーのクラウド同期
-- OCR ロジック（`geminiOcr.ts`）の変更（呼び出し元からキーを渡す形は維持可）
+- **案A**: カスタム Tauri invoke + Rust `keyring` crate
+- **保存先**: Windows Credential Manager
+- **Service**: `com.umamusume.race-analyzer`
+- **Entry**: `gemini_api_key`
+- **識別子リネーム**: `com.umamusume.race-analyzer` / `umamusume-race-analyzer`
+- macOS/Linux 非対応（Windows のみ）
 
 ---
 
-## 触るファイル（予定）
+## 実装内容
 
 | ファイル | 変更内容 |
 |---------|---------|
-| `app/(main)/page.tsx` | キー読み書きを Tauri 経由に |
-| `app/components/ApiKeyModal.tsx` | 保存フロー調整 |
-| `src-tauri/` | セキュアストレージコマンド or プラグイン設定 |
+| `app/lib/apiKeyStorage.ts` | 新規。invoke ラッパー + localStorage 移行 |
+| `src-tauri/src/api_key.rs` | 新規。Credential Manager read/write |
+| `app/(main)/page.tsx` | localStorage 直アクセスを apiKeyStorage に置換 |
+| `app/components/ApiKeyModal.tsx` | 説明文更新・async 保存 |
+| `src-tauri/src/lib.rs` | mod + 4 コマンド登録 |
+| `src-tauri/Cargo.toml` | `keyring = "3"` 追加 |
+| `src-tauri/tauri.conf.json` | identifier / productName リネーム |
 
 ---
 
 ## 完了条件
 
-- [ ] API キーが `localStorage` に残らない
-- [ ] 既存キーがあれば自動移行される
-- [ ] OCR が従来どおり動作する
-- [ ] `docs/TODO.md` 更新・コミット
+- [x] API キーが `localStorage` に残らない
+- [x] 既存キーがあれば自動移行される
+- [x] OCR が従来どおり動作する（`geminiOcr.ts` 変更なし）
+- [x] identifier が `com.umamusume.race-analyzer`
+- [x] `docs/TODO.md` 更新・コミット
+
+---
+
+## 決定事項ログ
+
+| 日時 | 内容 |
+|------|------|
+| 2026-06-10 08:42 | 案A（keyring + Credential Manager）採用。Stronghold 不採用 |
+| 2026-06-10 11:30 | 実装完了。削除 UI なし。移行失敗は console.error のみ |
 
 ---
 
 ## 検証手順
 
 1. 新規に API キーを登録 → 再起動後も保持されること
-2. `localStorage` に `geminiApiKey` が無いこと
+2. DevTools → Local Storage で `geminiApiKey` キーが無いこと
 3. OCR 実行が成功すること
-4. 既存 `localStorage` データがある環境で移行が動くこと
+4. 手動で `localStorage.setItem("geminiApiKey", "AIza...")` → 再起動 → キーが消えていること・OCR 成功

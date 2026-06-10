@@ -3,13 +3,13 @@
 > Cursor 作業チャット起票時に `@docs/TODO.md` で参照する正本。
 > **作業完了のたびに必ず更新**し、コミットに含める。
 
-最終更新: 2026-06-10 08:42
+最終更新: 2026-06-10 11:30
 
 ---
 
 ## 現在のフォーカス
 
-Gemini API キーのセキュアストレージ化（P1）
+パレットのスキルデータ参照をローカルに統一（P1）
 
 ---
 
@@ -28,12 +28,6 @@ Gemini API キーのセキュアストレージ化（P1）
 （なし — P1 を参照）
 
 ### P1 — 重要（急がない）
-
-- [ ] **Gemini API キーのセキュアストレージ化**
-  - 現状: `localStorage`（`geminiApiKey`）に平文保存
-  - 目標: Tauri のセキュアストレージへ移行
-  - 参照: `docs/tasks/REQ-secure-api-key.md`
-  - 触る想定: `page.tsx`, `ApiKeyModal.tsx`, `src-tauri/`
 
 - [ ] **パレットのスキルデータ参照をローカルに統一**
   - 現状: パレット一覧は `fetchSkillData()`（GitHub）、色分けは `umasimSkillData.ts`（ローカル）の二重参照
@@ -55,6 +49,7 @@ Gemini API キーのセキュアストレージ化（P1）
 
 ## 完了済み
 
+- [x] Gemini API キーのセキュアストレージ化（Windows Credential Manager + localStorage 移行）
 - [x] スキル UI 最終実機確認（パレット先頭 inherit・special/minus 除外・色分け一致）
 - [x] パレットから `special` / `minus` スキルを除外（`570a1f2`）
 - [x] スキルアイコンの不要な末尾スペースを削除（`2d20a50`）
@@ -75,7 +70,7 @@ Gemini API キーのセキュアストレージ化（P1）
 
 - パレットのスキル一覧は `fetchSkillData()`（GitHub）から取得。色分けは `umasimSkillData.ts`（ローカル）の ID 参照
 - `special`（14件）+ `minus`（1件）が `unique` 直後に並んでいたため、除外前は先頭がすべて白表示だった
-- API キーは README にも記載の通り、セキュアストレージ化が今後の改善項目
+- Gemini API キーは Windows 資格情報マネージャー（`com.umamusume.race-analyzer` / `gemini_api_key`）に保存
 - 因子管理 DB・Tesseract OCR・Supabase 連携は **開発予定なし**（`.cursor/rules/development.mdc`）
 
 ---

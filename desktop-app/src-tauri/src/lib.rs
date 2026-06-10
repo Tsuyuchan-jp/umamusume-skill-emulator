@@ -11,6 +11,7 @@ use tauri::menu::{Menu, MenuItem};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 use tauri::Manager;
 use tauri::WindowEvent;
+mod api_key;
 mod capture;
 mod overlay;
 mod stitch;
@@ -106,6 +107,11 @@ pub fn run() {
             overlay::init_overlay,
             overlay::show_overlay,
             overlay::hide_overlay,
+            // ── Gemini API キー（Windows Credential Manager） ──
+            api_key::set_gemini_api_key,
+            api_key::get_gemini_api_key,
+            api_key::has_gemini_api_key,
+            api_key::delete_gemini_api_key,
         ])
         .setup(|app| {
             // トレイメニューの構築
