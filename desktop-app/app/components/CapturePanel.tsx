@@ -71,7 +71,9 @@ export function CapturePanel(props: CapturePanelProps) {
           />
         </div>
 
-        <p className="text-xs text-zinc-400">{captureMessage}</p>
+        <div className="border-t border-white/[0.05] pt-4">
+          <p className="text-xs text-zinc-400">{captureMessage}</p>
+        </div>
 
         {/* エラーメッセージ表示 */}
         {captureError && (
