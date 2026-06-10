@@ -5,7 +5,7 @@
 
 - **ステータス**: in-progress（Phase 2 完了）
 - **作成日**: 2026-06-10 17:45
-- **関連コミット**: `98c8739`（Phase 1）、Phase 2 未コミット
+- **関連コミット**: `98c8739`（Phase 1）、`6b8b13b`（Phase 2）
 - **前提**: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md) Phase 1 完了 + Tooltip Phase 1.5（`0e25cda`）
 
 ---
