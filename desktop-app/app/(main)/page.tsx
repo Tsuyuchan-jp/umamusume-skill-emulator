@@ -48,7 +48,7 @@ export default function Home() {
 
   // サイドバー寸法（Phase 1 Cockpit）
   const SIDEBAR_COLLAPSED_WIDTH = 56;
-  const SIDEBAR_MIN_WIDTH = 320;
+  const SIDEBAR_MIN_WIDTH = 350;
   const SIDEBAR_MAX_WIDTH = 480;
   const [sidebarWidth, setSidebarWidth] = useState<number>(380);
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);

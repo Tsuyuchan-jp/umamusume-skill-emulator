@@ -111,20 +111,18 @@ export function SettingsPanel({
           </div>
         </div>
 
-        <div className="flex flex-col gap-2 pt-3 border-t border-white/[0.05]">
-          <div className="flex flex-col gap-0.5 w-full">
+        <div className="flex items-center justify-between gap-2 min-w-0 pt-3 border-t border-white/[0.05]">
+          <div className="flex flex-col gap-0.5 min-w-0">
             <span className="text-xs font-medium text-zinc-300">Gemini APIキー</span>
             <span className="text-[10px] text-zinc-500">OCR解析用</span>
           </div>
-          <div className="flex w-full min-w-0 items-center">
-            <button
-              onClick={onShowApiKeyModal}
-              className="shrink-0 bg-zinc-800 hover:bg-emerald-600 text-zinc-300 hover:text-white text-xs font-semibold px-4 py-2 border border-zinc-700/50 rounded-lg transition-all active:bg-emerald-700 flex items-center gap-2"
-            >
-              <Key className="w-3.5 h-3.5" />
-              {apiKey ? "設定済み" : "未設定"}
-            </button>
-          </div>
+          <button
+            onClick={onShowApiKeyModal}
+            className="shrink-0 bg-zinc-800 hover:bg-emerald-600 text-zinc-300 hover:text-white text-xs font-semibold px-4 py-2 border border-zinc-700/50 rounded-lg transition-all active:bg-emerald-700 flex items-center gap-2"
+          >
+            <Key className="w-3.5 h-3.5" />
+            {apiKey ? "設定済み" : "未設定"}
+          </button>
         </div>
       </div>
     </div>
