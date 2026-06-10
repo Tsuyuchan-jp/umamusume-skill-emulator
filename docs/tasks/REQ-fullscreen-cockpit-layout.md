@@ -6,7 +6,7 @@
 - **ステータス**: done（Phase 3 完了）
 - **作成日**: 2026-06-10 17:45
 - **関連コミット**: `98c8739`（Phase 1）、`6b8b13b`（Phase 2）、`c9412ee`（Phase 2 高さ修復）、`8fda669`（Phase 3 flex 修復）、`52c7e5c`〜`a75ec9c`（Phase 3 UX ポリッシュ）
-- **前提**: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md) Phase 1 完了 + Tooltip Phase 1.5（`0e25cda`）
+- **前提**: [`REQ-race-detail-graph-phase1.md`](REQ-race-detail-graph-phase1.md) 完了 + Tooltip Phase 1.5（`0e25cda`）
 
 ---
 
@@ -116,7 +116,7 @@ FHD 1920×1080 目安（サイドバー 380px）:
 
 ### やらないこと
 
-- [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md) Phase 2〜4（区間オーバーレイ、スキル帯、baseline diff）
+- [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md) Phase 2〜4（各 Phase REQ 参照）
 - `desktop-app/public/umaemu/`（race.js, worker.js, wasm）
 - `app/lib/geminiOcr.ts` / `app/lib/fuzzyMatcher.ts`
 - `src-tauri/` キャプチャ・ウィンドウ API 変更（折りたたみは CSS/React state のみ）
@@ -302,5 +302,5 @@ Phase 1 実装用の完成プロンプトを CHAT_TEMPLATE パターン A で1�
 ## 参考
 
 - レイアウト試行ロールバック: `a2006b6`〜`93c821c`（revert 済み、HEAD `0e25cda`）
-- グラフ Phase 1: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md)
+- グラフ Phase 1: [`REQ-race-detail-graph-phase1.md`](REQ-race-detail-graph-phase1.md) / ロードマップ: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md)
 - チャット起票: [`docs/CHAT_TEMPLATE.md`](../CHAT_TEMPLATE.md)

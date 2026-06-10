@@ -3,7 +3,7 @@
 > Cursor 作業チャット起票時に `@docs/TODO.md` で参照する正本。
 > **作業完了のたびに必ず更新**し、コミットに含める。
 
-最終更新: 2026-06-11 04:47
+最終更新: 2026-06-11 04:54
 
 ---
 
@@ -37,22 +37,23 @@
 
 - [ ] **直近レース詳細グラフ Phase 2 — 区間オーバーレイ**
   - 直線 / コーナー / 上り坂 / 下り坂の区間表示、`trackDetail` データ整備
-  - 親 REQ: [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md) Phase 2
+  - REQ: [`REQ-race-detail-graph-phase2.md`](tasks/REQ-race-detail-graph-phase2.md) / ロードマップ: [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md)
   - 触る想定: `RaceDetailChart.tsx`, `raceGraphBuilder.ts`, WASM or 抽出 JSON
-  - 前提: Phase 1 + [`REQ-race-detail-graph-axis.md`](tasks/REQ-race-detail-graph-axis.md) 完了
+  - 前提: Phase 1 + axis 完了。着手前に Ask mode 設計レビュー推奨
 
 - [ ] **直近レース詳細グラフ Phase 4 — baseline グラフ diff（核機能）**
   - SkillVerifier: baseline / current の2系列 or 差分表示、両方 raceDetail 保持
-  - 親 REQ: [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md) Phase 4
+  - REQ: [`REQ-race-detail-graph-phase4.md`](tasks/REQ-race-detail-graph-phase4.md)
   - 触る想定: `SkillVerifier.tsx`, `RaceDetailChart.tsx`, `umaemuAdapter.ts`
-  - 注意: Phase 2 以降の設計と整合。着手前に Ask mode 設計レビュー推奨
+  - 注意: Phase 2→3 完了後が自然。着手前に Ask mode 設計レビュー必須
 
 ### P2 — 改善・アイデア
 
 - [ ] **直近レース詳細グラフ Phase 3 — スキル帯・表示切替**
   - スキル発動帯・デバフ、`GraphDisplaySetting` 相当のチェックボックス、縦方向拡大
-  - 親 REQ: [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md) Phase 3
+  - REQ: [`REQ-race-detail-graph-phase3.md`](tasks/REQ-race-detail-graph-phase3.md)
   - 触る想定: `RaceDetailChart.tsx`, `raceGraphBuilder.ts`
+  - 前提: Phase 2 完了後
 
 - [ ] **ゲームアップデート後のスキルデータ更新**
   - 手順: `UPDATE_SKILLS.md`
@@ -71,7 +72,7 @@
 - [x] サイドバー狭幅 UI 整備（Phase S1+S2）— 行レイアウト修正・二重カード解消・padding 圧縮（`d8ddb66` / [`REQ-sidebar-compact-layout.md`](tasks/REQ-sidebar-compact-layout.md)）
 - [x] 全画面 Cockpit UI Phase 2 — KPI ストリップ + グラフ常時表示 + 実機検証済み（`6b8b13b` / `c9412ee`）
 - [x] 全画面 Cockpit UI Phase 1 — サイドバー折りたたみ + 右カラム全幅化 + min-w-0 縮退（`98c8739`）
-- [x] 直近レース詳細グラフ（Phase 1 MVP）— `runSimulationDetail` WASM + recharts 折りたたみ UI（`2abda5a`）
+- [x] 直近レース詳細グラフ（Phase 1 MVP）— `runSimulationDetail` WASM + recharts 折りたたみ UI（`2abda5a` / [`REQ-race-detail-graph-phase1.md`](tasks/REQ-race-detail-graph-phase1.md)）
 - [x] Gemini API キーのセキュアストレージ化（Windows Credential Manager + localStorage 移行）（`fa7c5b3`）
 - [x] スキル UI 最終実機確認（パレット先頭 inherit・special/minus 除外・色分け一致）
 - [x] パレットから `special` / `minus` スキルを除外（`570a1f2`）
@@ -97,7 +98,7 @@
 - サイドバー狭幅 UI（380px / min 320px）は Phase S1+S2 で完了（[`REQ-sidebar-compact-layout.md`](tasks/REQ-sidebar-compact-layout.md)）。S3 コンテナクエリは見送り
 - 全画面 Cockpit UI（Phase 1〜3）は完了（[`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)）
 - グラフ Y軸・m/s は [`REQ-race-detail-graph-axis.md`](tasks/REQ-race-detail-graph-axis.md) で対応済み
-- 直近レース詳細グラフ: 親 REQ [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md) は **Phase 1 完了**。Phase 2〜4 は TODO Backlog に追加済み
+- 直近レース詳細グラフ: ロードマップ [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md)。Phase 1 + axis **完了**。Phase 2〜4 は sibling REQ + TODO Backlog
 - 因子管理 DB・Tesseract OCR・Supabase 連携は **開発予定なし**（`.cursor/rules/development.mdc`）
 
 ---

@@ -1,7 +1,7 @@
 # REQ-race-detail-graph-axis: レース詳細グラフ Y軸・単位改善
 
 > レース詳細グラフの体力・レーン基準位置と速度 m/s 表示。
-> 前提: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md) Phase 1 完了、Cockpit Phase 3 完了。
+> 前提: [`REQ-race-detail-graph-phase1.md`](REQ-race-detail-graph-phase1.md) 完了、Cockpit Phase 3 完了。
 
 - **ステータス**: done
 - **作成日**: 2026-06-10 21:30
@@ -31,7 +31,7 @@ FHD Cockpit 右ペイン運用で、レース詳細グラフの**読み取りや
 ### やらないこと
 
 - `desktop-app/public/umaemu/`（WASM）
-- [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md) Phase 2 以降（区間オーバーレイ、スキル帯、baseline diff）
+- [`REQ-race-detail-graph-phase2.md`](REQ-race-detail-graph-phase2.md) 以降（区間オーバーレイ、スキル帯、baseline diff）
 - Cockpit レイアウト・SkillVerifier の再変更
 
 ---

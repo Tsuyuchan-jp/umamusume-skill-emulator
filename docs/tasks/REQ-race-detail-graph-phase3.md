@@ -1,0 +1,77 @@
+# REQ-race-detail-graph-phase3: 直近レース詳細グラフ — Phase 3 スキル帯・表示切替
+
+> **レース詳細グラフ実装シリーズ** Phase 3（スキル可視化と表示設定）。
+> ロードマップ: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md)
+
+- **ステータス**: draft
+- **作成日**: 2026-06-11 04:54
+- **関連コミット**: （完了後に記入）
+
+---
+
+## 開発フロー（シリーズ内の位置）
+
+| 項目 | 内容 |
+|------|------|
+| **前** | [`REQ-race-detail-graph-phase2.md`](REQ-race-detail-graph-phase2.md)（区間オーバーレイ） |
+| **本 Phase** | スキル発動帯・デバフ、`GraphDisplaySetting` 相当のチェックボックス、縦方向拡大 |
+| **次** | [`REQ-race-detail-graph-phase4.md`](REQ-race-detail-graph-phase4.md)（baseline グラフ diff・核機能） |
+| **着手順** | **Ask mode 設計レビュー** → 承認 → **Agent mode 実装** |
+
+---
+
+## 目的
+
+グラフ上で**スキル発動タイミング**やデバフ区間を把握し、表示系列の ON/OFF をユーザーが切り替えられるようにする（umasim `GraphDisplaySetting` 相当）。
+
+---
+
+## スコープ
+
+### やること
+
+- [ ] スキル発動帯、デバフ等のオーバーレイ表示
+- [ ] `GraphDisplaySetting` 相当のチェックボックス切替（速度/体力/レーン等）
+- [ ] 「スキル数に応じて縦方向に拡大」オプション
+
+### やらないこと
+
+- Phase 4（baseline diff）— [`REQ-race-detail-graph-phase4.md`](REQ-race-detail-graph-phase4.md)
+- Phase 2 未完了の区間オーバーレイ（前提: Phase 2 完了後に着手）
+- WASM 詳細 API の Phase 1 部分の再設計
+
+---
+
+## 触るファイル（予定）
+
+| ファイル | 変更内容 |
+|---------|---------|
+| `app/components/RaceDetailChart.tsx` | スキル帯・表示切替 UI |
+| `app/lib/raceGraphBuilder.ts` | スキルイベントデータ変換 |
+| `app/lib/types.ts` | スキル帯用型（要設計） |
+| `public/umaemu/` | スキル発動タイミング出力（要設計） |
+
+---
+
+## 完了条件
+
+- [ ] スキル発動帯がグラフ上で確認できる
+- [ ] 系列の表示 ON/OFF が動作する
+- [ ] Phase 1 / axis / Phase 2 に退行なし
+- [ ] `npm run tauri dev` 実機確認
+- [ ] REQ ステータス `done` + `docs/TODO.md` 更新 + コミット
+
+---
+
+## 決定事項ログ
+
+| 日時 | 決定内容 | 理由 |
+|------|---------|------|
+| 2026-06-11 04:54 | Phase 3 を単体 REQ として起票（draft） | 開発フロー明確化 |
+
+---
+
+## 参考
+
+- 親ロードマップ: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md)
+- upstream: `compose/.../GraphDisplaySetting` 相当
