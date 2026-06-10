@@ -5,7 +5,7 @@ import { register, unregister, isRegistered } from "@tauri-apps/plugin-global-sh
 import { open } from "@tauri-apps/plugin-dialog";
 import { invoke } from "@tauri-apps/api/core";
 import { emit } from "@tauri-apps/api/event";
-import { Wand2 } from "lucide-react";
+import { Wand2, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useCapture } from "../hooks/useCapture";
 import { useToast } from "../hooks/useToast";
 import { ApiKeyModal } from "../components/ApiKeyModal";
@@ -46,9 +46,14 @@ export default function Home() {
   const [shortcutKey, setShortcutKey] = useState<string>("F9");
   const [isRecordingShortcut, setIsRecordingShortcut] = useState<boolean>(false);
 
-  // リサイズ用ステート
-  const [sidebarWidth, setSidebarWidth] = useState<number>(450);
+  // サイドバー寸法（Phase 1 Cockpit）
+  const SIDEBAR_COLLAPSED_WIDTH = 56;
+  const SIDEBAR_MIN_WIDTH = 320;
+  const SIDEBAR_MAX_WIDTH = 480;
+  const [sidebarWidth, setSidebarWidth] = useState<number>(380);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
   const [isResizing, setIsResizing] = useState<boolean>(false);
+  const effectiveSidebarWidth = sidebarCollapsed ? SIDEBAR_COLLAPSED_WIDTH : sidebarWidth;
 
   // OCR/エディタ関連ステート
   const [apiKey, setApiKey] = useState<string>("");
@@ -106,8 +111,8 @@ export default function Home() {
     if (!isResizing) return;
     const handleMouseMove = (e: MouseEvent) => {
       let newWidth = e.clientX;
-      if (newWidth < 450) newWidth = 450; // 最小幅
-      if (newWidth > 800) newWidth = 800; // 最大幅
+      if (newWidth < SIDEBAR_MIN_WIDTH) newWidth = SIDEBAR_MIN_WIDTH;
+      if (newWidth > SIDEBAR_MAX_WIDTH) newWidth = SIDEBAR_MAX_WIDTH;
       setSidebarWidth(newWidth);
     };
     const handleMouseUp = () => setIsResizing(false);
@@ -372,24 +377,51 @@ export default function Home() {
     <div className="flex w-full h-screen bg-[#09090b] font-sans text-zinc-100 selection:bg-emerald-500/30 overflow-hidden">
       {/* 左カラム (コントロールパネル) */}
       <div 
-        style={{ width: `${sidebarWidth}px` }}
-        className={`flex-shrink-0 h-full overflow-y-auto bg-zinc-950/40 p-6 flex flex-col gap-6 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent ${isResizing ? 'select-none pointer-events-none' : ''}`}
+        style={{ width: `${effectiveSidebarWidth}px` }}
+        className={`flex-shrink-0 h-full overflow-hidden bg-zinc-950/40 ${isResizing ? 'select-none pointer-events-none' : ''}`}
       >
-        {/* Title */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.15)] transition-all duration-300 hover:bg-emerald-500/20 shrink-0">
-            <svg className="w-5 h-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 10a8 8 0 0 1 16 0v4a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-4a2 2 0 0 0-4 0v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4z"></path>
-            </svg>
+        {sidebarCollapsed ? (
+          /* 折りたたみ時: アイコン rail + 展開トグル */
+          <div className="flex flex-col items-center h-full py-4 gap-4 w-full min-w-0">
+            <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.15)] shrink-0">
+              <svg className="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 10a8 8 0 0 1 16 0v4a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-4a2 2 0 0 0-4 0v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4z"></path>
+              </svg>
+            </div>
+            <button
+              type="button"
+              onClick={() => setSidebarCollapsed(false)}
+              className="flex items-center justify-center w-9 h-9 rounded-lg text-zinc-400 hover:text-emerald-400 hover:bg-zinc-800/80 transition-colors shrink-0"
+              title="サイドバーを展開"
+            >
+              <PanelLeftOpen className="w-5 h-5" />
+            </button>
           </div>
-          <h1 className="text-xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-100 to-zinc-400 shrink-0 flex items-baseline">
-            ウマ娘 レースアナライザー
-            <span className="text-xs text-zinc-500 font-medium ml-2">v1.0.7</span>
-          </h1>
-        </div>
+        ) : (
+          <div className="h-full overflow-y-auto p-6 flex flex-col gap-6 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent min-w-0">
+            {/* Title */}
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="flex items-center justify-center w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.15)] transition-all duration-300 hover:bg-emerald-500/20 shrink-0">
+                <svg className="w-5 h-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 10a8 8 0 0 1 16 0v4a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-4a2 2 0 0 0-4 0v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4z"></path>
+                </svg>
+              </div>
+              <h1 className="text-xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-100 to-zinc-400 shrink min-w-0 flex items-baseline">
+                ウマ娘 レースアナライザー
+                <span className="text-xs text-zinc-500 font-medium ml-2">v1.0.7</span>
+              </h1>
+              <button
+                type="button"
+                onClick={() => setSidebarCollapsed(true)}
+                className="ml-auto flex items-center justify-center w-9 h-9 rounded-lg text-zinc-400 hover:text-emerald-400 hover:bg-zinc-800/80 transition-colors shrink-0"
+                title="サイドバーを折りたたむ"
+              >
+                <PanelLeftClose className="w-5 h-5" />
+              </button>
+            </div>
 
-        {/* オートキャプチャ & 自動結合 */}
-        <CapturePanel
+            {/* オートキャプチャ & 自動結合 */}
+            <CapturePanel
           statusCfg={statusCfg}
           captureStatus={captureStatus}
           captureMessage={captureMessage}
@@ -475,21 +507,26 @@ export default function Home() {
             />
           </div>
         )}
+          </div>
+        )}
       </div>
 
-      {/* Resizer */}
-      <div 
-        onMouseDown={() => setIsResizing(true)}
-        className="w-1.5 h-full bg-zinc-800/80 hover:bg-emerald-500/50 cursor-col-resize flex-shrink-0 transition-colors z-50 flex items-center justify-center group"
-      >
-        <div className="h-8 w-0.5 bg-zinc-600 group-hover:bg-emerald-400 rounded-full transition-colors"></div>
-      </div>
+      {/* Resizer（折りたたみ中は非表示） */}
+      {!sidebarCollapsed && (
+        <div 
+          onMouseDown={() => setIsResizing(true)}
+          className="w-1.5 h-full bg-zinc-800/80 hover:bg-emerald-500/50 cursor-col-resize flex-shrink-0 transition-colors z-50 flex items-center justify-center group"
+        >
+          <div className="h-8 w-0.5 bg-zinc-600 group-hover:bg-emerald-400 rounded-full transition-colors"></div>
+        </div>
+      )}
 
       {/* 右カラム (結果アリーナ) */}
-      <div ref={scrollContainerRef} className={`flex-1 h-full overflow-y-auto p-10 bg-[#09090b] relative scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent ${isResizing ? 'select-none pointer-events-none' : ''}`}>
-        <div className="max-w-5xl mx-auto h-full">
+      <div className={`flex-1 flex flex-col h-full overflow-hidden min-w-0 p-3 bg-[#09090b] relative ${isResizing ? 'select-none pointer-events-none' : ''}`}>
+        <div ref={scrollContainerRef} className="flex-1 min-h-0 min-w-0 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent">
+          <div className="w-full min-w-0">
           {activeTab ? (
-            <div className="animate-fadeIn">
+            <div className="animate-fadeIn min-w-0">
               {/* Tab Bar UI */}
               <TabBar
                 tabs={tabs}
@@ -499,7 +536,7 @@ export default function Home() {
                 highlightedTabId={highlightedTabId}
               />
 
-              <div className="flex items-center gap-3 mb-8">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-2 min-w-0 mb-8">
                 {/* 案B：光るステータスドット */}
                 <div className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse ring-4 ring-blue-500/20 ml-1"></div>
 
@@ -538,11 +575,11 @@ export default function Home() {
                     )}
                   </div>
                 )}
-                <span className="ml-auto text-zinc-500 text-sm font-medium">
+                <span className="ml-auto text-zinc-500 text-sm font-medium min-w-0">
                   <RaceInfoLabel activeTab={activeTab} simulationCount={simulationCount} />
                 </span>
 
-                <div className="ml-auto flex items-center gap-3">
+                <div className="ml-auto flex items-center gap-3 shrink-0">
                   {/* ステータス確認モーダルボタン */}
                   {activeTab.umaData && activeTab.raceCondition && (
                     <SimulationStatusView umaData={activeTab.umaData} raceCondition={activeTab.raceCondition} />
@@ -758,6 +795,7 @@ export default function Home() {
               <p className="text-sm">左側のパネルで設定を入力し、シミュレーションを実行してください</p>
             </div>
           )}
+          </div>
         </div>
       </div>
       {/* 飛翔アニメーション用要素 */}

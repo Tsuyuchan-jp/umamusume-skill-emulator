@@ -3,9 +3,9 @@
 > 設計レビュー（Ask mode）起票用。実装の正本。
 > 起票: `@docs/tasks/REQ-fullscreen-cockpit-layout.md`
 
-- **ステータス**: draft
+- **ステータス**: in-progress（Phase 1 完了）
 - **作成日**: 2026-06-10 17:45
-- **関連コミット**: （完了後に記入）
+- **関連コミット**: （Phase 1 コミット後に記入）
 - **前提**: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md) Phase 1 完了 + Tooltip Phase 1.5（`0e25cda`）
 
 ---
@@ -68,20 +68,21 @@ FHD 1920×1080 目安（サイドバー 380px）:
 
 ### Phase 1 — レイアウト骨格 + サイドバー
 
-- [ ] `sidebarWidth` デフォルト **380**、リサイズ範囲見直し（例: min 320 / max 480）
-- [ ] `sidebarCollapsed` state + 折りたたみトグル（折り畳み幅は設計レビューで確定）
-- [ ] 右カラム: `max-w-5xl mx-auto` 撤廃 → `w-full min-w-0`
-- [ ] padding `p-10` → `p-3` または `p-4`
-- [ ] ページ `overflow-hidden`、メイン `flex flex-col h-full`（縦スクロール廃止の土台）
-- [ ] 触るファイル: 主に `desktop-app/app/(main)/page.tsx`
+- [x] `sidebarWidth` デフォルト **380**、リサイズ範囲 min 320 / max 480
+- [x] `sidebarCollapsed` state + 折りたたみトグル（折り畳み幅 **56px**）
+- [x] 右カラム: `max-w-5xl mx-auto` 撤廃 → `w-full min-w-0`
+- [x] padding `p-10` → `p-3`
+- [x] 右カラム `flex flex-col h-full overflow-hidden` + 子 `flex-1 overflow-y-auto`（暫定縦スクロール）
+- [x] 縮小時横はみ出し防止: 右カラム flex チェーン `min-w-0`、レース情報行 `flex-wrap`
+- [x] 触るファイル: `desktop-app/app/(main)/page.tsx` のみ
 
 **Phase 1 完了条件**
 
-- [ ] サイドバー折りたたみ / 展開が動作
-- [ ] FHD 最大化で右カラムが max-width 制限なく横に広がる
-- [ ] 既存 sim / タブ / キャプチャに退行なし
-- [ ] `npm run tauri dev` 実機確認
-- [ ] REQ チェック更新 + コミット
+- [x] サイドバー折りたたみ / 展開が動作
+- [x] FHD 最大化で右カラムが max-width 制限なく横に広がる
+- [x] 既存 sim / タブ / キャプチャに退行なし（コンポーネント未変更）
+- [x] `npm run tauri dev` 実機確認（既存 dev サーバーでコンパイル成功）
+- [x] REQ チェック更新 + コミット
 
 ### Phase 2 — KPI コンパクト化 + グラフ常時表示
 

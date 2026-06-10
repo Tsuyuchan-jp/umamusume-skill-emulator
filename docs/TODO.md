@@ -3,22 +3,19 @@
 > Cursor 作業チャット起票時に `@docs/TODO.md` で参照する正本。
 > **作業完了のたびに必ず更新**し、コミットに含める。
 
-最終更新: 2026-06-10 17:45
+最終更新: 2026-06-10 18:30
 
 ---
 
 ## 現在のフォーカス
 
-全画面 Analytics Cockpit UI — 設計レビュー（[`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)）
+全画面 Analytics Cockpit UI — Phase 2 着手待ち（[`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)）
 
 ---
 
 ## 進行中
 
-- [ ] **全画面 Cockpit UI — 設計レビュー**
-  - REQ: [`docs/tasks/REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)
-  - 起票: REQ 末尾の「設計レビュー起票プロンプト」を **Ask mode 新チャット** に貼る
-  - 承認後: Phase 1 から Agent mode で実装
+なし
 
 ---
 
@@ -28,11 +25,10 @@
 
 ### P0 — 次に着手
 
-- [ ] **全画面 Analytics Cockpit UI（Phase 1〜3）**
-  - 案 A: KPI ストリップ + グラフ主役 + SkillVerifier 右ペイン
-  - サイドバー 380px デフォルト + 折りたたみ / グラフ常時表示
-  - 設計レビュー承認 → Phase 1 実装（[`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)）
-  - 触る想定: `page.tsx`, `ResultCard.tsx`, `RaceDetailChart.tsx`, `SkillVerifier.tsx`, `TabBar.tsx`
+- [ ] **全画面 Analytics Cockpit UI（Phase 2〜3）**
+  - Phase 1 完了: サイドバー 380px + 折りたたみ 56px、右カラム全幅化、min-w-0 縮退
+  - 次: Phase 2 KPI ストリップ + グラフ flex-1 常時表示（[`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)）
+  - 触る想定: `ResultCard.tsx`, `RaceDetailChart.tsx`（Phase 2）、`page.tsx`, `SkillVerifier.tsx`, `TabBar.tsx`（Phase 3）
   - 触らない: WASM, OCR, `src-tauri/`, race-detail-graph Phase 2 以降
 
 ### P1 — 重要（急がない）
