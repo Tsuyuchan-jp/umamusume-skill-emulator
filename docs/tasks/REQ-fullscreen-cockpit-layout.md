@@ -5,7 +5,7 @@
 
 - **ステータス**: in-progress（Phase 2 完了）
 - **作成日**: 2026-06-10 17:45
-- **関連コミット**: `98c8739`（Phase 1）、`6b8b13b`（Phase 2）
+- **関連コミット**: `98c8739`（Phase 1）、`6b8b13b`（Phase 2）、`c9412ee`（Phase 2 高さ修復）
 - **前提**: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md) Phase 1 完了 + Tooltip Phase 1.5（`0e25cda`）
 
 ---
@@ -95,9 +95,9 @@ FHD 1920×1080 目安（サイドバー 380px）:
 **Phase 2 完了条件**
 
 - [x] グラフが常時表示、折りたたみ UI なし
-- [ ] FHD でグラフ高が viewport の大部分を使用（Phase 3 の flex チェーン整備後に最終確認）
-- [x] Tooltip / Legend 重なり解消が維持（position / offset / z-index 未変更）
-- [ ] DevTools 新規警告なし（ResponsiveContainer 含む）— 実機確認待ち
+- [x] FHD でグラフ高が viewport の大部分を使用（実機確認済み）
+- [x] Tooltip / Legend 重なり解消が維持（position / offset / z-index 未変更・実機確認済み）
+- [x] DevTools 新規警告なし（ResponsiveContainer 含む・実機確認済み）
 - [x] REQ チェック更新 + コミット
 
 ### Phase 3 — SkillVerifier 右ペイン + ヘッダー整理
@@ -200,6 +200,7 @@ FHD 1920×1080 目安（サイドバー 380px）:
 | 2026-06-10 17:45 | サイドバー 380px デフォルト + 折りたたみ | ユーザー承認 |
 | 2026-06-10 17:45 | グラフ常時表示 | ユーザー承認 |
 | 2026-06-10 17:45 | Phase 1→2→3 分割実装 | ユーザー承認（大規模改修） |
+| 2026-06-10 20:03 | Phase 2 実機検証完了（FHD グラフ高・Tooltip・DevTools 警告なし） | ユーザー実機確認 |
 
 ---
 

@@ -3,7 +3,7 @@
 > Cursor 作業チャット起票時に `@docs/TODO.md` で参照する正本。
 > **作業完了のたびに必ず更新**し、コミットに含める。
 
-最終更新: 2026-06-10 20:15
+最終更新: 2026-06-10 20:03
 
 ---
 
@@ -26,7 +26,7 @@
 ### P0 — 次に着手
 
 - [ ] **全画面 Analytics Cockpit UI（Phase 3）**
-  - Phase 2 完了: KPI dense ストリップ（2行）、折りたたみ廃止、グラフ flex-1 常時表示、raceDetail プレースホルダー
+  - Phase 2 完了・実機検証済み: KPI dense ストリップ、グラフ常時表示、FHD グラフ高・Tooltip・DevTools 警告なし（`6b8b13b` / `c9412ee`）
   - 次: Phase 3 SkillVerifier 右ペイン + TabBar コンパクト化（[`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)）
   - 触る想定: `page.tsx`, `SkillVerifier.tsx`, `TabBar.tsx`（Phase 3）
   - 触らない: WASM, OCR, `src-tauri/`, race-detail-graph Phase 2 以降
@@ -54,7 +54,7 @@
 ## 完了済み
 
 - [x] サイドバー狭幅 UI 整備（Phase S1+S2）— 行レイアウト修正・二重カード解消・padding 圧縮（`d8ddb66` / [`REQ-sidebar-compact-layout.md`](tasks/REQ-sidebar-compact-layout.md)）
-- [x] 全画面 Cockpit UI Phase 2 — KPI ストリップ + グラフ常時表示 + flex-1 高さ対応
+- [x] 全画面 Cockpit UI Phase 2 — KPI ストリップ + グラフ常時表示 + 実機検証済み（`6b8b13b` / `c9412ee`）
 - [x] 全画面 Cockpit UI Phase 1 — サイドバー折りたたみ + 右カラム全幅化 + min-w-0 縮退（`98c8739`）
 - [x] 直近レース詳細グラフ（Phase 1 MVP）— `runSimulationDetail` WASM + recharts 折りたたみ UI（`2abda5a`）
 - [x] Gemini API キーのセキュアストレージ化（Windows Credential Manager + localStorage 移行）（`fa7c5b3`）
