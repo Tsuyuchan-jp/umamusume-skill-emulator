@@ -44,7 +44,7 @@ export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
         initialDimension={{ width: 800, height: 360 }}
       >
         <LineChart data={graphData.points} margin={{ top: 24, right: 48, left: 4, bottom: 4 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#3f3f46" vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#3f3f46" />
           <XAxis
             dataKey="time"
             type="number"
