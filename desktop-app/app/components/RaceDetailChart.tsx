@@ -13,7 +13,7 @@ import {
   Legend,
 } from "recharts";
 import { RaceDetailDump } from "../lib/types";
-import { buildRaceGraphData, GraphPoint, SPEED_MIN, SPEED_MAX } from "../lib/raceGraphBuilder";
+import { buildRaceGraphData, GraphPoint, SPEED_MIN, SPEED_MAX, STAMINA_PLOT_FLOOR } from "../lib/raceGraphBuilder";
 
 interface RaceDetailChartProps {
   detail: RaceDetailDump;
@@ -126,6 +126,15 @@ export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
               label={{ value: phase.label, position: "top", fill: "#a1a1aa", fontSize: 10 }}
             />
           ))}
+          <ReferenceLine
+            y={STAMINA_PLOT_FLOOR}
+            yAxisId="percent"
+            stroke="#71717a"
+            strokeOpacity={0.45}
+            strokeDasharray="2 4"
+            strokeWidth={1}
+            ifOverflow="visible"
+          />
           <Line
             yAxisId="speed"
             type="monotone"
