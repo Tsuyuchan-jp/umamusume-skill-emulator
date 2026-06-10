@@ -95,8 +95,8 @@ export function SimulationLauncher(props: SimulationLauncherProps) {
   return (
     <div className="flex flex-col gap-3 sticky bottom-0 z-20 pb-4 bg-[#09090b] pt-4 border-t border-zinc-900/50">
       <div className="flex flex-col gap-2 min-w-0 bg-zinc-900/80 border border-zinc-800 rounded-xl p-3 backdrop-blur-md">
-        <div className="flex items-center justify-between gap-2 min-w-0">
-          <span className="text-sm font-bold text-zinc-300 shrink-0">試行回数</span>
+        <div className="flex flex-col gap-1.5 w-full min-w-0">
+          <span className="text-xs font-medium text-zinc-300">試行回数</span>
           <input
             type="number"
             min="1"
@@ -107,7 +107,7 @@ export function SimulationLauncher(props: SimulationLauncherProps) {
               setSimulationCount(val);
               localStorage.setItem("simulationCount", val.toString());
             }}
-            className="bg-zinc-950 border border-zinc-700 rounded-lg px-3 py-1.5 text-sm text-zinc-100 outline-none focus:border-emerald-500 w-24 shrink-0 font-mono font-bold"
+            className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-3 py-1.5 text-sm text-zinc-100 outline-none focus:border-emerald-500 font-mono font-bold"
           />
         </div>
         <div className="grid grid-cols-3 gap-1.5 w-full min-w-0">
