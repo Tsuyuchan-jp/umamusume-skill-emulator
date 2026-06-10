@@ -62,6 +62,7 @@ export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
           <Tooltip
             position={({ x, y }) => ({ x, y: y - TOOLTIP_Y_OFFSET })}
             allowEscapeViewBox={{ x: false, y: true }}
+            wrapperStyle={{ zIndex: 1000 }}
             contentStyle={{ backgroundColor: "#18181b", border: "1px solid #3f3f46", borderRadius: 8 }}
             labelFormatter={(t) => `経過: ${formatTime(Number(t))}`}
             formatter={(value, name) => {
