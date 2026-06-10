@@ -612,7 +612,7 @@ export default function Home() {
               </div>
 
               {/* Body: ResultCard + SkillVerifier 右ペイン */}
-              <div className="flex-1 min-h-0 overflow-hidden">
+              <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
               {activeTab.simResultDump ? (
                 <ResultCard
                   result={activeTab.simResultDump}
