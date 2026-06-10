@@ -50,6 +50,20 @@ umamusume-skill-emulator/
 - **検証**: Agent mode + 新チャット（実装チャットとは分離）
 - **日時記録**: `docs/` の更新・ログは `YYYY-MM-DD HH:mm`（`.cursor/rules/docs-management.mdc`）
 
+### REQ（要件ドキュメント）の運用
+
+| 置き場所 | 役割 |
+|---------|------|
+| `docs/TODO.md` | 次にやることの **唯一の入口**（優先度・REQ リンク） |
+| `docs/tasks/REQ-*.md` | 仕様・スコープ・完了条件・決定ログ |
+| ロードマップ REQ | マルチ Phase シリーズの索引（例: `REQ-race-detail-graph.md`） |
+
+**必須**: REQ を `draft` で起票したら **同時に TODO Backlog へ1行追加**（詳細は `.cursor/rules/docs-management.mdc`）。
+
+- チャット起票時: まず `@docs/TODO.md` → 着手 REQ を `@` 参照
+- `docs/tasks/` に REQ が増えても、**探す起点は TODO**（エクスプローラーでファイル名を目視する必要はない）
+- REQ が20件超: `docs/tasks/INDEX.md` で一覧管理（未到達。現状は TODO + ロードマップ REQ で運用）
+
 ### コメント・応答言語
 
 - コードコメント: 日本語

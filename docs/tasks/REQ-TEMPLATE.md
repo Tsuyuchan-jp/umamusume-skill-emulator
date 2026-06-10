@@ -2,6 +2,8 @@
 
 > 大きめの機能・仕様変更用テンプレート。
 > 小さな修正は `docs/TODO.md` だけで足りる。このファイルは不要。
+>
+> **起票時必須**: 本 REQ を `draft` で作成したら、**同一コミット内**で `docs/TODO.md` Backlog に1行追加する（タイトル・優先度・本ファイルへのリンク）。詳細は `.cursor/rules/docs-management.mdc`。
 
 - **ステータス**: draft / in-progress / done
 - **作成日**: YYYY-MM-DD HH:mm
@@ -43,9 +45,9 @@
 
 ## 完了条件
 
-- [ ] 
+- [ ] `docs/TODO.md` Backlog に起票と同時に1行追加（`draft` 起票時必須）
 - [ ] 実機確認
-- [ ] `docs/TODO.md` 更新
+- [ ] REQ 完了時: TODO を完了済みへ移動
 - [ ] コミット
 
 ---

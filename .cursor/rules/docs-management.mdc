@@ -49,3 +49,29 @@ Get-Date -Format "yyyy-MM-dd HH:mm"
   — Windows 環境では権限なし sandbox だと stdout が空になり、時刻が取れない
 - 出力が空の場合は権限付きで再実行する。取得できるまで docs の日時を書かない
 - 取得した文字列を `最終更新:`・決定事項ログの「日時」列・`作成日` 等にそのまま使う
+
+## REQ と TODO の役割分担
+
+| ファイル | 役割 | いつ見るか |
+|---------|------|-----------|
+| `docs/TODO.md` | **次に何をするか**（優先度・1行要約・REQ リンク） | 作業開始時 **必ず最初** |
+| `docs/tasks/REQ-*.md` | **どう実装するか**（スコープ・完了条件・決定ログ） | 設計レビュー・実装時 |
+| ロードマップ REQ（例: `REQ-race-detail-graph.md`） | **シリーズ全体の順序**（Phase 表） | マルチ Phase 機能の文脈確認時 |
+
+**着手候補は TODO に載っていることが正本。** REQ が `draft` でも TODO Backlog に無ければ「次のタスク」として存在しない。
+
+## REQ 起票・更新時の必須動作
+
+1. **`draft` / `in-progress` の REQ を新規作成したら、同一コミット内で `docs/TODO.md` Backlog に1行追加する**（タイトル・優先度・REQ リンク）。これを省略しない。
+2. REQ を `done` にしたら、TODO の該当行を **Backlog → 完了済み** へ移し、コミットハッシュを添える。
+3. マルチ Phase 機能は **ロードマップ REQ + Phase 別 sibling REQ**。draft の Phase ごとに TODO へ行を追加する（ロードマップ REQ だけに書いて TODO を空にしない）。
+4. **done の REQ は削除しない**（決定ログ・完了条件は後続 Phase の参照になる）。
+5. 数行の修正など REQ が不要な小タスクは TODO のみで可（`REQ-TEMPLATE.md` 参照）。
+
+## REQ 索引（20件超えたら）
+
+`docs/tasks/REQ-*.md`（テンプレ除く）が **20件を超えたら** `docs/tasks/INDEX.md` を作成・維持する。
+
+- TODO = 「次に何をするか」、INDEX = 「全 REQ の一覧とステータス」
+- INDEX 列例: REQ 名 | ステータス | TODO 掲載 | 優先度 | 備考
+- 20件以下の間は TODO + 各ロードマップ REQ で足りる。索引は早めに作らない。

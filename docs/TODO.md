@@ -3,7 +3,7 @@
 > Cursor 作業チャット起票時に `@docs/TODO.md` で参照する正本。
 > **作業完了のたびに必ず更新**し、コミットに含める。
 
-最終更新: 2026-06-11 04:54
+最終更新: 2026-06-11 05:45
 
 ---
 
@@ -98,7 +98,8 @@
 - サイドバー狭幅 UI（380px / min 320px）は Phase S1+S2 で完了（[`REQ-sidebar-compact-layout.md`](tasks/REQ-sidebar-compact-layout.md)）。S3 コンテナクエリは見送り
 - 全画面 Cockpit UI（Phase 1〜3）は完了（[`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)）
 - グラフ Y軸・m/s は [`REQ-race-detail-graph-axis.md`](tasks/REQ-race-detail-graph-axis.md) で対応済み
-- 直近レース詳細グラフ: ロードマップ [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md)。Phase 1 + axis **完了**。Phase 2〜4 は sibling REQ + TODO Backlog
+- 直近レース詳細グラフ: ロードマップ [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md)。Phase 1 + axis **完了**。Phase 2〜4 は sibling REQ + 本 Backlog に掲載
+- **REQ 運用**: 着手候補の正本は **本 TODO**。`draft` REQ 起票時は Backlog へ必ず1行追加（`.cursor/rules/docs-management.mdc`）
 - 因子管理 DB・Tesseract OCR・Supabase 連携は **開発予定なし**（`.cursor/rules/development.mdc`）
 
 ---
@@ -112,3 +113,6 @@
 5. 大きめの機能は `docs/tasks/REQ-*.md` を作成してリンクする
 6. **日時記録**: 更新・ログのタイムスタンプは `YYYY-MM-DD HH:mm`（ローカル時刻）。詳細は `.cursor/rules/docs-management.mdc`
 7. ファイルを更新したら、先頭の `最終更新:` をその作業の日時に書き換える
+8. **REQ を `draft` / `in-progress` で起票したら、同一作業で Backlog に必ず1行追加する**（REQ だけに書いて TODO を空にしない）
+9. REQ が `done` になったら Backlog から削除し「完了済み」へ移す（REQ ファイル自体は残す）
+10. REQ 20件超: `docs/tasks/INDEX.md` を新設して一覧管理（`.cursor/rules/docs-management.mdc` 参照）
