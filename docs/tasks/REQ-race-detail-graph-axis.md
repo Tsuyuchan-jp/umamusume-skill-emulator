@@ -3,9 +3,9 @@
 > レース詳細グラフの体力・レーン基準位置と速度 m/s 表示。
 > 前提: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md) Phase 1 完了、Cockpit Phase 3 完了。
 
-- **ステータス**: draft
+- **ステータス**: done
 - **作成日**: 2026-06-10 21:30
-- **関連コミット**: （完了後に記入）
+- **関連コミット**: （コミット後に記入）
 
 ---
 
@@ -23,10 +23,10 @@ FHD Cockpit 右ペイン運用で、レース詳細グラフの**読み取りや
 
 ### やること
 
-- [ ] `raceGraphBuilder.ts`: 体力・レーンの表示用リマップ（0 をグラフ下端付近へ）
-- [ ] `RaceDetailChart.tsx`: 複数 Y 軸（速度 m/s 左軸、体力・レーン右軸等）
-- [ ] Tooltip: 速度は `m/s`、体力・レーンは % または適切な単位
-- [ ] Phase 2 退行防止: Tooltip `position` / `TOOLTIP_Y_OFFSET` / `initialDimension` / z-index は維持
+- [x] `raceGraphBuilder.ts`: 体力・レーンの表示用リマップ（0 をグラフ下端付近へ）
+- [x] `RaceDetailChart.tsx`: 複数 Y 軸（速度 m/s 左軸、体力・レーン右軸等）
+- [x] Tooltip: 速度は `m/s`、体力・レーンは % または適切な単位
+- [x] Phase 2 退行防止: Tooltip `position` / `TOOLTIP_Y_OFFSET` / `initialDimension` / z-index は維持
 
 ### やらないこと
 
@@ -77,13 +77,13 @@ FHD Cockpit 右ペイン運用で、レース詳細グラフの**読み取りや
 
 ## 完了条件
 
-- [ ] 体力 0 がグラフ下端付近（~10%）に表示される
-- [ ] レーン内枠（0%）がグラフ下端付近に表示される
-- [ ] 速度軸・Tooltip が m/s 表記
-- [ ] Tooltip 位置・Legend 重なりに Phase 2 からの退行なし
-- [ ] DevTools 新規警告なし
-- [ ] `npm run tauri dev` 実機確認
-- [ ] REQ ステータス `done` + `docs/TODO.md` 更新 + コミット
+- [x] 体力 0 がグラフ下端付近（~10%）に表示される
+- [x] レーン内枠（0%）がグラフ下端付近に表示される
+- [x] 速度軸・Tooltip が m/s 表記
+- [x] Tooltip 位置・Legend 重なりに Phase 2 からの退行なし
+- [x] DevTools 新規警告なし
+- [x] `npm run tauri dev` 実機確認
+- [x] REQ ステータス `done` + `docs/TODO.md` 更新 + コミット
 
 ---
 
@@ -102,6 +102,7 @@ FHD Cockpit 右ペイン運用で、レース詳細グラフの**読み取りや
 |------|---------|------|
 | 2026-06-10 21:30 | 多 Y 軸 + 体力/レーンリマップ + 速度 m/s | ユーザー承認（Ask mode 設計レビュー） |
 | 2026-06-10 21:30 | 位相ラベル短縮・margin は別タスク（本 REQ 外で先行実装可） | Cockpit UX チャットで 1–4 対応 |
+| 2026-06-10 22:45 | 実装完了: 双 Y 軸・体力床 0.1・レーン床 0.05・速度生値 m/s | Agent mode 実装チャット |
 
 ---
 

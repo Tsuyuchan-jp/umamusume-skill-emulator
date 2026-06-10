@@ -13,7 +13,7 @@ import {
   Legend,
 } from "recharts";
 import { RaceDetailDump } from "../lib/types";
-import { buildRaceGraphData } from "../lib/raceGraphBuilder";
+import { buildRaceGraphData, GraphPoint, SPEED_MIN, SPEED_MAX } from "../lib/raceGraphBuilder";
 
 interface RaceDetailChartProps {
   detail: RaceDetailDump;
@@ -43,7 +43,7 @@ export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
         minWidth={0}
         initialDimension={{ width: 800, height: 360 }}
       >
-        <LineChart data={graphData.points} margin={{ top: 24, right: 16, left: 0, bottom: 4 }}>
+        <LineChart data={graphData.points} margin={{ top: 24, right: 48, left: 4, bottom: 4 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#3f3f46" />
           <XAxis
             dataKey="time"
@@ -55,6 +55,19 @@ export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
             label={{ value: "経過時間", position: "insideBottom", offset: -2, fill: "#a1a1aa", fontSize: 11 }}
           />
           <YAxis
+            yAxisId="speed"
+            orientation="left"
+            domain={[SPEED_MIN, SPEED_MAX]}
+            allowDataOverflow
+            tickFormatter={(v) => v.toFixed(1)}
+            stroke="#3b82f6"
+            fontSize={11}
+            width={48}
+            label={{ value: "m/s", angle: -90, position: "insideLeft", fill: "#a1a1aa", fontSize: 11 }}
+          />
+          <YAxis
+            yAxisId="percent"
+            orientation="right"
             domain={[0, 1]}
             tickFormatter={(v) => `${(v * 100).toFixed(0)}%`}
             stroke="#71717a"
@@ -67,15 +80,28 @@ export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
             wrapperStyle={{ zIndex: 1000 }}
             contentStyle={{ backgroundColor: "#18181b", border: "1px solid #3f3f46", borderRadius: 8 }}
             labelFormatter={(t) => `経過: ${formatTime(Number(t))}`}
-            formatter={(value, name) => {
-              const num = typeof value === "number" ? value : 0;
+            formatter={(value, name, item) => {
+              const payload = item?.payload as GraphPoint | undefined;
               const labels: Record<string, string> = {
                 speed: "速度",
                 stamina: "体力",
                 lane: "レーン",
               };
               const key = String(name);
-              return [`${(num * 100).toFixed(1)}%`, labels[key] ?? key];
+              const label = labels[key] ?? key;
+
+              if (key === "speed" && payload) {
+                return [`${payload.speed.toFixed(1)} m/s`, label];
+              }
+              if (key === "stamina" && payload) {
+                return [`${payload.staminaPct.toFixed(1)}%`, label];
+              }
+              if (key === "lane" && payload) {
+                return [`${payload.lanePct.toFixed(1)}%`, label];
+              }
+
+              const num = typeof value === "number" ? value : 0;
+              return [String(num), label];
             }}
           />
           <Legend
@@ -99,6 +125,7 @@ export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
             />
           ))}
           <Line
+            yAxisId="speed"
             type="monotone"
             dataKey="speed"
             stroke="#3b82f6"
@@ -107,6 +134,7 @@ export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
             isAnimationActive={false}
           />
           <Line
+            yAxisId="percent"
             type="monotone"
             dataKey="stamina"
             stroke="#ef4444"
@@ -115,6 +143,7 @@ export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
             isAnimationActive={false}
           />
           <Line
+            yAxisId="percent"
             type="monotone"
             dataKey="lane"
             stroke="#22c55e"

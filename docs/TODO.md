@@ -3,13 +3,13 @@
 > Cursor 作業チャット起票時に `@docs/TODO.md` で参照する正本。
 > **作業完了のたびに必ず更新**し、コミットに含める。
 
-最終更新: 2026-06-10 22:03
+最終更新: 2026-06-10 22:45
 
 ---
 
 ## 現在のフォーカス
 
-レース詳細グラフ Y軸・単位改善（[`REQ-race-detail-graph-axis.md`](tasks/REQ-race-detail-graph-axis.md)）— 新チャットで着手
+パレットのスキルデータ参照をローカルに統一（P1）— 次チャットで着手
 
 ---
 
@@ -25,10 +25,7 @@
 
 ### P0 — 次に着手
 
-- [ ] **レース詳細グラフ Y軸・単位改善**
-  - 体力/レーン基準位置・速度 m/s 多軸表示（[`REQ-race-detail-graph-axis.md`](tasks/REQ-race-detail-graph-axis.md)）
-  - 触る想定: `raceGraphBuilder.ts`, `RaceDetailChart.tsx`
-  - 触らない: WASM, Cockpit レイアウト再変更
+（空 — P1 へ）
 
 ### P1 — 重要（急がない）
 
@@ -52,6 +49,7 @@
 
 ## 完了済み
 
+- [x] レース詳細グラフ Y軸・単位改善 — 双 Y 軸・体力/レーン床リマップ・速度 m/s（[`REQ-race-detail-graph-axis.md`](tasks/REQ-race-detail-graph-axis.md)）
 - [x] 全画面 Cockpit UI（Phase 1〜3 + UX ポリッシュ）— SkillVerifier 右ペイン・トースト Portal・KPI ストリップ等（`98c8739`〜`a75ec9c` / [`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)）
 - [x] サイドバー狭幅 UI 整備（Phase S1+S2）— 行レイアウト修正・二重カード解消・padding 圧縮（`d8ddb66` / [`REQ-sidebar-compact-layout.md`](tasks/REQ-sidebar-compact-layout.md)）
 - [x] 全画面 Cockpit UI Phase 2 — KPI ストリップ + グラフ常時表示 + 実機検証済み（`6b8b13b` / `c9412ee`）
@@ -81,7 +79,7 @@
 - Gemini API キーは Windows 資格情報マネージャー（`com.umamusume.race-analyzer` / `gemini_api_key`）に保存
 - サイドバー狭幅 UI（380px / min 320px）は Phase S1+S2 で完了（[`REQ-sidebar-compact-layout.md`](tasks/REQ-sidebar-compact-layout.md)）。S3 コンテナクエリは見送り
 - 全画面 Cockpit UI（Phase 1〜3）は完了（[`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)）
-- グラフ Y軸・m/s は [`REQ-race-detail-graph-axis.md`](tasks/REQ-race-detail-graph-axis.md) で対応予定
+- グラフ Y軸・m/s は [`REQ-race-detail-graph-axis.md`](tasks/REQ-race-detail-graph-axis.md) で対応済み
 - 因子管理 DB・Tesseract OCR・Supabase 連携は **開発予定なし**（`.cursor/rules/development.mdc`）
 
 ---
