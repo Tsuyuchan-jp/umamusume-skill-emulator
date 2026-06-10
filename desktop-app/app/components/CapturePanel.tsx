@@ -149,17 +149,16 @@ export function CapturePanel(props: CapturePanelProps) {
                 </button>
               )}
             </div>
-            <button 
+            <button
+              type="button"
               onClick={onTogglePreviewExpanded}
-              className="block w-full rounded-xl border border-white/[0.04] bg-black/50 p-2 shadow-inner transition-all duration-500 cursor-pointer hover:border-white/[0.1]"
+              className={`block w-full rounded-xl overflow-hidden transition-all duration-500 cursor-pointer ${isPreviewExpanded ? "aspect-auto" : "aspect-[100/28]"}`}
             >
-              <div className={`w-full relative overflow-hidden rounded-lg transition-all duration-500 ${isPreviewExpanded ? 'aspect-auto' : 'aspect-[100/28]'}`}>
-                <img 
-                  src={resultImage} 
-                  alt="Combined Status" 
-                  className={`w-full h-auto block transition-all duration-500 ${isPreviewExpanded ? 'mt-0' : '-mt-[9.5%]'}`} 
-                />
-              </div>
+              <img
+                src={resultImage}
+                alt="Combined Status"
+                className={`w-full h-auto block transition-all duration-500 ${isPreviewExpanded ? "mt-0" : "-mt-[9.5%]"}`}
+              />
             </button>
           </div>
         )}
