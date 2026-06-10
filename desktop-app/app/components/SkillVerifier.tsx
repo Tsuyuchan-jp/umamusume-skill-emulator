@@ -152,15 +152,7 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
           disabled={!hasSummaryItems}
           className={`w-full flex items-center justify-between gap-2 px-3 py-2 text-left ${hasSummaryItems ? 'cursor-pointer hover:bg-zinc-800/30' : 'cursor-default'} rounded-lg transition-colors`}
         >
-          <div className="flex items-center gap-2 min-w-0 text-xs flex-1">
-            {/* 常時スロット確保で未反映ピル出現時のレイアウトシフトを防止 */}
-            <div className="shrink-0 w-[4.75rem] h-[22px] flex items-center">
-              {isDirty ? (
-                <span className="text-[10px] font-bold text-orange-400 bg-orange-500/15 border border-orange-500/30 px-1.5 py-0.5 rounded whitespace-nowrap">
-                  未反映 {totalUnappliedCount}
-                </span>
-              ) : null}
-            </div>
+          <div className="flex items-center gap-2 min-w-0 text-xs flex-1 justify-start">
             <span className="font-bold text-emerald-500/70 shrink-0">
               追加 <span className="text-zinc-300 font-bold">{addedSummaryCount > 0 ? `${addedSummaryCount}件` : 'なし'}</span>
             </span>
@@ -168,11 +160,21 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
               除外 <span className="text-zinc-300 font-bold">{excludedSummaryCount > 0 ? `${excludedSummaryCount}件` : 'なし'}</span>
             </span>
           </div>
-          {hasSummaryItems && (
-            <ChevronDown
-              className={`w-4 h-4 shrink-0 text-zinc-500 transition-transform ${isSummaryExpanded ? 'rotate-180' : ''}`}
-            />
-          )}
+          <div className="flex items-center gap-2 shrink-0">
+            {/* 常時スロット確保で未反映ピル出現時のレイアウトシフトを防止 */}
+            <div className="shrink-0 w-[4.75rem] h-[22px] flex items-center justify-end">
+              {isDirty ? (
+                <span className="text-[10px] font-bold text-orange-400 bg-orange-500/15 border border-orange-500/30 px-1.5 py-0.5 rounded whitespace-nowrap">
+                  未反映 {totalUnappliedCount}
+                </span>
+              ) : null}
+            </div>
+            {hasSummaryItems && (
+              <ChevronDown
+                className={`w-4 h-4 shrink-0 text-zinc-500 transition-transform ${isSummaryExpanded ? 'rotate-180' : ''}`}
+              />
+            )}
+          </div>
         </button>
 
         {isSummaryExpanded && hasSummaryItems && (
