@@ -95,7 +95,7 @@ export function SimulationLauncher(props: SimulationLauncherProps) {
   return (
     <div className="flex flex-col gap-3 sticky bottom-0 z-20 pb-4 bg-[#09090b] pt-4 border-t border-zinc-900/50">
       <div className="flex flex-col gap-2 min-w-0 bg-zinc-900/80 border border-zinc-800 rounded-xl p-3 backdrop-blur-md">
-        <div className="flex items-center gap-2 min-w-0 w-full">
+        <div className="flex items-center justify-between gap-2 min-w-0 w-full">
           <span className="text-xs font-medium text-zinc-300 shrink-0 pl-3">試行回数</span>
           <input
             type="number"
