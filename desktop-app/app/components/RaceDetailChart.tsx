@@ -22,8 +22,32 @@ interface RaceDetailChartProps {
 
 const formatTime = (seconds: number) => `${seconds.toFixed(1)}秒`;
 
+/** 体力折れ線と同じ色 */
+const STAMINA_LINE_COLOR = "#ef4444";
+
+/** 右軸: 体力0のプロット位置に「0」目盛を挿入 */
+const PERCENT_AXIS_TICKS = [0, STAMINA_PLOT_FLOOR, 0.25, 0.5, 0.75, 1];
+
 /** Tooltip をカーソル付近（やや下）に表示し、折れ線への被りを減らす */
 const TOOLTIP_Y_OFFSET = 70;
+
+const renderPercentAxisTick = (props: {
+  x?: number;
+  y?: number;
+  payload?: { value?: number };
+}) => {
+  const { x = 0, y = 0, payload } = props;
+  const value = payload?.value ?? 0;
+  const isStaminaZero = Math.abs(value - STAMINA_PLOT_FLOOR) < 1e-6;
+  const label = isStaminaZero ? "0" : `${(value * 100).toFixed(0)}%`;
+  const fill = isStaminaZero ? STAMINA_LINE_COLOR : "#71717a";
+
+  return (
+    <text x={x} y={y} dy={4} textAnchor="start" fill={fill} fontSize={11}>
+      {label}
+    </text>
+  );
+};
 
 export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
   const graphData = useMemo(() => buildRaceGraphData(detail), [detail]);
@@ -99,7 +123,8 @@ export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
             yAxisId="percent"
             orientation="right"
             domain={[0, 1]}
-            tickFormatter={(v) => `${(v * 100).toFixed(0)}%`}
+            ticks={PERCENT_AXIS_TICKS}
+            tick={renderPercentAxisTick}
             stroke="#71717a"
             fontSize={11}
             width={40}
@@ -178,7 +203,7 @@ export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
             yAxisId="percent"
             type="monotone"
             dataKey="stamina"
-            stroke="#ef4444"
+            stroke={STAMINA_LINE_COLOR}
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}
