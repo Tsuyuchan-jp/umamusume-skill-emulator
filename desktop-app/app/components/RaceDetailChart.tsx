@@ -21,8 +21,8 @@ interface RaceDetailChartProps {
 
 const formatTime = (seconds: number) => `${seconds.toFixed(1)}秒`;
 
-/** Tooltip をカーソルより上にずらし、折れ線への被りを減らす */
-const TOOLTIP_Y_OFFSET = 80;
+/** Tooltip をカーソル付近（やや下）に表示し、折れ線への被りを減らす */
+const TOOLTIP_Y_OFFSET = 70;
 
 export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
   const graphData = useMemo(() => buildRaceGraphData(detail), [detail]);
