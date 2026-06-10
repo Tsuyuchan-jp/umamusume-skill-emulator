@@ -53,6 +53,7 @@
 
 ## 完了済み
 
+- [x] 全画面 Cockpit UI Phase 1 — サイドバー折りたたみ + 右カラム全幅化 + min-w-0 縮退（`98c8739`）
 - [x] 直近レース詳細グラフ（Phase 1 MVP）— `runSimulationDetail` WASM + recharts 折りたたみ UI（`2abda5a`）
 - [x] Gemini API キーのセキュアストレージ化（Windows Credential Manager + localStorage 移行）（`fa7c5b3`）
 - [x] スキル UI 最終実機確認（パレット先頭 inherit・special/minus 除外・色分け一致）
