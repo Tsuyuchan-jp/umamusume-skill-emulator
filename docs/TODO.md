@@ -52,7 +52,7 @@
 
 ## 完了済み
 
-- [x] Cockpit UX ポリッシュ — 検証ボタン文言・トースト上部中央・KPI 拡大・位相ラベル（[`REQ-race-detail-graph-axis.md`](tasks/REQ-race-detail-graph-axis.md) 位相部分）
+- [x] Cockpit UX ポリッシュ — 検証ボタン文言・トースト上部中央・KPI 拡大・位相ラベル（`6324663` / [`REQ-race-detail-graph-axis.md`](tasks/REQ-race-detail-graph-axis.md) 位相部分）
 - [x] 全画面 Cockpit UI Phase 3 — SkillVerifier 右ペイン等（`52c7e5c` 付近 / [`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)）
 - [x] サイドバー狭幅 UI 整備（Phase S1+S2）— 行レイアウト修正・二重カード解消・padding 圧縮（`d8ddb66` / [`REQ-sidebar-compact-layout.md`](tasks/REQ-sidebar-compact-layout.md)）
 - [x] 全画面 Cockpit UI Phase 2 — KPI ストリップ + グラフ常時表示 + 実機検証済み（`6b8b13b` / `c9412ee`）
