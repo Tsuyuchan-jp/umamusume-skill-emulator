@@ -21,6 +21,9 @@ interface RaceDetailChartProps {
 
 const formatTime = (seconds: number) => `${seconds.toFixed(1)}秒`;
 
+/** Tooltip をカーソルより上にずらし、折れ線への被りを減らす */
+const TOOLTIP_Y_OFFSET = 80;
+
 export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
   const graphData = useMemo(() => buildRaceGraphData(detail), [detail]);
 
@@ -57,6 +60,8 @@ export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
             width={40}
           />
           <Tooltip
+            position={({ x, y }) => ({ x, y: y - TOOLTIP_Y_OFFSET })}
+            allowEscapeViewBox={{ x: false, y: true }}
             contentStyle={{ backgroundColor: "#18181b", border: "1px solid #3f3f46", borderRadius: 8 }}
             labelFormatter={(t) => `経過: ${formatTime(Number(t))}`}
             formatter={(value, name) => {
