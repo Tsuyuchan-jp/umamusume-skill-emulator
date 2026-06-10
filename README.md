@@ -2,7 +2,9 @@
 
 Steam版・DMM版「ウマ娘 プリティーダービー」向けのレースアナライザーです。ゲーム内の詳細ステータス画面をキャプチャし、OCR でデータを抽出、umasim WASM エンジンでレースをシミュレーションします。
 
-**現在のバージョン**: v1.0.6
+**現在のバージョン**: v1.0.7
+
+更新履歴: [docs/CHANGELOG.md](./docs/CHANGELOG.md)
 
 ## プロジェクト構成
 
@@ -46,7 +48,7 @@ umamusume-skill-emulator/
 
 - **Google Gemini API キーが必須**（アプリの設定画面から登録）
 - 使用モデル: `gemini-3.5-flash`（メイン）、失敗時 `gemini-3.1-flash-lite`（フォールバック）
-- API キーはブラウザの `localStorage` に保存される（セキュアストレージ化は今後の改善予定）
+- API キーは **Windows 資格情報マネージャー** に保存される（`localStorage` には保存しない）
 
 ### ネットワーク
 

@@ -26,8 +26,8 @@ export function SimulationLauncher(props: SimulationLauncherProps) {
     resultImage, tabs, setTabs, setActiveTabId, showToastMessage
   } = props;
 
-  const hasNormalUniqueAtFirst =
-    umaData?.skillIds?.length > 0 && isUniqueSkillId(umaData.skillIds[0]);
+  const firstSkillId = umaData?.skillIds?.[0];
+  const hasNormalUniqueAtFirst = firstSkillId != null && isUniqueSkillId(firstSkillId);
 
   const handleRunSimulation = async () => {
     if (!umaData) return;

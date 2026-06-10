@@ -16,6 +16,7 @@ import { ToastNotification } from "../components/ToastNotification";
 import { RaceConditionSelector } from "../components/RaceConditionSelector";
 import { analyzeStitchedImage } from "../lib/geminiOcr";
 import { migrateFromLocalStorage, saveApiKey } from "../lib/apiKeyStorage";
+import { UmaStatusData, SimTab, RaceCondition } from "../lib/types";
 import { canPlaceSkillAtIndex } from "../lib/umasimSkillData";
 import { ResultCard } from "../components/ResultCard";
 import { SkillVerifier } from "../components/SkillVerifier";
@@ -383,7 +384,7 @@ export default function Home() {
           </div>
           <h1 className="text-xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-100 to-zinc-400 shrink-0 flex items-baseline">
             ウマ娘 レースアナライザー
-            <span className="text-xs text-zinc-500 font-medium ml-2">v1.0.6</span>
+            <span className="text-xs text-zinc-500 font-medium ml-2">v1.0.7</span>
           </h1>
         </div>
 
