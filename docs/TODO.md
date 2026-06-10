@@ -3,19 +3,22 @@
 > Cursor 作業チャット起票時に `@docs/TODO.md` で参照する正本。
 > **作業完了のたびに必ず更新**し、コミットに含める。
 
-最終更新: 2026-06-10 16:12
+最終更新: 2026-06-10 17:45
 
 ---
 
 ## 現在のフォーカス
 
-パレットのスキルデータ参照をローカルに統一（P1）
+全画面 Analytics Cockpit UI — 設計レビュー（[`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)）
 
 ---
 
 ## 進行中
 
-なし
+- [ ] **全画面 Cockpit UI — 設計レビュー**
+  - REQ: [`docs/tasks/REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)
+  - 起票: REQ 末尾の「設計レビュー起票プロンプト」を **Ask mode 新チャット** に貼る
+  - 承認後: Phase 1 から Agent mode で実装
 
 ---
 
@@ -25,7 +28,12 @@
 
 ### P0 — 次に着手
 
-（なし — P1 を参照）
+- [ ] **全画面 Analytics Cockpit UI（Phase 1〜3）**
+  - 案 A: KPI ストリップ + グラフ主役 + SkillVerifier 右ペイン
+  - サイドバー 380px デフォルト + 折りたたみ / グラフ常時表示
+  - 設計レビュー承認 → Phase 1 実装（[`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)）
+  - 触る想定: `page.tsx`, `ResultCard.tsx`, `RaceDetailChart.tsx`, `SkillVerifier.tsx`, `TabBar.tsx`
+  - 触らない: WASM, OCR, `src-tauri/`, race-detail-graph Phase 2 以降
 
 ### P1 — 重要（急がない）
 
