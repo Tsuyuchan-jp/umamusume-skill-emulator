@@ -94,29 +94,32 @@ export function SimulationLauncher(props: SimulationLauncherProps) {
 
   return (
     <div className="flex flex-col gap-3 sticky bottom-0 z-20 pb-4 bg-[#09090b] pt-4 border-t border-zinc-900/50">
-      <div className="flex items-center gap-3 bg-zinc-900/80 border border-zinc-800 rounded-xl p-3 backdrop-blur-md">
-        <span className="text-sm font-bold text-zinc-300 whitespace-nowrap">試行回数</span>
-        <input
-          type="number"
-          min="1"
-          max="100000"
-          value={simulationCount}
-          onChange={(e) => {
-            const val = parseInt(e.target.value) || 100;
-            setSimulationCount(val);
-            localStorage.setItem("simulationCount", val.toString());
-          }}
-          className="bg-zinc-950 border border-zinc-700 rounded-lg px-3 py-1.5 text-sm text-zinc-100 outline-none focus:border-emerald-500 w-24 font-mono font-bold"
-        />
-        <div className="flex items-center gap-1.5 ml-auto">
+      <div className="flex flex-col gap-2 min-w-0 bg-zinc-900/80 border border-zinc-800 rounded-xl p-3 backdrop-blur-md">
+        <div className="flex items-center justify-between gap-2 min-w-0">
+          <span className="text-sm font-bold text-zinc-300 shrink-0">試行回数</span>
+          <input
+            type="number"
+            min="1"
+            max="100000"
+            value={simulationCount}
+            onChange={(e) => {
+              const val = parseInt(e.target.value) || 100;
+              setSimulationCount(val);
+              localStorage.setItem("simulationCount", val.toString());
+            }}
+            className="bg-zinc-950 border border-zinc-700 rounded-lg px-3 py-1.5 text-sm text-zinc-100 outline-none focus:border-emerald-500 w-24 shrink-0 font-mono font-bold"
+          />
+        </div>
+        <div className="grid grid-cols-3 gap-1.5 w-full min-w-0">
           {[100, 1000, 10000].map(num => (
             <button
               key={num}
+              type="button"
               onClick={() => {
                 setSimulationCount(num);
                 localStorage.setItem("simulationCount", num.toString());
               }}
-              className={`px-2.5 py-1 text-xs font-bold rounded-md transition-all ${
+              className={`min-w-0 px-2 py-1 text-xs font-bold rounded-md transition-all ${
                 simulationCount === num
                   ? 'bg-emerald-500 text-white shadow-md'
                   : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200'
