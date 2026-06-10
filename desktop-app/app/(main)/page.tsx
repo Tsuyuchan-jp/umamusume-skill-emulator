@@ -398,7 +398,7 @@ export default function Home() {
             </button>
           </div>
         ) : (
-          <div className="h-full overflow-y-auto p-6 flex flex-col gap-6 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent min-w-0">
+          <div className="h-full overflow-y-auto p-4 flex flex-col gap-6 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent min-w-0">
             {/* Title */}
             <div className="flex items-center gap-3 min-w-0">
               <div className="flex items-center justify-center w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.15)] transition-all duration-300 hover:bg-emerald-500/20 shrink-0">
@@ -406,9 +406,9 @@ export default function Home() {
                   <path d="M4 10a8 8 0 0 1 16 0v4a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-4a2 2 0 0 0-4 0v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4z"></path>
                 </svg>
               </div>
-              <h1 className="text-xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-100 to-zinc-400 shrink min-w-0 flex items-baseline">
+              <h1 className="text-base font-extrabold leading-tight tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-100 to-zinc-400 shrink min-w-0 flex items-baseline">
                 ウマ娘 レースアナライザー
-                <span className="text-xs text-zinc-500 font-medium ml-2">v1.0.7</span>
+                <span className="text-[10px] text-zinc-500 font-medium ml-2">v1.0.7</span>
               </h1>
               <button
                 type="button"

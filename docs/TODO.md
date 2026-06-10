@@ -3,7 +3,7 @@
 > Cursor 作業チャット起票時に `@docs/TODO.md` で参照する正本。
 > **作業完了のたびに必ず更新**し、コミットに含める。
 
-最終更新: 2026-06-10 19:45
+最終更新: 2026-06-10 19:17
 
 ---
 
@@ -33,13 +33,6 @@
 
 ### P1 — 重要（急がない）
 
-- [ ] **サイドバー狭幅 UI 整備**（Phase S1 完了 → 次: S2）
-  - S1 完了: SettingsPanel 行レイアウト常時縦積み・ヘッダー分離・文言短縮（380px「変更」クリップ解消）
-  - 残: S2 padding 圧縮・二重カード解消、S3 コンテナクエリ（任意）
-  - REQ: [`docs/tasks/REQ-sidebar-compact-layout.md`](tasks/REQ-sidebar-compact-layout.md)
-  - 触る想定: `CapturePanel.tsx`, `page.tsx`（S2）、`SettingsPanel.tsx`（S2 ネスト解消）
-  - 触らない: 右カラム Cockpit Phase 2/3、OCR、WASM、`src-tauri/`
-
 - [ ] **パレットのスキルデータ参照をローカルに統一**
   - 現状: パレット一覧は `fetchSkillData()`（GitHub）、色分けは `umasimSkillData.ts`（ローカル）の二重参照
   - 目標: `umasimSkillDataList` を正本にして不整合リスクを減らす
@@ -60,6 +53,7 @@
 
 ## 完了済み
 
+- [x] サイドバー狭幅 UI 整備（Phase S1+S2）— 行レイアウト修正・二重カード解消・padding 圧縮（[`REQ-sidebar-compact-layout.md`](tasks/REQ-sidebar-compact-layout.md)）
 - [x] 全画面 Cockpit UI Phase 1 — サイドバー折りたたみ + 右カラム全幅化 + min-w-0 縮退（`98c8739`）
 - [x] 直近レース詳細グラフ（Phase 1 MVP）— `runSimulationDetail` WASM + recharts 折りたたみ UI（`2abda5a`）
 - [x] Gemini API キーのセキュアストレージ化（Windows Credential Manager + localStorage 移行）（`fa7c5b3`）
@@ -84,7 +78,7 @@
 - パレットのスキル一覧は `fetchSkillData()`（GitHub）から取得。色分けは `umasimSkillData.ts`（ローカル）の ID 参照
 - `special`（14件）+ `minus`（1件）が `unique` 直後に並んでいたため、除外前は先頭がすべて白表示だった
 - Gemini API キーは Windows 資格情報マネージャー（`com.umamusume.race-analyzer` / `gemini_api_key`）に保存
-- サイドバー 380px: SettingsPanel の「変更」クリップは Phase S1 で解消。二重カード・過剰 padding は S2 対象（[`REQ-sidebar-compact-layout.md`](tasks/REQ-sidebar-compact-layout.md)）
+- サイドバー狭幅 UI（380px / min 320px）は Phase S1+S2 で完了（[`REQ-sidebar-compact-layout.md`](tasks/REQ-sidebar-compact-layout.md)）。S3 コンテナクエリは見送り
 - 因子管理 DB・Tesseract OCR・Supabase 連携は **開発予定なし**（`.cursor/rules/development.mdc`）
 
 ---

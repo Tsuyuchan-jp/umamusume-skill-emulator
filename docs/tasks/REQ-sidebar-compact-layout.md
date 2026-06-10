@@ -4,9 +4,9 @@
 > 右カラム Phase 2/3 とは別チャットで進める。
 > 起票: `@docs/tasks/REQ-sidebar-compact-layout.md`
 
-- **ステータス**: in-progress（Phase S1 完了）
+- **ステータス**: done（Phase S1+S2 完了。S3 コンテナクエリは見送り）
 - **作成日**: 2026-06-10 18:56
-- **関連コミット**: `4e5e7dc`（Phase S1）
+- **関連コミット**: `4e5e7dc`（Phase S1）、Phase S2 コミット後に追記
 - **前提**: Cockpit Phase 1（`98c8739`）+ minWidth 1150（`41b6e77`）
 
 ---
@@ -64,9 +64,9 @@
 
 ### Phase S2 — 枠の整理・padding 圧縮（案）
 
-- [ ] SettingsPanel の内側カードを廃止し CapturePanel 内フラットセクション化
-- [ ] sidebar `p-6` → `p-4`、各パネル padding 圧縮
-- [ ] `page.tsx` タイトル行の狭幅対応（フォント縮小 or 短縮表示）
+- [x] SettingsPanel の内側カードを廃止し CapturePanel 内フラットセクション化
+- [x] sidebar `p-6` → `p-4`、各パネル padding 圧縮
+- [x] `page.tsx` タイトル行の狭幅対応（フォント縮小 or 短縮表示）
 
 **触る想定**: `SettingsPanel.tsx`, `CapturePanel.tsx`, `page.tsx`（sidebar padding のみ）
 
@@ -115,11 +115,11 @@
 
 ## 完了条件（全体）
 
-- [ ] 380px で「変更」ボタンが欠けない（保存先・ショートカット・APIキー）
-- [ ] 320px（sidebar min）でも横クリップ・要素重なりなし
-- [ ] キャプチャ・OCR・シミュ・タブに退行なし
-- [ ] `npm run tauri dev` 実機確認
-- [ ] 各 Phase 完了ごとに REQ チェック + `docs/TODO.md` 更新 + コミット（push なし）
+- [x] 380px で「変更」ボタンが欠けない（保存先・ショートカット・APIキー）
+- [x] 320px（sidebar min）でも横クリップ・要素重なりなし
+- [x] キャプチャ・OCR・シミュ・タブに退行なし
+- [x] `npm run tauri dev` 実機確認
+- [x] 各 Phase 完了ごとに REQ チェック + `docs/TODO.md` 更新 + コミット（push なし）
 
 ---
 
@@ -140,6 +140,7 @@
 | 2026-06-10 18:56 | Cockpit 右カラム Phase 2/3 から独立タスクとして切り出し | スコープ分離・並行管理 |
 | 2026-06-10 18:56 | 実機検証で 380px 時の Settings クリップを確認 | ユーザー報告 |
 | 2026-06-10 19:45 | Phase S1 実装: SettingsPanel 行レイアウト常時縦積み・ヘッダー分離・文言短縮 | viewport `sm:` 廃止で 380px カラム内クリップ解消 |
+| 2026-06-10 19:17 | Phase S2 実装: SettingsPanel 外枠カード廃止・CapturePanel フラット統合・padding 圧縮・タイトル行縮小 | 二重カード解消で実効幅 ~316px。S3 コンテナクエリは見送り |
 
 ---
 

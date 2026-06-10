@@ -48,13 +48,13 @@ export function CapturePanel(props: CapturePanelProps) {
   } = props;
 
   return (
-    <div className="w-full backdrop-blur-xl bg-zinc-900/30 border border-zinc-800/80 rounded-2xl p-5 shadow-lg">
+    <div className="w-full backdrop-blur-xl bg-zinc-900/30 border border-zinc-800/80 rounded-2xl p-4 shadow-lg">
       <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-3">
-            <div className={`w-2 h-2 rounded-full ${statusCfg.color} ${statusCfg.pulse ? 'animate-pulse' : ''}`}></div>
-            <h2 className="text-sm font-semibold tracking-wide text-zinc-200">画面キャプチャ連携</h2>
-          </div>
+        <div className="flex items-center gap-3">
+          <div className={`w-2 h-2 rounded-full ${statusCfg.color} ${statusCfg.pulse ? 'animate-pulse' : ''}`}></div>
+          <h2 className="text-sm font-semibold tracking-wide text-zinc-200">画面キャプチャ連携</h2>
+        </div>
+        <div className="border-t border-white/[0.05] pt-4">
           <SettingsPanel
             autoCopyEnabled={autoCopyEnabled}
             onToggleAutoCopy={onToggleAutoCopy}

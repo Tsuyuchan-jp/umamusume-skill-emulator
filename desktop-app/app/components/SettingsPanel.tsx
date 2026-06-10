@@ -30,7 +30,7 @@ export function SettingsPanel({
   shortcutInputRef
 }: SettingsPanelProps) {
   return (
-    <div className="w-full backdrop-blur-xl bg-zinc-900/20 border border-zinc-800/80 rounded-2xl p-4 px-5 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] transition-all duration-500 hover:border-emerald-500/20 hover:shadow-[0_0_30px_0_rgba(16,185,129,0.03)]">
+    <div className="w-full min-w-0">
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between gap-2 min-w-0">
           <h2 className="text-sm font-semibold tracking-wide text-zinc-300 flex items-center gap-2 whitespace-nowrap shrink-0">
@@ -121,7 +121,7 @@ export function SettingsPanel({
             className="shrink-0 bg-zinc-800 hover:bg-emerald-600 text-zinc-300 hover:text-white text-xs font-semibold px-4 py-2 border border-zinc-700/50 rounded-lg transition-all active:bg-emerald-700 flex items-center gap-2"
           >
             <Key className="w-3.5 h-3.5" />
-            {apiKey ? "設定済み" : "未設定"}
+            {apiKey ? "変更" : "未設定"}
           </button>
         </div>
       </div>
