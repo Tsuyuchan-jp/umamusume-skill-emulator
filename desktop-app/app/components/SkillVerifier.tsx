@@ -92,8 +92,9 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
     simulateButtonText = `✅ 最新の構成が反映されています`;
   }
 
-  const containerStyle = isDirty 
-    ? "bg-orange-950/10 border-orange-500/50 border-dashed" 
+  // border は常に solid・同幅で色のみ変え、isDirty 切替時のレイアウトシフトを防ぐ
+  const containerStyle = isDirty
+    ? "bg-orange-950/10 border-orange-500/40"
     : "bg-zinc-950/30 border-zinc-800/50";
 
   const renderSummaryChip = (skillId: string, variant: 'added' | 'excluded') => {
@@ -126,7 +127,7 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
                 type="button"
                 onClick={onResetSkills}
                 disabled={isSimulating}
-                className="flex items-center justify-center w-8 h-8 rounded-lg text-purple-400 hover:text-purple-300 hover:bg-purple-500/10 border border-transparent hover:border-purple-500/30 transition-colors disabled:opacity-50"
+                className="flex items-center justify-center w-8 h-8 rounded-lg text-purple-400/90 border border-zinc-600/50 bg-zinc-800/40 hover:text-purple-300 hover:border-purple-500/45 hover:bg-purple-500/15 hover:shadow-[0_0_14px_rgba(168,85,247,0.22)] transition-all duration-200 disabled:opacity-50"
                 title="元スキルの除外を解除し、仮想スキルをオフにして結果を初期状態に戻します（仮想スキルはリストに残ります）"
               >
                 <RotateCcw className="w-5 h-5" strokeWidth={2.25} />
@@ -144,7 +145,7 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
       </p>
 
       {/* 変更サマリー（折りたたみ） */}
-      <div className={`shrink-0 mb-3 rounded-lg border transition-colors ${containerStyle}`}>
+      <div className={`shrink-0 mb-3 rounded-lg border border-solid transition-colors ${containerStyle}`}>
         <button
           type="button"
           onClick={() => hasSummaryItems && setIsSummaryExpanded(!isSummaryExpanded)}
