@@ -32,12 +32,12 @@ export function SettingsPanel({
   return (
     <div className="w-full backdrop-blur-xl bg-zinc-900/20 border border-zinc-800/80 rounded-2xl p-4 px-5 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] transition-all duration-500 hover:border-emerald-500/20 hover:shadow-[0_0_30px_0_rgba(16,185,129,0.03)]">
       <div className="flex flex-col gap-3">
-        <div className="flex flex-col gap-2">
-          <h2 className="text-sm font-semibold tracking-wide text-zinc-300 flex items-center gap-2 whitespace-nowrap">
+        <div className="flex items-center justify-between gap-2 min-w-0">
+          <h2 className="text-sm font-semibold tracking-wide text-zinc-300 flex items-center gap-2 whitespace-nowrap shrink-0">
             <Settings className="w-4 h-4 text-emerald-400" /> 設定
           </h2>
           <label
-            className="flex items-center gap-2 text-xs text-zinc-400 cursor-pointer select-none hover:text-zinc-300 transition-colors group w-fit"
+            className="flex items-center gap-2 text-xs text-zinc-400 cursor-pointer select-none hover:text-zinc-300 transition-colors group shrink-0"
             title="完了時にクリップボードへ自動コピー"
           >
             <div className="relative flex items-center justify-center w-4 h-4 rounded border border-zinc-800 bg-zinc-900/50 group-hover:border-emerald-500/50 transition-colors shrink-0">
@@ -51,7 +51,7 @@ export function SettingsPanel({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
               </svg>
             </div>
-            <span>自動コピー</span>
+            <span className="whitespace-nowrap">自動コピー</span>
           </label>
         </div>
         
