@@ -3,13 +3,13 @@
 > Cursor 作業チャット起票時に `@docs/TODO.md` で参照する正本。
 > **作業完了のたびに必ず更新**し、コミットに含める。
 
-最終更新: 2026-06-11 05:45
+最終更新: 2026-06-11 07:07
 
 ---
 
 ## 現在のフォーカス
 
-パレットのスキルデータ参照をローカルに統一（P1）— 次チャットで着手
+パレットのスキルデータ参照をローカルに統一（P1）
 
 ---
 
@@ -34,12 +34,6 @@
   - 目標: `umasimSkillDataList` を正本にして不整合リスクを減らす
   - 触る想定: `SkillCommandPalette.tsx`, `umaemuAdapter.ts`
   - 注意: フィルタ条件（special/minus 除外）は維持
-
-- [ ] **直近レース詳細グラフ Phase 2 — 区間オーバーレイ**
-  - 直線 / コーナー / 上り坂 / 下り坂の区間表示、`trackDetail` データ整備
-  - REQ: [`REQ-race-detail-graph-phase2.md`](tasks/REQ-race-detail-graph-phase2.md) / ロードマップ: [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md)
-  - 触る想定: `RaceDetailChart.tsx`, `raceGraphBuilder.ts`, WASM or 抽出 JSON
-  - 前提: Phase 1 + axis 完了。着手前に Ask mode 設計レビュー推奨
 
 - [ ] **直近レース詳細グラフ Phase 4 — baseline グラフ diff（核機能）**
   - SkillVerifier: baseline / current の2系列 or 差分表示、両方 raceDetail 保持
@@ -67,6 +61,7 @@
 
 ## 完了済み
 
+- [x] 直近レース詳細グラフ Phase 2 — 区間オーバーレイ（直線/コーナー/坂 + WASM trackDetail）（本コミット / [`REQ-race-detail-graph-phase2.md`](tasks/REQ-race-detail-graph-phase2.md)）
 - [x] レース詳細グラフ Y軸・単位改善 — 双 Y 軸・体力/レーン床リマップ・速度 m/s（`206b9ee` / [`REQ-race-detail-graph-axis.md`](tasks/REQ-race-detail-graph-axis.md)）
 - [x] 全画面 Cockpit UI（Phase 1〜3 + UX ポリッシュ）— SkillVerifier 右ペイン・トースト Portal・KPI ストリップ等（`98c8739`〜`a75ec9c` / [`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)）
 - [x] サイドバー狭幅 UI 整備（Phase S1+S2）— 行レイアウト修正・二重カード解消・padding 圧縮（`d8ddb66` / [`REQ-sidebar-compact-layout.md`](tasks/REQ-sidebar-compact-layout.md)）
@@ -98,7 +93,7 @@
 - サイドバー狭幅 UI（380px / min 320px）は Phase S1+S2 で完了（[`REQ-sidebar-compact-layout.md`](tasks/REQ-sidebar-compact-layout.md)）。S3 コンテナクエリは見送り
 - 全画面 Cockpit UI（Phase 1〜3）は完了（[`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)）
 - グラフ Y軸・m/s は [`REQ-race-detail-graph-axis.md`](tasks/REQ-race-detail-graph-axis.md) で対応済み
-- 直近レース詳細グラフ: ロードマップ [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md)。Phase 1 + axis **完了**。Phase 2〜4 は sibling REQ + 本 Backlog に掲載
+- 直近レース詳細グラフ: ロードマップ [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md)。Phase 1 + axis + **Phase 2 完了**。Phase 3〜4 は sibling REQ + 本 Backlog に掲載
 - **REQ 運用**: 着手候補の正本は **本 TODO**。`draft` REQ 起票時は Backlog へ必ず1行追加（`.cursor/rules/docs-management.mdc`）
 - 因子管理 DB・Tesseract OCR・Supabase 連携は **開発予定なし**（`.cursor/rules/development.mdc`）
 

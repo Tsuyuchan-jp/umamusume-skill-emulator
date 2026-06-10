@@ -29,6 +29,22 @@ export interface RaceFrameDump {
   currentLane: number;
 }
 
+/** コース区間（直線・コーナー・坂）— WASM trackDetail 出力 */
+export interface TrackSectionDump {
+  start: number;
+  end: number;
+}
+
+export interface TrackSlopeDump extends TrackSectionDump {
+  slope: number;
+}
+
+export interface TrackDetailDump {
+  straights: TrackSectionDump[];
+  corners: TrackSectionDump[];
+  slopes: TrackSlopeDump[];
+}
+
 /** 直近1走の詳細データ（グラフ用） */
 export interface RaceDetailDump {
   summary: {
@@ -48,6 +64,7 @@ export interface RaceDetailDump {
   phase2Start: number;
   gateCount: number;
   initialLaneAdjuster: number;
+  trackDetail?: TrackDetailDump;
 }
 
 export interface SimResultDump {

@@ -1,4 +1,4 @@
-import { RaceDetailDump } from "./types";
+import { RaceDetailDump, RaceFrameDump, TrackDetailDump } from "./types";
 
 /** umasim RaceOperation.toGraphData 相当の定数 */
 const FRAME_PER_SECOND = 15;
@@ -27,17 +27,82 @@ export interface GraphPoint {
   lanePct: number;
 }
 
+/** 本家 GraphOutput.kt 準拠の区間帯（ReferenceArea 用） */
+export interface AreaBand {
+  x1: number;
+  x2: number;
+  y1: number;
+  y2: number;
+  fill: string;
+}
+
+const AREA_STRAIGHT_FILL = "#0080FF";
+const AREA_CORNER_FILL = "#8000FF";
+const AREA_UPSLOPE_FILL = "#00FF80";
+const AREA_DOWNSLOPE_FILL = "#FFFF00";
+
 export interface RaceGraphData {
   points: GraphPoint[];
   phaseLines: { label: string; time: number }[];
   staminaMax: number;
+  areaBands: AreaBand[];
+}
+
+/** 距離 m → 経過秒（frameIndex / 15） */
+function distanceToTime(frames: RaceFrameDump[], positionM: number): number {
+  const index = frames.findIndex((f) => f.startPosition >= positionM);
+  if (index < 0) return (frames.length - 1) / FRAME_PER_SECOND;
+  return index / FRAME_PER_SECOND;
+}
+
+/** 本家 RaceOperation.toGraphData(areas, frameList) 相当 — ReferenceArea 用に変換 */
+function buildAreaBands(
+  trackDetail: TrackDetailDump | undefined,
+  frames: RaceFrameDump[],
+): AreaBand[] {
+  if (!trackDetail || !frames.length) return [];
+
+  const { straights, corners, slopes } = trackDetail;
+  if (!straights.length && !corners.length && !slopes.length) return [];
+
+  const toBands = (
+    areas: { start: number; end: number }[],
+    y1: number,
+    y2: number,
+    fill: string,
+  ): AreaBand[] =>
+    areas
+      .filter((a) => a.end > a.start)
+      .map((area) => {
+        const x1 = distanceToTime(frames, area.start);
+        const x2 = distanceToTime(frames, area.end);
+        return x1 < x2 ? { x1, x2, y1, y2, fill } : null;
+      })
+      .filter((band): band is AreaBand => band !== null);
+
+  return [
+    ...toBands(straights, 0, 0.1, AREA_STRAIGHT_FILL),
+    ...toBands(corners, 0, 0.1, AREA_CORNER_FILL),
+    ...toBands(
+      slopes.filter((s) => s.slope > 0),
+      0.1,
+      0.2,
+      AREA_UPSLOPE_FILL,
+    ),
+    ...toBands(
+      slopes.filter((s) => s.slope < 0),
+      0.1,
+      0.2,
+      AREA_DOWNSLOPE_FILL,
+    ),
+  ];
 }
 
 /** RaceDetailDump からグラフ描画用データを生成 */
 export function buildRaceGraphData(detail: RaceDetailDump): RaceGraphData {
-  const { frames, phase1Start, phase2Start, gateCount, initialLaneAdjuster } = detail;
+  const { frames, phase1Start, phase2Start, gateCount, initialLaneAdjuster, trackDetail } = detail;
   if (!frames.length) {
-    return { points: [], phaseLines: [], staminaMax: 0 };
+    return { points: [], phaseLines: [], staminaMax: 0, areaBands: [] };
   }
 
   const staminaMax = frames[0].sp;
@@ -71,5 +136,7 @@ export function buildRaceGraphData(detail: RaceDetailDump): RaceGraphData {
     { label: "終盤へ", time: toTime(phase2Index) },
   ].filter((p) => p.time > 0);
 
-  return { points, phaseLines, staminaMax };
+  const areaBands = buildAreaBands(trackDetail, frames);
+
+  return { points, phaseLines, staminaMax, areaBands };
 }

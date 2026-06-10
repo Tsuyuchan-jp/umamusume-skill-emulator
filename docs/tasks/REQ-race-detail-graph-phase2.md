@@ -3,9 +3,9 @@
 > **レース詳細グラフ実装シリーズ** Phase 2（コース区間の背景オーバーレイ）。
 > ロードマップ: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md)
 
-- **ステータス**: draft
+- **ステータス**: done
 - **作成日**: 2026-06-11 04:54
-- **関連コミット**: （完了後に記入）
+- **関連コミット**: （本コミット後に記入）
 
 ---
 
@@ -42,9 +42,9 @@ Phase 1 の 3 本線グラフに、**コース形状・区間種別**を視覚�
 
 ### やること
 
-- [ ] 直線 / コーナー / 上り坂 / 下り坂の区間オーバーレイ（背景色 or 帯）
-- [ ] `trackDetail` データ整備（WASM 出力 or 抽出 JSON）
-- [ ] `raceGraphBuilder.ts` / `RaceDetailChart.tsx` への区間データ組み込み
+- [x] 直線 / コーナー / 上り坂 / 下り坂の区間オーバーレイ（背景色 or 帯）
+- [x] `trackDetail` データ整備（WASM 出力 or 抽出 JSON）
+- [x] `raceGraphBuilder.ts` / `RaceDetailChart.tsx` への区間データ組み込み
 
 ### やらないこと
 
@@ -69,11 +69,11 @@ Phase 1 の 3 本線グラフに、**コース形状・区間種別**を視覚�
 
 ## 完了条件
 
-- [ ] グラフ背景に区間種別が視認できる
-- [ ] Phase 1 / axis のグラフ表示に退行なし
-- [ ] DevTools 新規警告なし
-- [ ] `npm run tauri dev` 実機確認
-- [ ] REQ ステータス `done` + `docs/TODO.md` 更新 + コミット
+- [x] グラフ背景に区間種別が視認できる
+- [x] Phase 1 / axis のグラフ表示に退行なし
+- [x] DevTools 新規警告なし
+- [x] `npm run tauri dev` 実機確認
+- [x] REQ ステータス `done` + `docs/TODO.md` 更新 + コミット
 
 ---
 
@@ -90,6 +90,8 @@ Phase 1 の 3 本線グラフに、**コース形状・区間種別**を視覚�
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
 | 2026-06-11 04:54 | Phase 2 を単体 REQ として起票（draft） | 開発フロー明確化 |
+| 2026-06-11 05:45 | 案 A（WASM `setting.trackDetail` 出力）採用。静的 JSON フォールバックなし。欠落時 graceful degrade | Ask mode 設計レビュー承認 |
+| 2026-06-11 07:07 | 実装完了: WasmEngine trackDetail + buildAreaBands + ReferenceArea + 左下2行ラベル。WASM 再ビルド反映（`726a1578312749b3e717.wasm`） | Agent mode 実装チャット |
 
 ---
 

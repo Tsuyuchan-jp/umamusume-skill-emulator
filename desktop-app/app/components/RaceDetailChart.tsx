@@ -10,6 +10,7 @@ import {
   Tooltip,
   ResponsiveContainer,
   ReferenceLine,
+  ReferenceArea,
   Legend,
 } from "recharts";
 import { RaceDetailDump } from "../lib/types";
@@ -36,7 +37,7 @@ export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
   }
 
   return (
-    <div className="w-full h-full min-h-0 min-w-0">
+    <div className="relative w-full h-full min-h-0 min-w-0">
       <ResponsiveContainer
         width="100%"
         height="100%"
@@ -44,6 +45,20 @@ export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
         initialDimension={{ width: 800, height: 360 }}
       >
         <LineChart data={graphData.points} margin={{ top: 24, right: 48, left: 4, bottom: 4 }}>
+          {graphData.areaBands.map((band, index) => (
+            <ReferenceArea
+              key={`area-${index}`}
+              x1={band.x1}
+              x2={band.x2}
+              y1={band.y1}
+              y2={band.y2}
+              yAxisId="percent"
+              fill={band.fill}
+              fillOpacity={0.15}
+              strokeOpacity={0}
+              ifOverflow="visible"
+            />
+          ))}
           <CartesianGrid strokeDasharray="3 3" stroke="#3f3f46" />
           <XAxis
             dataKey="time"
@@ -164,6 +179,12 @@ export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
           />
         </LineChart>
       </ResponsiveContainer>
+      {graphData.areaBands.length > 0 && (
+        <div className="pointer-events-none absolute bottom-1 left-1 flex flex-col gap-0.5 text-[10px] text-zinc-300">
+          <span className="rounded bg-black/50 px-1.5 py-0.5">直線(青)/コーナー(紫)</span>
+          <span className="rounded bg-black/50 px-1.5 py-0.5">上り坂(緑)/下り坂(黄)</span>
+        </div>
+      )}
     </div>
   );
 };

@@ -49,6 +49,7 @@ fun runSimulationDetail(inputJson: String): String {
             currentLane = frame.currentLane,
         )
     }
+    val trackDetail = setting.trackDetail
     val detail = RaceDetailResponse(
         summary = summary.toSummaryOutput(),
         frames = frames,
@@ -57,6 +58,11 @@ fun runSimulationDetail(inputJson: String): String {
         phase2Start = setting.phase2Start,
         gateCount = setting.track.gateCount,
         initialLaneAdjuster = setting.track.initialLaneAdjuster,
+        trackDetail = TrackDetailOutput(
+            straights = trackDetail.straights.map { SectionOutput(it.start, it.end) },
+            corners = trackDetail.corners.map { SectionOutput(it.start, it.end) },
+            slopes = trackDetail.slopes.map { SlopeOutput(it.start, it.end, it.slope) },
+        ),
     )
     return json.encodeToString(detail)
 }
@@ -169,6 +175,26 @@ private fun RaceSimulationResult.toSummaryOutput() = SummaryOutput(
 )
 
 @Serializable
+private data class SectionOutput(
+    val start: Double,
+    val end: Double,
+)
+
+@Serializable
+private data class SlopeOutput(
+    val start: Double,
+    val end: Double,
+    val slope: Double,
+)
+
+@Serializable
+private data class TrackDetailOutput(
+    val straights: List<SectionOutput>,
+    val corners: List<SectionOutput>,
+    val slopes: List<SlopeOutput>,
+)
+
+@Serializable
 private data class RaceDetailResponse(
     val summary: SummaryOutput,
     val frames: List<FrameOutput>,
@@ -177,4 +203,5 @@ private data class RaceDetailResponse(
     val phase2Start: Double,
     val gateCount: Int,
     val initialLaneAdjuster: Double,
+    val trackDetail: TrackDetailOutput? = null,
 )
