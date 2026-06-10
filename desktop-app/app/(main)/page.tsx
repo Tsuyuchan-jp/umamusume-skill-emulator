@@ -659,7 +659,7 @@ export default function Home() {
                     }));
                     showToastMessage("スキル構成と結果を初期状態にリセットしました", "success", 3000);
                   }}
-                  onDuplicateTab={(rect?: DOMRect) => {
+                  onDuplicateTab={() => {
                     if (!activeTab) return;
                     
                     const newTab = {
@@ -671,8 +671,9 @@ export default function Home() {
                     setTabs(prev => [...prev, newTab]);
                     setActiveTabId(newTab.id);
 
-                    if (rect && activeTab.thumbnailUrl) {
-                      const thumbUrl = activeTab.thumbnailUrl;
+                    const thumbUrl = activeTab.thumbnailUrl;
+                    const rect = previewRef.current?.getBoundingClientRect();
+                    if (rect && thumbUrl) {
                       setTimeout(() => {
                         let deltaX = 0;
                         let deltaY = -window.innerHeight * 0.8;

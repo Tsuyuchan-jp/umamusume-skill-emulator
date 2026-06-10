@@ -16,6 +16,7 @@
         "title": "ウマ娘 レースアナライザー",
         "width": 1382,
         "height": 808,
+        "minWidth": 1150,
         "resizable": true,
         "fullscreen": false,
         "visible": false
