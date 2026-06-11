@@ -45,6 +45,15 @@ export interface TrackDetailDump {
   slopes: TrackSlopeDump[];
 }
 
+export type SkillEventKind = "skill" | "debuff";
+
+export interface SkillEventDump {
+  skillId: string;
+  startTime: number;
+  endTime: number;
+  kind: SkillEventKind;
+}
+
 /** 直近1走の詳細データ（グラフ用） */
 export interface RaceDetailDump {
   summary: {
@@ -65,6 +74,7 @@ export interface RaceDetailDump {
   gateCount: number;
   initialLaneAdjuster: number;
   trackDetail?: TrackDetailDump;
+  skillEvents?: SkillEventDump[];
 }
 
 export interface SimResultDump {

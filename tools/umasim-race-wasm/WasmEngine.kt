@@ -37,11 +37,14 @@ fun runSimulation(inputJson: String): String {
     return json.encodeToString(result.toSummaryOutput())
 }
 
+private const val FRAME_PER_SECOND = 15.0
+
 @JsExport
 fun runSimulationDetail(inputJson: String): String {
     val (setting, calculator) = parseInput(inputJson)
     val (summary, state) = calculator.simulate(setting)
-    val frames = state.simulation.frames.map { frame ->
+    val rawFrames = state.simulation.frames
+    val frames = rawFrames.map { frame ->
         FrameOutput(
             speed = frame.speed,
             sp = frame.sp,
@@ -63,8 +66,34 @@ fun runSimulationDetail(inputJson: String): String {
             corners = trackDetail.corners.map { SectionOutput(it.start, it.end) },
             slopes = trackDetail.slopes.map { SlopeOutput(it.start, it.end, it.slope) },
         ),
+        skillEvents = buildSkillEvents(rawFrames),
     )
     return json.encodeToString(detail)
+}
+
+/** フレーム走査で発動区間を組み立て（フレーム毎 activeSkillIds 全量は出力しない） */
+private fun buildSkillEvents(frames: List<RaceFrame>): List<SkillEventOutput> {
+    if (frames.isEmpty()) return emptyList()
+    val events = mutableListOf<SkillEventOutput>()
+    frames.forEachIndexed { index, frame ->
+        frame.triggeredSkills.forEach { triggered ->
+            val skill = triggered.invoke.skill
+            val skillId = skill.id
+            val kind = if (skill.rarity == "minus") "debuff" else "skill"
+            val endIndex = (index + 1 until frames.size).firstOrNull { i ->
+                frames[i].endedSkills.any { it.data.skill.id == skillId }
+            } ?: (frames.size - 1)
+            events.add(
+                SkillEventOutput(
+                    skillId = skillId,
+                    startTime = index / FRAME_PER_SECOND,
+                    endTime = endIndex / FRAME_PER_SECOND,
+                    kind = kind,
+                )
+            )
+        }
+    }
+    return events
 }
 
 private fun parseInput(inputJson: String): Pair<RaceSetting, RaceCalculator> {
@@ -195,6 +224,14 @@ private data class TrackDetailOutput(
 )
 
 @Serializable
+private data class SkillEventOutput(
+    val skillId: String,
+    val startTime: Double,
+    val endTime: Double,
+    val kind: String,
+)
+
+@Serializable
 private data class RaceDetailResponse(
     val summary: SummaryOutput,
     val frames: List<FrameOutput>,
@@ -204,4 +241,5 @@ private data class RaceDetailResponse(
     val gateCount: Int,
     val initialLaneAdjuster: Double,
     val trackDetail: TrackDetailOutput? = null,
+    val skillEvents: List<SkillEventOutput> = emptyList(),
 )

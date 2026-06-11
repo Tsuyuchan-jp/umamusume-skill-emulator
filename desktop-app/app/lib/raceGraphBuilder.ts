@@ -1,4 +1,5 @@
-import { RaceDetailDump, RaceFrameDump, TrackDetailDump } from "./types";
+import { getSkillNameById, getSkillRarityInfoById, SkillDisplayRarity } from "./umasimSkillData";
+import { RaceDetailDump, RaceFrameDump, SkillEventDump, SkillEventKind, TrackDetailDump } from "./types";
 
 /** umasim RaceOperation.toGraphData 相当の定数 */
 const FRAME_PER_SECOND = 15;
@@ -53,11 +54,64 @@ const AREA_DOWNSLOPE_FILL = "#C9A227";
 /** 坂帯は半分高さのためやや濃く */
 const AREA_SLOPE_FILL_OPACITY = 0.18;
 
+export interface GraphDisplayState {
+  showSpeed: boolean;
+  showStamina: boolean;
+  showLane: boolean;
+  showAreas: boolean;
+  showSkills: boolean;
+  showDebuffs: boolean;
+  expandSkillRows: boolean;
+}
+
+export const DEFAULT_GRAPH_DISPLAY_STATE: GraphDisplayState = {
+  showSpeed: true,
+  showStamina: true,
+  showLane: true,
+  showAreas: true,
+  showSkills: true,
+  showDebuffs: true,
+  expandSkillRows: false,
+};
+
+/** スキル発動帯（ReferenceArea 用） */
+export interface SkillBand {
+  skillId: string;
+  label: string;
+  x1: number;
+  x2: number;
+  y1: number;
+  y2: number;
+  fill: string;
+  kind: SkillEventKind;
+  row: number;
+}
+
+/** PROJECT.md スキル色分け正本に合わせたグラフ用 fill */
+const RARITY_FILL_COLORS: Record<SkillDisplayRarity, string> = {
+  unique: "#60a5fa",
+  inherit: "#34d399",
+  evo: "#f87171",
+  rare: "#fbbf24",
+  white: "#e4e4e7",
+};
+
+/** デバフ（minus 系）帯の色 */
+const DEBUFF_FILL_COLOR = "#a78bfa";
+
+function getSkillFillById(skillId: string): string {
+  const info = getSkillRarityInfoById(skillId);
+  return RARITY_FILL_COLORS[info.rarity];
+}
+
 export interface RaceGraphData {
   points: GraphPoint[];
   phaseLines: { label: string; time: number }[];
   staminaMax: number;
   areaBands: AreaBand[];
+  skillBands: SkillBand[];
+  skillRowCount: number;
+  yDomainMax: number;
 }
 
 /** 距離 m → 経過秒（frameIndex / 15） */
@@ -124,11 +178,57 @@ function buildAreaBands(
   ];
 }
 
+/** skillEvents からスキル発動帯を生成 */
+export function buildSkillBands(
+  skillEvents: SkillEventDump[] | undefined,
+  displayState: GraphDisplayState,
+): Pick<RaceGraphData, "skillBands" | "skillRowCount" | "yDomainMax"> {
+  if (!skillEvents?.length) {
+    return { skillBands: [], skillRowCount: 0, yDomainMax: 1 };
+  }
+
+  const filtered = skillEvents.filter((event) =>
+    event.kind === "debuff" ? displayState.showDebuffs : displayState.showSkills,
+  );
+  if (!filtered.length) {
+    return { skillBands: [], skillRowCount: 0, yDomainMax: 1 };
+  }
+
+  const uniqueSkillIds = [...new Set(filtered.map((event) => event.skillId))];
+  const rowBySkillId = new Map(uniqueSkillIds.map((skillId, index) => [skillId, index]));
+  const skillRowCount = displayState.expandSkillRows ? uniqueSkillIds.length : 0;
+  const yDomainMax = displayState.expandSkillRows ? 1 + skillRowCount * 0.04 : 1;
+
+  const skillBands: SkillBand[] = filtered.map((event) => {
+    const row = displayState.expandSkillRows ? (rowBySkillId.get(event.skillId) ?? 0) : 0;
+    const [y1, y2] = displayState.expandSkillRows
+      ? [1.02 + row * 0.04, 1.02 + row * 0.04 + 0.035]
+      : [0.94, 0.99];
+
+    return {
+      skillId: event.skillId,
+      label: getSkillNameById(event.skillId),
+      x1: event.startTime,
+      x2: event.endTime,
+      y1,
+      y2,
+      fill: event.kind === "debuff" ? DEBUFF_FILL_COLOR : getSkillFillById(event.skillId),
+      kind: event.kind,
+      row,
+    };
+  });
+
+  return { skillBands, skillRowCount, yDomainMax };
+}
+
 /** RaceDetailDump からグラフ描画用データを生成 */
-export function buildRaceGraphData(detail: RaceDetailDump): RaceGraphData {
-  const { frames, phase1Start, phase2Start, gateCount, initialLaneAdjuster, trackDetail } = detail;
+export function buildRaceGraphData(
+  detail: RaceDetailDump,
+  displayState: GraphDisplayState = DEFAULT_GRAPH_DISPLAY_STATE,
+): RaceGraphData {
+  const { frames, phase1Start, phase2Start, gateCount, initialLaneAdjuster, trackDetail, skillEvents } = detail;
   if (!frames.length) {
-    return { points: [], phaseLines: [], staminaMax: 0, areaBands: [] };
+    return { points: [], phaseLines: [], staminaMax: 0, areaBands: [], skillBands: [], skillRowCount: 0, yDomainMax: 1 };
   }
 
   const staminaMax = frames[0].sp;
@@ -163,6 +263,7 @@ export function buildRaceGraphData(detail: RaceDetailDump): RaceGraphData {
   ].filter((p) => p.time > 0);
 
   const areaBands = buildAreaBands(trackDetail, frames);
+  const { skillBands, skillRowCount, yDomainMax } = buildSkillBands(skillEvents, displayState);
 
-  return { points, phaseLines, staminaMax, areaBands };
+  return { points, phaseLines, staminaMax, areaBands, skillBands, skillRowCount, yDomainMax };
 }

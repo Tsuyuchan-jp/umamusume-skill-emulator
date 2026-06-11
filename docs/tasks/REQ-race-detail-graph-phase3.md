@@ -3,7 +3,7 @@
 > **レース詳細グラフ実装シリーズ** Phase 3（スキル可視化と表示設定）。
 > ロードマップ: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md)
 
-- **ステータス**: draft
+- **ステータス**: done
 - **作成日**: 2026-06-11 04:54
 - **関連コミット**: （完了後に記入）
 
@@ -30,9 +30,9 @@
 
 ### やること
 
-- [ ] スキル発動帯、デバフ等のオーバーレイ表示
-- [ ] `GraphDisplaySetting` 相当のチェックボックス切替（速度/体力/レーン等）
-- [ ] 「スキル数に応じて縦方向に拡大」オプション
+- [x] スキル発動帯、デバフ等のオーバーレイ表示
+- [x] `GraphDisplaySetting` 相当のチェックボックス切替（速度/体力/レーン等）
+- [x] 「スキル数に応じて縦方向に拡大」オプション
 
 ### やらないこと
 
@@ -55,11 +55,11 @@
 
 ## 完了条件
 
-- [ ] スキル発動帯がグラフ上で確認できる
-- [ ] 系列の表示 ON/OFF が動作する
-- [ ] Phase 1 / axis / Phase 2 に退行なし
-- [ ] `npm run tauri dev` 実機確認
-- [ ] REQ ステータス `done` + `docs/TODO.md` 更新 + コミット
+- [x] スキル発動帯がグラフ上で確認できる
+- [x] 系列の表示 ON/OFF が動作する
+- [x] Phase 1 / axis / Phase 2 に退行なし
+- [ ] `npm run tauri dev` 実機確認（ユーザー検証待ち）
+- [x] REQ ステータス `done` + `docs/TODO.md` 更新 + コミット
 
 ---
 
@@ -68,6 +68,9 @@
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
 | 2026-06-11 04:54 | Phase 3 を単体 REQ として起票（draft） | 開発フロー明確化 |
+| 2026-06-11 13:39 | WASM: `RaceFrame.triggeredSkills` / `endedSkills` から `skillEvents` 出力（案 A） | Ask mode 設計レビュー承認。フレーム毎 activeSkillIds 全量は禁止 |
+| 2026-06-11 13:39 | `kind`: `minus` rarity → `debuff`、それ以外 → `skill` | umasim `SkillData.rarity` 準拠 |
+| 2026-06-11 13:39 | フロント: `buildSkillBands` + `GraphDisplayState` + checkbox 正本（Legend クリック無効） | Phase 1/axis/Phase 2 退行防止 |
 
 ---
 
