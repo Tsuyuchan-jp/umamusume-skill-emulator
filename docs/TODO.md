@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-11 18:20
+最終更新: 2026-06-11 18:39
 
 ---
 
@@ -33,7 +33,14 @@
   - 触る想定: `SkillVerifier.tsx`, `RaceDetailChart.tsx`, `umaemuAdapter.ts`
   - 注意: **着手前に Ask mode 設計レビュー必須**（性能 REQ 実機クローズ済み）
 
-### P1 — 重要（急がない）
+### P1 — 重要（Phase 4 完了後を推奨）
+
+- [ ] **グラフ内スキル hover Tooltip** — 効果量・持続時間・発動位置％（本家準拠）
+  - 現状: overlay SVG は `pointer-events-none`。`SkillEventDump` に効果量なし（WASM 拡張の要否は Ask mode で確定）
+  - 算出可: 持続時間（start/endTime）、発動位置％（frames + courseLength）
+  - REQ: [`REQ-race-detail-graph-skill-tooltip.md`](tasks/REQ-race-detail-graph-skill-tooltip.md)
+  - 触る想定: `RaceDetailChart.tsx`, `raceGraphBuilder.ts`、必要なら `WasmEngine.kt`
+  - **優先判断**: Phase 4（P0）を先。Phase 4 で `RaceDetailChart` が2系列化するため、先に本機能を実装すると差分表示への追従で二度手間になりやすい
 
 - [ ] **タブ切り替え時の引っかかり改善**
   - 症状: タブ切り替えのみ軽い引っかかりを感じる。スキル表示 ON/OFF どちらでも同程度のため、Phase 1 グラフ性能修正とは無関係の可能性が高い
