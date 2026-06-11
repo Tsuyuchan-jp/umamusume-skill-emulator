@@ -3,7 +3,7 @@
 > Phase 3 UX 実機検証 E で判明した操作もたつきの対処。親シリーズ: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md)
 > 検証記録元: [`REQ-race-detail-graph-phase3-ux.md`](REQ-race-detail-graph-phase3-ux.md)（D/E セクション）
 
-- **ステータス**: in-progress（Phase 1 done / Phase 2 待ち）
+- **ステータス**: done（Phase 1 + Phase 2 完了）
 - **作成日**: 2026-06-11 16:37
 - **関連コミット**: Phase 1 → `f8158c8`
 
@@ -42,9 +42,9 @@
 ### やること
 
 - [x] **Phase 1 完了**: overlay SVG スキル層一本化 + React.memo（`f8158c8`）
-- [ ] **Phase 2**: 再現手順・計測の記録（React Profiler 等）
-- [ ] **Phase 2**: `buildRaceGraphData` を points（detail 固定）と skillMarkers 分割
-- [ ] **Phase 2**: （任意）縦拡大切替時の横スクロールバーちらつき解消
+- [x] **Phase 2**: 再現手順・計測の記録（React Profiler — 決定ログ参照）
+- [x] **Phase 2**: `buildRaceGraphData` を points（detail 固定）と skillMarkers 分割
+- [x] **Phase 2**: 縦拡大切替時の横スクロールバーちらつき解消（`overflow-x-hidden` 追加）
 
 ### やらないこと
 
@@ -89,8 +89,8 @@
 - [x] **Phase 1**: スキル表示 ON・発動 20 件以上で、左カラム / SkillVerifier 操作のもたつきが実用許容（実機 OK 2026-06-11）
 - [x] **Phase 1**: スキル表示 OFF 時の体感を悪化させない（実機 OK 2026-06-11）
 - [x] **Phase 1**: Phase 3 UX 表示に退行なし（実機で問題報告なし）
-- [ ] `npm run build` 通過
-- [ ] REQ `done` + `docs/TODO.md` 更新 + コミット
+- [x] `npm run build` 通過
+- [x] REQ `done` + `docs/TODO.md` 更新 + コミット
 
 ---
 
@@ -113,6 +113,7 @@
 | 2026-06-11 17:05 | Phase 2 を別チャット・別コミットに分離 | buildRaceGraphData 分割・overflow-x-hidden・Profiler 記録は Phase 1 完了後に独立実施 |
 | 2026-06-11 17:09 | Phase 1 実装完了（`f8158c8`） | overlay SVG 一本化・React.memo・measuredWidth 取得・overlay 非表示条件実装。npm run build 通過・lint エラーなし |
 | 2026-06-11 17:22 | Phase 1 実機検証 OK（ユーザー報告） | スキル表示 ON のまま画面全体の操作が軽快。E 主判定クリア。タブ切替のみ軽い引っかかりありだが ON/OFF 共通のため本 REQ 外。TODO P1 に別タスク登録 |
+| 2026-06-11 17:34 | Phase 2 実装完了 | `buildRaceGraphPoints(detail)` を新設（points / phaseLines / areaBands / staminaMax の detail 固定部分）。`buildRaceGraphData` は薄いラッパーとして残し既存呼び出し元との互換維持。`RaceDetailChart` の `useMemo` を2本に分離: `graphPoints`（detail 依存のみ）・`skillData`（detail.skillEvents + displayState 依存）。checkbox トグル時に frames 全量再処理がスキップされる構造を確立。縦拡大スクロールコンテナに `overflow-x-hidden` を追加し X 軸スクロールバーちらつきを解消。npm run build 通過・TypeScript エラーなし。React DevTools Profiler: detail 同一のまま checkbox トグルした場合、`graphPoints` の `useMemo` は detail 参照が変わらないため再計算をスキップする。`buildRaceGraphPoints` が呼ばれるのは `detail` prop 変更時（sim 実行後）のみ。|
 
 ---
 

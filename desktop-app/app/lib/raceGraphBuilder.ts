@@ -318,21 +318,23 @@ export function buildSkillMarkers(
   return { skillMarkers, expandedChartHeight };
 }
 
-/** RaceDetailDump からグラフ描画用データを生成 */
-export function buildRaceGraphData(
-  detail: RaceDetailDump,
-  displayState: GraphDisplayState = DEFAULT_GRAPH_DISPLAY_STATE,
-): RaceGraphData {
-  const { frames, phase1Start, phase2Start, gateCount, initialLaneAdjuster, trackDetail, skillEvents } = detail;
+/** detail 固定部分（frames 依存）のみを計算する — displayState に依存しない */
+export interface RaceGraphPoints {
+  points: GraphPoint[];
+  phaseLines: { label: string; time: number }[];
+  staminaMax: number;
+  areaBands: AreaBand[];
+}
+
+/**
+ * RaceDetailDump から detail 固定の描画データを生成する。
+ * displayState（checkbox）が変わっても再計算されないよう分離。
+ * skillMarkers は buildSkillMarkers() で別途計算する。
+ */
+export function buildRaceGraphPoints(detail: RaceDetailDump): RaceGraphPoints {
+  const { frames, phase1Start, phase2Start, gateCount, initialLaneAdjuster, trackDetail } = detail;
   if (!frames.length) {
-    return {
-      points: [],
-      phaseLines: [],
-      staminaMax: 0,
-      areaBands: [],
-      skillMarkers: [],
-      expandedChartHeight: SKILL_CHART_BASE_HEIGHT,
-    };
+    return { points: [], phaseLines: [], staminaMax: 0, areaBands: [] };
   }
 
   const staminaMax = frames[0].sp;
@@ -367,7 +369,32 @@ export function buildRaceGraphData(
   ].filter((p) => p.time > 0);
 
   const areaBands = buildAreaBands(trackDetail, frames);
-  const { skillMarkers, expandedChartHeight } = buildSkillMarkers(skillEvents, displayState);
+
+  return { points, phaseLines, staminaMax, areaBands };
+}
+
+/**
+ * RaceDetailDump からグラフ描画用データを生成する薄いラッパー。
+ * buildRaceGraphPoints + buildSkillMarkers を合成する。
+ * 既存の呼び出し元との互換性維持用。
+ */
+export function buildRaceGraphData(
+  detail: RaceDetailDump,
+  displayState: GraphDisplayState = DEFAULT_GRAPH_DISPLAY_STATE,
+): RaceGraphData {
+  if (!detail.frames.length) {
+    return {
+      points: [],
+      phaseLines: [],
+      staminaMax: 0,
+      areaBands: [],
+      skillMarkers: [],
+      expandedChartHeight: SKILL_CHART_BASE_HEIGHT,
+    };
+  }
+
+  const { points, phaseLines, staminaMax, areaBands } = buildRaceGraphPoints(detail);
+  const { skillMarkers, expandedChartHeight } = buildSkillMarkers(detail.skillEvents, displayState);
 
   return { points, phaseLines, staminaMax, areaBands, skillMarkers, expandedChartHeight };
 }

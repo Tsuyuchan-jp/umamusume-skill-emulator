@@ -15,7 +15,8 @@ import {
 } from "recharts";
 import { RaceDetailDump } from "../lib/types";
 import {
-  buildRaceGraphData,
+  buildRaceGraphPoints,
+  buildSkillMarkers,
   DEFAULT_GRAPH_DISPLAY_STATE,
   GraphDisplayState,
   GraphPoint,
@@ -118,7 +119,16 @@ const renderPercentAxisTick = (props: {
 
 const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({ detail }) => {
   const [displayState, setDisplayState] = useState<GraphDisplayState>(DEFAULT_GRAPH_DISPLAY_STATE);
-  const graphData = useMemo(() => buildRaceGraphData(detail, displayState), [detail, displayState]);
+
+  /** detail 固定部分（frames / phaseLines / areaBands）— displayState 変更で再計算しない */
+  const graphPoints = useMemo(() => buildRaceGraphPoints(detail), [detail]);
+
+  /** displayState 依存部分（スキル/デバフ表示フィルタ）— checkbox トグル時のみ再計算 */
+  const skillData = useMemo(
+    () => buildSkillMarkers(detail.skillEvents, displayState),
+    [detail.skillEvents, displayState],
+  );
+
   const chartAreaRef = useRef<HTMLDivElement>(null);
   const [measuredHeight, setMeasuredHeight] = useState(SKILL_CHART_BASE_HEIGHT);
   const [measuredWidth, setMeasuredWidth] = useState(800);
@@ -135,19 +145,19 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({ detail }) => {
     return () => ro.disconnect();
   }, []);
 
-  const isExpanded = displayState.expandSkillRows && graphData.skillMarkers.length > 0;
-  const chartHeight = isExpanded ? graphData.expandedChartHeight : SKILL_CHART_BASE_HEIGHT;
+  const isExpanded = displayState.expandSkillRows && skillData.skillMarkers.length > 0;
+  const chartHeight = isExpanded ? skillData.expandedChartHeight : SKILL_CHART_BASE_HEIGHT;
   const effectiveChartHeight = isExpanded ? chartHeight : measuredHeight;
   const skillMarkers = useMemo(
-    () => layoutSkillMarkers(graphData.skillMarkers, effectiveChartHeight, { expanded: isExpanded }),
-    [graphData.skillMarkers, effectiveChartHeight, isExpanded],
+    () => layoutSkillMarkers(skillData.skillMarkers, effectiveChartHeight, { expanded: isExpanded }),
+    [skillData.skillMarkers, effectiveChartHeight, isExpanded],
   );
 
   /** overlay 用ピクセル座標。スキル表示 OFF または markers なしのときは空配列 */
   const showSkillOverlay =
     (displayState.showSkills || displayState.showDebuffs) && skillMarkers.length > 0;
-  const maxTime = graphData.points.length > 0
-    ? graphData.points[graphData.points.length - 1].time
+  const maxTime = graphPoints.points.length > 0
+    ? graphPoints.points[graphPoints.points.length - 1].time
     : 0;
   const skillMarkersPx = useMemo(
     () =>
@@ -161,7 +171,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({ detail }) => {
     setDisplayState((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  if (graphData.points.length === 0) {
+  if (graphPoints.points.length === 0) {
     return (
       <div className="w-full h-full flex items-center justify-center">
         <p className="text-sm text-zinc-500">グラフデータがありません</p>
@@ -172,7 +182,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({ detail }) => {
   return (
     <div className="relative flex h-full min-h-0 w-full min-w-0 flex-col">
       <div
-        className={`race-detail-chart relative min-h-0 flex-1 outline-none ${
+        className={`race-detail-chart relative min-h-0 flex-1 overflow-x-hidden outline-none ${
           isExpanded
             ? "overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent"
             : ""
@@ -190,9 +200,9 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({ detail }) => {
             minWidth={0}
             initialDimension={{ width: 800, height: chartHeight }}
           >
-            <LineChart data={graphData.points} margin={{ top: 24, right: 48, left: 4, bottom: 4 }}>
+            <LineChart data={graphPoints.points} margin={{ top: 24, right: 48, left: 4, bottom: 4 }}>
               {displayState.showAreas &&
-                graphData.areaBands.map((band, index) => (
+                graphPoints.areaBands.map((band, index) => (
                   <React.Fragment key={`area-${index}`}>
                     <ReferenceArea
                       x1={band.x1}
@@ -290,7 +300,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({ detail }) => {
                 wrapperStyle={{ pointerEvents: "none" }}
                 content={<SyncedChartLegend displayState={displayState} />}
               />
-              {graphData.phaseLines.map((phase) => (
+              {graphPoints.phaseLines.map((phase) => (
                 <ReferenceLine
                   key={phase.label}
                   x={phase.time}
@@ -379,7 +389,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({ detail }) => {
             </svg>
           )}
 
-          {displayState.showAreas && graphData.areaBands.length > 0 && (
+          {displayState.showAreas && graphPoints.areaBands.length > 0 && (
             <div className="pointer-events-none absolute bottom-1 left-1 flex flex-col gap-0.5 text-[10px] text-zinc-300">
               <span className="rounded bg-black/50 px-1.5 py-0.5">直線 / コーナー</span>
               <span className="rounded bg-black/50 px-1.5 py-0.5">上り(上) / 下り(下)</span>

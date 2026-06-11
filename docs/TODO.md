@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-11 17:22
+最終更新: 2026-06-11 17:34
 
 ---
 
@@ -26,11 +26,6 @@
 優先度順。作業チャット起票時は **P0 から1件** 取る。
 
 ### P0 — 次に着手
-
-- [ ] **レース詳細グラフ UI レスポンス改善 Phase 2** — buildRaceGraphData 分割・overflow-x-hidden・Profiler 記録
-  - 前提: Phase 1 完了後に着手
-  - REQ: [`REQ-race-detail-graph-performance.md`](tasks/REQ-race-detail-graph-performance.md)
-  - 触る想定: `raceGraphBuilder.ts`（points/skillMarkers 分割）、`RaceDetailChart.tsx`（縦拡大親 overflow）
 
 ### P1 — 重要（急がない）
 
@@ -82,6 +77,7 @@
 
 ## 完了済み
 
+- [x] レース詳細グラフ UI レスポンス改善 Phase 2 — buildRaceGraphPoints 分割・RaceDetailChart useMemo 2本化・overflow-x-hidden（TBD / [`REQ-race-detail-graph-performance.md`](tasks/REQ-race-detail-graph-performance.md)）
 - [x] レース詳細グラフ UI レスポンス改善 Phase 1 — overlay SVG スキル層一本化 + React.memo（`f8158c8` / [`REQ-race-detail-graph-performance.md`](tasks/REQ-race-detail-graph-performance.md)）
 - [x] Phase 3 UX スキル行 B案 — 下ライン・28px 行高・zinc ピル・縦拡大一貫レイアウト（`447d25e` / [`REQ-race-detail-graph-phase3-ux.md`](tasks/REQ-race-detail-graph-phase3-ux.md)）
 - [x] 直近レース詳細グラフ Phase 3 UX ポリッシュ — ラベル TopLeft・ダーク scrollbar・フォーカス白線除去・Legend 同期（`7a91cb7` / [`REQ-race-detail-graph-phase3-ux.md`](tasks/REQ-race-detail-graph-phase3-ux.md)）
