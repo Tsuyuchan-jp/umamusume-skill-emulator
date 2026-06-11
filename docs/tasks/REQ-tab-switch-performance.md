@@ -103,3 +103,4 @@
 | 2026-06-12 04:36 | keep-alive 上限: 全タブ / displayUnit: ページ共通維持 | 未決事項確定 |
 | 2026-06-12 05:07 | **実機検証**: チェックリスト全 OK・引っかかり大幅軽減。残件: グラフのみ遅延表示・TabBar サムネ transition カクつき | keep-alive + `hidden`（display:none）で ResizeObserver/Recharts 再レイアウト |
 | 2026-06-12 05:07 | 追従修正: `hidden` → `absolute inset-0` + `visibility` 重ね / TabBar `transition-all`+幅差分を廃止（固定 w-40・opacity/border/shadow のみ） | 案 C 前の最小追従。display:none 回避でグラフ計測維持、width transition 除去でメインスレッド競合低減 |
+| 2026-06-12 05:13 | visibility 追従後実機: #1 グラフ同期 OK / #3 退行なし / #2 幅アニメ消失 → **TabBar scale 案**（`scale-105` + `transition-transform`、幅固定維持） | width reflow を避けつつ切替フィードバックを復活 |
