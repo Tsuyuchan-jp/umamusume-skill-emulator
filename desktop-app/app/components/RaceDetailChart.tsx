@@ -11,7 +11,6 @@ import {
   ResponsiveContainer,
   ReferenceLine,
   ReferenceArea,
-  ReferenceDot,
   Legend,
 } from "recharts";
 import { RaceDetailDump } from "../lib/types";
@@ -21,6 +20,7 @@ import {
   GraphDisplayState,
   GraphPoint,
   layoutSkillMarkers,
+  skillMarkersToPx,
   SKILL_CHART_BASE_HEIGHT,
   SKILL_FONT_SIZE,
   SPEED_MIN,
@@ -67,29 +67,6 @@ const SERIES_LEGEND_ITEMS: {
   { stateKey: "showStamina", label: "体力", color: STAMINA_LINE_COLOR },
   { stateKey: "showLane", label: "走行レーン", color: "#22c55e" },
 ];
-
-/** Recharts 3.8 ReferenceDot の label は cx/cy または viewBox でピクセル座標が渡る */
-type SkillLabelProps = {
-  cx?: number;
-  cy?: number;
-  x?: number;
-  y?: number;
-  viewBox?: { x?: number; y?: number };
-};
-
-/** B案: 下ライン — ラベル左端＝startTime、赤線は文字下（非接触） */
-const renderSkillLabel = (text: string, fill: string) =>
-  function SkillLabel(props: SkillLabelProps) {
-    const x = props.cx ?? props.viewBox?.x ?? props.x;
-    const y = props.cy ?? props.viewBox?.y ?? props.y;
-    if (x == null || y == null) return null;
-
-    return (
-      <text x={x} y={y} textAnchor="start" dominantBaseline="hanging" fill={fill} fontSize={SKILL_FONT_SIZE}>
-        {text}
-      </text>
-    );
-  };
 
 const SyncedChartLegend: React.FC<{ displayState: GraphDisplayState }> = ({ displayState }) => (
   <ul className="m-0 flex list-none justify-center gap-4 p-0 pt-1 text-xs">
@@ -139,18 +116,20 @@ const renderPercentAxisTick = (props: {
   );
 };
 
-export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
+const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({ detail }) => {
   const [displayState, setDisplayState] = useState<GraphDisplayState>(DEFAULT_GRAPH_DISPLAY_STATE);
   const graphData = useMemo(() => buildRaceGraphData(detail, displayState), [detail, displayState]);
   const chartAreaRef = useRef<HTMLDivElement>(null);
   const [measuredHeight, setMeasuredHeight] = useState(SKILL_CHART_BASE_HEIGHT);
+  const [measuredWidth, setMeasuredWidth] = useState(800);
 
   useEffect(() => {
     const el = chartAreaRef.current;
     if (!el) return;
     const ro = new ResizeObserver(([entry]) => {
-      const h = entry.contentRect.height;
-      if (h > 0) setMeasuredHeight(h);
+      const { width, height } = entry.contentRect;
+      if (height > 0) setMeasuredHeight(height);
+      if (width > 0) setMeasuredWidth(width);
     });
     ro.observe(el);
     return () => ro.disconnect();
@@ -162,6 +141,20 @@ export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
   const skillMarkers = useMemo(
     () => layoutSkillMarkers(graphData.skillMarkers, effectiveChartHeight, { expanded: isExpanded }),
     [graphData.skillMarkers, effectiveChartHeight, isExpanded],
+  );
+
+  /** overlay 用ピクセル座標。スキル表示 OFF または markers なしのときは空配列 */
+  const showSkillOverlay =
+    (displayState.showSkills || displayState.showDebuffs) && skillMarkers.length > 0;
+  const maxTime = graphData.points.length > 0
+    ? graphData.points[graphData.points.length - 1].time
+    : 0;
+  const skillMarkersPx = useMemo(
+    () =>
+      showSkillOverlay
+        ? skillMarkersToPx(skillMarkers, effectiveChartHeight, measuredWidth, maxTime)
+        : [],
+    [showSkillOverlay, skillMarkers, effectiveChartHeight, measuredWidth, maxTime],
   );
 
   const toggleDisplay = (key: keyof GraphDisplayState) => {
@@ -228,30 +221,6 @@ export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
                     )}
                   </React.Fragment>
                 ))}
-              {skillMarkers.map((marker, index) => (
-                <React.Fragment key={`skill-${marker.skillId}-${marker.startTime}-${index}`}>
-                  <ReferenceLine
-                    segment={[
-                      { x: marker.startTime, y: marker.lineY },
-                      { x: marker.endTime, y: marker.lineY },
-                    ]}
-                    yAxisId="percent"
-                    stroke={marker.kind === "debuff" ? DEBUFF_DURATION_LINE_COLOR : SKILL_DURATION_LINE_COLOR}
-                    strokeWidth={2}
-                    ifOverflow="visible"
-                  />
-                  <ReferenceDot
-                    x={marker.startTime}
-                    y={marker.y}
-                    yAxisId="percent"
-                    r={0}
-                    fill="transparent"
-                    stroke="none"
-                    ifOverflow="visible"
-                    label={renderSkillLabel(marker.label, marker.labelColor)}
-                  />
-                </React.Fragment>
-              ))}
               <CartesianGrid strokeDasharray="3 3" stroke="#3f3f46" />
               <XAxis
                 dataKey="time"
@@ -373,6 +342,43 @@ export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
               />
             </LineChart>
           </ResponsiveContainer>
+
+          {/* スキル発動 overlay SVG — Recharts 外の absolute レイヤー（pointer-events-none） */}
+          {showSkillOverlay && skillMarkersPx.length > 0 && (
+            <svg
+              className="pointer-events-none absolute inset-0"
+              width="100%"
+              height={isExpanded ? chartHeight : "100%"}
+              style={{ overflow: "visible" }}
+              aria-hidden="true"
+            >
+              {skillMarkersPx.map((m, i) => (
+                <g key={`skill-overlay-${m.skillId}-${m.startX}-${i}`}>
+                  {/* スキル名ラベル: textAnchor start、左端 = startTime の px 位置 */}
+                  <text
+                    x={m.startX}
+                    y={m.labelY}
+                    textAnchor="start"
+                    dominantBaseline="hanging"
+                    fill={m.labelColor}
+                    fontSize={SKILL_FONT_SIZE}
+                  >
+                    {m.label}
+                  </text>
+                  {/* 発動区間水平線（スキル: 赤、デバフ: 紫） */}
+                  <line
+                    x1={m.startX}
+                    y1={m.lineY}
+                    x2={m.endX}
+                    y2={m.lineY}
+                    stroke={m.kind === "debuff" ? DEBUFF_DURATION_LINE_COLOR : SKILL_DURATION_LINE_COLOR}
+                    strokeWidth={2}
+                  />
+                </g>
+              ))}
+            </svg>
+          )}
+
           {displayState.showAreas && graphData.areaBands.length > 0 && (
             <div className="pointer-events-none absolute bottom-1 left-1 flex flex-col gap-0.5 text-[10px] text-zinc-300">
               <span className="rounded bg-black/50 px-1.5 py-0.5">直線 / コーナー</span>
@@ -397,3 +403,6 @@ export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
     </div>
   );
 };
+
+/** detail 参照が同じなら親再描画をスキップ（P1 パフォーマンス改善） */
+export const RaceDetailChart = React.memo(RaceDetailChartInner);

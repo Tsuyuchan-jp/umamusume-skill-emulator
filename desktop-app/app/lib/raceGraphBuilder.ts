@@ -143,6 +143,55 @@ export function layoutSkillMarkers(
   });
 }
 
+/** overlay SVG 座標変換用: Recharts LineChart の固定マージン＋軸幅 */
+export const OVERLAY_MARGIN_LEFT = 52; // chart margin.left(4) + left YAxis width(48)
+export const OVERLAY_MARGIN_RIGHT = 88; // chart margin.right(48) + right YAxis width(40)
+
+/** overlay SVG 上のスキルマーカーのピクセル座標 */
+export interface SkillMarkerPx {
+  skillId: string;
+  label: string;
+  labelColor: string;
+  kind: SkillEventKind;
+  /** ラベル・赤線の開始 x（px） */
+  startX: number;
+  /** 赤線の終了 x（px） */
+  endX: number;
+  /** ラベル上端 y（px、dominantBaseline="hanging" 用） */
+  labelY: number;
+  /** 赤線 y（px） */
+  lineY: number;
+}
+
+/**
+ * layoutSkillMarkers の domain 座標を overlay SVG ピクセル座標に変換する
+ *   x = (time / maxTime) * plotWidth + OVERLAY_MARGIN_LEFT
+ *   y = (1 - domainY) * plotHeight + SKILL_CHART_MARGIN_TOP
+ */
+export function skillMarkersToPx(
+  markers: SkillMarker[],
+  chartHeightPx: number,
+  chartWidthPx: number,
+  maxTime: number,
+): SkillMarkerPx[] {
+  if (!markers.length || maxTime <= 0 || chartWidthPx <= 0 || chartHeightPx <= 0) return [];
+
+  const plotHeight = chartHeightPx - SKILL_CHART_MARGIN_TOP - SKILL_CHART_MARGIN_BOTTOM;
+  const plotWidth = chartWidthPx - OVERLAY_MARGIN_LEFT - OVERLAY_MARGIN_RIGHT;
+  if (plotHeight <= 0 || plotWidth <= 0) return [];
+
+  return markers.map((m) => ({
+    skillId: m.skillId,
+    label: m.label,
+    labelColor: m.labelColor,
+    kind: m.kind,
+    startX: (m.startTime / maxTime) * plotWidth + OVERLAY_MARGIN_LEFT,
+    endX: (m.endTime / maxTime) * plotWidth + OVERLAY_MARGIN_LEFT,
+    labelY: (1 - m.y) * plotHeight + SKILL_CHART_MARGIN_TOP,
+    lineY: (1 - m.lineY) * plotHeight + SKILL_CHART_MARGIN_TOP,
+  }));
+}
+
 /** PROJECT.md スキル色分け正本に合わせたラベル文字色 */
 const RARITY_LABEL_COLORS: Record<SkillDisplayRarity, string> = {
   unique: "#60a5fa",

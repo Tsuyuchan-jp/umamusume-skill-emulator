@@ -4,13 +4,13 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-11 16:37
+最終更新: 2026-06-11 17:05
 
 ---
 
 ## 現在のフォーカス
 
-レース詳細グラフ UI レスポンス改善（性能 REQ・新チャット起票用）
+レース詳細グラフ UI レスポンス改善 Phase 1（overlay SVG 一本化 + React.memo）
 
 ---
 
@@ -19,7 +19,9 @@
 > **同時に載せるのは最大1件。** 別チャットで作業中なら、ここが「なし」のままにしない。
 > 形式: `- [ ] **タイトル** — （1行要約）` + 必要なら REQ リンク・触る想定
 
-なし
+- [ ] **レース詳細グラフ UI レスポンス改善 Phase 1** — overlay SVG スキル層一本化 + RaceDetailChart React.memo 適用
+  - REQ: [`REQ-race-detail-graph-performance.md`](tasks/REQ-race-detail-graph-performance.md)
+  - 触るファイル: `RaceDetailChart.tsx`, `raceGraphBuilder.ts`（px 変換ヘルパ追加のみ）
 
 ## 次にやること（Backlog）
 
@@ -27,12 +29,10 @@
 
 ### P0 — 次に着手
 
-- [ ] **レース詳細グラフ UI レスポンス改善（スキル表示 ON 時のもたつき）**
-  - 症状: スキル checkbox ON 時、左カラム・タブ・SkillVerifier 等 **全体** がもたつく。OFF なら快適
-  - 実機: Phase 3 UX D 全 OK / E 操作レスポンス NG（2026-06-11）
+- [ ] **レース詳細グラフ UI レスポンス改善 Phase 2** — buildRaceGraphData 分割・overflow-x-hidden・Profiler 記録
+  - 前提: Phase 1 完了後に着手
   - REQ: [`REQ-race-detail-graph-performance.md`](tasks/REQ-race-detail-graph-performance.md)
-  - 触る想定: `RaceDetailChart.tsx`, `raceGraphBuilder.ts`, `ResultCard.tsx`, `page.tsx`
-  - 注意: 計測（React Profiler）→ 設計レビュー後に実装。UX 表示仕様は変えない
+  - 触る想定: `raceGraphBuilder.ts`（points/skillMarkers 分割）、`RaceDetailChart.tsx`（縦拡大親 overflow）
 
 ### P1 — 重要（急がない）
 
