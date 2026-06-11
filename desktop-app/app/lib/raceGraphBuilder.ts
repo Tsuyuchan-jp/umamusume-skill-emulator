@@ -92,7 +92,7 @@ export interface SkillMarker {
 /** 縦拡大時のチャート高さ */
 export const SKILL_CHART_BASE_HEIGHT = 360;
 /** 1 スキル行の高さ（px）— 縦拡大 ON 時 */
-export const SKILL_ROW_HEIGHT = 20;
+export const SKILL_ROW_HEIGHT = 19;
 export const SKILL_FONT_SIZE = 10;
 export const SKILL_LINE_GAP = 3;
 /** 赤線を上方向へ寄せる微調整（px） */
@@ -103,7 +103,7 @@ export const SKILL_CHART_MARGIN_TOP = 24;
 export const SKILL_CHART_MARGIN_BOTTOM = 4;
 
 export interface SkillLayoutOptions {
-  /** true: 20px 固定行。false: skillMargin ドメイン詰め（重なり OK・枠内収納） */
+  /** true: 19px 固定行。false: skillMargin ドメイン詰め（重なり OK・枠内収納） */
   expanded?: boolean;
 }
 
@@ -165,7 +165,7 @@ export interface RaceGraphData {
   staminaMax: number;
   areaBands: AreaBand[];
   skillMarkers: SkillMarker[];
-  /** 縦拡大 ON 時のみ使用: max(360, 発動数 × 20) */
+  /** 縦拡大 ON 時のみ使用: max(360, 発動数 × 19) */
   expandedChartHeight: number;
 }
 
