@@ -9,6 +9,8 @@ import io.github.mee1080.umasim.race.data.*
 import io.github.mee1080.umasim.race.data2.SkillData
 import io.github.mee1080.umasim.race.data2.initSkillDataFromJson
 import io.github.mee1080.umasim.race.data2.skillData2
+import io.github.mee1080.utility.roundToString
+import io.github.mee1080.utility.toPercentString
 import kotlin.js.ExperimentalJsExport
 import kotlin.js.JsExport
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -66,13 +68,13 @@ fun runSimulationDetail(inputJson: String): String {
             corners = trackDetail.corners.map { SectionOutput(it.start, it.end) },
             slopes = trackDetail.slopes.map { SlopeOutput(it.start, it.end, it.slope) },
         ),
-        skillEvents = buildSkillEvents(rawFrames),
+        skillEvents = buildSkillEvents(rawFrames, setting.courseLength),
     )
     return json.encodeToString(detail)
 }
 
 /** フレーム走査で発動区間を組み立て（フレーム毎 activeSkillIds 全量は出力しない） */
-private fun buildSkillEvents(frames: List<RaceFrame>): List<SkillEventOutput> {
+private fun buildSkillEvents(frames: List<RaceFrame>, courseLength: Int): List<SkillEventOutput> {
     if (frames.isEmpty()) return emptyList()
     val events = mutableListOf<SkillEventOutput>()
     frames.forEachIndexed { index, frame ->
@@ -82,19 +84,68 @@ private fun buildSkillEvents(frames: List<RaceFrame>): List<SkillEventOutput> {
             val kind = if (skill.rarity == "minus") "debuff" else "skill"
             val endIndex = (index + 1 until frames.size).firstOrNull { i ->
                 frames[i].endedSkills.any { it.data.skill.id == skillId }
-            } ?: (frames.size - 1)
+            }
+            val startRate = frame.startPosition / courseLength
+            val endRate = endIndex?.let { frames[it].startPosition / courseLength }
+            val effectText = buildGraphSkillDescription(triggered, kind, startRate, endRate)
             events.add(
                 SkillEventOutput(
                     skillId = skillId,
                     startTime = index / FRAME_PER_SECOND,
-                    endTime = endIndex / FRAME_PER_SECOND,
+                    endTime = (endIndex ?: (frames.size - 1)) / FRAME_PER_SECOND,
                     kind = kind,
+                    effectText = effectText,
                 )
             )
         }
     }
     return events
 }
+
+/** AppState.kt GraphSkill.description 相当 */
+private fun buildGraphSkillDescription(
+    effect: TriggeredSkill,
+    kind: String,
+    startRate: Double,
+    endRate: Double?,
+): String = buildString {
+    val heal = effect.heal
+    if (heal != null) {
+        val waste = effect.waste ?: 0.0
+        if (waste > 0.0) {
+            appendLine("体力：${heal.roundToString(2)} (溢れ：${waste.roundToString(2)})")
+        } else {
+            appendLine("体力：${heal.roundToString(2)}")
+        }
+    }
+    val operating = effect.operating
+    if (operating != null) {
+        if (operating.targetSpeed > 0.0) {
+            appendLine("目標速度：${operating.targetSpeed.roundToString(2)}")
+        }
+        if (operating.speedWithDecel > 0.0) {
+            appendLine("現在速度：${operating.speedWithDecel.roundToString(2)}")
+        }
+        if (operating.currentSpeed > 0.0) {
+            appendLine("現在速度：${operating.currentSpeed.roundToString(2)}")
+        }
+        if (operating.acceleration > 0.0) {
+            appendLine("加速度：${operating.acceleration.roundToString(2)}")
+        }
+        if (operating.laneChangeSpeed > 0.0) {
+            appendLine("レーン移動速度：${operating.laneChangeSpeed.roundToString(2)}")
+        }
+        if (operating.duration > 0.0) {
+            appendLine("持続時間：${operating.duration.roundToString(2)}")
+        }
+    }
+    val startPercent = startRate.toPercentString(1)
+    if (kind == "debuff" || endRate == null) {
+        appendLine(startPercent)
+    } else {
+        appendLine("${startPercent}〜${endRate.toPercentString(1)}")
+    }
+}.trim()
 
 private fun parseInput(inputJson: String): Pair<RaceSetting, RaceCalculator> {
     val request = json.decodeFromString<SimulationRequest>(inputJson)
@@ -229,6 +280,7 @@ private data class SkillEventOutput(
     val startTime: Double,
     val endTime: Double,
     val kind: String,
+    val effectText: String = "",
 )
 
 @Serializable

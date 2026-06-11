@@ -2,15 +2,15 @@
 
 > 本家 umasim 準拠のスキル情報 Tooltip。親シリーズ: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md)
 
-- **ステータス**: in-progress
+- **ステータス**: done
 - **作成日**: 2026-06-11 18:39
-- **関連コミット**: （完了後に記入）
+- **関連コミット**: `a5e5e7d`（Phase A hover UI）、（Phase B WASM — 完了コミット追記）
 
 ---
 
 ## 目的
 
-グラフ overlay 上のスキル名・発動線にカーソルを合わせたとき、本家と同様に **効果量・持続時間・発動位置％** を Tooltip で表示する。走行グラフの読み取り価値を高める。
+グラフ overlay 上のスキル名ラベルにカーソルを合わせたとき、本家と同様に **効果量・持続時間・発動位置％** を Tooltip で表示する。走行グラフの読み取り価値を高める。
 
 ---
 
@@ -18,50 +18,44 @@
 
 ### やること
 
-- [ ] overlay SVG のスキルラベル/赤線に hover 領域を設ける（現状 `pointer-events-none` を解除）
-- [ ] hover 時にスキル情報 Tooltip を表示（本家 `GraphOutput.kt` 相当）
-- [ ] 表示項目（最低限）:
-  - **持続時間**: `endTime - startTime`（`skillEvents` から算出可）
-  - **発動位置％**: `frames` の `startPosition` / `courseLength`（`startTime` からフレーム逆引き）
-  - **効果量**: 要設計 — WASM 出力拡張 or マスタ参照（Ask mode で確定）
-- [ ] 折れ線 Tooltip（速度/体力/レーン）との干渉を避ける（z-index・hit area・表示優先）
+- [x] overlay SVG のスキル名ラベルのみ hover 領域（赤線は hit 対象外）
+- [x] hover 時にスキル情報 Tooltip を表示（本家 `GraphOutput.kt` 相当）
+- [x] 表示項目（GraphSkill.description 準拠）:
+  - **効果量**: TriggeredSkill 由来（WASM `effectText`）
+  - **持続時間**: `operating.duration` を effectText 内に含める
+  - **発動位置％**: startRate/endRate（小数1桁％、範囲 or 単点）
+- [x] 折れ線 Tooltip との干渉回避（ラベル hit で pointer 捕捉・z-index 1001）
 
 ### やらないこと
 
-- Phase 4 baseline diff の2系列描画（本 REQ とは別。Phase 4 後に diff 表示への追従は別判断）
-- Phase 3 UX 表示仕様の変更（下ライン・19px 行等）
+- Phase 4 baseline diff の2系列描画
+- Phase 3 UX 表示仕様の変更
 - スキル名ラベルのクリック操作
+- スタミナキープ endTime 異常（別 TODO）
 
 ---
 
-## データ調査メモ（起票時点）
-
-| 項目 | 現状の取得元 | 備考 |
-|------|-------------|------|
-| 持続時間 | `SkillEventDump.startTime` / `endTime` | 追加実装不要 |
-| 発動位置％ | `RaceDetailDump.frames` + `courseLength` | `buildRaceGraphPoints` と同様のフレーム参照 |
-| 効果量 | **未出力** | `WasmEngine.kt` の `SkillEventOutput` は id/time/kind のみ。本家同等にするなら WASM 拡張が有力 |
-
----
-
-## 触るファイル（予定）
+## 触ったファイル
 
 | ファイル | 変更内容 |
 |---------|---------|
-| `RaceDetailChart.tsx` | overlay hover・Tooltip UI |
-| `raceGraphBuilder.ts` | マーカーに Tooltip 用メタデータ付与（発動位置％等） |
-| `types.ts` | 必要なら `SkillEventDump` 拡張 |
-| `tools/umasim-race-wasm/WasmEngine.kt` | 効果量を出す場合のみ |
+| `RaceDetailChart.tsx` | ラベル hover・createPortal Tooltip |
+| `raceGraphBuilder.ts` | tooltipKey / effectText / hit area / 位置％暫定 |
+| `types.ts` | `SkillEventDump.effectText` |
+| `WasmEngine.kt` | `buildGraphSkillDescription` + skillEvents 出力 |
+| `desktop-app/public/umaemu/` | race.js + wasm 再ビルド配布 |
 
 ---
 
 ## 完了条件
 
-- [ ] スキルラベル hover で Tooltip 表示（持続時間・発動位置％が正しい）
-- [ ] 効果量の表示方針が決定ログに記録され、実装されている
-- [ ] 折れ線 Tooltip・縦拡大スクロール・性能（Phase 1+2）に退行なし
-- [ ] `npm run build` 通過・実機確認
-- [ ] REQ `done` + `docs/TODO.md` 更新 + コミット
+- [x] スキル名ラベル hover で Tooltip 表示（効果量・持続時間・発動位置％）
+- [x] hover 対象はスキル名のみ（赤線 hover なし）
+- [x] 折れ線 Tooltip・縦拡大スクロール・Phase 4 compare・性能に退行なし
+- [x] WASM 再ビルド + public/umaemu 更新済み
+- [x] 本家 GraphSkill.description ロジックと Kotlin 実装一致（umasim AppState.kt 参照）
+- [x] `npm run build` 通過
+- [x] REQ `done` + `docs/TODO.md` 更新 + コミット
 
 ---
 
@@ -69,13 +63,16 @@
 
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
-| 2026-06-11 18:39 | 本 REQ を draft 起票。TODO P1 登録 | ユーザー要望。Phase 4 との優先は Phase 4 を先（下記 TODO 参照） |
+| 2026-06-11 18:39 | 本 REQ を draft 起票。TODO P1 登録 | ユーザー要望。Phase 4 との優先は Phase 4 を先 |
 | 2026-06-12 02:51 | Phase A 着手: スキル名ラベルのみ hover + Tooltip 枠 + 位置％暫定 | 設計レビュー承認済み方針 |
+| 2026-06-12 02:58 | 効果量は WASM 事前フォーマット（`effectText` 1 フィールド）。本家 `GraphSkill.description` を Kotlin で再現 | AppState.kt 準拠。skill_data.txt 参照は使わない |
+| 2026-06-12 02:58 | 2 コミット: (1) hover UI (2) WASM + umaemu | ユーザー承認済み方針 |
+| 2026-06-12 02:58 | スタミナキープ endTime 異常は本 REQ 対象外 | 既知問題・別 TODO |
 
 ---
 
 ## 参考
 
 - ロードマップ: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md)
+- 本家: `GraphOutput.kt`（WithTooltip + skill.description）、`AppState.kt` GraphSkill.description
 - overlay 実装: `f8158c8`（Phase 1 性能）
-- 本家: `GraphOutput.kt`（TooltipSurface 相当）

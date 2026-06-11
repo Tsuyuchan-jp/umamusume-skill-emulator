@@ -4,21 +4,19 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-12 02:51
+最終更新: 2026-06-12 02:58
 
 ---
 
 ## 現在のフォーカス
 
-グラフ内スキル hover Tooltip 実装（Phase A hover UI）
+P1 改善タスク（グラフ縦拡大クリップ等）
 
 ---
 
 ## 進行中
 
-- [ ] **グラフ内スキル hover Tooltip** — 効果量・持続時間・発動位置％（本家準拠）
-  - REQ: [`REQ-race-detail-graph-skill-tooltip.md`](tasks/REQ-race-detail-graph-skill-tooltip.md)
-  - 触る想定: `RaceDetailChart.tsx`, `raceGraphBuilder.ts`, `WasmEngine.kt`
+なし
 
 ## 次にやること（Backlog）
 
@@ -89,6 +87,7 @@
 
 ## 完了済み
 
+- [x] グラフ内スキル hover Tooltip — 効果量・持続時間・発動位置％（本家 GraphSkill.description 準拠）（`a5e5e7d` / 完了コミット追記 / [`REQ-race-detail-graph-skill-tooltip.md`](tasks/REQ-race-detail-graph-skill-tooltip.md)）
 - [x] 直近レース詳細グラフ Phase 4 — baseline グラフ diff（2系列オーバーレイ・**実機検証クローズ** A〜F OK）（`e780b3d` / `a4752cf` / [`REQ-race-detail-graph-phase4.md`](tasks/REQ-race-detail-graph-phase4.md)）
 - [x] レース詳細グラフ UI レスポンス改善 Phase 1+2 — overlay SVG・useMemo 分割・スクロールバー/Tooltip 追従修正・**実機検証クローズ**（`f8158c8` / `2c8e1ed` / `e9b337f` / `873080e` / [`REQ-race-detail-graph-performance.md`](tasks/REQ-race-detail-graph-performance.md)）
 - [x] Phase 3 UX スキル行 B案 — 下ライン・28px 行高・zinc ピル・縦拡大一貫レイアウト（`447d25e` / [`REQ-race-detail-graph-phase3-ux.md`](tasks/REQ-race-detail-graph-phase3-ux.md)）
@@ -127,7 +126,7 @@
 - サイドバー狭幅 UI（380px / min 320px）は Phase S1+S2 で完了（[`REQ-sidebar-compact-layout.md`](tasks/REQ-sidebar-compact-layout.md)）。S3 コンテナクエリは見送り
 - 全画面 Cockpit UI（Phase 1〜3）は完了（[`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)）
 - グラフ Y軸・m/s は [`REQ-race-detail-graph-axis.md`](tasks/REQ-race-detail-graph-axis.md) で対応済み
-- 直近レース詳細グラフ: ロードマップ [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md)。**Phase 4 baseline diff 実機検証クローズ**（2026-06-12 01:41）。次の本線は P1 スキル hover Tooltip
+- 直近レース詳細グラフ: ロードマップ [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md)。**Phase 4 baseline diff 実機検証クローズ**（2026-06-12 01:41）。**スキル hover Tooltip 完了**（2026-06-12 02:58）。次の本線は P1 縦拡大クリップ
 - **タブ切り替え**（2026-06-11）: 現状許容・詳細改善は P1 Backlog（グラフ性能 REQ とは別件）
 - 現代ウマ娘: 所持 50〜70+ スキル。グラフ `skillEvents` は発動イベント数（20〜40+ あり得る）
 - **別作業で発見（2026-06-11）**: サイドバー折りたたみボタンのスクロール追従、ステータス条件ボタンのテキスト化、グラフ/スキル表記以降のレスポンス低下 — いずれも Backlog 登録済み
