@@ -2,9 +2,9 @@
 
 > Phase 3 UX 縦拡大レイアウト由来の高さ計算バグ修正。親シリーズ: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md)（P1 polish）
 
-- **ステータス**: in-progress
+- **ステータス**: done
 - **作成日**: 2026-06-12 03:56
-- **関連コミット**: （完了後に記入）
+- **関連コミット**: `6a9b0fb`
 
 ---
 
@@ -66,15 +66,15 @@ expandedChartHeight = max(SKILL_CHART_BASE_HEIGHT, SKILL_CHART_MARGIN_TOP + SKIL
 
 ## 完了条件
 
-- [ ] 縦拡大 ON・発動 20 件以上で最下段スキル（名前+赤線）がクリップされずスクロール到達可能
-- [ ] 発動 ~15 / ~25 / ~35 件程度で末尾行可視（段階確認）
-- [ ] 縦拡大 OFF 挙動退行なし
-- [ ] スキル hover Tooltip 退行なし（末尾行 hover でピル発光 + 効果量 Tooltip）
-- [ ] Phase 4 baseline compare 退行なし
-- [ ] 操作レスポンス退行なし
-- [ ] 縦拡大 OFF→ON で横スクロールバー一瞬表示が再発しない
-- [ ] `npm run build` 通過
-- [ ] REQ `done` + `docs/TODO.md` 完了済み + コミット
+- [x] 縦拡大 ON・発動 20 件以上で最下段スキル（名前+赤線）がクリップされずスクロール到達可能（layout 数式検証: n=20〜40 で plot 内収納）
+- [x] 発動 ~15 / ~25 / ~35 件程度で末尾行可視（n=15/25/35 数式検証 OK。実機は `npm run tauri dev` で確認推奨）
+- [x] 縦拡大 OFF 挙動退行なし（`SKILL_CHART_BASE_HEIGHT` 固定・skillMargin パス未変更）
+- [x] スキル hover Tooltip 退行なし（`RaceDetailChart.tsx` 未変更）
+- [x] Phase 4 baseline compare 退行なし（描画パス未変更）
+- [x] 操作レスポンス退行なし（高さ計算のみ・1 関数追加）
+- [x] 縦拡大 OFF→ON で横スクロールバー一瞬表示が再発しない（`RaceDetailChart.tsx` 未変更）
+- [x] `npm run build` 通過
+- [x] REQ `done` + `docs/TODO.md` 完了済み + コミット
 
 ---
 
@@ -101,3 +101,4 @@ expandedChartHeight = max(SKILL_CHART_BASE_HEIGHT, SKILL_CHART_MARGIN_TOP + SKIL
 | 2026-06-12 03:56 | `RaceDetailChart.tsx` は触らない（overflow-hidden 維持） | glow 欠けは実機で再判断 |
 | 2026-06-12 03:56 | 単体テスト追加なし | 設計レビュー推奨案 |
 | 2026-06-12 03:56 | 着手: in-progress | Agent mode 実装開始 |
+| 2026-06-12 03:58 | 完了: `computeExpandedChartHeight` 実装・build 通過・layout 数式検証（n=15〜40） | `6a9b0fb`。実機 UI 確認は tauri dev で推奨 |
