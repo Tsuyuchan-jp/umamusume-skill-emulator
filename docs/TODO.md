@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-12 03:10
+最終更新: 2026-06-12 03:24
 
 ---
 
@@ -51,6 +51,12 @@ P1 改善タスク（グラフ縦拡大クリップ等）
   - 注意: フィルタ条件（special/minus 除外）は維持
 
 ### P2 — 改善・アイデア
+
+- [ ] **グラフスキル hover UI ポリッシュ** — カーソル default 維持 + hover ピル発光
+  - 実機検証: Tooltip REQ チェックリスト全項目 OK（2026-06-12）
+  - 方針: レアリティ色グロー + 120〜180ms フェード、赤線は非 hover、ピル rect は常時同サイズで opacity のみ変化（ずれ防止）
+  - 触る想定: `RaceDetailChart.tsx`（`cursor: default`、SVG pill + filter）
+  - 関連: [`REQ-race-detail-graph-skill-tooltip.md`](tasks/REQ-race-detail-graph-skill-tooltip.md) polish 節
 
 - [ ] **スキル帯を速度折れ線グラフに連動させるレイアウト**
   - 現状: レース最終盤ではスキル帯がグラフ下部・速度折れ線が上部に分離し、発動タイミングと速度変化の対応分析がしづらい

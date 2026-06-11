@@ -68,6 +68,28 @@
 | 2026-06-12 02:58 | 効果量は WASM 事前フォーマット（`effectText` 1 フィールド）。本家 `GraphSkill.description` を Kotlin で再現 | AppState.kt 準拠。skill_data.txt 参照は使わない |
 | 2026-06-12 02:58 | 2 コミット: (1) hover UI (2) WASM + umaemu | ユーザー承認済み方針 |
 | 2026-06-12 02:58 | スタミナキープ endTime 異常は本 REQ 対象外 | 既知問題・別 TODO |
+| 2026-06-12 03:24 | 実機検証チェックリスト全項目 OK | ユーザー確認 |
+| 2026-06-12 03:24 | polish 方針: カーソル default、hover 時ピル+レアリティ色グロー（アニメあり）、赤線は非強調 | ユーザー承認。ピルは rect 固定サイズ+opacity で border ずれ回避 |
+
+---
+
+## polish（実装予定・Tooltip 完了後）
+
+Tooltip 機能本体は done。以下は UX 改善の follow-up（小さな1コミット想定）。
+
+| 項目 | 方針 |
+|------|------|
+| カーソル | hit `<g>` / rect に `cursor: default`（I ビーム化を防ぐ） |
+| hover 強調 | レアリティ色ベースのソフトグロー + **ピル型 rect**（`rx` 角丸） |
+| アニメ | fill / stroke / filter の opacity を 120〜180ms ease |
+| 赤線 | hover 中も見た目変更なし |
+| ずれ防止 | ピル rect は **常に同じ x/y/width/height**。hover 時は opacity のみ変化。stroke 幅分のパディングは非 hover から確保 |
+
+### ピル hover の技術メモ
+
+- overlay SVG は absolute のため、Recharts レイアウトやスキル行 Y 座標は **動かない**
+- SVG `stroke` は path 中央に描かれるため、hover 時に stroke を「足す」と外側へ 0.5px 程度はみ出す可能性あり → **rect サイズ固定 + opacity アニメ**、または **filter（feGaussianBlur / drop-shadow）のみ** で回避
+- 非 hover 時も透明 rect を同サイズで置き、hover 時に fill/stroke/filter の opacity だけ上げると視覚ジャンプなし
 
 ---
 
