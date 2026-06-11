@@ -16,16 +16,17 @@ export function TabBar(props: TabBarProps) {
 
   return (
     <div className="flex gap-3 mb-3 border-b border-zinc-800 pb-2 overflow-x-auto scrollbar-thin">
-      {tabs.map(tab => {
+      {tabs.map((tab, index) => {
         const isActive = activeTabId === tab.id;
+        const isFirstActive = isActive && index === 0;
         return (
           <div
             key={tab.id}
             id={`tab-${tab.id}`}
             onClick={() => setActiveTabId(tab.id)}
-            className={`group relative flex-shrink-0 cursor-pointer overflow-hidden rounded-xl w-40 h-10 origin-left transition-[transform,opacity,box-shadow] duration-200 ${
+            className={`group relative flex-shrink-0 cursor-pointer overflow-hidden rounded-xl w-40 h-10 origin-center transition-[transform,opacity,box-shadow] duration-200 ${
               isActive
-                ? "scale-105 opacity-100 shadow-[0_0_15px_rgba(16,185,129,0.3)] z-10"
+                ? `scale-105 opacity-100 shadow-[0_0_15px_rgba(16,185,129,0.3)] z-10${isFirstActive ? " translate-x-1" : ""}`
                 : "scale-100 opacity-60 hover:opacity-100"
             } ${highlightedTabId === tab.id ? "ring-4 ring-emerald-400 animate-pulse" : ""}`}
           >
