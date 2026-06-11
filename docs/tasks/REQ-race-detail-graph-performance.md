@@ -86,9 +86,9 @@
 
 ## 完了条件
 
-- [ ] スキル表示 ON・発動 20 件以上で、左カラム / タブ / SkillVerifier 操作のもたつきが実用許容
-- [ ] スキル表示 OFF 時の体感を悪化させない
-- [ ] Phase 3 UX 表示（下ライン・左端揃え）に退行なし
+- [x] **Phase 1**: スキル表示 ON・発動 20 件以上で、左カラム / SkillVerifier 操作のもたつきが実用許容（実機 OK 2026-06-11）
+- [x] **Phase 1**: スキル表示 OFF 時の体感を悪化させない（実機 OK 2026-06-11）
+- [x] **Phase 1**: Phase 3 UX 表示に退行なし（実機で問題報告なし）
 - [ ] `npm run build` 通過
 - [ ] REQ `done` + `docs/TODO.md` 更新 + コミット
 
@@ -112,6 +112,7 @@
 | 2026-06-11 17:05 | Phase 1 実装方針確定: 案 B（overlay SVG 一本化）+ 案 A の memo 部分 | Recharts Customized は Phase 3 で scale 非注入の失敗実績あり。Recharts 外 absolute overlay SVG を正式採用。P0: ReferenceLine/ReferenceDot ×N を overlay SVG に一本化。P1: React.memo(RaceDetailChart) 適用 |
 | 2026-06-11 17:05 | Phase 2 を別チャット・別コミットに分離 | buildRaceGraphData 分割・overflow-x-hidden・Profiler 記録は Phase 1 完了後に独立実施 |
 | 2026-06-11 17:09 | Phase 1 実装完了（`f8158c8`） | overlay SVG 一本化・React.memo・measuredWidth 取得・overlay 非表示条件実装。npm run build 通過・lint エラーなし |
+| 2026-06-11 17:22 | Phase 1 実機検証 OK（ユーザー報告） | スキル表示 ON のまま画面全体の操作が軽快。E 主判定クリア。タブ切替のみ軽い引っかかりありだが ON/OFF 共通のため本 REQ 外。TODO P1 に別タスク登録 |
 
 ---
 

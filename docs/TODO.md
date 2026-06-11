@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-11 17:09
+最終更新: 2026-06-11 17:22
 
 ---
 
@@ -33,6 +33,12 @@
   - 触る想定: `raceGraphBuilder.ts`（points/skillMarkers 分割）、`RaceDetailChart.tsx`（縦拡大親 overflow）
 
 ### P1 — 重要（急がない）
+
+- [ ] **タブ切り替え時の引っかかり改善**
+  - 症状: タブ切り替えのみ軽い引っかかりを感じる。スキル表示 ON/OFF どちらでも同程度のため、Phase 1 グラフ性能修正とは無関係の可能性が高い
+  - 目標: タブ切替をスキル表示状態に依存せず快適にする
+  - 触る想定: `page.tsx`（タブ state・右カラム再描画境界）、必要なら `ResultCard.tsx` / `SkillVerifier.tsx`
+  - 注意: Phase 2 性能 REQ 完了後でも可。着手前に Profiler で原因切り分け推奨
 
 - [ ] **パレットのスキルデータ参照をローカルに統一**
   - 現状: パレット一覧は `fetchSkillData()`（GitHub）、色分けは `umasimSkillData.ts`（ローカル）の二重参照
@@ -113,7 +119,8 @@
 - サイドバー狭幅 UI（380px / min 320px）は Phase S1+S2 で完了（[`REQ-sidebar-compact-layout.md`](tasks/REQ-sidebar-compact-layout.md)）。S3 コンテナクエリは見送り
 - 全画面 Cockpit UI（Phase 1〜3）は完了（[`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)）
 - グラフ Y軸・m/s は [`REQ-race-detail-graph-axis.md`](tasks/REQ-race-detail-graph-axis.md) で対応済み
-- 直近レース詳細グラフ: ロードマップ [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md)。Phase 3 UX **D 全 OK**（19px 行・下ライン）。**E 操作レスポンス NG** → [`REQ-race-detail-graph-performance.md`](tasks/REQ-race-detail-graph-performance.md)（P0）。Phase 4 は性能改善後が自然
+- 直近レース詳細グラフ: ロードマップ [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md)。Phase 3 UX **D 全 OK**（19px 行・下ライン）。**E 操作レスポンス** → Phase 1（`f8158c8`）で **劇的改善・実機 OK**（2026-06-11）。Phase 2 は [`REQ-race-detail-graph-performance.md`](tasks/REQ-race-detail-graph-performance.md)（P0）。Phase 4 は性能改善後が自然
+- **タブ切り替えの軽い引っかかり**（2026-06-11）: スキル ON/OFF 共通。グラフ性能とは別件として P1 Backlog 登録済み
 - 現代ウマ娘: 所持 50〜70+ スキル。グラフ `skillEvents` は発動イベント数（20〜40+ あり得る）
 - **別作業で発見（2026-06-11）**: サイドバー折りたたみボタンのスクロール追従、ステータス条件ボタンのテキスト化、グラフ/スキル表記以降のレスポンス低下 — いずれも Backlog 登録済み
 - **REQ 運用**: 着手候補の正本は **本 TODO**。`draft` REQ 起票時は Backlog へ必ず1行追加（`.cursor/rules/docs-management.mdc`）
