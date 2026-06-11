@@ -4,13 +4,13 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-11 16:09
+最終更新: 2026-06-11 16:37
 
 ---
 
 ## 現在のフォーカス
 
-パレットのスキルデータ参照ローカル統一（P1 次候補）
+レース詳細グラフ UI レスポンス改善（性能 REQ・新チャット起票用）
 
 ---
 
@@ -27,7 +27,12 @@
 
 ### P0 — 次に着手
 
-（空 — P1 へ）
+- [ ] **レース詳細グラフ UI レスポンス改善（スキル表示 ON 時のもたつき）**
+  - 症状: スキル checkbox ON 時、左カラム・タブ・SkillVerifier 等 **全体** がもたつく。OFF なら快適
+  - 実機: Phase 3 UX D 全 OK / E 操作レスポンス NG（2026-06-11）
+  - REQ: [`REQ-race-detail-graph-performance.md`](tasks/REQ-race-detail-graph-performance.md)
+  - 触る想定: `RaceDetailChart.tsx`, `raceGraphBuilder.ts`, `ResultCard.tsx`, `page.tsx`
+  - 注意: 計測（React Profiler）→ 設計レビュー後に実装。UX 表示仕様は変えない
 
 ### P1 — 重要（急がない）
 
@@ -42,12 +47,6 @@
   - REQ: [`REQ-race-detail-graph-phase4.md`](tasks/REQ-race-detail-graph-phase4.md)
   - 触る想定: `SkillVerifier.tsx`, `RaceDetailChart.tsx`, `umaemuAdapter.ts`
   - 注意: Phase 3 完了後が自然。着手前に Ask mode 設計レビュー必須
-
-- [ ] **グラフ実装以降の UI レスポンス低下への対処**
-  - 症状: レース詳細グラフ（特にグラフ内スキル表記・Phase 3 以降）導入後、全体の操作レスポンスが明確に遅くなった
-  - 調査候補: recharts 再描画、`RaceDetailChart.tsx` の skill ラベル/帯、シミュレーション結果更新時の不要 re-render、WASM 詳細取得のタイミング
-  - 触る想定: `RaceDetailChart.tsx`, `raceGraphBuilder.ts`, `SkillVerifier.tsx`, `ResultCard.tsx`
-  - 注意: 計測（React Profiler / 再現手順メモ）を先に取ってから最適化方針を決める
 
 ### P2 — 改善・アイデア
 
@@ -115,7 +114,8 @@
 - サイドバー狭幅 UI（380px / min 320px）は Phase S1+S2 で完了（[`REQ-sidebar-compact-layout.md`](tasks/REQ-sidebar-compact-layout.md)）。S3 コンテナクエリは見送り
 - 全画面 Cockpit UI（Phase 1〜3）は完了（[`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)）
 - グラフ Y軸・m/s は [`REQ-race-detail-graph-axis.md`](tasks/REQ-race-detail-graph-axis.md) で対応済み
-- 直近レース詳細グラフ: ロードマップ [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md)。Phase 1 + axis + Phase 2 + Phase 3 + **Phase 3 UX 完了**（UX-1 B案 20px 行・実機 OK）。**次: D 以降実機検証 → Phase 4**（baseline diff・設計レビュー後）
+- 直近レース詳細グラフ: ロードマップ [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md)。Phase 3 UX **D 全 OK**（19px 行・下ライン）。**E 操作レスポンス NG** → [`REQ-race-detail-graph-performance.md`](tasks/REQ-race-detail-graph-performance.md)（P0）。Phase 4 は性能改善後が自然
+- 現代ウマ娘: 所持 50〜70+ スキル。グラフ `skillEvents` は発動イベント数（20〜40+ あり得る）
 - **別作業で発見（2026-06-11）**: サイドバー折りたたみボタンのスクロール追従、ステータス条件ボタンのテキスト化、グラフ/スキル表記以降のレスポンス低下 — いずれも Backlog 登録済み
 - **REQ 運用**: 着手候補の正本は **本 TODO**。`draft` REQ 起票時は Backlog へ必ず1行追加（`.cursor/rules/docs-management.mdc`）
 - 因子管理 DB・Tesseract OCR・Supabase 連携は **開発予定なし**（`.cursor/rules/development.mdc`）

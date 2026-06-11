@@ -5,7 +5,7 @@
 
 - **ステータス**: Phase 1 完了（シリーズ継続中）
 - **作成日**: 2026-06-10 15:55
-- **最終更新**: 2026-06-11 07:50
+- **最終更新**: 2026-06-11 16:37
 
 ---
 
@@ -22,7 +22,9 @@
 | 1 | MVP（3本線） | [`REQ-race-detail-graph-phase1.md`](REQ-race-detail-graph-phase1.md) | **done** | → axis |
 | 1.5 | Y軸・単位改善 | [`REQ-race-detail-graph-axis.md`](REQ-race-detail-graph-axis.md) | **done** | → Phase 2 |
 | 2 | 区間オーバーレイ | [`REQ-race-detail-graph-phase2.md`](REQ-race-detail-graph-phase2.md) | **done** | → Phase 3 |
-| 3 | スキル帯・表示切替 | [`REQ-race-detail-graph-phase3.md`](REQ-race-detail-graph-phase3.md) | draft | → Phase 4 |
+| 3 | スキル帯・表示切替 | [`REQ-race-detail-graph-phase3.md`](REQ-race-detail-graph-phase3.md) | **done** | → UX / 性能 |
+| 3-UX | UX ポリッシュ | [`REQ-race-detail-graph-phase3-ux.md`](REQ-race-detail-graph-phase3-ux.md) | **done**（D OK / E 操作 NG） | → 性能 |
+| 3-P | UI レスポンス | [`REQ-race-detail-graph-performance.md`](REQ-race-detail-graph-performance.md) | draft | → Phase 4 |
 | 4 | baseline diff（核） | [`REQ-race-detail-graph-phase4.md`](REQ-race-detail-graph-phase4.md) | draft | シリーズ本線完了 |
 
 ### 1 Phase の進め方
@@ -59,6 +61,7 @@
 | 2026-06-10 15:55 | Phase 1〜4 の段階実装 | 設計レビュー承認 |
 | 2026-06-11 04:47 | 親 REQ ステータスを `done（Phase 1 完了）` に明確化 | 誤解防止 |
 | 2026-06-11 04:54 | Phase 1〜4 を sibling REQ に分割、本ファイルをロードマップ索引化 | 開発速度・スコープ明確化 |
+| 2026-06-11 16:37 | 性能改善 REQ をロードマップに追加（Phase 3-P） | UX 実機 E NG。Phase 4 前のブロッカー |
 | 2026-06-11 07:50 | Phase 2 完了（`5e2b401`）。次は Phase 3 設計レビュー | 実機確認・UX 改善含む完全完了 |
 
 ---

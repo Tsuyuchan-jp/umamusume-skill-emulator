@@ -77,6 +77,7 @@
 | 2026-06-11 14:49 | ラベル再修正: `Customized` 廃止 → `ReferenceDot`（`r=0` + `label`）| Recharts 3.8 は `Customized` に scale 非注入。ラベル未表示バグ |
 | 2026-06-11 14:39 | B-3 デバフ検証は別タスク（`docs/TODO.md` P2） | OCR/パレットで minus が sim に載らないため Phase 3 スコープ外 |
 | 2026-06-11 15:15 | UX ポリッシュ sibling REQ 完了（[`REQ-race-detail-graph-phase3-ux.md`](REQ-race-detail-graph-phase3-ux.md)） | UX-1〜4 実装。D 以降実機検証は UX REQ チェックリストを正本とする |
+| 2026-06-11 16:37 | UX 実機 D 全 OK / E 操作レスポンス NG → 性能 sibling REQ 起票 | [`REQ-race-detail-graph-performance.md`](REQ-race-detail-graph-performance.md)。表示と性能を分離 |
 
 ---
 
