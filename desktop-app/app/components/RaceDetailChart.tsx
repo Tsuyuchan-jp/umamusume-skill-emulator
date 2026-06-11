@@ -72,8 +72,6 @@ const SKILL_TOOLTIP_APPROX_HEIGHT = 120;
 
 /** hover ピル・グローのフェード（ms）— 親 g の opacity でアニメ */
 const SKILL_HOVER_FADE_MS = 240;
-/** ピル右端のみの内側余白（左端は startX＝線・文字と揃える） */
-const SKILL_PILL_PAD_RIGHT = 6;
 const SKILL_PILL_GLOW_EXPAND = 3;
 
 /** ピル・グローは全スキル共通アクセント（テキストのみレアリティ色） */
@@ -101,9 +99,8 @@ function getSkillPillLayout(
   textWidths: Record<string, number>,
 ): { pillWidth: number; pillHeight: number; pillY: number; pillRx: number } {
   const measured = textWidths[marker.tooltipKey];
-  const textWidth =
-    measured ?? Math.max(marker.hitWidth - SKILL_PILL_PAD_RIGHT, SKILL_FONT_SIZE);
-  const pillWidth = textWidth + SKILL_PILL_PAD_RIGHT;
+  const pillWidth =
+    measured ?? Math.max(marker.hitWidth, SKILL_FONT_SIZE);
   const pillHeight = marker.hitHeight;
   const pillY = marker.labelY - 2;
   const pillRx = pillHeight / 2;
