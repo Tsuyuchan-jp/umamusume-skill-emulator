@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-12 03:24
+最終更新: 2026-06-12 03:26
 
 ---
 
@@ -52,12 +52,6 @@ P1 改善タスク（グラフ縦拡大クリップ等）
 
 ### P2 — 改善・アイデア
 
-- [ ] **グラフスキル hover UI ポリッシュ** — カーソル default 維持 + hover ピル発光
-  - 実機検証: Tooltip REQ チェックリスト全項目 OK（2026-06-12）
-  - 方針: レアリティ色グロー + 120〜180ms フェード、赤線は非 hover、ピル rect は常時同サイズで opacity のみ変化（ずれ防止）
-  - 触る想定: `RaceDetailChart.tsx`（`cursor: default`、SVG pill + filter）
-  - 関連: [`REQ-race-detail-graph-skill-tooltip.md`](tasks/REQ-race-detail-graph-skill-tooltip.md) polish 節
-
 - [ ] **スキル帯を速度折れ線グラフに連動させるレイアウト**
   - 現状: レース最終盤ではスキル帯がグラフ下部・速度折れ線が上部に分離し、発動タイミングと速度変化の対応分析がしづらい
   - 目標: スキル帯の表示位置を速度折れ線にうまく追従・連携させ、同一視野で詳細分析できる UI にする
@@ -98,6 +92,7 @@ P1 改善タスク（グラフ縦拡大クリップ等）
 
 ## 完了済み
 
+- [x] グラフスキル hover UI ポリッシュ — カーソル default + hover ピル発光（コミット後ハッシュ追記 / [`REQ-race-detail-graph-skill-tooltip.md`](tasks/REQ-race-detail-graph-skill-tooltip.md)）
 - [x] グラフ内スキル hover Tooltip — 効果量・持続時間・発動位置％（本家 GraphSkill.description 準拠）（`a5e5e7d` / `2c73c81` / [`REQ-race-detail-graph-skill-tooltip.md`](tasks/REQ-race-detail-graph-skill-tooltip.md)）
 - [x] 直近レース詳細グラフ Phase 4 — baseline グラフ diff（2系列オーバーレイ・**実機検証クローズ** A〜F OK）（`e780b3d` / `a4752cf` / [`REQ-race-detail-graph-phase4.md`](tasks/REQ-race-detail-graph-phase4.md)）
 - [x] レース詳細グラフ UI レスポンス改善 Phase 1+2 — overlay SVG・useMemo 分割・スクロールバー/Tooltip 追従修正・**実機検証クローズ**（`f8158c8` / `2c8e1ed` / `e9b337f` / `873080e` / [`REQ-race-detail-graph-performance.md`](tasks/REQ-race-detail-graph-performance.md)）

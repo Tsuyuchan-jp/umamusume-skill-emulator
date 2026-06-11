@@ -70,20 +70,21 @@
 | 2026-06-12 02:58 | スタミナキープ endTime 異常は本 REQ 対象外 | 既知問題・別 TODO |
 | 2026-06-12 03:24 | 実機検証チェックリスト全項目 OK | ユーザー確認 |
 | 2026-06-12 03:24 | polish 方針: カーソル default、hover 時ピル+レアリティ色グロー（アニメあり）、赤線は非強調 | ユーザー承認。ピルは rect 固定サイズ+opacity で border ずれ回避 |
+| 2026-06-12 03:26 | polish 実装: `cursor: default`、固定サイズピル+filter グロー、150ms opacity フェード | ユーザー承認後実装 |
 
 ---
 
 ## polish（実装予定・Tooltip 完了後）
 
-Tooltip 機能本体は done。以下は UX 改善の follow-up（小さな1コミット想定）。
+Tooltip 機能本体は done。以下 UX polish は **実装済み**（2026-06-12）。
 
 | 項目 | 方針 |
 |------|------|
 | カーソル | hit `<g>` / rect に `cursor: default`（I ビーム化を防ぐ） |
 | hover 強調 | レアリティ色ベースのソフトグロー + **ピル型 rect**（`rx` 角丸） |
-| アニメ | fill / stroke / filter の opacity を 120〜180ms ease |
+| アニメ | fill / stroke / filter の opacity を 150ms ease |
 | 赤線 | hover 中も見た目変更なし |
-| ずれ防止 | ピル rect は **常に同じ x/y/width/height**。hover 時は opacity のみ変化。stroke 幅分のパディングは非 hover から確保 |
+| ずれ防止 | ピル rect は **常に同じ x/y/width/height**。hover 時は opacity のみ変化 |
 
 ### ピル hover の技術メモ
 

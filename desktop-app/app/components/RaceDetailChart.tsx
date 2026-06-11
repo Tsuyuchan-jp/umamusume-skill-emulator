@@ -70,6 +70,16 @@ const SKILL_TOOLTIP_Y_OFFSET = 8;
 /** スキル Tooltip 枠の概算高さ */
 const SKILL_TOOLTIP_APPROX_HEIGHT = 120;
 
+/** hover ピル・グローのフェード（ms） */
+const SKILL_HOVER_FADE_MS = 150;
+const SKILL_PILL_FILL_OPACITY = 0.16;
+const SKILL_PILL_STROKE_OPACITY = 0.55;
+const SKILL_GLOW_FILL_OPACITY = 0.4;
+
+const skillHoverFadeStyle: React.CSSProperties = {
+  transition: `fill-opacity ${SKILL_HOVER_FADE_MS}ms ease, stroke-opacity ${SKILL_HOVER_FADE_MS}ms ease`,
+};
+
 const SkillTooltipPortal: React.FC<{
   clientX: number;
   clientY: number;
@@ -542,7 +552,27 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
               style={{ overflow: "visible" }}
               aria-hidden="true"
             >
-              {skillMarkersPx.map((m, i) => (
+              <defs>
+                <filter
+                  id="skill-label-glow"
+                  x="-70%"
+                  y="-70%"
+                  width="240%"
+                  height="240%"
+                  colorInterpolationFilters="sRGB"
+                >
+                  <feGaussianBlur in="SourceGraphic" stdDeviation="3.5" result="blur" />
+                  <feMerge>
+                    <feMergeNode in="blur" />
+                  </feMerge>
+                </filter>
+              </defs>
+              {skillMarkersPx.map((m, i) => {
+                const isHovered = hoveredSkillKey === m.tooltipKey;
+                const pillY = m.labelY - 2;
+                const pillRx = m.hitHeight / 2;
+
+                return (
                 <g key={`skill-overlay-${m.tooltipKey}-${i}`}>
                   {/* 発動区間水平線（スキル: 赤、デバフ: 紫）— hit 対象外 */}
                   <line
@@ -553,33 +583,62 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
                     stroke={m.kind === "debuff" ? DEBUFF_DURATION_LINE_COLOR : SKILL_DURATION_LINE_COLOR}
                     strokeWidth={2}
                   />
-                  {/* スキル名ラベルのみ hover 対象 */}
+                  {/* スキル名ラベルのみ hover 対象（カーソル default・ピル発光） */}
                   <g
                     pointerEvents="all"
+                    style={{ cursor: "default" }}
                     onMouseEnter={handleSkillLabelEnter(m)}
                     onMouseMove={handleSkillLabelMove}
                     onMouseLeave={handleSkillLabelLeave}
                   >
+                    <g pointerEvents="none">
+                      <rect
+                        x={m.startX}
+                        y={pillY}
+                        width={m.hitWidth}
+                        height={m.hitHeight}
+                        rx={pillRx}
+                        fill={m.labelColor}
+                        fillOpacity={isHovered ? SKILL_GLOW_FILL_OPACITY : 0}
+                        filter="url(#skill-label-glow)"
+                        style={skillHoverFadeStyle}
+                      />
+                      <rect
+                        x={m.startX}
+                        y={pillY}
+                        width={m.hitWidth}
+                        height={m.hitHeight}
+                        rx={pillRx}
+                        fill={m.labelColor}
+                        fillOpacity={isHovered ? SKILL_PILL_FILL_OPACITY : 0}
+                        stroke={m.labelColor}
+                        strokeWidth={1}
+                        strokeOpacity={isHovered ? SKILL_PILL_STROKE_OPACITY : 0}
+                        style={skillHoverFadeStyle}
+                      />
+                      <text
+                        x={m.startX}
+                        y={m.labelY}
+                        textAnchor="start"
+                        dominantBaseline="hanging"
+                        fill={m.labelColor}
+                        fontSize={SKILL_FONT_SIZE}
+                      >
+                        {m.label}
+                      </text>
+                    </g>
                     <rect
                       x={m.startX}
-                      y={m.labelY - 2}
+                      y={pillY}
                       width={m.hitWidth}
                       height={m.hitHeight}
                       fill="transparent"
+                      style={{ cursor: "default" }}
                     />
-                    <text
-                      x={m.startX}
-                      y={m.labelY}
-                      textAnchor="start"
-                      dominantBaseline="hanging"
-                      fill={m.labelColor}
-                      fontSize={SKILL_FONT_SIZE}
-                    >
-                      {m.label}
-                    </text>
                   </g>
                 </g>
-              ))}
+                );
+              })}
             </svg>
           )}
 
