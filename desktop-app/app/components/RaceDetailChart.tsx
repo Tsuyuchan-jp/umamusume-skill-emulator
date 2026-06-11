@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   LineChart,
   Line,
@@ -23,6 +23,8 @@ import {
   layoutSkillMarkers,
   skillMarkersToPx,
   SKILL_CHART_BASE_HEIGHT,
+  SKILL_CHART_MARGIN_BOTTOM,
+  SKILL_CHART_MARGIN_TOP,
   SKILL_FONT_SIZE,
   SPEED_MIN,
   SPEED_MAX,
@@ -45,8 +47,11 @@ const DEBUFF_DURATION_LINE_COLOR = "#a78bfa";
 /** 右軸: 体力0のプロット位置に「0」目盛を挿入 */
 const PERCENT_AXIS_TICKS = [0, STAMINA_PLOT_FLOOR, 0.25, 0.5, 0.75, 1];
 
-/** Tooltip をカーソル付近（やや下）に表示し、折れ線への被りを減らす */
+/** Tooltip をカーソル付近（やや上）に表示し、折れ線への被りを減らす */
 const TOOLTIP_Y_OFFSET = 70;
+/** ツールチップ枠の概算高さ（3 系列 + ラベル） */
+const TOOLTIP_APPROX_HEIGHT = 90;
+const TOOLTIP_EDGE_GAP = 8;
 
 const DISPLAY_CHECKBOXES: { key: keyof GraphDisplayState; label: string }[] = [
   { key: "showSpeed", label: "速度" },
@@ -167,6 +172,22 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({ detail }) => {
     [showSkillOverlay, skillMarkers, effectiveChartHeight, measuredWidth, maxTime],
   );
 
+  /** プロット下端ではみ出して scrollHeight が増えないよう、ツールチップ位置を枠内に収める */
+  const plotHeight =
+    effectiveChartHeight - SKILL_CHART_MARGIN_TOP - SKILL_CHART_MARGIN_BOTTOM;
+  const getTooltipPosition = useCallback(
+    ({ x, y }: { x: number; y: number }) => {
+      if (y + TOOLTIP_EDGE_GAP > plotHeight - TOOLTIP_APPROX_HEIGHT) {
+        return { x, y: Math.max(TOOLTIP_EDGE_GAP, y - TOOLTIP_APPROX_HEIGHT - TOOLTIP_EDGE_GAP) };
+      }
+      if (y - TOOLTIP_Y_OFFSET < TOOLTIP_EDGE_GAP) {
+        return { x, y: y + TOOLTIP_EDGE_GAP };
+      }
+      return { x, y: y - TOOLTIP_Y_OFFSET };
+    },
+    [plotHeight],
+  );
+
   const toggleDisplay = (key: keyof GraphDisplayState) => {
     setDisplayState((prev) => ({ ...prev, [key]: !prev[key] }));
   };
@@ -191,7 +212,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({ detail }) => {
       >
         <div
           ref={chartAreaRef}
-          className="relative w-full"
+          className="relative w-full overflow-hidden"
           style={{ height: isExpanded ? chartHeight : "100%" }}
         >
           <ResponsiveContainer
@@ -263,11 +284,9 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({ detail }) => {
                 width={40}
               />
               <Tooltip
-                position={
-                  (({ x, y }: { x: number; y: number }) => ({ x, y: y - TOOLTIP_Y_OFFSET })) as never
-                }
-                allowEscapeViewBox={{ x: false, y: true }}
-                wrapperStyle={{ zIndex: 1000 }}
+                position={getTooltipPosition as never}
+                allowEscapeViewBox={{ x: false, y: false }}
+                wrapperStyle={{ zIndex: 1000, pointerEvents: "none" }}
                 contentStyle={{ backgroundColor: "#18181b", border: "1px solid #3f3f46", borderRadius: 8 }}
                 labelFormatter={(t) => `経過: ${formatTime(Number(t))}`}
                 formatter={(value, name, item) => {

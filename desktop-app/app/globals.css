@@ -32,6 +32,11 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* レース詳細グラフ: ツールチップのはみ出しで scrollHeight が増えないようクリップ */
+.race-detail-chart .recharts-wrapper {
+  overflow: hidden !important;
+}
+
 /* レース詳細グラフ: クリック時のフォーカス白線を除去（UX-3） */
 .race-detail-chart .recharts-wrapper:focus,
 .race-detail-chart .recharts-wrapper:focus-visible,

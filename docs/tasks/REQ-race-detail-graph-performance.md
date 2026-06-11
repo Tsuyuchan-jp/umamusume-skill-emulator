@@ -114,6 +114,8 @@
 | 2026-06-11 17:09 | Phase 1 実装完了（`f8158c8`） | overlay SVG 一本化・React.memo・measuredWidth 取得・overlay 非表示条件実装。npm run build 通過・lint エラーなし |
 | 2026-06-11 17:22 | Phase 1 実機検証 OK（ユーザー報告） | スキル表示 ON のまま画面全体の操作が軽快。E 主判定クリア。タブ切替のみ軽い引っかかりありだが ON/OFF 共通のため本 REQ 外。TODO P1 に別タスク登録 |
 | 2026-06-11 17:34 | Phase 2 実装完了 | `buildRaceGraphPoints(detail)` を新設（points / phaseLines / areaBands / staminaMax の detail 固定部分）。`buildRaceGraphData` は薄いラッパーとして残し既存呼び出し元との互換維持。`RaceDetailChart` の `useMemo` を2本に分離: `graphPoints`（detail 依存のみ）・`skillData`（detail.skillEvents + displayState 依存）。checkbox トグル時に frames 全量再処理がスキップされる構造を確立。縦拡大スクロールコンテナに `overflow-x-hidden` を追加し X 軸スクロールバーちらつきを解消。npm run build 通過・TypeScript エラーなし。React DevTools Profiler: detail 同一のまま checkbox トグルした場合、`graphPoints` の `useMemo` は detail 参照が変わらないため再計算をスキップする。`buildRaceGraphPoints` が呼ばれるのは `detail` prop 変更時（sim 実行後）のみ。|
+| 2026-06-11 18:16 | Phase 2 実機検証 OK（ユーザー報告） | checkbox 連打・縦拡大 OFF→ON・縦拡大 ON/OFF 表示・スキル/デバフ checkbox・コンソール すべて OK。タブ切替は OK（詳細は TODO P1 別タスク）。追従修正 `e9b337f`（縦拡大 OFF 時 Y 軸スクロールバー）も OK |
+| 2026-06-11 18:16 | ツールチップ起因のスクロールちらつき修正 | グラフ下端ホバーで Tooltip が viewBox 外にはみ出し scrollHeight 増加 → Y スクロールバー出現 → レイアウトシフト → ホバー解除のループ。対策: `allowEscapeViewBox y: false`、下端で位置を上に逃がす `getTooltipPosition`、`chartAreaRef` + `.recharts-wrapper` に `overflow-hidden`、tooltip `pointerEvents: none` |
 
 ---
 
