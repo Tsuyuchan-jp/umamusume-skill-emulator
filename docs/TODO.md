@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-11 15:53
+最終更新: 2026-06-11 16:09
 
 ---
 
@@ -115,7 +115,7 @@
 - サイドバー狭幅 UI（380px / min 320px）は Phase S1+S2 で完了（[`REQ-sidebar-compact-layout.md`](tasks/REQ-sidebar-compact-layout.md)）。S3 コンテナクエリは見送り
 - 全画面 Cockpit UI（Phase 1〜3）は完了（[`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)）
 - グラフ Y軸・m/s は [`REQ-race-detail-graph-axis.md`](tasks/REQ-race-detail-graph-axis.md) で対応済み
-- 直近レース詳細グラフ: ロードマップ [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md)。Phase 1 + axis + Phase 2 + Phase 3 + **Phase 3 UX 完了**。**次: D 以降実機検証 → Phase 4**（baseline diff・設計レビュー後）
+- 直近レース詳細グラフ: ロードマップ [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md)。Phase 1 + axis + Phase 2 + Phase 3 + **Phase 3 UX 完了**（UX-1 B案 20px 行・実機 OK）。**次: D 以降実機検証 → Phase 4**（baseline diff・設計レビュー後）
 - **別作業で発見（2026-06-11）**: サイドバー折りたたみボタンのスクロール追従、ステータス条件ボタンのテキスト化、グラフ/スキル表記以降のレスポンス低下 — いずれも Backlog 登録済み
 - **REQ 運用**: 着手候補の正本は **本 TODO**。`draft` REQ 起票時は Backlog へ必ず1行追加（`.cursor/rules/docs-management.mdc`）
 - 因子管理 DB・Tesseract OCR・Supabase 連携は **開発予定なし**（`.cursor/rules/development.mdc`）
