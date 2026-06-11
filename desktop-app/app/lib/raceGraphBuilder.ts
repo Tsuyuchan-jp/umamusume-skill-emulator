@@ -80,18 +80,53 @@ export interface SkillMarker {
   label: string;
   startTime: number;
   endTime: number;
-  /** ラベル配置 y（上から積む） */
+  /** ピル上端 y（percent 軸・下ライン配置） */
   y: number;
-  /** 発動区間の水平線 y（本家: top - 0.003） */
+  /** 発動区間の水平線 y（スキル名の下・非接触） */
   lineY: number;
   labelColor: string;
   kind: SkillEventKind;
   row: number;
 }
 
-/** 縦拡大時のチャート高さ（本家 GraphOutput.kt 準拠） */
+/** 縦拡大時のチャート高さ */
 export const SKILL_CHART_BASE_HEIGHT = 360;
-export const SKILL_ROW_HEIGHT = 34;
+/** 1 スキル行の高さ（px）— B案: 28 */
+export const SKILL_ROW_HEIGHT = 28;
+export const SKILL_FONT_SIZE = 10;
+export const SKILL_PILL_PAD_X = 4;
+export const SKILL_PILL_PAD_Y = 2;
+export const SKILL_LINE_GAP = 3;
+export const SKILL_ROW_TOP_PAD = 4;
+/** LineChart margin と同期（layoutSkillMarkers 用） */
+export const SKILL_CHART_MARGIN_TOP = 24;
+export const SKILL_CHART_MARGIN_BOTTOM = 4;
+export const SKILL_PILL_HEIGHT = SKILL_FONT_SIZE + SKILL_PILL_PAD_Y * 2;
+
+/** ピル幅の概算（日英混在ラベル用） */
+export function estimateSkillLabelWidth(label: string, fontSize = SKILL_FONT_SIZE): number {
+  let width = 0;
+  for (const ch of label) {
+    width += ch.codePointAt(0)! > 0xff ? fontSize : fontSize * 0.62;
+  }
+  return width;
+}
+
+/** chartHeightPx に基づきピクセル固定の下ライン行レイアウトを percent 軸 y に変換 */
+export function layoutSkillMarkers(markers: SkillMarker[], chartHeightPx: number): SkillMarker[] {
+  const plotHeight = chartHeightPx - SKILL_CHART_MARGIN_TOP - SKILL_CHART_MARGIN_BOTTOM;
+  if (plotHeight <= 0) return markers;
+
+  return markers.map((marker) => {
+    const pillTopPx = SKILL_ROW_TOP_PAD + marker.row * SKILL_ROW_HEIGHT;
+    const lineTopPx = pillTopPx + SKILL_PILL_HEIGHT + SKILL_LINE_GAP;
+    return {
+      ...marker,
+      y: 1 - pillTopPx / plotHeight,
+      lineY: 1 - lineTopPx / plotHeight,
+    };
+  });
+}
 
 /** PROJECT.md スキル色分け正本に合わせたラベル文字色 */
 const RARITY_LABEL_COLORS: Record<SkillDisplayRarity, string> = {
@@ -115,7 +150,7 @@ export interface RaceGraphData {
   staminaMax: number;
   areaBands: AreaBand[];
   skillMarkers: SkillMarker[];
-  /** 縦拡大 ON 時のみ使用: max(360, 発動数 × 34) */
+  /** 縦拡大 ON 時のみ使用: max(360, 発動数 × 28) */
   expandedChartHeight: number;
 }
 
@@ -201,24 +236,21 @@ export function buildSkillMarkers(
   }
 
   const eventCount = filtered.length;
-  const skillMargin = Math.min(0.1, 0.8 / eventCount);
-
-  const skillMarkers: SkillMarker[] = filtered.map((event, index) => {
-    const top = 1 - skillMargin * index;
-    return {
-      skillId: event.skillId,
-      label: getSkillNameById(event.skillId),
-      startTime: event.startTime,
-      endTime: event.endTime,
-      y: top,
-      lineY: top - 0.003,
-      labelColor: event.kind === "debuff" ? DEBUFF_LABEL_COLOR : getSkillLabelColorById(event.skillId),
-      kind: event.kind,
-      row: index,
-    };
-  });
-
   const expandedChartHeight = Math.max(SKILL_CHART_BASE_HEIGHT, eventCount * SKILL_ROW_HEIGHT);
+
+  const baseMarkers: SkillMarker[] = filtered.map((event, index) => ({
+    skillId: event.skillId,
+    label: getSkillNameById(event.skillId),
+    startTime: event.startTime,
+    endTime: event.endTime,
+    y: 1,
+    lineY: 1,
+    labelColor: event.kind === "debuff" ? DEBUFF_LABEL_COLOR : getSkillLabelColorById(event.skillId),
+    kind: event.kind,
+    row: index,
+  }));
+
+  const skillMarkers = layoutSkillMarkers(baseMarkers, expandedChartHeight);
   return { skillMarkers, expandedChartHeight };
 }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   LineChart,
   Line,
@@ -18,9 +18,15 @@ import { RaceDetailDump } from "../lib/types";
 import {
   buildRaceGraphData,
   DEFAULT_GRAPH_DISPLAY_STATE,
+  estimateSkillLabelWidth,
   GraphDisplayState,
   GraphPoint,
+  layoutSkillMarkers,
   SKILL_CHART_BASE_HEIGHT,
+  SKILL_FONT_SIZE,
+  SKILL_PILL_HEIGHT,
+  SKILL_PILL_PAD_X,
+  SKILL_PILL_PAD_Y,
   SPEED_MIN,
   SPEED_MAX,
   STAMINA_PLOT_FLOOR,
@@ -75,16 +81,40 @@ type SkillLabelProps = {
   viewBox?: { x?: number; y?: number };
 };
 
-/** 本家 GraphOutput.kt: XYAnnotation TopLeft — 左端＝startTime、テキストは下方向へ */
+/** B案: ピル + 下ライン — ピル左端＝startTime、赤線はピル下（非接触） */
 const renderSkillLabel = (text: string, fill: string) =>
   function SkillLabel(props: SkillLabelProps) {
     const x = props.cx ?? props.viewBox?.x ?? props.x;
     const y = props.cy ?? props.viewBox?.y ?? props.y;
     if (x == null || y == null) return null;
+
+    const textWidth = estimateSkillLabelWidth(text);
+    const pillWidth = textWidth + SKILL_PILL_PAD_X * 2;
+
     return (
-      <text x={x} y={y} textAnchor="start" dominantBaseline="hanging" fill={fill} fontSize={10}>
-        {text}
-      </text>
+      <g>
+        <rect
+          x={x}
+          y={y}
+          width={pillWidth}
+          height={SKILL_PILL_HEIGHT}
+          rx={3}
+          ry={3}
+          fill="rgba(24, 24, 27, 0.9)"
+          stroke="rgba(63, 63, 70, 0.45)"
+          strokeWidth={1}
+        />
+        <text
+          x={x + SKILL_PILL_PAD_X}
+          y={y + SKILL_PILL_PAD_Y}
+          textAnchor="start"
+          dominantBaseline="hanging"
+          fill={fill}
+          fontSize={SKILL_FONT_SIZE}
+        >
+          {text}
+        </text>
+      </g>
     );
   };
 
@@ -139,6 +169,27 @@ const renderPercentAxisTick = (props: {
 export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
   const [displayState, setDisplayState] = useState<GraphDisplayState>(DEFAULT_GRAPH_DISPLAY_STATE);
   const graphData = useMemo(() => buildRaceGraphData(detail, displayState), [detail, displayState]);
+  const chartAreaRef = useRef<HTMLDivElement>(null);
+  const [measuredHeight, setMeasuredHeight] = useState(SKILL_CHART_BASE_HEIGHT);
+
+  useEffect(() => {
+    const el = chartAreaRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) => {
+      const h = entry.contentRect.height;
+      if (h > 0) setMeasuredHeight(h);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const isExpanded = displayState.expandSkillRows && graphData.skillMarkers.length > 0;
+  const chartHeight = isExpanded ? graphData.expandedChartHeight : SKILL_CHART_BASE_HEIGHT;
+  const effectiveChartHeight = isExpanded ? chartHeight : measuredHeight;
+  const skillMarkers = useMemo(
+    () => layoutSkillMarkers(graphData.skillMarkers, effectiveChartHeight),
+    [graphData.skillMarkers, effectiveChartHeight],
+  );
 
   const toggleDisplay = (key: keyof GraphDisplayState) => {
     setDisplayState((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -152,9 +203,6 @@ export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
     );
   }
 
-  const isExpanded = displayState.expandSkillRows && graphData.skillMarkers.length > 0;
-  const chartHeight = isExpanded ? graphData.expandedChartHeight : SKILL_CHART_BASE_HEIGHT;
-
   return (
     <div className="relative flex h-full min-h-0 w-full min-w-0 flex-col">
       <div
@@ -165,7 +213,11 @@ export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
         }`}
         tabIndex={-1}
       >
-        <div className="relative w-full" style={{ height: isExpanded ? chartHeight : "100%" }}>
+        <div
+          ref={chartAreaRef}
+          className="relative w-full"
+          style={{ height: isExpanded ? chartHeight : "100%" }}
+        >
           <ResponsiveContainer
             width="100%"
             height={isExpanded ? chartHeight : "100%"}
@@ -203,7 +255,7 @@ export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
                     )}
                   </React.Fragment>
                 ))}
-              {graphData.skillMarkers.map((marker, index) => (
+              {skillMarkers.map((marker, index) => (
                 <React.Fragment key={`skill-${marker.skillId}-${marker.startTime}-${index}`}>
                   <ReferenceLine
                     segment={[
