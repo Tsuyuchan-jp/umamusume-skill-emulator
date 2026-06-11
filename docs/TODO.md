@@ -4,13 +4,13 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-12 03:58
+最終更新: 2026-06-12 04:13
 
 ---
 
 ## 現在のフォーカス
 
-P1 改善タスク（スタミナキープ赤線異常等）
+P1 改善タスク（タブ切り替え引っかかり等）
 
 ---
 
@@ -27,11 +27,6 @@ P1 改善タスク（スタミナキープ赤線異常等）
 （なし — 次は P1）
 
 ### P1 — 重要
-
-- [ ] **「スタミナキープ」の発動時間赤ライン異常表示**
-  - 症状: このスキルのみ、発動時間を表す赤ラインが発動ポイントからレース終了まで伸びる。本来は短い発動時間のスキルで、他スキルと同様の長さで表示されるべき
-  - 触る想定: `raceGraphBuilder.ts`, `RaceDetailChart.tsx`（`startTime` / `endTime` 算出・skillEvents 解釈）、必要なら WASM `SkillEventDump` / umasim 側
-  - 関連: Phase 3 スキル帯・赤線（[`REQ-race-detail-graph-phase3.md`](tasks/REQ-race-detail-graph-phase3.md)）
 
 - [ ] **タブ切り替え時の引っかかり改善**
   - 症状: タブ切り替えのみ軽い引っかかりを感じる。スキル表示 ON/OFF どちらでも同程度のため、Phase 1 グラフ性能修正とは無関係の可能性が高い
@@ -87,6 +82,7 @@ P1 改善タスク（スタミナキープ赤線異常等）
 
 ## 完了済み
 
+- [x] スタミナキープ持続線異常 — WASM endTime センチネル + 条件付き水平線描画（コミット後にハッシュ追記 / [`REQ-race-detail-graph-stamina-keep-line.md`](tasks/REQ-race-detail-graph-stamina-keep-line.md)）
 - [x] グラフ縦拡大 ON 時の末尾スキル帯クリップ — `computeExpandedChartHeight` 式修正（`6a9b0fb` / [`REQ-race-detail-graph-vertical-clip.md`](tasks/REQ-race-detail-graph-vertical-clip.md)）
 - [x] グラフスキル hover UI ポリッシュ — カーソル default + hover ピル発光（`67b3707` / [`REQ-race-detail-graph-skill-tooltip.md`](tasks/REQ-race-detail-graph-skill-tooltip.md)）
 - [x] グラフ内スキル hover Tooltip — 効果量・持続時間・発動位置％（本家 GraphSkill.description 準拠）（`a5e5e7d` / `2c73c81` / [`REQ-race-detail-graph-skill-tooltip.md`](tasks/REQ-race-detail-graph-skill-tooltip.md)）
@@ -128,7 +124,7 @@ P1 改善タスク（スタミナキープ赤線異常等）
 - サイドバー狭幅 UI（380px / min 320px）は Phase S1+S2 で完了（[`REQ-sidebar-compact-layout.md`](tasks/REQ-sidebar-compact-layout.md)）。S3 コンテナクエリは見送り
 - 全画面 Cockpit UI（Phase 1〜3）は完了（[`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)）
 - グラフ Y軸・m/s は [`REQ-race-detail-graph-axis.md`](tasks/REQ-race-detail-graph-axis.md) で対応済み
-- 直近レース詳細グラフ: ロードマップ [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md)。**Phase 4 baseline diff 実機検証クローズ**（2026-06-12 01:41）。**スキル hover Tooltip 完了**（2026-06-12 02:58）。**縦拡大クリップ修正完了**（2026-06-12 03:58 / `6a9b0fb`）。次の本線は P1 スタミナキープ赤線異常
+- 直近レース詳細グラフ: ロードマップ [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md)。**Phase 4 baseline diff 実機検証クローズ**（2026-06-12 01:41）。**スキル hover Tooltip 完了**（2026-06-12 02:58）。**縦拡大クリップ修正完了**（2026-06-12 03:58 / `6a9b0fb`）。次の本線は P1 タブ切り替え改善
 - **タブ切り替え**（2026-06-11）: 現状許容・詳細改善は P1 Backlog（グラフ性能 REQ とは別件）
 - 現代ウマ娘: 所持 50〜70+ スキル。グラフ `skillEvents` は発動イベント数（20〜40+ あり得る）
 - **別作業で発見（2026-06-11）**: サイドバー折りたたみボタンのスクロール追従、ステータス条件ボタンのテキスト化、グラフ/スキル表記以降のレスポンス低下 — いずれも Backlog 登録済み

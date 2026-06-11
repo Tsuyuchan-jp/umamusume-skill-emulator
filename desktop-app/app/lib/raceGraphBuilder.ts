@@ -3,6 +3,19 @@ import { RaceDetailDump, RaceFrameDump, SkillEventDump, SkillEventKind, TrackDet
 
 /** umasim RaceOperation.toGraphData 相当の定数 */
 const FRAME_PER_SECOND = 15;
+
+/** 持続線描画判定: 1 フレーム未満（本家 skill.end != null 相当） */
+export const SKILL_DURATION_LINE_EPSILON = 1 / FRAME_PER_SECOND / 2;
+
+/** 本家 GraphOutput.kt: skill.end != null かつ debuff は持続線なし */
+export function hasSkillDurationLine(
+  marker: Pick<SkillMarker, "kind" | "startTime" | "endTime">,
+): boolean {
+  return (
+    marker.kind !== "debuff" &&
+    marker.endTime > marker.startTime + SKILL_DURATION_LINE_EPSILON
+  );
+}
 export const SPEED_MIN = 13;
 export const SPEED_MAX = 30;
 const STAMINA_MIN = -200;
@@ -101,6 +114,8 @@ export interface SkillMarker {
   tooltipKey: string;
   /** Tooltip 本文（GraphSkill.description 相当。WASM effectText 優先） */
   effectText: string;
+  /** 発動区間の水平線を描くか（endedSkills 検出スキルのみ true） */
+  hasDurationLine: boolean;
 }
 
 /** 縦拡大時のチャート高さ */
@@ -189,6 +204,8 @@ export interface SkillMarkerPx {
   labelY: number;
   /** 赤線 y（px） */
   lineY: number;
+  /** 発動区間の水平線を描くか */
+  hasDurationLine: boolean;
   /** ラベル hit area 幅（px） */
   hitWidth: number;
   /** ラベル hit area 高さ（px） */
@@ -226,6 +243,7 @@ export function skillMarkersToPx(
       endX: (m.endTime / maxTime) * plotWidth + OVERLAY_MARGIN_LEFT,
       labelY: (1 - m.y) * plotHeight + SKILL_CHART_MARGIN_TOP,
       lineY: (1 - m.lineY) * plotHeight + SKILL_CHART_MARGIN_TOP,
+      hasDurationLine: m.hasDurationLine,
       hitWidth,
       hitHeight: SKILL_FONT_SIZE + 4,
     };
@@ -279,7 +297,7 @@ function buildProvisionalEffectText(
   courseLength: number,
 ): string {
   if (event.effectText) return event.effectText;
-  const hasEnd = event.kind !== "debuff" && event.endTime > event.startTime;
+  const hasEnd = hasSkillDurationLine(event);
   return buildActivatePositionText(frames, courseLength, event.startTime, event.endTime, hasEnd);
 }
 
@@ -384,19 +402,23 @@ export function buildSkillMarkers(
   const frames = detail?.frames ?? [];
   const courseLength = detail?.courseLength ?? 0;
 
-  const baseMarkers: SkillMarker[] = filtered.map((event, index) => ({
-    skillId: event.skillId,
-    label: getSkillNameById(event.skillId),
-    startTime: event.startTime,
-    endTime: event.endTime,
-    y: 1,
-    lineY: 1,
-    labelColor: event.kind === "debuff" ? DEBUFF_LABEL_COLOR : getSkillLabelColorById(event.skillId),
-    kind: event.kind,
-    row: index,
-    tooltipKey: makeTooltipKey(event.skillId, event.startTime),
-    effectText: buildProvisionalEffectText(event, frames, courseLength),
-  }));
+  const baseMarkers: SkillMarker[] = filtered.map((event, index) => {
+    const marker = {
+      skillId: event.skillId,
+      label: getSkillNameById(event.skillId),
+      startTime: event.startTime,
+      endTime: event.endTime,
+      y: 1,
+      lineY: 1,
+      labelColor: event.kind === "debuff" ? DEBUFF_LABEL_COLOR : getSkillLabelColorById(event.skillId),
+      kind: event.kind,
+      row: index,
+      tooltipKey: makeTooltipKey(event.skillId, event.startTime),
+      effectText: buildProvisionalEffectText(event, frames, courseLength),
+      hasDurationLine: false,
+    };
+    return { ...marker, hasDurationLine: hasSkillDurationLine(marker) };
+  });
 
   const skillMarkers = layoutSkillMarkers(baseMarkers, expandedChartHeight, { expanded: true });
   return { skillMarkers, expandedChartHeight };

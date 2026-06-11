@@ -636,15 +636,17 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
 
                 return (
                 <g key={`skill-overlay-${m.tooltipKey}-${i}`}>
-                  {/* 発動区間水平線（スキル: 赤、デバフ: 紫）— hit 対象外 */}
-                  <line
-                    x1={m.startX}
-                    y1={m.lineY}
-                    x2={m.endX}
-                    y2={m.lineY}
-                    stroke={m.kind === "debuff" ? DEBUFF_DURATION_LINE_COLOR : SKILL_DURATION_LINE_COLOR}
-                    strokeWidth={2}
-                  />
+                  {/* 発動区間水平線（endedSkills 検出スキルのみ。回復のみ・デバフはラベルのみ） */}
+                  {m.hasDurationLine && (
+                    <line
+                      x1={m.startX}
+                      y1={m.lineY}
+                      x2={m.endX}
+                      y2={m.lineY}
+                      stroke={m.kind === "debuff" ? DEBUFF_DURATION_LINE_COLOR : SKILL_DURATION_LINE_COLOR}
+                      strokeWidth={2}
+                    />
+                  )}
                   {/* スキル名ラベルのみ hover 対象（カーソル default・ピル発光） */}
                   <g
                     pointerEvents="all"

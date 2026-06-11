@@ -85,14 +85,17 @@ private fun buildSkillEvents(frames: List<RaceFrame>, courseLength: Int): List<S
             val endIndex = (index + 1 until frames.size).firstOrNull { i ->
                 frames[i].endedSkills.any { it.data.skill.id == skillId }
             }
+            val startTime = index / FRAME_PER_SECOND
             val startRate = frame.startPosition / courseLength
             val endRate = endIndex?.let { frames[it].startPosition / courseLength }
             val effectText = buildGraphSkillDescription(triggered, kind, startRate, endRate)
+            // endedSkills 未検出時は endTime = startTime（本家 GraphSkill.end = null 相当）
+            val endTime = endIndex?.let { it / FRAME_PER_SECOND } ?: startTime
             events.add(
                 SkillEventOutput(
                     skillId = skillId,
-                    startTime = index / FRAME_PER_SECOND,
-                    endTime = (endIndex ?: (frames.size - 1)) / FRAME_PER_SECOND,
+                    startTime = startTime,
+                    endTime = endTime,
                     kind = kind,
                     effectText = effectText,
                 )
