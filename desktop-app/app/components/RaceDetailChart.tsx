@@ -185,7 +185,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({ detail }) => {
         className={`race-detail-chart relative min-h-0 flex-1 overflow-x-hidden outline-none ${
           isExpanded
             ? "overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent"
-            : ""
+            : "overflow-y-hidden"
         }`}
         tabIndex={-1}
       >
