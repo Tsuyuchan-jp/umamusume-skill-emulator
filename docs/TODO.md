@@ -83,7 +83,7 @@ P1 改善タスク（パレット参照統一等）
 
 ## 完了済み
 
-- [x] タブ切り替え時の引っかかり改善 — keep-alive 化 + visibility 重ね追従（`224d67a` / 追従コミット後更新 / [`REQ-tab-switch-performance.md`](tasks/REQ-tab-switch-performance.md)）
+- [x] タブ切り替え時の引っかかり改善 — keep-alive 化 + visibility 重ね追従（`224d67a` / `c6cba51` / [`REQ-tab-switch-performance.md`](tasks/REQ-tab-switch-performance.md)）
 - [x] スタミナキープ持続線異常 — WASM endTime センチネル + 条件付き水平線描画（**実機検証クローズ** / `8b02849` / [`REQ-race-detail-graph-stamina-keep-line.md`](tasks/REQ-race-detail-graph-stamina-keep-line.md)）
 - [x] グラフ縦拡大 ON 時の末尾スキル帯クリップ — `computeExpandedChartHeight` 式修正（`6a9b0fb` / [`REQ-race-detail-graph-vertical-clip.md`](tasks/REQ-race-detail-graph-vertical-clip.md)）
 - [x] グラフスキル hover UI ポリッシュ — カーソル default + hover ピル発光（`67b3707` / [`REQ-race-detail-graph-skill-tooltip.md`](tasks/REQ-race-detail-graph-skill-tooltip.md)）
