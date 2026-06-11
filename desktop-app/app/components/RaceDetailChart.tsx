@@ -18,15 +18,11 @@ import { RaceDetailDump } from "../lib/types";
 import {
   buildRaceGraphData,
   DEFAULT_GRAPH_DISPLAY_STATE,
-  estimateSkillLabelWidth,
   GraphDisplayState,
   GraphPoint,
   layoutSkillMarkers,
   SKILL_CHART_BASE_HEIGHT,
   SKILL_FONT_SIZE,
-  SKILL_PILL_HEIGHT,
-  SKILL_PILL_PAD_X,
-  SKILL_PILL_PAD_Y,
   SPEED_MIN,
   SPEED_MAX,
   STAMINA_PLOT_FLOOR,
@@ -81,40 +77,17 @@ type SkillLabelProps = {
   viewBox?: { x?: number; y?: number };
 };
 
-/** B案: ピル + 下ライン — ピル左端＝startTime、赤線はピル下（非接触） */
+/** B案: 下ライン — ラベル左端＝startTime、赤線は文字下（非接触） */
 const renderSkillLabel = (text: string, fill: string) =>
   function SkillLabel(props: SkillLabelProps) {
     const x = props.cx ?? props.viewBox?.x ?? props.x;
     const y = props.cy ?? props.viewBox?.y ?? props.y;
     if (x == null || y == null) return null;
 
-    const textWidth = estimateSkillLabelWidth(text);
-    const pillWidth = textWidth + SKILL_PILL_PAD_X * 2;
-
     return (
-      <g>
-        <rect
-          x={x}
-          y={y}
-          width={pillWidth}
-          height={SKILL_PILL_HEIGHT}
-          rx={3}
-          ry={3}
-          fill="rgba(24, 24, 27, 0.9)"
-          stroke="rgba(63, 63, 70, 0.45)"
-          strokeWidth={1}
-        />
-        <text
-          x={x + SKILL_PILL_PAD_X}
-          y={y + SKILL_PILL_PAD_Y}
-          textAnchor="start"
-          dominantBaseline="hanging"
-          fill={fill}
-          fontSize={SKILL_FONT_SIZE}
-        >
-          {text}
-        </text>
-      </g>
+      <text x={x} y={y} textAnchor="start" dominantBaseline="hanging" fill={fill} fontSize={SKILL_FONT_SIZE}>
+        {text}
+      </text>
     );
   };
 
@@ -187,8 +160,8 @@ export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
   const chartHeight = isExpanded ? graphData.expandedChartHeight : SKILL_CHART_BASE_HEIGHT;
   const effectiveChartHeight = isExpanded ? chartHeight : measuredHeight;
   const skillMarkers = useMemo(
-    () => layoutSkillMarkers(graphData.skillMarkers, effectiveChartHeight),
-    [graphData.skillMarkers, effectiveChartHeight],
+    () => layoutSkillMarkers(graphData.skillMarkers, effectiveChartHeight, { expanded: isExpanded }),
+    [graphData.skillMarkers, effectiveChartHeight, isExpanded],
   );
 
   const toggleDisplay = (key: keyof GraphDisplayState) => {

@@ -80,7 +80,7 @@ export interface SkillMarker {
   label: string;
   startTime: number;
   endTime: number;
-  /** ピル上端 y（percent 軸・下ライン配置） */
+  /** ラベル上端 y（percent 軸・下ライン配置） */
   y: number;
   /** 発動区間の水平線 y（スキル名の下・非接触） */
   lineY: number;
@@ -94,35 +94,47 @@ export const SKILL_CHART_BASE_HEIGHT = 360;
 /** 1 スキル行の高さ（px）— B案: 28 */
 export const SKILL_ROW_HEIGHT = 28;
 export const SKILL_FONT_SIZE = 10;
-export const SKILL_PILL_PAD_X = 4;
-export const SKILL_PILL_PAD_Y = 2;
 export const SKILL_LINE_GAP = 3;
 export const SKILL_ROW_TOP_PAD = 4;
+/** 縦拡大 OFF 時の最小行高（px） */
+export const SKILL_ROW_HEIGHT_MIN = 16;
 /** LineChart margin と同期（layoutSkillMarkers 用） */
 export const SKILL_CHART_MARGIN_TOP = 24;
 export const SKILL_CHART_MARGIN_BOTTOM = 4;
-export const SKILL_PILL_HEIGHT = SKILL_FONT_SIZE + SKILL_PILL_PAD_Y * 2;
 
-/** ピル幅の概算（日英混在ラベル用） */
-export function estimateSkillLabelWidth(label: string, fontSize = SKILL_FONT_SIZE): number {
-  let width = 0;
-  for (const ch of label) {
-    width += ch.codePointAt(0)! > 0xff ? fontSize : fontSize * 0.62;
-  }
-  return width;
+export interface SkillLayoutOptions {
+  /** true: 28px 固定行。false: plotHeight に収まるよう行高を圧縮 */
+  expanded?: boolean;
 }
 
-/** chartHeightPx に基づきピクセル固定の下ライン行レイアウトを percent 軸 y に変換 */
-export function layoutSkillMarkers(markers: SkillMarker[], chartHeightPx: number): SkillMarker[] {
+/** chartHeightPx に基づき下ライン行レイアウトを percent 軸 y に変換 */
+export function layoutSkillMarkers(
+  markers: SkillMarker[],
+  chartHeightPx: number,
+  options: SkillLayoutOptions = {},
+): SkillMarker[] {
+  const { expanded = true } = options;
   const plotHeight = chartHeightPx - SKILL_CHART_MARGIN_TOP - SKILL_CHART_MARGIN_BOTTOM;
-  if (plotHeight <= 0) return markers;
+  if (plotHeight <= 0 || markers.length === 0) return markers;
+
+  const eventCount = markers.length;
+  const contentTail = SKILL_FONT_SIZE + SKILL_LINE_GAP;
+  const availableForRows = plotHeight - SKILL_ROW_TOP_PAD - contentTail;
+
+  let rowHeight = SKILL_ROW_HEIGHT;
+  if (!expanded) {
+    rowHeight = Math.min(
+      SKILL_ROW_HEIGHT,
+      Math.max(SKILL_ROW_HEIGHT_MIN, Math.floor(availableForRows / eventCount)),
+    );
+  }
 
   return markers.map((marker) => {
-    const pillTopPx = SKILL_ROW_TOP_PAD + marker.row * SKILL_ROW_HEIGHT;
-    const lineTopPx = pillTopPx + SKILL_PILL_HEIGHT + SKILL_LINE_GAP;
+    const labelTopPx = SKILL_ROW_TOP_PAD + marker.row * rowHeight;
+    const lineTopPx = labelTopPx + SKILL_FONT_SIZE + SKILL_LINE_GAP;
     return {
       ...marker,
-      y: 1 - pillTopPx / plotHeight,
+      y: 1 - labelTopPx / plotHeight,
       lineY: 1 - lineTopPx / plotHeight,
     };
   });
@@ -250,7 +262,7 @@ export function buildSkillMarkers(
     row: index,
   }));
 
-  const skillMarkers = layoutSkillMarkers(baseMarkers, expandedChartHeight);
+  const skillMarkers = layoutSkillMarkers(baseMarkers, expandedChartHeight, { expanded: true });
   return { skillMarkers, expandedChartHeight };
 }
 

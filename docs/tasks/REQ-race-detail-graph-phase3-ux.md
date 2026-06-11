@@ -50,7 +50,7 @@ Phase 3 本家準拠スキル表示（名前+赤線）の **UX 仕上げ**。実
 
 - [x] ラベル左端と赤線左端が `startTime` で揃う（`textAnchor="start"` + TopLeft 相当）
 - [x] 赤線がラベル行の中〜下を通る → **B案: 下ライン**（ピル下 + gap、非接触）に変更（`2b753be` 以降）
-- [x] 枠: zinc ピル採用（`bg-zinc-900/90` 相当 SVG）
+- [x] 枠: ピル試行後 **不要と判断・削除**（色文字のみで十分）
 
 ---
 
@@ -156,6 +156,7 @@ Phase 3 本家準拠スキル表示（名前+赤線）の **UX 仕上げ**。実
 | 2026-06-11 15:15 | UX-1〜4 実装完了 | ReferenceDot カスタムラベル（TopLeft）、ダーク scrollbar、フォーカス outline 除去、SyncedChartLegend |
 | 2026-06-11 15:23 | UX-1 退行修正: label props を cx/cy 優先に | 実機でラベル消滅。Recharts 3.8 は x/y ではなく cx/cy を渡す |
 | 2026-06-11 15:51 | UX-1 B案: 下ライン + 28px 行 + ピル | 用語統一（上端/下端/上ライン/下ライン）。`layoutSkillMarkers` で縦拡大 ON/OFF 一貫 |
+| 2026-06-11 15:58 | ピル削除 + 縦拡大 OFF 行圧縮 | 実機: ピル不要。OFF 時 28px 固定で行オーバー → `expanded:false` で行高自動縮小（min 16px） |
 
 ---
 
