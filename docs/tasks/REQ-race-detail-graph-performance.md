@@ -3,9 +3,9 @@
 > Phase 3 UX 実機検証 E で判明した操作もたつきの対処。親シリーズ: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md)
 > 検証記録元: [`REQ-race-detail-graph-phase3-ux.md`](REQ-race-detail-graph-phase3-ux.md)（D/E セクション）
 
-- **ステータス**: in-progress（Phase 1 実装中）
+- **ステータス**: in-progress（Phase 1 done / Phase 2 待ち）
 - **作成日**: 2026-06-11 16:37
-- **関連コミット**: （完了後に記入）
+- **関連コミット**: Phase 1 → `f8158c8`
 
 ---
 
@@ -41,10 +41,10 @@
 
 ### やること
 
-- [ ] 再現手順・計測の記録（React Profiler 等）
-- [ ] スキル表示 ON 時の不要な Recharts / 親ツリー再描画の削減
-- [ ] 発動多数（20〜40+ イベント）でも checkbox・他 UI 操作が許容できる体感へ
-- [ ] （任意）縦拡大切替時の横スクロールバーちらつき解消
+- [x] **Phase 1 完了**: overlay SVG スキル層一本化 + React.memo（`f8158c8`）
+- [ ] **Phase 2**: 再現手順・計測の記録（React Profiler 等）
+- [ ] **Phase 2**: `buildRaceGraphData` を points（detail 固定）と skillMarkers 分割
+- [ ] **Phase 2**: （任意）縦拡大切替時の横スクロールバーちらつき解消
 
 ### やらないこと
 
@@ -111,6 +111,7 @@
 | 2026-06-11 16:37 | 性能改善を sibling REQ として起票 | Phase 3 UX REQ の E NG。表示と性能の責務分離。新チャット起票用 |
 | 2026-06-11 17:05 | Phase 1 実装方針確定: 案 B（overlay SVG 一本化）+ 案 A の memo 部分 | Recharts Customized は Phase 3 で scale 非注入の失敗実績あり。Recharts 外 absolute overlay SVG を正式採用。P0: ReferenceLine/ReferenceDot ×N を overlay SVG に一本化。P1: React.memo(RaceDetailChart) 適用 |
 | 2026-06-11 17:05 | Phase 2 を別チャット・別コミットに分離 | buildRaceGraphData 分割・overflow-x-hidden・Profiler 記録は Phase 1 完了後に独立実施 |
+| 2026-06-11 17:09 | Phase 1 実装完了（`f8158c8`） | overlay SVG 一本化・React.memo・measuredWidth 取得・overlay 非表示条件実装。npm run build 通過・lint エラーなし |
 
 ---
 
