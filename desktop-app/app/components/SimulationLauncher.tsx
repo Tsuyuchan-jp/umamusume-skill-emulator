@@ -67,7 +67,7 @@ export function SimulationLauncher(props: SimulationLauncherProps) {
         umaData: { ...umaData },
         raceCondition: { ...raceCondition },
         simResultDump: simResult,
-        baselineResult: simResult,
+        baselineResult: structuredClone(simResult),
         disabledSkillIds: [],
         appliedDisabledSkillIds: [],
         appliedAddedSkillIds: [],

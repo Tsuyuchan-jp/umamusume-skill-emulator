@@ -617,6 +617,11 @@ export default function Home() {
                 <ResultCard
                   result={activeTab.simResultDump}
                   baseline={activeTab.baselineResult || undefined}
+                  graphCompareActive={
+                    activeTab.simResultDump !== activeTab.baselineResult &&
+                    ((activeTab.appliedDisabledSkillIds?.length ?? 0) > 0 ||
+                      (activeTab.appliedAddedSkillIds?.length ?? 0) > 0)
+                  }
                   disabledSkillIds={activeTab.disabledSkillIds}
                   displayUnit={displayUnit}
                   umaData={activeTab.umaData}

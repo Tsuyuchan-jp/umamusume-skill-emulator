@@ -26,6 +26,16 @@ export interface GraphPoint {
   staminaPct: number;
   /** Tooltip 用: レーン位置 %（0%=内枠 100%=外枠） */
   lanePct: number;
+  /** baseline 比較時: 生値 m/s */
+  baselineSpeed?: number;
+  /** baseline 比較時: プロット座標 [0.05, 1] */
+  baselineStamina?: number;
+  /** baseline 比較時: プロット座標 [0.05, 1] */
+  baselineLane?: number;
+  /** baseline 比較時: Tooltip 用 初期体力比 % */
+  baselineStaminaPct?: number;
+  /** baseline 比較時: Tooltip 用 レーン位置 % */
+  baselineLanePct?: number;
 }
 
 /** 本家 GraphOutput.kt 準拠の区間帯（ReferenceArea 用） */
@@ -371,6 +381,59 @@ export function buildRaceGraphPoints(detail: RaceDetailDump): RaceGraphPoints {
   const areaBands = buildAreaBands(trackDetail, frames);
 
   return { points, phaseLines, staminaMax, areaBands };
+}
+
+/** baseline の1フレームを current と同じ正規化でプロット値に変換 */
+function frameToBaselineFields(
+  frame: RaceFrameDump,
+  staminaMax: number,
+  laneMin: number,
+  laneMax: number,
+): Pick<
+  GraphPoint,
+  "baselineSpeed" | "baselineStamina" | "baselineLane" | "baselineStaminaPct" | "baselineLanePct"
+> {
+  const spNorm = staminaMax > 0 ? clamp01(frame.sp / staminaMax) : 0;
+  const laneRaw = frame.currentLane + HORSE_LANE / 2;
+  const laneNorm = clamp01((laneRaw - laneMin) / (laneMax - laneMin));
+
+  return {
+    baselineSpeed: frame.speed,
+    baselineStamina: STAMINA_PLOT_FLOOR + (1 - STAMINA_PLOT_FLOOR) * spNorm,
+    baselineLane: LANE_PLOT_FLOOR + (1 - LANE_PLOT_FLOOR) * laneNorm,
+    baselineStaminaPct: staminaMax > 0 ? (frame.sp / staminaMax) * 100 : 0,
+    baselineLanePct: laneNorm * 100,
+  };
+}
+
+/**
+ * current の points に baseline detail を index 基準でマージする。
+ * current frames 長を正とし、区間帯・phaseLines は current 正本のまま。
+ */
+export function mergeBaselineGraphPoints(
+  current: RaceGraphPoints,
+  baselineDetail: RaceDetailDump | null | undefined,
+): RaceGraphPoints {
+  if (!baselineDetail?.frames.length || !current.points.length) {
+    return current;
+  }
+
+  const baselineFrames = baselineDetail.frames;
+  const baselineStaminaMax = baselineFrames[0].sp;
+  const laneMax =
+    Math.max(baselineDetail.gateCount + 1, 11) * HORSE_LANE + baselineDetail.initialLaneAdjuster;
+  const laneMin = HORSE_LANE / 2;
+
+  const points = current.points.map((point, index) => {
+    const baselineFrame = baselineFrames[index];
+    if (!baselineFrame) return point;
+    return {
+      ...point,
+      ...frameToBaselineFields(baselineFrame, baselineStaminaMax, laneMin, laneMax),
+    };
+  });
+
+  return { ...current, points };
 }
 
 /**

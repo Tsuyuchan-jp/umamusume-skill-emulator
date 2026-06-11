@@ -8,6 +8,8 @@ import { RaceDetailChart } from "./RaceDetailChart";
 interface ResultCardProps {
   result?: SimResultDump;
   baseline?: SimResultDump;
+  /** 比較 sim 適用後のみ true（グラフ baseline 破線） */
+  graphCompareActive?: boolean;
   disabledSkillIds?: string[];
   displayUnit?: 'seconds' | 'lengths';
   umaData?: UmaStatusData;
@@ -30,6 +32,7 @@ const formatPercent = (rate: number) => {
 export const ResultCard: React.FC<ResultCardProps> = ({ 
   result, 
   baseline,
+  graphCompareActive = false,
   displayUnit = 'seconds',
   umaData,
   raceCondition,
@@ -42,6 +45,14 @@ export const ResultCard: React.FC<ResultCardProps> = ({
 
   if (!result) return null;
   const { all, maxSpurt, nonMaxSpurt } = result.summary;
+
+  const showGraphCompare =
+    graphCompareActive &&
+    baseline?.raceDetail != null &&
+    result.raceDetail != null;
+  const graphSubtitle = showGraphCompare
+    ? "検証後（実線） / 初期構成（破線）"
+    : "速度・体力・走行レーン";
 
   const spurtComplete = (maxSpurt?.count || 0) === result.iterations;
   const spurtRate = formatPercent((maxSpurt?.count || 0) / result.iterations);
@@ -184,12 +195,16 @@ export const ResultCard: React.FC<ResultCardProps> = ({
           <div className="flex flex-col min-h-0 h-full min-w-0 border border-zinc-800 rounded-xl overflow-hidden">
             <div className="shrink-0 px-4 py-2 bg-zinc-900/60 border-b border-zinc-800">
               <div className="text-sm font-bold text-zinc-200">直近レース詳細</div>
-              <div className="text-xs text-zinc-500">速度・体力・走行レーン</div>
+              <div className="text-xs text-zinc-500">{graphSubtitle}</div>
             </div>
             <div className="relative flex-1 min-h-0 min-w-0 px-4 py-3 bg-zinc-950/50">
               {result.raceDetail ? (
                 <div className="absolute inset-0 min-h-0">
-                  <RaceDetailChart detail={result.raceDetail} />
+                  <RaceDetailChart
+                    detail={result.raceDetail}
+                    baselineDetail={baseline?.raceDetail}
+                    compareActive={showGraphCompare}
+                  />
                 </div>
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center">
@@ -204,12 +219,16 @@ export const ResultCard: React.FC<ResultCardProps> = ({
         <div className="flex flex-col flex-1 min-h-[360px] min-w-0 border border-zinc-800 rounded-xl overflow-hidden">
           <div className="shrink-0 px-4 py-2 bg-zinc-900/60 border-b border-zinc-800">
             <div className="text-sm font-bold text-zinc-200">直近レース詳細</div>
-            <div className="text-xs text-zinc-500">速度・体力・走行レーン</div>
+            <div className="text-xs text-zinc-500">{graphSubtitle}</div>
           </div>
           <div className="relative flex-1 min-h-[320px] min-w-0 px-4 py-3 bg-zinc-950/50">
             {result.raceDetail ? (
               <div className="absolute inset-0 min-h-0">
-                <RaceDetailChart detail={result.raceDetail} />
+                <RaceDetailChart
+                  detail={result.raceDetail}
+                  baselineDetail={baseline?.raceDetail}
+                  compareActive={showGraphCompare}
+                />
               </div>
             ) : (
               <div className="absolute inset-0 flex items-center justify-center">

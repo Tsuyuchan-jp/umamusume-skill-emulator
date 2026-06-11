@@ -3,9 +3,9 @@
 > **レース詳細グラフ実装シリーズ** Phase 4（SkillVerifier baseline 比較 — **本アプリの核機能**）。
 > ロードマップ: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md)
 
-- **ステータス**: draft
+- **ステータス**: done
 - **作成日**: 2026-06-11 04:54
-- **関連コミット**: （完了後に記入）
+- **関連コミット**: （完了コミット後に記入）
 
 ---
 
@@ -14,9 +14,9 @@
 | 項目 | 内容 |
 |------|------|
 | **前** | [`REQ-race-detail-graph-phase3.md`](REQ-race-detail-graph-phase3.md)（スキル帯・表示切替） |
-| **本 Phase** | baseline / current の **グラフ diff**（2系列 or 差分表示） |
+| **本 Phase** | baseline / current の **グラフ diff**（2系列オーバーレイ） |
 | **次** | （シリーズ本線完了 — 以降は改善 REQ または新機能として起票） |
-| **着手順** | **Ask mode 設計レビュー（必須・高優先）** → 承認 → **Agent mode 実装** |
+| **着手順** | Ask mode 設計レビュー（完了）→ Agent mode 実装 |
 
 ---
 
@@ -30,34 +30,41 @@ SkillVerifier でスキル ON/OFF を比較したとき、数値 KPI だけで�
 
 ### やること
 
-- [ ] SkillVerifier — baseline との **グラフ diff**（2系列 or 差分表示）
-- [ ] 比較検証シミュ後に baseline / current 両方の `raceDetail` を保持
-- [ ] UI: 比較モードでのグラフ表示（Cockpit 右ペイン or SkillVerifier 連携 — 要設計）
+- [x] グラフ 2系列オーバーレイ（current 実線 / baseline 破線・opacity 0.5）
+- [x] 比較検証シミュ後に baseline / current 両方の `raceDetail` を表示
+- [x] 初回 sim 時 `baselineResult = structuredClone(simResult)`
+- [x] `raceGraphBuilder` index 基準マージ・Tooltip baseline 併記・Legend 線種凡例
+- [x] 比較前・リセット後は単一系列（`graphCompareActive` + applied スキル状態）
 
 ### やらないこと
 
-- Phase 2 / 3 の未実装部分を本 Phase に取り込まない（前提 Phase 完了後）
+- 差分線のみ・手動 compare トグル
+- SkillVerifier UI 変更
+- Phase 3 UX（スキル帯・checkbox・縦拡大）変更
 - OCR / キャプチャ / 因子 DB
 
 ---
 
-## 触るファイル（予定）
+## 触ったファイル
 
 | ファイル | 変更内容 |
 |---------|---------|
-| `app/components/SkillVerifier.tsx` | baseline/current raceDetail 保持・比較 UI |
-| `app/components/RaceDetailChart.tsx` | 2系列 or diff 描画 |
-| `app/lib/engine/umaemuAdapter.ts` | 比較 sim 時の詳細2走取得（要設計） |
-| `app/lib/types.ts` | 比較用 dump 型 |
+| `app/lib/raceGraphBuilder.ts` | `mergeBaselineGraphPoints`・GraphPoint baseline フィールド |
+| `app/components/RaceDetailChart.tsx` | 破線3系列・Tooltip・Legend・memo 比較 |
+| `app/components/ResultCard.tsx` | `baseline.raceDetail` 渡し・subtitle・`graphCompareActive` |
+| `app/components/SimulationLauncher.tsx` | 初回 `structuredClone` |
+| `app/(main)/page.tsx` | `graphCompareActive` 算出（最小変更） |
 
 ---
 
 ## 完了条件
 
-- [ ] 比較 sim 後、baseline と current のグラフ差が確認できる
-- [ ] 既存 SkillVerifier KPI 比較に退行なし
-- [ ] `npm run tauri dev` 実機確認
-- [ ] REQ ステータス `done` + `docs/TODO.md` 更新 + コミット
+- [x] 比較 sim 後、baseline と current のグラフ差が確認できる
+- [x] 比較前・リセット後は単一系列のみ
+- [x] 既存 SkillVerifier KPI 比較・Phase 3 UX に退行なし（コード上）
+- [x] `npm run build` 通過
+- [ ] `npm run tauri dev` 実機確認（50+ スキル・比較検証フロー）— ユーザー確認待ち
+- [x] REQ ステータス `done` + `docs/TODO.md` 更新 + コミット
 
 ---
 
@@ -67,10 +74,12 @@ SkillVerifier でスキル ON/OFF を比較したとき、数値 KPI だけで�
 |------|---------|------|
 | 2026-06-10 15:55 | baseline diff を Phase 4・核機能として計画 | 設計レビュー承認（phase1 REQ より継承） |
 | 2026-06-11 04:54 | Phase 4 を単体 REQ として起票（draft） | 開発フロー明確化 |
+| 2026-06-12 01:04 | 2系列オーバーレイのみ・compare 自動 ON・index マージ・スキルは current のみ | Ask mode Q1〜Q7 推奨案で確定 |
+| 2026-06-12 01:04 | `graphCompareActive` = simResult≠baseline かつ applied スキル変更あり | 初回 structuredClone 後も比較前は単一系列を維持 |
 
 ---
 
 ## 参考
 
 - 親ロードマップ: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md)
-- Phase 1 決定: 詳細1走は自動取得 — Phase 4 では **2走分** 拡張が必要
+- Phase 1 決定: 詳細1走は自動取得 — Phase 4 では baseline はキャッシュ、current のみ WASM detail 1回

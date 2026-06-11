@@ -21,6 +21,7 @@ import {
   GraphDisplayState,
   GraphPoint,
   layoutSkillMarkers,
+  mergeBaselineGraphPoints,
   skillMarkersToPx,
   SKILL_CHART_BASE_HEIGHT,
   SKILL_CHART_MARGIN_BOTTOM,
@@ -33,12 +34,20 @@ import {
 
 interface RaceDetailChartProps {
   detail: RaceDetailDump;
+  /** 比較モード時の baseline raceDetail（キャッシュ） */
+  baselineDetail?: RaceDetailDump | null;
+  /** true のとき baseline 破線を重ね描画 */
+  compareActive?: boolean;
 }
 
 const formatTime = (seconds: number) => `${seconds.toFixed(1)}秒`;
 
 /** 体力折れ線と同じ色 */
 const STAMINA_LINE_COLOR = "#ef4444";
+const SPEED_LINE_COLOR = "#3b82f6";
+const LANE_LINE_COLOR = "#22c55e";
+/** baseline 破線の不透明度 */
+const BASELINE_LINE_OPACITY = 0.5;
 
 /** 本家 GraphOutput.kt: スキル発動区間の水平線 */
 const SKILL_DURATION_LINE_COLOR = "#ef4444";
@@ -74,8 +83,11 @@ const SERIES_LEGEND_ITEMS: {
   { stateKey: "showLane", label: "走行レーン", color: "#22c55e" },
 ];
 
-const SyncedChartLegend: React.FC<{ displayState: GraphDisplayState }> = ({ displayState }) => (
-  <ul className="m-0 flex list-none justify-center gap-4 p-0 pt-1 text-xs">
+const SyncedChartLegend: React.FC<{
+  displayState: GraphDisplayState;
+  compareActive?: boolean;
+}> = ({ displayState, compareActive = false }) => (
+  <ul className="m-0 flex list-none flex-wrap justify-center gap-x-4 gap-y-1 p-0 pt-1 text-xs">
     {SERIES_LEGEND_ITEMS.map(({ stateKey, label, color }) => {
       const visible = displayState[stateKey];
       return (
@@ -99,6 +111,15 @@ const SyncedChartLegend: React.FC<{ displayState: GraphDisplayState }> = ({ disp
         </li>
       );
     })}
+    {compareActive && (
+      <li className="inline-flex items-center gap-1.5 text-zinc-400">
+        <span
+          className="inline-block h-0 w-3.5 shrink-0 border-t-2 border-dashed border-zinc-400"
+          style={{ opacity: BASELINE_LINE_OPACITY }}
+        />
+        <span>初期構成（破線）</span>
+      </li>
+    )}
   </ul>
 );
 
@@ -122,11 +143,22 @@ const renderPercentAxisTick = (props: {
   );
 };
 
-const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({ detail }) => {
+const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
+  detail,
+  baselineDetail,
+  compareActive = false,
+}) => {
   const [displayState, setDisplayState] = useState<GraphDisplayState>(DEFAULT_GRAPH_DISPLAY_STATE);
 
-  /** detail 固定部分（frames / phaseLines / areaBands）— displayState 変更で再計算しない */
-  const graphPoints = useMemo(() => buildRaceGraphPoints(detail), [detail]);
+  const showBaselineOverlay =
+    compareActive && baselineDetail != null && baselineDetail !== detail;
+
+  /** detail + baselineDetail 固定部分 — displayState 変更で再計算しない */
+  const graphPoints = useMemo(() => {
+    const current = buildRaceGraphPoints(detail);
+    if (!showBaselineOverlay) return current;
+    return mergeBaselineGraphPoints(current, baselineDetail);
+  }, [detail, baselineDetail, showBaselineOverlay]);
 
   /** displayState 依存部分（スキル/デバフ表示フィルタ）— checkbox トグル時のみ再計算 */
   const skillData = useMemo(
@@ -295,18 +327,36 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({ detail }) => {
                     speed: "速度",
                     stamina: "体力",
                     lane: "レーン",
+                    baselineSpeed: "速度（初期）",
+                    baselineStamina: "体力（初期）",
+                    baselineLane: "レーン（初期）",
                   };
                   const key = String(name);
                   const label = labels[key] ?? key;
 
                   if (key === "speed" && payload) {
-                    return [`${payload.speed.toFixed(1)} m/s`, label];
+                    const current = `${payload.speed.toFixed(1)} m/s`;
+                    const baseline =
+                      showBaselineOverlay && payload.baselineSpeed != null
+                        ? ` / 初期 ${payload.baselineSpeed.toFixed(1)} m/s`
+                        : "";
+                    return [`${current}${baseline}`, label];
                   }
                   if (key === "stamina" && payload) {
-                    return [`${payload.staminaPct.toFixed(1)}%`, label];
+                    const current = `${payload.staminaPct.toFixed(1)}%`;
+                    const baseline =
+                      showBaselineOverlay && payload.baselineStaminaPct != null
+                        ? ` / 初期 ${payload.baselineStaminaPct.toFixed(1)}%`
+                        : "";
+                    return [`${current}${baseline}`, label];
                   }
                   if (key === "lane" && payload) {
-                    return [`${payload.lanePct.toFixed(1)}%`, label];
+                    const current = `${payload.lanePct.toFixed(1)}%`;
+                    const baseline =
+                      showBaselineOverlay && payload.baselineLanePct != null
+                        ? ` / 初期 ${payload.baselineLanePct.toFixed(1)}%`
+                        : "";
+                    return [`${current}${baseline}`, label];
                   }
 
                   const num = typeof value === "number" ? value : 0;
@@ -317,7 +367,12 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({ detail }) => {
                 verticalAlign="bottom"
                 align="center"
                 wrapperStyle={{ pointerEvents: "none" }}
-                content={<SyncedChartLegend displayState={displayState} />}
+                content={
+                  <SyncedChartLegend
+                    displayState={displayState}
+                    compareActive={showBaselineOverlay}
+                  />
+                }
               />
               {graphPoints.phaseLines.map((phase) => (
                 <ReferenceLine
@@ -343,12 +398,27 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({ detail }) => {
                 yAxisId="speed"
                 type="monotone"
                 dataKey="speed"
-                stroke="#3b82f6"
+                stroke={SPEED_LINE_COLOR}
                 strokeWidth={2}
                 dot={false}
                 isAnimationActive={false}
                 hide={!displayState.showSpeed}
               />
+              {showBaselineOverlay && (
+                <Line
+                  yAxisId="speed"
+                  type="monotone"
+                  dataKey="baselineSpeed"
+                  stroke={SPEED_LINE_COLOR}
+                  strokeWidth={2}
+                  strokeDasharray="6 4"
+                  strokeOpacity={BASELINE_LINE_OPACITY}
+                  dot={false}
+                  isAnimationActive={false}
+                  hide={!displayState.showSpeed}
+                  legendType="none"
+                />
+              )}
               <Line
                 yAxisId="percent"
                 type="monotone"
@@ -359,16 +429,46 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({ detail }) => {
                 isAnimationActive={false}
                 hide={!displayState.showStamina}
               />
+              {showBaselineOverlay && (
+                <Line
+                  yAxisId="percent"
+                  type="monotone"
+                  dataKey="baselineStamina"
+                  stroke={STAMINA_LINE_COLOR}
+                  strokeWidth={2}
+                  strokeDasharray="6 4"
+                  strokeOpacity={BASELINE_LINE_OPACITY}
+                  dot={false}
+                  isAnimationActive={false}
+                  hide={!displayState.showStamina}
+                  legendType="none"
+                />
+              )}
               <Line
                 yAxisId="percent"
                 type="monotone"
                 dataKey="lane"
-                stroke="#22c55e"
+                stroke={LANE_LINE_COLOR}
                 strokeWidth={2}
                 dot={false}
                 isAnimationActive={false}
                 hide={!displayState.showLane}
               />
+              {showBaselineOverlay && (
+                <Line
+                  yAxisId="percent"
+                  type="monotone"
+                  dataKey="baselineLane"
+                  stroke={LANE_LINE_COLOR}
+                  strokeWidth={2}
+                  strokeDasharray="6 4"
+                  strokeOpacity={BASELINE_LINE_OPACITY}
+                  dot={false}
+                  isAnimationActive={false}
+                  hide={!displayState.showLane}
+                  legendType="none"
+                />
+              )}
             </LineChart>
           </ResponsiveContainer>
 
@@ -433,5 +533,11 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({ detail }) => {
   );
 };
 
-/** detail 参照が同じなら親再描画をスキップ（P1 パフォーマンス改善） */
-export const RaceDetailChart = React.memo(RaceDetailChartInner);
+/** detail / baselineDetail 参照が同じなら親再描画をスキップ */
+export const RaceDetailChart = React.memo(
+  RaceDetailChartInner,
+  (prev, next) =>
+    prev.detail === next.detail &&
+    prev.baselineDetail === next.baselineDetail &&
+    prev.compareActive === next.compareActive,
+);
