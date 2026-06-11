@@ -74,21 +74,27 @@ export const DEFAULT_GRAPH_DISPLAY_STATE: GraphDisplayState = {
   expandSkillRows: false,
 };
 
-/** スキル発動帯（ReferenceArea 用） */
-export interface SkillBand {
+/** 本家 GraphOutput.kt 準拠: スキル名ラベル + 赤い発動線 */
+export interface SkillMarker {
   skillId: string;
   label: string;
-  x1: number;
-  x2: number;
-  y1: number;
-  y2: number;
-  fill: string;
+  startTime: number;
+  endTime: number;
+  /** ラベル配置 y（上から積む） */
+  y: number;
+  /** 発動区間の水平線 y（本家: top - 0.003） */
+  lineY: number;
+  labelColor: string;
   kind: SkillEventKind;
   row: number;
 }
 
-/** PROJECT.md スキル色分け正本に合わせたグラフ用 fill */
-const RARITY_FILL_COLORS: Record<SkillDisplayRarity, string> = {
+/** 縦拡大時のチャート高さ（本家 GraphOutput.kt 準拠） */
+export const SKILL_CHART_BASE_HEIGHT = 360;
+export const SKILL_ROW_HEIGHT = 34;
+
+/** PROJECT.md スキル色分け正本に合わせたラベル文字色 */
+const RARITY_LABEL_COLORS: Record<SkillDisplayRarity, string> = {
   unique: "#60a5fa",
   inherit: "#34d399",
   evo: "#f87171",
@@ -96,12 +102,11 @@ const RARITY_FILL_COLORS: Record<SkillDisplayRarity, string> = {
   white: "#e4e4e7",
 };
 
-/** デバフ（minus 系）帯の色 */
-const DEBUFF_FILL_COLOR = "#a78bfa";
+const DEBUFF_LABEL_COLOR = "#a78bfa";
 
-function getSkillFillById(skillId: string): string {
+function getSkillLabelColorById(skillId: string): string {
   const info = getSkillRarityInfoById(skillId);
-  return RARITY_FILL_COLORS[info.rarity];
+  return RARITY_LABEL_COLORS[info.rarity];
 }
 
 export interface RaceGraphData {
@@ -109,9 +114,9 @@ export interface RaceGraphData {
   phaseLines: { label: string; time: number }[];
   staminaMax: number;
   areaBands: AreaBand[];
-  skillBands: SkillBand[];
-  skillRowCount: number;
-  yDomainMax: number;
+  skillMarkers: SkillMarker[];
+  /** 縦拡大 ON 時のみ使用: max(360, 発動数 × 34) */
+  expandedChartHeight: number;
 }
 
 /** 距離 m → 経過秒（frameIndex / 15） */
@@ -178,47 +183,43 @@ function buildAreaBands(
   ];
 }
 
-/** skillEvents からスキル発動帯を生成 */
-export function buildSkillBands(
+/** skillEvents から本家準拠のスキルマーカー（発動ごと 1 行）を生成 */
+export function buildSkillMarkers(
   skillEvents: SkillEventDump[] | undefined,
   displayState: GraphDisplayState,
-): Pick<RaceGraphData, "skillBands" | "skillRowCount" | "yDomainMax"> {
+): Pick<RaceGraphData, "skillMarkers" | "expandedChartHeight"> {
   if (!skillEvents?.length) {
-    return { skillBands: [], skillRowCount: 0, yDomainMax: 1 };
+    return { skillMarkers: [], expandedChartHeight: SKILL_CHART_BASE_HEIGHT };
   }
 
-  const filtered = skillEvents.filter((event) =>
-    event.kind === "debuff" ? displayState.showDebuffs : displayState.showSkills,
-  );
+  const filtered = skillEvents
+    .filter((event) => (event.kind === "debuff" ? displayState.showDebuffs : displayState.showSkills))
+    .sort((a, b) => a.startTime - b.startTime || a.endTime - b.endTime);
+
   if (!filtered.length) {
-    return { skillBands: [], skillRowCount: 0, yDomainMax: 1 };
+    return { skillMarkers: [], expandedChartHeight: SKILL_CHART_BASE_HEIGHT };
   }
 
-  const uniqueSkillIds = [...new Set(filtered.map((event) => event.skillId))];
-  const rowBySkillId = new Map(uniqueSkillIds.map((skillId, index) => [skillId, index]));
-  const skillRowCount = displayState.expandSkillRows ? uniqueSkillIds.length : 0;
-  const yDomainMax = displayState.expandSkillRows ? 1 + skillRowCount * 0.04 : 1;
+  const eventCount = filtered.length;
+  const skillMargin = Math.min(0.1, 0.8 / eventCount);
 
-  const skillBands: SkillBand[] = filtered.map((event) => {
-    const row = displayState.expandSkillRows ? (rowBySkillId.get(event.skillId) ?? 0) : 0;
-    const [y1, y2] = displayState.expandSkillRows
-      ? [1.02 + row * 0.04, 1.02 + row * 0.04 + 0.035]
-      : [0.94, 0.99];
-
+  const skillMarkers: SkillMarker[] = filtered.map((event, index) => {
+    const top = 1 - skillMargin * index;
     return {
       skillId: event.skillId,
       label: getSkillNameById(event.skillId),
-      x1: event.startTime,
-      x2: event.endTime,
-      y1,
-      y2,
-      fill: event.kind === "debuff" ? DEBUFF_FILL_COLOR : getSkillFillById(event.skillId),
+      startTime: event.startTime,
+      endTime: event.endTime,
+      y: top,
+      lineY: top - 0.003,
+      labelColor: event.kind === "debuff" ? DEBUFF_LABEL_COLOR : getSkillLabelColorById(event.skillId),
       kind: event.kind,
-      row,
+      row: index,
     };
   });
 
-  return { skillBands, skillRowCount, yDomainMax };
+  const expandedChartHeight = Math.max(SKILL_CHART_BASE_HEIGHT, eventCount * SKILL_ROW_HEIGHT);
+  return { skillMarkers, expandedChartHeight };
 }
 
 /** RaceDetailDump からグラフ描画用データを生成 */
@@ -228,7 +229,14 @@ export function buildRaceGraphData(
 ): RaceGraphData {
   const { frames, phase1Start, phase2Start, gateCount, initialLaneAdjuster, trackDetail, skillEvents } = detail;
   if (!frames.length) {
-    return { points: [], phaseLines: [], staminaMax: 0, areaBands: [], skillBands: [], skillRowCount: 0, yDomainMax: 1 };
+    return {
+      points: [],
+      phaseLines: [],
+      staminaMax: 0,
+      areaBands: [],
+      skillMarkers: [],
+      expandedChartHeight: SKILL_CHART_BASE_HEIGHT,
+    };
   }
 
   const staminaMax = frames[0].sp;
@@ -263,7 +271,7 @@ export function buildRaceGraphData(
   ].filter((p) => p.time > 0);
 
   const areaBands = buildAreaBands(trackDetail, frames);
-  const { skillBands, skillRowCount, yDomainMax } = buildSkillBands(skillEvents, displayState);
+  const { skillMarkers, expandedChartHeight } = buildSkillMarkers(skillEvents, displayState);
 
-  return { points, phaseLines, staminaMax, areaBands, skillBands, skillRowCount, yDomainMax };
+  return { points, phaseLines, staminaMax, areaBands, skillMarkers, expandedChartHeight };
 }

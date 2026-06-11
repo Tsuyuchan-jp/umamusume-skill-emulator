@@ -71,6 +71,8 @@
 | 2026-06-11 13:39 | WASM: `RaceFrame.triggeredSkills` / `endedSkills` から `skillEvents` 出力（案 A） | Ask mode 設計レビュー承認。フレーム毎 activeSkillIds 全量は禁止 |
 | 2026-06-11 13:39 | `kind`: `minus` rarity → `debuff`、それ以外 → `skill` | umasim `SkillData.rarity` 準拠 |
 | 2026-06-11 13:39 | フロント: `buildSkillBands` + `GraphDisplayState` + checkbox 正本（Legend クリック無効） | Phase 1/axis/Phase 2 退行防止 |
+| 2026-06-11 14:08 | **方針変更**: 色付き帯廃止 → 本家準拠（発動ごと名前ラベル+赤線、`buildSkillMarkers`） | 実機 B-1 齟齬。umasim `GraphOutput.kt` 準拠 |
+| 2026-06-11 14:08 | 縦拡大: `yDomainMax`/`topMargin` 廃止 → チャート高さ `max(360, eventCount×34)` + 親スクロール | 縦拡大 ON でグラフ消滅バグ修正。Y domain は常に 0–1 |
 
 ---
 

@@ -3,7 +3,7 @@
 > Cursor 作業チャット起票時に `@docs/TODO.md` で参照する正本。
 > **作業完了のたびに必ず更新**し、コミットに含める。
 
-最終更新: 2026-06-11 13:39
+最終更新: 2026-06-11 14:08
 
 ---
 
@@ -55,7 +55,7 @@
 
 ## 完了済み
 
-- [x] 直近レース詳細グラフ Phase 3 — スキル帯・表示切替（WASM skillEvents + checkbox + 縦拡大）（`f8e8cbe` / [`REQ-race-detail-graph-phase3.md`](tasks/REQ-race-detail-graph-phase3.md)）
+- [x] 直近レース詳細グラフ Phase 3 — スキル帯・表示切替（WASM skillEvents + checkbox + 本家準拠ラベル/赤線）（`f8e8cbe`〜修正コミット / [`REQ-race-detail-graph-phase3.md`](tasks/REQ-race-detail-graph-phase3.md)）
 - [x] 直近レース詳細グラフ Phase 2 — 区間オーバーレイ + trackDetail WASM + UX改善（色弱対策・坂上下段・右Y軸体力0）（`5e2b401` / [`REQ-race-detail-graph-phase2.md`](tasks/REQ-race-detail-graph-phase2.md)）
 - [x] レース詳細グラフ Y軸・単位改善 — 双 Y 軸・体力/レーン床リマップ・速度 m/s（`206b9ee` / [`REQ-race-detail-graph-axis.md`](tasks/REQ-race-detail-graph-axis.md)）
 - [x] 全画面 Cockpit UI（Phase 1〜3 + UX ポリッシュ）— SkillVerifier 右ペイン・トースト Portal・KPI ストリップ等（`98c8739`〜`a75ec9c` / [`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)）
