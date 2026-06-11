@@ -1,5 +1,6 @@
-import React from 'react';
-import { SimTab } from '../lib/types';
+import React from "react";
+import { X } from "lucide-react";
+import { SimTab } from "../lib/types";
 
 interface TabBarProps {
   tabs: SimTab[];
@@ -15,57 +16,107 @@ export function TabBar(props: TabBarProps) {
   if (tabs.length === 0) return null;
 
   return (
-    <div className="flex gap-3 mb-3 border-b border-zinc-800 pb-2 pl-1 overflow-x-auto scrollbar-thin">
-      {tabs.map((tab) => {
-        const isActive = activeTabId === tab.id;
-        return (
-          <div
-            key={tab.id}
-            id={`tab-${tab.id}`}
-            onClick={() => setActiveTabId(tab.id)}
-            className={`group relative flex-shrink-0 cursor-pointer overflow-hidden rounded-xl w-40 h-10 origin-center transition-[transform,opacity,box-shadow] duration-200 ${
-              isActive
-                ? "scale-105 opacity-100 shadow-[0_0_15px_rgba(16,185,129,0.3)] z-10"
-                : "scale-100 opacity-60 hover:opacity-100"
-            } ${highlightedTabId === tab.id ? "ring-4 ring-emerald-400 animate-pulse" : ""}`}
-          >
-            {tab.thumbnailUrl ? (
-              <div className="w-full h-full relative bg-zinc-900 pointer-events-none">
-                <img
-                  src={tab.thumbnailUrl}
-                  alt={tab.title}
-                  className="w-full h-full object-cover"
-                />
-                <div className={`absolute inset-0 transition-opacity ${isActive ? 'bg-black/0' : 'bg-black/50 group-hover:bg-black/20'}`}></div>
-                {tab.isDuplicate && (
-                  <div className="absolute top-1 left-1 bg-amber-500 text-black text-[10px] font-black px-1.5 py-0.5 rounded shadow-lg z-10">
-                    🎨 コピー
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
-                <span className="text-sm font-bold text-zinc-400">{tab.title}</span>
-              </div>
-            )}
+    <div
+      className="mb-3 min-w-0"
+      role="tablist"
+      aria-label="シミュレーション結果タブ"
+    >
+      <div className="flex gap-2 overflow-x-auto scrollbar-thin rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-1.5 pl-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-sm">
+        {tabs.map((tab) => {
+          const isActive = activeTabId === tab.id;
+          const isHighlighted = highlightedTabId === tab.id;
 
-            {/* Close button */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setTabs(prev => prev.filter(t => t.id !== tab.id));
-                if (activeTabId === tab.id) {
-                  const remaining = tabs.filter(t => t.id !== tab.id);
-                  setActiveTabId(remaining.length > 0 ? remaining[remaining.length - 1].id : null);
+          return (
+            <div
+              key={tab.id}
+              id={`tab-${tab.id}`}
+              role="tab"
+              aria-selected={isActive}
+              tabIndex={isActive ? 0 : -1}
+              onClick={() => setActiveTabId(tab.id)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setActiveTabId(tab.id);
                 }
               }}
-              className="absolute top-1.5 right-1.5 w-6 h-6 flex items-center justify-center rounded-full bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500 hover:text-white backdrop-blur-md"
+              className={`group relative flex-shrink-0 cursor-pointer rounded-lg outline-none transition-[box-shadow,opacity,transform] duration-200 ease-out focus-visible:ring-2 focus-visible:ring-emerald-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 ${
+                isActive
+                  ? "z-10 shadow-[0_0_20px_rgba(16,185,129,0.22),0_4px_14px_rgba(0,0,0,0.45)] ring-1 ring-emerald-500/45"
+                  : "opacity-70 hover:opacity-100 hover:ring-1 hover:ring-zinc-600/40 hover:shadow-md active:scale-[0.98]"
+              } ${isHighlighted ? "animate-pulse shadow-[0_0_0_3px_rgba(52,211,153,0.55)]" : ""}`}
             >
-              ×
-            </button>
-          </div>
-        );
-      })}
+              <div className="relative h-11 w-[152px] overflow-hidden rounded-[inherit] bg-zinc-950">
+                {tab.thumbnailUrl ? (
+                  <>
+                    <img
+                      src={tab.thumbnailUrl}
+                      alt={tab.title}
+                      className={`h-full w-full object-cover transition-[filter,transform] duration-300 pointer-events-none ${
+                        isActive
+                          ? "brightness-105 saturate-110"
+                          : "brightness-75 saturate-90 group-hover:brightness-90"
+                      }`}
+                      draggable={false}
+                    />
+                    <div
+                      className={`absolute inset-0 transition-colors duration-200 pointer-events-none ${
+                        isActive
+                          ? "bg-gradient-to-t from-emerald-950/70 via-emerald-950/10 to-transparent"
+                          : "bg-gradient-to-t from-zinc-950/90 via-zinc-950/30 to-zinc-950/10 group-hover:from-zinc-950/75"
+                      }`}
+                    />
+                  </>
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center bg-zinc-800/80 px-2">
+                    <span className="truncate text-xs font-bold text-zinc-400">{tab.title}</span>
+                  </div>
+                )}
+
+                {/* タイトル（サムネ下部） */}
+                {tab.thumbnailUrl && (
+                  <span
+                    className={`absolute bottom-1 left-2 right-7 truncate text-[10px] font-bold tracking-tight pointer-events-none ${
+                      isActive ? "text-emerald-50" : "text-zinc-300"
+                    }`}
+                  >
+                    {tab.title}
+                  </span>
+                )}
+
+                {/* アクティブインジケータ */}
+                <div
+                  className={`absolute bottom-0 left-0 right-0 h-0.5 transition-all duration-200 ${
+                    isActive ? "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" : "bg-transparent"
+                  }`}
+                />
+
+                {tab.isDuplicate && (
+                  <span className="absolute top-1 left-1 rounded border border-amber-500/30 bg-amber-500/15 px-1 py-px text-[9px] font-black tracking-wide text-amber-300 backdrop-blur-sm">
+                    コピー
+                  </span>
+                )}
+              </div>
+
+              <button
+                type="button"
+                aria-label={`${tab.title} を閉じる`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setTabs((prev) => prev.filter((t) => t.id !== tab.id));
+                  if (activeTabId === tab.id) {
+                    const remaining = tabs.filter((t) => t.id !== tab.id);
+                    setActiveTabId(remaining.length > 0 ? remaining[remaining.length - 1].id : null);
+                  }
+                }}
+                className="absolute top-1 right-1 flex h-5 w-5 items-center justify-center rounded-md border border-zinc-700/50 bg-zinc-950/70 text-zinc-400 opacity-0 backdrop-blur-md transition-all duration-150 group-hover:opacity-100 hover:border-red-500/50 hover:bg-red-500/90 hover:text-white focus-visible:opacity-100 focus-visible:ring-1 focus-visible:ring-red-400/60"
+              >
+                <X className="h-3 w-3" strokeWidth={2.5} />
+              </button>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
