@@ -91,23 +91,21 @@ export interface SkillMarker {
 
 /** 縦拡大時のチャート高さ */
 export const SKILL_CHART_BASE_HEIGHT = 360;
-/** 1 スキル行の高さ（px）— B案: 28 */
-export const SKILL_ROW_HEIGHT = 28;
+/** 1 スキル行の高さ（px）— 縦拡大 ON 時 */
+export const SKILL_ROW_HEIGHT = 24;
 export const SKILL_FONT_SIZE = 10;
 export const SKILL_LINE_GAP = 3;
 export const SKILL_ROW_TOP_PAD = 4;
-/** 縦拡大 OFF 時の最小行高（px） */
-export const SKILL_ROW_HEIGHT_MIN = 16;
 /** LineChart margin と同期（layoutSkillMarkers 用） */
 export const SKILL_CHART_MARGIN_TOP = 24;
 export const SKILL_CHART_MARGIN_BOTTOM = 4;
 
 export interface SkillLayoutOptions {
-  /** true: 28px 固定行。false: plotHeight に収まるよう行高を圧縮 */
+  /** true: 24px 固定行。false: skillMargin ドメイン詰め（重なり OK・枠内収納） */
   expanded?: boolean;
 }
 
-/** chartHeightPx に基づき下ライン行レイアウトを percent 軸 y に変換 */
+/** 下ライン行レイアウトを percent 軸 y に変換 */
 export function layoutSkillMarkers(
   markers: SkillMarker[],
   chartHeightPx: number,
@@ -118,19 +116,22 @@ export function layoutSkillMarkers(
   if (plotHeight <= 0 || markers.length === 0) return markers;
 
   const eventCount = markers.length;
-  const contentTail = SKILL_FONT_SIZE + SKILL_LINE_GAP;
-  const availableForRows = plotHeight - SKILL_ROW_TOP_PAD - contentTail;
+  const lineOffsetDomain = (SKILL_FONT_SIZE + SKILL_LINE_GAP) / plotHeight;
 
-  let rowHeight = SKILL_ROW_HEIGHT;
   if (!expanded) {
-    rowHeight = Math.min(
-      SKILL_ROW_HEIGHT,
-      Math.max(SKILL_ROW_HEIGHT_MIN, Math.floor(availableForRows / eventCount)),
-    );
+    const skillMargin = Math.min(0.1, 0.8 / eventCount);
+    return markers.map((marker) => {
+      const labelY = 1 - skillMargin * marker.row;
+      return {
+        ...marker,
+        y: labelY,
+        lineY: labelY - lineOffsetDomain,
+      };
+    });
   }
 
   return markers.map((marker) => {
-    const labelTopPx = SKILL_ROW_TOP_PAD + marker.row * rowHeight;
+    const labelTopPx = SKILL_ROW_TOP_PAD + marker.row * SKILL_ROW_HEIGHT;
     const lineTopPx = labelTopPx + SKILL_FONT_SIZE + SKILL_LINE_GAP;
     return {
       ...marker,
@@ -162,7 +163,7 @@ export interface RaceGraphData {
   staminaMax: number;
   areaBands: AreaBand[];
   skillMarkers: SkillMarker[];
-  /** 縦拡大 ON 時のみ使用: max(360, 発動数 × 28) */
+  /** 縦拡大 ON 時のみ使用: max(360, 発動数 × 24) */
   expandedChartHeight: number;
 }
 
