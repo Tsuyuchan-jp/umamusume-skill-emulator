@@ -23,10 +23,10 @@ export function TabBar(props: TabBarProps) {
             key={tab.id}
             id={`tab-${tab.id}`}
             onClick={() => setActiveTabId(tab.id)}
-            className={`group relative flex-shrink-0 cursor-pointer overflow-hidden rounded-xl border-2 w-40 h-10 origin-center transition-[transform,opacity,border-color,box-shadow] duration-200 ${
+            className={`group relative flex-shrink-0 cursor-pointer overflow-hidden rounded-xl w-40 h-10 origin-center transition-[transform,opacity,box-shadow] duration-200 ${
               isActive
-                ? "scale-105 border-emerald-500 opacity-100 shadow-[0_0_15px_rgba(16,185,129,0.3)] z-10"
-                : "scale-100 border-transparent opacity-60 hover:opacity-100 hover:border-zinc-700"
+                ? "scale-105 opacity-100 shadow-[0_0_15px_rgba(16,185,129,0.3)] z-10"
+                : "scale-100 opacity-60 hover:opacity-100"
             } ${highlightedTabId === tab.id ? "ring-4 ring-emerald-400 animate-pulse" : ""}`}
           >
             {tab.thumbnailUrl ? (
