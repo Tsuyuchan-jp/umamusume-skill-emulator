@@ -52,6 +52,8 @@ export interface SkillEventDump {
   startTime: number;
   endTime: number;
   kind: SkillEventKind;
+  /** GraphSkill.description 相当（WASM 出力。未更新 WASM では未設定） */
+  effectText?: string;
 }
 
 /** 直近1走の詳細データ（グラフ用） */

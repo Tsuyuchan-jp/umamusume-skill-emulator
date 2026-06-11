@@ -97,6 +97,10 @@ export interface SkillMarker {
   labelColor: string;
   kind: SkillEventKind;
   row: number;
+  /** hover 一意キー（skillId + startTime） */
+  tooltipKey: string;
+  /** Tooltip 本文（GraphSkill.description 相当。WASM effectText 優先） */
+  effectText: string;
 }
 
 /** 縦拡大時のチャート高さ */
@@ -163,6 +167,9 @@ export interface SkillMarkerPx {
   label: string;
   labelColor: string;
   kind: SkillEventKind;
+  startTime: number;
+  tooltipKey: string;
+  effectText: string;
   /** ラベル・赤線の開始 x（px） */
   startX: number;
   /** 赤線の終了 x（px） */
@@ -171,6 +178,10 @@ export interface SkillMarkerPx {
   labelY: number;
   /** 赤線 y（px） */
   lineY: number;
+  /** ラベル hit area 幅（px） */
+  hitWidth: number;
+  /** ラベル hit area 高さ（px） */
+  hitHeight: number;
 }
 
 /**
@@ -190,16 +201,24 @@ export function skillMarkersToPx(
   const plotWidth = chartWidthPx - OVERLAY_MARGIN_LEFT - OVERLAY_MARGIN_RIGHT;
   if (plotHeight <= 0 || plotWidth <= 0) return [];
 
-  return markers.map((m) => ({
-    skillId: m.skillId,
-    label: m.label,
-    labelColor: m.labelColor,
-    kind: m.kind,
-    startX: (m.startTime / maxTime) * plotWidth + OVERLAY_MARGIN_LEFT,
-    endX: (m.endTime / maxTime) * plotWidth + OVERLAY_MARGIN_LEFT,
-    labelY: (1 - m.y) * plotHeight + SKILL_CHART_MARGIN_TOP,
-    lineY: (1 - m.lineY) * plotHeight + SKILL_CHART_MARGIN_TOP,
-  }));
+  return markers.map((m) => {
+    const hitWidth = Math.max(m.label.length * SKILL_FONT_SIZE * 0.55, SKILL_FONT_SIZE * 2) + 4;
+    return {
+      skillId: m.skillId,
+      label: m.label,
+      labelColor: m.labelColor,
+      kind: m.kind,
+      startTime: m.startTime,
+      tooltipKey: m.tooltipKey,
+      effectText: m.effectText,
+      startX: (m.startTime / maxTime) * plotWidth + OVERLAY_MARGIN_LEFT,
+      endX: (m.endTime / maxTime) * plotWidth + OVERLAY_MARGIN_LEFT,
+      labelY: (1 - m.y) * plotHeight + SKILL_CHART_MARGIN_TOP,
+      lineY: (1 - m.lineY) * plotHeight + SKILL_CHART_MARGIN_TOP,
+      hitWidth,
+      hitHeight: SKILL_FONT_SIZE + 4,
+    };
+  });
 }
 
 /** PROJECT.md スキル色分け正本に合わせたラベル文字色 */
@@ -216,6 +235,45 @@ const DEBUFF_LABEL_COLOR = "#a78bfa";
 function getSkillLabelColorById(skillId: string): string {
   const info = getSkillRarityInfoById(skillId);
   return RARITY_LABEL_COLORS[info.rarity];
+}
+
+/** フレーム index から発動位置％文字列を生成（本家 startRate/endRate 相当） */
+function frameIndexToPositionRate(frames: RaceFrameDump[], index: number, courseLength: number): string {
+  if (!frames.length || courseLength <= 0) return "0.0%";
+  const clamped = Math.min(Math.max(index, 0), frames.length - 1);
+  return ((frames[clamped].startPosition / courseLength) * 100).toFixed(1) + "%";
+}
+
+/** startTime/endTime から発動位置％範囲文字列（WASM 未更新時の暫定） */
+export function buildActivatePositionText(
+  frames: RaceFrameDump[],
+  courseLength: number,
+  startTime: number,
+  endTime: number,
+  hasEnd: boolean,
+): string {
+  if (!frames.length || courseLength <= 0) return "";
+  const startIndex = Math.min(Math.round(startTime * FRAME_PER_SECOND), frames.length - 1);
+  const startRate = frameIndexToPositionRate(frames, startIndex, courseLength);
+  if (!hasEnd) return startRate;
+  const endIndex = Math.min(Math.round(endTime * FRAME_PER_SECOND), frames.length - 1);
+  const endRate = frameIndexToPositionRate(frames, endIndex, courseLength);
+  return `${startRate}〜${endRate}`;
+}
+
+/** WASM effectText が無い場合の暫定 Tooltip 本文（発動位置％のみ） */
+function buildProvisionalEffectText(
+  event: SkillEventDump,
+  frames: RaceFrameDump[],
+  courseLength: number,
+): string {
+  if (event.effectText) return event.effectText;
+  const hasEnd = event.kind !== "debuff" && event.endTime > event.startTime;
+  return buildActivatePositionText(frames, courseLength, event.startTime, event.endTime, hasEnd);
+}
+
+function makeTooltipKey(skillId: string, startTime: number): string {
+  return `${skillId}@${startTime.toFixed(4)}`;
 }
 
 export interface RaceGraphData {
@@ -296,6 +354,7 @@ function buildAreaBands(
 export function buildSkillMarkers(
   skillEvents: SkillEventDump[] | undefined,
   displayState: GraphDisplayState,
+  detail?: Pick<RaceDetailDump, "frames" | "courseLength">,
 ): Pick<RaceGraphData, "skillMarkers" | "expandedChartHeight"> {
   if (!skillEvents?.length) {
     return { skillMarkers: [], expandedChartHeight: SKILL_CHART_BASE_HEIGHT };
@@ -311,6 +370,8 @@ export function buildSkillMarkers(
 
   const eventCount = filtered.length;
   const expandedChartHeight = Math.max(SKILL_CHART_BASE_HEIGHT, eventCount * SKILL_ROW_HEIGHT);
+  const frames = detail?.frames ?? [];
+  const courseLength = detail?.courseLength ?? 0;
 
   const baseMarkers: SkillMarker[] = filtered.map((event, index) => ({
     skillId: event.skillId,
@@ -322,6 +383,8 @@ export function buildSkillMarkers(
     labelColor: event.kind === "debuff" ? DEBUFF_LABEL_COLOR : getSkillLabelColorById(event.skillId),
     kind: event.kind,
     row: index,
+    tooltipKey: makeTooltipKey(event.skillId, event.startTime),
+    effectText: buildProvisionalEffectText(event, frames, courseLength),
   }));
 
   const skillMarkers = layoutSkillMarkers(baseMarkers, expandedChartHeight, { expanded: true });
@@ -457,7 +520,7 @@ export function buildRaceGraphData(
   }
 
   const { points, phaseLines, staminaMax, areaBands } = buildRaceGraphPoints(detail);
-  const { skillMarkers, expandedChartHeight } = buildSkillMarkers(detail.skillEvents, displayState);
+  const { skillMarkers, expandedChartHeight } = buildSkillMarkers(detail.skillEvents, displayState, detail);
 
   return { points, phaseLines, staminaMax, areaBands, skillMarkers, expandedChartHeight };
 }

@@ -4,22 +4,21 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-12 02:13
+最終更新: 2026-06-12 02:51
 
 ---
 
 ## 現在のフォーカス
 
-P1 改善タスク（グラフスキル Tooltip / 縦拡大クリップ等）
+グラフ内スキル hover Tooltip 実装（Phase A hover UI）
 
 ---
 
 ## 進行中
 
-> **同時に載せるのは最大1件。** 別チャットで作業中なら、ここが「なし」のままにしない。
-> 形式: `- [ ] **タイトル** — （1行要約）` + 必要なら REQ リンク・触る想定
-
-なし
+- [ ] **グラフ内スキル hover Tooltip** — 効果量・持続時間・発動位置％（本家準拠）
+  - REQ: [`REQ-race-detail-graph-skill-tooltip.md`](tasks/REQ-race-detail-graph-skill-tooltip.md)
+  - 触る想定: `RaceDetailChart.tsx`, `raceGraphBuilder.ts`, `WasmEngine.kt`
 
 ## 次にやること（Backlog）
 
@@ -31,11 +30,6 @@ P1 改善タスク（グラフスキル Tooltip / 縦拡大クリップ等）
 
 ### P1 — 重要
 
-- [ ] **グラフ内スキル hover Tooltip** — 効果量・持続時間・発動位置％（本家準拠）
-  - 現状: overlay SVG は `pointer-events-none`。`SkillEventDump` に効果量なし（WASM 拡張の要否は Ask mode で確定）
-  - 算出可: 持続時間（start/endTime）、発動位置％（frames + courseLength）
-  - REQ: [`REQ-race-detail-graph-skill-tooltip.md`](tasks/REQ-race-detail-graph-skill-tooltip.md)
-  - 触る想定: `RaceDetailChart.tsx`, `raceGraphBuilder.ts`、必要なら `WasmEngine.kt`
 - [ ] **グラフ縦拡大 ON 時の末尾スキル帯クリップ**
   - 症状: 縦拡大を有効にすると、レース後半（終盤）で発動したスキルが縦幅から溢れて表示されない
   - 触る想定: `RaceDetailChart.tsx`, `raceGraphBuilder.ts`（スキル行レイアウト・縦拡大時の SVG/コンテナ高さ計算）

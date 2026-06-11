@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   LineChart,
   Line,
@@ -23,6 +24,7 @@ import {
   layoutSkillMarkers,
   mergeBaselineGraphPoints,
   skillMarkersToPx,
+  SkillMarkerPx,
   SKILL_CHART_BASE_HEIGHT,
   SKILL_CHART_MARGIN_BOTTOM,
   SKILL_CHART_MARGIN_TOP,
@@ -61,6 +63,39 @@ const TOOLTIP_Y_OFFSET = 70;
 /** ツールチップ枠の概算高さ（3 系列 + ラベル） */
 const TOOLTIP_APPROX_HEIGHT = 90;
 const TOOLTIP_EDGE_GAP = 8;
+
+/** スキル Tooltip をカーソル付近に表示 */
+const SKILL_TOOLTIP_X_OFFSET = 12;
+const SKILL_TOOLTIP_Y_OFFSET = 8;
+/** スキル Tooltip 枠の概算高さ */
+const SKILL_TOOLTIP_APPROX_HEIGHT = 120;
+
+const SkillTooltipPortal: React.FC<{
+  clientX: number;
+  clientY: number;
+  effectText: string;
+}> = ({ clientX, clientY, effectText }) => {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted || !effectText) return null;
+
+  const maxY = typeof window !== "undefined" ? window.innerHeight - SKILL_TOOLTIP_APPROX_HEIGHT - TOOLTIP_EDGE_GAP : clientY;
+  const top = Math.min(clientY + SKILL_TOOLTIP_Y_OFFSET, maxY);
+
+  return createPortal(
+    <div
+      className="pointer-events-none fixed z-[1001] max-w-xs rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-xs text-zinc-100 shadow-lg"
+      style={{ left: clientX + SKILL_TOOLTIP_X_OFFSET, top }}
+    >
+      {effectText.split("\n").map((line, index) => (
+        <div key={index} className={index > 0 ? "mt-0.5" : undefined}>
+          {line}
+        </div>
+      ))}
+    </div>,
+    document.body,
+  );
+};
 
 const DISPLAY_CHECKBOXES: { key: keyof GraphDisplayState; label: string }[] = [
   { key: "showSpeed", label: "速度" },
@@ -149,6 +184,8 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
   compareActive = false,
 }) => {
   const [displayState, setDisplayState] = useState<GraphDisplayState>(DEFAULT_GRAPH_DISPLAY_STATE);
+  const [hoveredSkillKey, setHoveredSkillKey] = useState<string | null>(null);
+  const [skillTooltipPos, setSkillTooltipPos] = useState({ clientX: 0, clientY: 0 });
 
   const showBaselineOverlay =
     compareActive && baselineDetail != null && baselineDetail !== detail;
@@ -162,8 +199,8 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
 
   /** displayState 依存部分（スキル/デバフ表示フィルタ）— checkbox トグル時のみ再計算 */
   const skillData = useMemo(
-    () => buildSkillMarkers(detail.skillEvents, displayState),
-    [detail.skillEvents, displayState],
+    () => buildSkillMarkers(detail.skillEvents, displayState, detail),
+    [detail, displayState],
   );
 
   const chartAreaRef = useRef<HTMLDivElement>(null);
@@ -203,6 +240,27 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
         : [],
     [showSkillOverlay, skillMarkers, effectiveChartHeight, measuredWidth, maxTime],
   );
+
+  const hoveredSkillMarker = useMemo(
+    () => skillMarkersPx.find((m) => m.tooltipKey === hoveredSkillKey) ?? null,
+    [skillMarkersPx, hoveredSkillKey],
+  );
+
+  const handleSkillLabelEnter = useCallback(
+    (marker: SkillMarkerPx) => (event: React.MouseEvent) => {
+      setHoveredSkillKey(marker.tooltipKey);
+      setSkillTooltipPos({ clientX: event.clientX, clientY: event.clientY });
+    },
+    [],
+  );
+
+  const handleSkillLabelMove = useCallback((event: React.MouseEvent) => {
+    setSkillTooltipPos({ clientX: event.clientX, clientY: event.clientY });
+  }, []);
+
+  const handleSkillLabelLeave = useCallback(() => {
+    setHoveredSkillKey(null);
+  }, []);
 
   /** プロット下端ではみ出して scrollHeight が増えないよう、ツールチップ位置を枠内に収める */
   const plotHeight =
@@ -475,7 +533,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
             </LineChart>
           </ResponsiveContainer>
 
-          {/* スキル発動 overlay SVG — Recharts 外の absolute レイヤー（pointer-events-none） */}
+          {/* スキル発動 overlay SVG — Recharts 外の absolute レイヤー（ラベルのみ pointer-events） */}
           {showSkillOverlay && skillMarkersPx.length > 0 && (
             <svg
               className="pointer-events-none absolute inset-0"
@@ -485,19 +543,8 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
               aria-hidden="true"
             >
               {skillMarkersPx.map((m, i) => (
-                <g key={`skill-overlay-${m.skillId}-${m.startX}-${i}`}>
-                  {/* スキル名ラベル: textAnchor start、左端 = startTime の px 位置 */}
-                  <text
-                    x={m.startX}
-                    y={m.labelY}
-                    textAnchor="start"
-                    dominantBaseline="hanging"
-                    fill={m.labelColor}
-                    fontSize={SKILL_FONT_SIZE}
-                  >
-                    {m.label}
-                  </text>
-                  {/* 発動区間水平線（スキル: 赤、デバフ: 紫） */}
+                <g key={`skill-overlay-${m.tooltipKey}-${i}`}>
+                  {/* 発動区間水平線（スキル: 赤、デバフ: 紫）— hit 対象外 */}
                   <line
                     x1={m.startX}
                     y1={m.lineY}
@@ -506,9 +553,42 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
                     stroke={m.kind === "debuff" ? DEBUFF_DURATION_LINE_COLOR : SKILL_DURATION_LINE_COLOR}
                     strokeWidth={2}
                   />
+                  {/* スキル名ラベルのみ hover 対象 */}
+                  <g
+                    pointerEvents="all"
+                    onMouseEnter={handleSkillLabelEnter(m)}
+                    onMouseMove={handleSkillLabelMove}
+                    onMouseLeave={handleSkillLabelLeave}
+                  >
+                    <rect
+                      x={m.startX}
+                      y={m.labelY - 2}
+                      width={m.hitWidth}
+                      height={m.hitHeight}
+                      fill="transparent"
+                    />
+                    <text
+                      x={m.startX}
+                      y={m.labelY}
+                      textAnchor="start"
+                      dominantBaseline="hanging"
+                      fill={m.labelColor}
+                      fontSize={SKILL_FONT_SIZE}
+                    >
+                      {m.label}
+                    </text>
+                  </g>
                 </g>
               ))}
             </svg>
+          )}
+
+          {hoveredSkillMarker && (
+            <SkillTooltipPortal
+              clientX={skillTooltipPos.clientX}
+              clientY={skillTooltipPos.clientY}
+              effectText={hoveredSkillMarker.effectText}
+            />
           )}
 
           {displayState.showAreas && graphPoints.areaBands.length > 0 && (
