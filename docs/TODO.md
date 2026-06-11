@@ -77,7 +77,7 @@
 
 ## 完了済み
 
-- [x] レース詳細グラフ UI レスポンス改善 Phase 2 — buildRaceGraphPoints 分割・RaceDetailChart useMemo 2本化・overflow-x-hidden（TBD / [`REQ-race-detail-graph-performance.md`](tasks/REQ-race-detail-graph-performance.md)）
+- [x] レース詳細グラフ UI レスポンス改善 Phase 2 — buildRaceGraphPoints 分割・RaceDetailChart useMemo 2本化・overflow-x-hidden（`2c8e1ed` / [`REQ-race-detail-graph-performance.md`](tasks/REQ-race-detail-graph-performance.md)）
 - [x] レース詳細グラフ UI レスポンス改善 Phase 1 — overlay SVG スキル層一本化 + React.memo（`f8158c8` / [`REQ-race-detail-graph-performance.md`](tasks/REQ-race-detail-graph-performance.md)）
 - [x] Phase 3 UX スキル行 B案 — 下ライン・28px 行高・zinc ピル・縦拡大一貫レイアウト（`447d25e` / [`REQ-race-detail-graph-phase3-ux.md`](tasks/REQ-race-detail-graph-phase3-ux.md)）
 - [x] 直近レース詳細グラフ Phase 3 UX ポリッシュ — ラベル TopLeft・ダーク scrollbar・フォーカス白線除去・Legend 同期（`7a91cb7` / [`REQ-race-detail-graph-phase3-ux.md`](tasks/REQ-race-detail-graph-phase3-ux.md)）
