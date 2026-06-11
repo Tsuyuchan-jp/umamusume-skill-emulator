@@ -89,29 +89,35 @@ export const ResultCard: React.FC<ResultCardProps> = ({
       {/* 行1: ヒーロー KPI + スパートコンパクトチップ */}
       <div className="shrink-0 flex items-stretch gap-2 min-h-[52px]">
         <div className="flex flex-1 gap-2 min-w-0">
-          <div className="flex-1 min-w-0 bg-zinc-900/80 border border-zinc-800 rounded-lg px-3 py-2 flex items-baseline gap-2 min-w-0 relative overflow-hidden">
+          <div className="flex-1 min-w-0 bg-zinc-900/80 border border-zinc-800 rounded-lg px-3 py-2 flex flex-col justify-center relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-0.5 bg-blue-500/50" />
-            <span className="text-zinc-500 text-xs font-bold shrink-0 leading-none">最速</span>
-            <span className="text-4xl font-black text-blue-400 font-mono tracking-tighter leading-none truncate min-w-0">
-              {formatTime(all.minTime)}
-            </span>
-            {baseline && renderDelta(all.minTime, baseline.summary.all.minTime, true)}
+            <span className="text-zinc-500 text-[10px] font-bold leading-none mb-1">最速</span>
+            <div className="flex items-baseline min-w-0 gap-1">
+              <span className="text-2xl font-black text-blue-400 font-mono tracking-tighter leading-none truncate">
+                {formatTime(all.minTime)}
+              </span>
+              {baseline && renderDelta(all.minTime, baseline.summary.all.minTime, true)}
+            </div>
           </div>
-          <div className="flex-1 min-w-0 bg-zinc-900/80 border border-emerald-500/30 rounded-lg px-3 py-2 flex items-baseline gap-2 min-w-0 relative overflow-hidden">
+          <div className="flex-1 min-w-0 bg-zinc-900/80 border border-emerald-500/30 rounded-lg px-3 py-2 flex flex-col justify-center relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-0.5 bg-emerald-500" />
-            <span className="text-emerald-400/80 text-xs font-bold shrink-0 leading-none">平均</span>
-            <span className="text-4xl font-black text-emerald-400 font-mono tracking-tighter leading-none truncate min-w-0">
-              {formatTime(all.avgTime)}
-            </span>
-            {baseline && renderDelta(all.avgTime, baseline.summary.all.avgTime, true)}
+            <span className="text-emerald-400/80 text-[10px] font-bold leading-none mb-1">平均</span>
+            <div className="flex items-baseline min-w-0 gap-1">
+              <span className="text-2xl font-black text-emerald-400 font-mono tracking-tighter leading-none truncate">
+                {formatTime(all.avgTime)}
+              </span>
+              {baseline && renderDelta(all.avgTime, baseline.summary.all.avgTime, true)}
+            </div>
           </div>
-          <div className="flex-1 min-w-0 bg-zinc-900/80 border border-zinc-800 rounded-lg px-3 py-2 flex items-baseline gap-2 min-w-0 relative overflow-hidden">
+          <div className="flex-1 min-w-0 bg-zinc-900/80 border border-zinc-800 rounded-lg px-3 py-2 flex flex-col justify-center relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-0.5 bg-orange-500/50" />
-            <span className="text-zinc-500 text-xs font-bold shrink-0 leading-none">最遅</span>
-            <span className="text-4xl font-black text-orange-400 font-mono tracking-tighter leading-none truncate min-w-0">
-              {formatTime(all.maxTime)}
-            </span>
-            {baseline && renderDelta(all.maxTime, baseline.summary.all.maxTime, true)}
+            <span className="text-zinc-500 text-[10px] font-bold leading-none mb-1">最遅</span>
+            <div className="flex items-baseline min-w-0 gap-1">
+              <span className="text-2xl font-black text-orange-400 font-mono tracking-tighter leading-none truncate">
+                {formatTime(all.maxTime)}
+              </span>
+              {baseline && renderDelta(all.maxTime, baseline.summary.all.maxTime, true)}
+            </div>
           </div>
         </div>
         <div
