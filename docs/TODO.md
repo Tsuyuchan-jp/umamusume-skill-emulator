@@ -4,13 +4,13 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-11 18:16
+最終更新: 2026-06-11 18:20
 
 ---
 
 ## 現在のフォーカス
 
-タブ切り替え時の引っかかり改善（P1 Backlog）
+直近レース詳細グラフ Phase 4（baseline diff）設計レビュー — または P1 改善タスク
 
 ---
 
@@ -27,6 +27,12 @@
 
 ### P0 — 次に着手
 
+- [ ] **直近レース詳細グラフ Phase 4 — baseline グラフ diff（核機能）**
+  - SkillVerifier: baseline / current の2系列 or 差分表示、両方 raceDetail 保持
+  - REQ: [`REQ-race-detail-graph-phase4.md`](tasks/REQ-race-detail-graph-phase4.md)
+  - 触る想定: `SkillVerifier.tsx`, `RaceDetailChart.tsx`, `umaemuAdapter.ts`
+  - 注意: **着手前に Ask mode 設計レビュー必須**（性能 REQ 実機クローズ済み）
+
 ### P1 — 重要（急がない）
 
 - [ ] **タブ切り替え時の引っかかり改善**
@@ -40,12 +46,6 @@
   - 目標: `umasimSkillDataList` を正本にして不整合リスクを減らす
   - 触る想定: `SkillCommandPalette.tsx`, `umaemuAdapter.ts`
   - 注意: フィルタ条件（special/minus 除外）は維持
-
-- [ ] **直近レース詳細グラフ Phase 4 — baseline グラフ diff（核機能）**
-  - SkillVerifier: baseline / current の2系列 or 差分表示、両方 raceDetail 保持
-  - REQ: [`REQ-race-detail-graph-phase4.md`](tasks/REQ-race-detail-graph-phase4.md)
-  - 触る想定: `SkillVerifier.tsx`, `RaceDetailChart.tsx`, `umaemuAdapter.ts`
-  - 注意: Phase 3 完了後が自然。着手前に Ask mode 設計レビュー必須
 
 ### P2 — 改善・アイデア
 
@@ -77,8 +77,7 @@
 
 ## 完了済み
 
-- [x] レース詳細グラフ UI レスポンス改善 Phase 2 — buildRaceGraphPoints 分割・RaceDetailChart useMemo 2本化・overflow-x-hidden（`2c8e1ed` / [`REQ-race-detail-graph-performance.md`](tasks/REQ-race-detail-graph-performance.md)）
-- [x] レース詳細グラフ UI レスポンス改善 Phase 1 — overlay SVG スキル層一本化 + React.memo（`f8158c8` / [`REQ-race-detail-graph-performance.md`](tasks/REQ-race-detail-graph-performance.md)）
+- [x] レース詳細グラフ UI レスポンス改善 Phase 1+2 — overlay SVG・useMemo 分割・スクロールバー/Tooltip 追従修正・**実機検証クローズ**（`f8158c8` / `2c8e1ed` / `e9b337f` / `873080e` / [`REQ-race-detail-graph-performance.md`](tasks/REQ-race-detail-graph-performance.md)）
 - [x] Phase 3 UX スキル行 B案 — 下ライン・28px 行高・zinc ピル・縦拡大一貫レイアウト（`447d25e` / [`REQ-race-detail-graph-phase3-ux.md`](tasks/REQ-race-detail-graph-phase3-ux.md)）
 - [x] 直近レース詳細グラフ Phase 3 UX ポリッシュ — ラベル TopLeft・ダーク scrollbar・フォーカス白線除去・Legend 同期（`7a91cb7` / [`REQ-race-detail-graph-phase3-ux.md`](tasks/REQ-race-detail-graph-phase3-ux.md)）
 - [x] TODO.md 運用ルール整備 — 進行中ライフサイクル・エージェント必須手順を TODO / rules / CHAT_TEMPLATE / PROJECT に追記（`bf52d7a`）
@@ -115,8 +114,8 @@
 - サイドバー狭幅 UI（380px / min 320px）は Phase S1+S2 で完了（[`REQ-sidebar-compact-layout.md`](tasks/REQ-sidebar-compact-layout.md)）。S3 コンテナクエリは見送り
 - 全画面 Cockpit UI（Phase 1〜3）は完了（[`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)）
 - グラフ Y軸・m/s は [`REQ-race-detail-graph-axis.md`](tasks/REQ-race-detail-graph-axis.md) で対応済み
-- 直近レース詳細グラフ: ロードマップ [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md)。Phase 3 UX **D 全 OK**（19px 行・下ライン）。**E 操作レスポンス** → Phase 1+2（`f8158c8` / `2c8e1ed`）で **実機 OK**（2026-06-11）。ツールチップ下端ちらつきは追従修正済み（要再検証）。Phase 4 は性能改善後が自然
-- **タブ切り替えの軽い引っかかり**（2026-06-11）: スキル ON/OFF 共通。グラフ性能とは別件として P1 Backlog 登録済み
+- 直近レース詳細グラフ: ロードマップ [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md)。Phase 3 UX **D 全 OK**。**E 操作レスポンス** → 性能 REQ **実機検証クローズ**（2026-06-11、`873080e`）。**次は Phase 4 baseline diff**（着手前 Ask mode 設計レビュー必須）
+- **タブ切り替え**（2026-06-11）: 現状許容・詳細改善は P1 Backlog（グラフ性能 REQ とは別件）
 - 現代ウマ娘: 所持 50〜70+ スキル。グラフ `skillEvents` は発動イベント数（20〜40+ あり得る）
 - **別作業で発見（2026-06-11）**: サイドバー折りたたみボタンのスクロール追従、ステータス条件ボタンのテキスト化、グラフ/スキル表記以降のレスポンス低下 — いずれも Backlog 登録済み
 - **REQ 運用**: 着手候補の正本は **本 TODO**。`draft` REQ 起票時は Backlog へ必ず1行追加（`.cursor/rules/docs-management.mdc`）
