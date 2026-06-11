@@ -32,3 +32,11 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* レース詳細グラフ: クリック時のフォーカス白線を除去（UX-3） */
+.race-detail-chart .recharts-wrapper:focus,
+.race-detail-chart .recharts-wrapper:focus-visible,
+.race-detail-chart .recharts-surface:focus,
+.race-detail-chart .recharts-surface:focus-visible {
+  outline: none;
+}
+

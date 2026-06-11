@@ -55,6 +55,57 @@ const DISPLAY_CHECKBOXES: { key: keyof GraphDisplayState; label: string }[] = [
   { key: "expandSkillRows", label: "縦拡大" },
 ];
 
+/** checkbox 状態と同期する系列 Legend（クリック無効・正本は checkbox） */
+const SERIES_LEGEND_ITEMS: {
+  stateKey: keyof GraphDisplayState;
+  label: string;
+  color: string;
+}[] = [
+  { stateKey: "showSpeed", label: "速度", color: "#3b82f6" },
+  { stateKey: "showStamina", label: "体力", color: STAMINA_LINE_COLOR },
+  { stateKey: "showLane", label: "走行レーン", color: "#22c55e" },
+];
+
+/** 本家 GraphOutput.kt: XYAnnotation TopLeft — 左端＝startTime、テキストは下方向へ */
+const renderSkillLabel = (text: string, fill: string) =>
+  function SkillLabel(props: { x?: number; y?: number }) {
+    const { x, y } = props;
+    if (x == null || y == null) return null;
+    return (
+      <text x={x} y={y} textAnchor="start" dominantBaseline="hanging" fill={fill} fontSize={10}>
+        {text}
+      </text>
+    );
+  };
+
+const SyncedChartLegend: React.FC<{ displayState: GraphDisplayState }> = ({ displayState }) => (
+  <ul className="m-0 flex list-none justify-center gap-4 p-0 pt-1 text-xs">
+    {SERIES_LEGEND_ITEMS.map(({ stateKey, label, color }) => {
+      const visible = displayState[stateKey];
+      return (
+        <li
+          key={stateKey}
+          className="inline-flex items-center gap-1.5"
+          style={{ opacity: visible ? 1 : 0.4 }}
+        >
+          <span
+            className="inline-block h-0.5 w-3.5 shrink-0"
+            style={{
+              backgroundColor: color,
+              textDecoration: visible ? undefined : "line-through",
+            }}
+          />
+          <span
+            className={visible ? "text-zinc-200" : "text-zinc-500 line-through"}
+          >
+            {label}
+          </span>
+        </li>
+      );
+    })}
+  </ul>
+);
+
 const renderPercentAxisTick = (props: {
   x?: number | string;
   y?: number | string;
@@ -96,7 +147,14 @@ export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
 
   return (
     <div className="relative flex h-full min-h-0 w-full min-w-0 flex-col">
-      <div className={`relative min-h-0 flex-1 ${isExpanded ? "overflow-y-auto" : ""}`}>
+      <div
+        className={`race-detail-chart relative min-h-0 flex-1 outline-none ${
+          isExpanded
+            ? "overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent"
+            : ""
+        }`}
+        tabIndex={-1}
+      >
         <div className="relative w-full" style={{ height: isExpanded ? chartHeight : "100%" }}>
           <ResponsiveContainer
             width="100%"
@@ -155,12 +213,7 @@ export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
                     fill="transparent"
                     stroke="none"
                     ifOverflow="visible"
-                    label={{
-                      value: marker.label,
-                      position: "top",
-                      fill: marker.labelColor,
-                      fontSize: 10,
-                    }}
+                    label={renderSkillLabel(marker.label, marker.labelColor)}
                   />
                 </React.Fragment>
               ))}
@@ -228,15 +281,10 @@ export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
                 }}
               />
               <Legend
-                wrapperStyle={{ fontSize: 12, pointerEvents: "none" }}
-                formatter={(value) => {
-                  const labels: Record<string, string> = {
-                    speed: "速度",
-                    stamina: "体力",
-                    lane: "走行レーン",
-                  };
-                  return labels[value] ?? value;
-                }}
+                verticalAlign="bottom"
+                align="center"
+                wrapperStyle={{ pointerEvents: "none" }}
+                content={<SyncedChartLegend displayState={displayState} />}
               />
               {graphData.phaseLines.map((phase) => (
                 <ReferenceLine

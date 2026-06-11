@@ -76,6 +76,7 @@
 | 2026-06-11 14:39 | スキル名ラベル: `ReferenceLine.label` 廃止 → `Customized` + SVG text で `(startTime, y)` に配置 | 実機 B-1: 左端縦積みは Recharts 制約。本家 `XYAnnotation` 準拠 |
 | 2026-06-11 14:49 | ラベル再修正: `Customized` 廃止 → `ReferenceDot`（`r=0` + `label`）| Recharts 3.8 は `Customized` に scale 非注入。ラベル未表示バグ |
 | 2026-06-11 14:39 | B-3 デバフ検証は別タスク（`docs/TODO.md` P2） | OCR/パレットで minus が sim に載らないため Phase 3 スコープ外 |
+| 2026-06-11 15:15 | UX ポリッシュ sibling REQ 完了（[`REQ-race-detail-graph-phase3-ux.md`](REQ-race-detail-graph-phase3-ux.md)） | UX-1〜4 実装。D 以降実機検証は UX REQ チェックリストを正本とする |
 
 ---
 

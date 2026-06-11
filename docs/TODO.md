@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-11 15:12
+最終更新: 2026-06-11 15:15
 
 ---
 
@@ -30,12 +30,6 @@
 （空 — P1 へ）
 
 ### P1 — 重要（急がない）
-
-- [ ] **直近レース詳細グラフ Phase 3 UX ポリッシュ（ラベル位置・Legend・スクロール）**
-  - UX-1〜4: 本家ラベル位置、ダークスクロールバー、フォーカス白線除去、Legend 同期
-  - REQ: [`REQ-race-detail-graph-phase3-ux.md`](tasks/REQ-race-detail-graph-phase3-ux.md)
-  - 触る想定: `RaceDetailChart.tsx`（+ 必要なら `globals.css`）
-  - 前提: Phase 3 本体 done（`f74cdaf`）。完了後 D 以降の実機検証へ
 
 - [ ] **パレットのスキルデータ参照をローカルに統一**
   - 現状: パレット一覧は `fetchSkillData()`（GitHub）、色分けは `umasimSkillData.ts`（ローカル）の二重参照
@@ -85,6 +79,7 @@
 
 ## 完了済み
 
+- [x] 直近レース詳細グラフ Phase 3 UX ポリッシュ — ラベル TopLeft・ダーク scrollbar・フォーカス白線除去・Legend 同期（コミット後ハッシュ / [`REQ-race-detail-graph-phase3-ux.md`](tasks/REQ-race-detail-graph-phase3-ux.md)）
 - [x] TODO.md 運用ルール整備 — 進行中ライフサイクル・エージェント必須手順を TODO / rules / CHAT_TEMPLATE / PROJECT に追記（`bf52d7a`）
 - [x] 直近レース詳細グラフ Phase 3 — スキル帯・表示切替（WASM skillEvents + checkbox + 本家準拠ラベル/赤線）（`f8e8cbe`〜修正コミット / [`REQ-race-detail-graph-phase3.md`](tasks/REQ-race-detail-graph-phase3.md)）
 - [x] 直近レース詳細グラフ Phase 2 — 区間オーバーレイ + trackDetail WASM + UX改善（色弱対策・坂上下段・右Y軸体力0）（`5e2b401` / [`REQ-race-detail-graph-phase2.md`](tasks/REQ-race-detail-graph-phase2.md)）
@@ -119,7 +114,7 @@
 - サイドバー狭幅 UI（380px / min 320px）は Phase S1+S2 で完了（[`REQ-sidebar-compact-layout.md`](tasks/REQ-sidebar-compact-layout.md)）。S3 コンテナクエリは見送り
 - 全画面 Cockpit UI（Phase 1〜3）は完了（[`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)）
 - グラフ Y軸・m/s は [`REQ-race-detail-graph-axis.md`](tasks/REQ-race-detail-graph-axis.md) で対応済み
-- 直近レース詳細グラフ: ロードマップ [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md)。Phase 1 + axis + Phase 2 + **Phase 3 完了**。**次: Phase 4**（baseline diff・設計レビュー後）
+- 直近レース詳細グラフ: ロードマップ [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md)。Phase 1 + axis + Phase 2 + Phase 3 + **Phase 3 UX 完了**。**次: D 以降実機検証 → Phase 4**（baseline diff・設計レビュー後）
 - **別作業で発見（2026-06-11）**: サイドバー折りたたみボタンのスクロール追従、ステータス条件ボタンのテキスト化、グラフ/スキル表記以降のレスポンス低下 — いずれも Backlog 登録済み
 - **REQ 運用**: 着手候補の正本は **本 TODO**。`draft` REQ 起票時は Backlog へ必ず1行追加（`.cursor/rules/docs-management.mdc`）
 - 因子管理 DB・Tesseract OCR・Supabase 連携は **開発予定なし**（`.cursor/rules/development.mdc`）
