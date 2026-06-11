@@ -45,6 +45,7 @@ umamusume-skill-emulator/
 ### Cursor チャット運用
 
 - **正本**: このファイル + `docs/TODO.md`（メインチャットは持たない）
+- **進捗の正本**: `docs/TODO.md` の **Backlog・進行中・完了済み・保留**（着手時・完了時の両方で更新。詳細は TODO 内「エージェント必須手順」）
 - **実装**: Agent mode + 新チャット
 - **調査**: Ask mode + 新チャット
 - **検証**: Agent mode + 新チャット（実装チャットとは分離）

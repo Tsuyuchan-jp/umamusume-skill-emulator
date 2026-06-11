@@ -28,6 +28,12 @@ alwaysApply: true
 
 - コミット・push の詳細は `git-commit.mdc` に従う
 
+## 進捗管理（TODO.md）
+
+- **正本**: `docs/TODO.md`（Backlog・進行中・完了・保留）
+- **着手時・完了時** の両方で TODO を更新し、最初/最後のコミットに含める
+- 詳細: `docs/TODO.md`「エージェント必須手順」、`.cursor/rules/docs-management.mdc`
+
 ## 廃止済みの機能
 
 因子管理 DB・Tesseract OCR・Supabase 連携（要件 v1.3）は開発予定なし。関連コード・ドキュメントは追加しない。
