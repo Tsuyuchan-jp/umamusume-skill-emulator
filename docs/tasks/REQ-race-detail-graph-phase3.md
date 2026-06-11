@@ -82,4 +82,5 @@
 ## 参考
 
 - 親ロードマップ: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md)
+- UX ポリッシュ（実機検証後）: [`REQ-race-detail-graph-phase3-ux.md`](REQ-race-detail-graph-phase3-ux.md)
 - upstream: `compose/.../GraphDisplaySetting` 相当

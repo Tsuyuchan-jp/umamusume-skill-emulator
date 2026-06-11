@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-11 14:43
+最終更新: 2026-06-11 15:12
 
 ---
 
@@ -30,6 +30,12 @@
 （空 — P1 へ）
 
 ### P1 — 重要（急がない）
+
+- [ ] **直近レース詳細グラフ Phase 3 UX ポリッシュ（ラベル位置・Legend・スクロール）**
+  - UX-1〜4: 本家ラベル位置、ダークスクロールバー、フォーカス白線除去、Legend 同期
+  - REQ: [`REQ-race-detail-graph-phase3-ux.md`](tasks/REQ-race-detail-graph-phase3-ux.md)
+  - 触る想定: `RaceDetailChart.tsx`（+ 必要なら `globals.css`）
+  - 前提: Phase 3 本体 done（`f74cdaf`）。完了後 D 以降の実機検証へ
 
 - [ ] **パレットのスキルデータ参照をローカルに統一**
   - 現状: パレット一覧は `fetchSkillData()`（GitHub）、色分けは `umasimSkillData.ts`（ローカル）の二重参照
