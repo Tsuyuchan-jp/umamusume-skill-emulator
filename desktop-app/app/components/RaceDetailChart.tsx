@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import {
   LineChart,
@@ -70,15 +70,44 @@ const SKILL_TOOLTIP_Y_OFFSET = 8;
 /** スキル Tooltip 枠の概算高さ */
 const SKILL_TOOLTIP_APPROX_HEIGHT = 120;
 
-/** hover ピル・グローのフェード（ms） */
-const SKILL_HOVER_FADE_MS = 150;
-const SKILL_PILL_FILL_OPACITY = 0.16;
-const SKILL_PILL_STROKE_OPACITY = 0.55;
-const SKILL_GLOW_FILL_OPACITY = 0.4;
+/** hover ピル・グローのフェード（ms）— 親 g の opacity でアニメ */
+const SKILL_HOVER_FADE_MS = 240;
+const SKILL_PILL_PAD_X = 6;
+const SKILL_PILL_GLOW_EXPAND = 3;
 
-const skillHoverFadeStyle: React.CSSProperties = {
-  transition: `fill-opacity ${SKILL_HOVER_FADE_MS}ms ease, stroke-opacity ${SKILL_HOVER_FADE_MS}ms ease`,
-};
+/** ピル・グローは全スキル共通アクセント（テキストのみレアリティ色） */
+const SKILL_HOVER_PILL_STYLE = {
+  skill: {
+    glow: "#60a5fa",
+    fill: "#18181b",
+    fillOpacity: 0.88,
+    stroke: "#93c5fd",
+    strokeOpacity: 0.7,
+    glowFillOpacity: 0.55,
+  },
+  debuff: {
+    glow: "#a78bfa",
+    fill: "#18181b",
+    fillOpacity: 0.88,
+    stroke: "#c4b5fd",
+    strokeOpacity: 0.7,
+    glowFillOpacity: 0.5,
+  },
+} as const;
+
+function getSkillPillLayout(
+  marker: SkillMarkerPx,
+  textWidths: Record<string, number>,
+): { pillWidth: number; pillHeight: number; pillY: number; pillRx: number } {
+  const measured = textWidths[marker.tooltipKey];
+  const textWidth =
+    measured ?? Math.max(marker.hitWidth - SKILL_PILL_PAD_X * 2, SKILL_FONT_SIZE);
+  const pillWidth = textWidth + SKILL_PILL_PAD_X * 2;
+  const pillHeight = marker.hitHeight;
+  const pillY = marker.labelY - 2;
+  const pillRx = pillHeight / 2;
+  return { pillWidth, pillHeight, pillY, pillRx };
+}
 
 const SkillTooltipPortal: React.FC<{
   clientX: number;
@@ -250,6 +279,36 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
         : [],
     [showSkillOverlay, skillMarkers, effectiveChartHeight, measuredWidth, maxTime],
   );
+
+  const labelTextRefs = useRef<Map<string, SVGTextElement>>(new Map());
+  const [labelTextWidths, setLabelTextWidths] = useState<Record<string, number>>({});
+
+  useLayoutEffect(() => {
+    if (!showSkillOverlay || skillMarkersPx.length === 0) {
+      setLabelTextWidths({});
+      return;
+    }
+
+    const next: Record<string, number> = {};
+    for (const m of skillMarkersPx) {
+      const node = labelTextRefs.current.get(m.tooltipKey);
+      if (!node) continue;
+      try {
+        const { width } = node.getBBox();
+        if (width > 0) next[m.tooltipKey] = width;
+      } catch {
+        // 未描画時はスキップ
+      }
+    }
+
+    setLabelTextWidths((prev) => {
+      const keys = Object.keys(next);
+      if (keys.length === 0) return prev;
+      const unchanged =
+        keys.length === Object.keys(prev).length && keys.every((k) => prev[k] === next[k]);
+      return unchanged ? prev : next;
+    });
+  }, [showSkillOverlay, skillMarkersPx, effectiveChartHeight, measuredWidth, isExpanded]);
 
   const hoveredSkillMarker = useMemo(
     () => skillMarkersPx.find((m) => m.tooltipKey === hoveredSkillKey) ?? null,
@@ -569,8 +628,13 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
               </defs>
               {skillMarkersPx.map((m, i) => {
                 const isHovered = hoveredSkillKey === m.tooltipKey;
-                const pillY = m.labelY - 2;
-                const pillRx = m.hitHeight / 2;
+                const { pillWidth, pillHeight, pillY, pillRx } = getSkillPillLayout(m, labelTextWidths);
+                const pillStyle = SKILL_HOVER_PILL_STYLE[m.kind];
+                const glowX = m.startX - SKILL_PILL_GLOW_EXPAND;
+                const glowY = pillY - SKILL_PILL_GLOW_EXPAND;
+                const glowW = pillWidth + SKILL_PILL_GLOW_EXPAND * 2;
+                const glowH = pillHeight + SKILL_PILL_GLOW_EXPAND * 2;
+                const glowRx = pillRx + SKILL_PILL_GLOW_EXPAND;
 
                 return (
                 <g key={`skill-overlay-${m.tooltipKey}-${i}`}>
@@ -591,47 +655,56 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
                     onMouseMove={handleSkillLabelMove}
                     onMouseLeave={handleSkillLabelLeave}
                   >
-                    <g pointerEvents="none">
+                    <g
+                      pointerEvents="none"
+                      style={{
+                        transition: `opacity ${SKILL_HOVER_FADE_MS}ms ease-out`,
+                        opacity: isHovered ? 1 : 0,
+                      }}
+                    >
                       <rect
-                        x={m.startX}
-                        y={pillY}
-                        width={m.hitWidth}
-                        height={m.hitHeight}
-                        rx={pillRx}
-                        fill={m.labelColor}
-                        fillOpacity={isHovered ? SKILL_GLOW_FILL_OPACITY : 0}
+                        x={glowX}
+                        y={glowY}
+                        width={glowW}
+                        height={glowH}
+                        rx={glowRx}
+                        fill={pillStyle.glow}
+                        fillOpacity={pillStyle.glowFillOpacity}
                         filter="url(#skill-label-glow)"
-                        style={skillHoverFadeStyle}
                       />
                       <rect
                         x={m.startX}
                         y={pillY}
-                        width={m.hitWidth}
-                        height={m.hitHeight}
+                        width={pillWidth}
+                        height={pillHeight}
                         rx={pillRx}
-                        fill={m.labelColor}
-                        fillOpacity={isHovered ? SKILL_PILL_FILL_OPACITY : 0}
-                        stroke={m.labelColor}
+                        fill={pillStyle.fill}
+                        fillOpacity={pillStyle.fillOpacity}
+                        stroke={pillStyle.stroke}
                         strokeWidth={1}
-                        strokeOpacity={isHovered ? SKILL_PILL_STROKE_OPACITY : 0}
-                        style={skillHoverFadeStyle}
+                        strokeOpacity={pillStyle.strokeOpacity}
                       />
-                      <text
-                        x={m.startX}
-                        y={m.labelY}
-                        textAnchor="start"
-                        dominantBaseline="hanging"
-                        fill={m.labelColor}
-                        fontSize={SKILL_FONT_SIZE}
-                      >
-                        {m.label}
-                      </text>
                     </g>
+                    <text
+                      ref={(node) => {
+                        if (node) labelTextRefs.current.set(m.tooltipKey, node);
+                        else labelTextRefs.current.delete(m.tooltipKey);
+                      }}
+                      x={m.startX + SKILL_PILL_PAD_X}
+                      y={m.labelY}
+                      textAnchor="start"
+                      dominantBaseline="hanging"
+                      fill={m.labelColor}
+                      fontSize={SKILL_FONT_SIZE}
+                      pointerEvents="none"
+                    >
+                      {m.label}
+                    </text>
                     <rect
                       x={m.startX}
                       y={pillY}
-                      width={m.hitWidth}
-                      height={m.hitHeight}
+                      width={pillWidth}
+                      height={pillHeight}
                       fill="transparent"
                       style={{ cursor: "default" }}
                     />
