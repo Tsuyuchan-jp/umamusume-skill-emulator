@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-12 02:58
+最終更新: 2026-06-12 03:10
 
 ---
 
@@ -78,6 +78,11 @@ P1 改善タスク（グラフ縦拡大クリップ等）
 - [ ] **ゲームアップデート後のスキルデータ更新**
   - 手順: `UPDATE_SKILLS.md`
   - コマンド: `npm run extract-umasim-skills`（必須）、`npm run extract-skill-info`（mdb あり時）
+
+- [ ] **OCR 用 Gemini モデルを Flash-Lite のみに変更**
+  - 現状: `geminiOcr.ts` で `gemini-3.5-flash` を primary、`gemini-3.1-flash-lite` を fallback として試行
+  - 目標: `gemini-3.5-flash` を外し、最初から `gemini-3.1-flash-lite` のみ使用
+  - 触る想定: `app/lib/geminiOcr.ts`、必要なら `page.tsx`（OCR 完了トーストのモデル表示）
 
 - [ ] **StatusPanel のスキル表示に色分けを追加**（任意）
   - 現状: スキル名のみ（`getSkillNameById`）
