@@ -85,7 +85,7 @@
 
 ## 完了済み
 
-- [x] 直近レース詳細グラフ Phase 4 — baseline グラフ diff（2系列オーバーレイ・初回 clone・Tooltip/Legend）（コミット後ハッシュ追記 / [`REQ-race-detail-graph-phase4.md`](tasks/REQ-race-detail-graph-phase4.md)）
+- [x] 直近レース詳細グラフ Phase 4 — baseline グラフ diff（2系列オーバーレイ・初回 clone・Tooltip/Legend）（`e780b3d` / [`REQ-race-detail-graph-phase4.md`](tasks/REQ-race-detail-graph-phase4.md)）
 - [x] レース詳細グラフ UI レスポンス改善 Phase 1+2 — overlay SVG・useMemo 分割・スクロールバー/Tooltip 追従修正・**実機検証クローズ**（`f8158c8` / `2c8e1ed` / `e9b337f` / `873080e` / [`REQ-race-detail-graph-performance.md`](tasks/REQ-race-detail-graph-performance.md)）
 - [x] Phase 3 UX スキル行 B案 — 下ライン・28px 行高・zinc ピル・縦拡大一貫レイアウト（`447d25e` / [`REQ-race-detail-graph-phase3-ux.md`](tasks/REQ-race-detail-graph-phase3-ux.md)）
 - [x] 直近レース詳細グラフ Phase 3 UX ポリッシュ — ラベル TopLeft・ダーク scrollbar・フォーカス白線除去・Legend 同期（`7a91cb7` / [`REQ-race-detail-graph-phase3-ux.md`](tasks/REQ-race-detail-graph-phase3-ux.md)）
