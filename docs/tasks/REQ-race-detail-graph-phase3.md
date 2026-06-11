@@ -73,6 +73,8 @@
 | 2026-06-11 13:39 | フロント: `buildSkillBands` + `GraphDisplayState` + checkbox 正本（Legend クリック無効） | Phase 1/axis/Phase 2 退行防止 |
 | 2026-06-11 14:08 | **方針変更**: 色付き帯廃止 → 本家準拠（発動ごと名前ラベル+赤線、`buildSkillMarkers`） | 実機 B-1 齟齬。umasim `GraphOutput.kt` 準拠 |
 | 2026-06-11 14:08 | 縦拡大: `yDomainMax`/`topMargin` 廃止 → チャート高さ `max(360, eventCount×34)` + 親スクロール | 縦拡大 ON でグラフ消滅バグ修正。Y domain は常に 0–1 |
+| 2026-06-11 14:39 | スキル名ラベル: `ReferenceLine.label` 廃止 → `Customized` + SVG text で `(startTime, y)` に配置 | 実機 B-1: 左端縦積みは Recharts 制約。本家 `XYAnnotation` 準拠 |
+| 2026-06-11 14:39 | B-3 デバフ検証は別タスク（`docs/TODO.md` P2） | OCR/パレットで minus が sim に載らないため Phase 3 スコープ外 |
 
 ---
 

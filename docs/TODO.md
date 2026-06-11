@@ -3,7 +3,7 @@
 > Cursor 作業チャット起票時に `@docs/TODO.md` で参照する正本。
 > **作業完了のたびに必ず更新**し、コミットに含める。
 
-最終更新: 2026-06-11 14:29
+最終更新: 2026-06-11 14:39
 
 ---
 
@@ -48,6 +48,12 @@
   - 注意: 計測（React Profiler / 再現手順メモ）を先に取ってから最適化方針を決める
 
 ### P2 — 改善・アイデア
+
+- [ ] **グラフ デバフ帯（B-3）の実機検証**
+  - 現状: `minus` 系はパレット/OCR 経路で sim に載らず、紫線・デバフ checkbox の検証不可
+  - 目標: SkillVerifier で minus を手動追加する等、検証用データで `kind: debuff` の skillEvents を確認
+  - 触る想定: 検証手順のみ（必要なら `SkillVerifier` / パレット方針は別判断）
+  - 関連: [`REQ-race-detail-graph-phase3.md`](tasks/REQ-race-detail-graph-phase3.md) B-3
 
 - [ ] **サイドバー折りたたみボタンをスクロール位置に依存させない**
   - 現状: 折りたたみボタンが左カラムの `overflow-y-auto` 内（タイトル行）にあり、下へスクロールすると押せない

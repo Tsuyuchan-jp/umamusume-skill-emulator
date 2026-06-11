@@ -12,6 +12,7 @@ import {
   ReferenceLine,
   ReferenceArea,
   Legend,
+  Customized,
 } from "recharts";
 import { RaceDetailDump } from "../lib/types";
 import {
@@ -19,6 +20,7 @@ import {
   DEFAULT_GRAPH_DISPLAY_STATE,
   GraphDisplayState,
   GraphPoint,
+  SkillMarker,
   SKILL_CHART_BASE_HEIGHT,
   SPEED_MIN,
   SPEED_MAX,
@@ -53,6 +55,55 @@ const DISPLAY_CHECKBOXES: { key: keyof GraphDisplayState; label: string }[] = [
   { key: "showDebuffs", label: "デバフ" },
   { key: "expandSkillRows", label: "縦拡大" },
 ];
+
+type AxisMapEntry = { scale?: (value: number) => number };
+
+/** Recharts 軸マップから scale 関数を取得 */
+function getAxisScale(
+  axisMap: Record<string, AxisMapEntry> | undefined,
+  preferredKey?: string,
+): ((value: number) => number) | null {
+  if (!axisMap) return null;
+  if (preferredKey && axisMap[preferredKey]?.scale) {
+    return axisMap[preferredKey].scale!;
+  }
+  const first = Object.values(axisMap)[0];
+  return first?.scale ?? null;
+}
+
+/** 本家 XYAnnotation 相当: 発動開始 (x, y) にスキル名を配置 */
+function SkillLabelLayer({
+  xAxisMap,
+  yAxisMap,
+  markers,
+}: {
+  xAxisMap?: Record<string, AxisMapEntry>;
+  yAxisMap?: Record<string, AxisMapEntry>;
+  markers: SkillMarker[];
+}) {
+  const xScale = getAxisScale(xAxisMap);
+  const yScale = getAxisScale(yAxisMap, "percent");
+  if (!xScale || !yScale || !markers.length) return null;
+
+  return (
+    <g className="skill-label-layer">
+      {markers.map((marker, index) => (
+        <text
+          key={`skill-label-${marker.skillId}-${marker.startTime}-${index}`}
+          x={xScale(marker.startTime)}
+          y={yScale(marker.y)}
+          dy={-2}
+          textAnchor="start"
+          dominantBaseline="auto"
+          fill={marker.labelColor}
+          fontSize={10}
+        >
+          {marker.label}
+        </text>
+      ))}
+    </g>
+  );
+}
 
 const renderPercentAxisTick = (props: {
   x?: number | string;
@@ -135,33 +186,33 @@ export const RaceDetailChart: React.FC<RaceDetailChartProps> = ({ detail }) => {
                   </React.Fragment>
                 ))}
               {graphData.skillMarkers.map((marker, index) => (
-                <React.Fragment key={`skill-${marker.skillId}-${marker.startTime}-${index}`}>
-                  <ReferenceLine
-                    segment={[
-                      { x: marker.startTime, y: marker.lineY },
-                      { x: marker.endTime, y: marker.lineY },
-                    ]}
-                    yAxisId="percent"
-                    stroke={marker.kind === "debuff" ? DEBUFF_DURATION_LINE_COLOR : SKILL_DURATION_LINE_COLOR}
-                    strokeWidth={2}
-                    ifOverflow="visible"
-                  />
-                  <ReferenceLine
-                    x={marker.startTime}
-                    y={marker.y}
-                    yAxisId="percent"
-                    stroke="transparent"
-                    strokeWidth={0}
-                    ifOverflow="visible"
-                    label={{
-                      value: marker.label,
-                      position: "insideTopLeft",
-                      fill: marker.labelColor,
-                      fontSize: 10,
-                    }}
-                  />
-                </React.Fragment>
+                <ReferenceLine
+                  key={`skill-line-${marker.skillId}-${marker.startTime}-${index}`}
+                  segment={[
+                    { x: marker.startTime, y: marker.lineY },
+                    { x: marker.endTime, y: marker.lineY },
+                  ]}
+                  yAxisId="percent"
+                  stroke={marker.kind === "debuff" ? DEBUFF_DURATION_LINE_COLOR : SKILL_DURATION_LINE_COLOR}
+                  strokeWidth={2}
+                  ifOverflow="visible"
+                />
               ))}
+              <Customized
+                component={(rawProps) => {
+                  const props = rawProps as {
+                    xAxisMap?: Record<string, AxisMapEntry>;
+                    yAxisMap?: Record<string, AxisMapEntry>;
+                  };
+                  return (
+                    <SkillLabelLayer
+                      xAxisMap={props.xAxisMap}
+                      yAxisMap={props.yAxisMap}
+                      markers={graphData.skillMarkers}
+                    />
+                  );
+                }}
+              />
               <CartesianGrid strokeDasharray="3 3" stroke="#3f3f46" />
               <XAxis
                 dataKey="time"
