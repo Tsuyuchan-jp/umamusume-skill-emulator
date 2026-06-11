@@ -17,9 +17,7 @@ import { RaceConditionSelector } from "../components/RaceConditionSelector";
 import { analyzeStitchedImage } from "../lib/geminiOcr";
 import { migrateFromLocalStorage, saveApiKey } from "../lib/apiKeyStorage";
 import { UmaStatusData, SimTab, RaceCondition } from "../lib/types";
-import { canPlaceSkillAtIndex } from "../lib/umasimSkillData";
-import { ResultCard } from "../components/ResultCard";
-import { SkillVerifier } from "../components/SkillVerifier";
+import { SimTabPanel } from "./SimTabPanel";
 import SimulationStatusView from "../components/SimulationStatusView";
 import { CapturePanel } from "../components/CapturePanel";
 import { SimulationLauncher } from "../components/SimulationLauncher";
@@ -611,188 +609,39 @@ export default function Home() {
               </div>
               </div>
 
-              {/* Body: ResultCard + SkillVerifier 右ペイン */}
-              <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
-              {activeTab.simResultDump ? (
-                <ResultCard
-                  result={activeTab.simResultDump}
-                  baseline={activeTab.baselineResult || undefined}
-                  graphCompareActive={
-                    activeTab.simResultDump !== activeTab.baselineResult &&
-                    ((activeTab.appliedDisabledSkillIds?.length ?? 0) > 0 ||
-                      (activeTab.appliedAddedSkillIds?.length ?? 0) > 0)
-                  }
-                  disabledSkillIds={activeTab.disabledSkillIds}
-                  displayUnit={displayUnit}
-                  umaData={activeTab.umaData}
-                  raceCondition={activeTab.raceCondition}
-                  rightPane={
-                    activeTab.umaData && activeTab.baselineResult ? (
-                      <SkillVerifier
-                        umaData={activeTab.umaData}
-                        disabledSkillIds={activeTab.disabledSkillIds}
-                        appliedDisabledSkillIds={activeTab.appliedDisabledSkillIds || []}
-                        appliedAddedSkillIds={activeTab.appliedAddedSkillIds || []}
-                        onToggleSkill={(skillId) => {
-                          setTabs(prev => prev.map(t => {
-                            if (t.id === activeTabId) {
-                              return {
-                                ...t,
-                                disabledSkillIds: t.disabledSkillIds.includes(skillId)
-                                  ? t.disabledSkillIds.filter(s => s !== skillId)
-                                  : [...t.disabledSkillIds, skillId]
-                              };
-                            }
-                            return t;
-                          }));
-                        }}
-                        isSimulating={isSimulating}
-                        onResetSkills={() => {
-                          setTabs(prev => prev.map(t => {
-                            if (t.id === activeTabId) {
-                              return {
-                                ...t,
-                                disabledSkillIds: t.addedSkillIds ? [...t.addedSkillIds] : [],
-                                appliedDisabledSkillIds: t.addedSkillIds ? [...t.addedSkillIds] : [],
-                                appliedAddedSkillIds: t.addedSkillIds ? [...t.addedSkillIds] : [],
-                                simResultDump: t.baselineResult
-                              };
-                            }
-                            return t;
-                          }));
-                          showToastMessage("スキル構成と結果を初期状態にリセットしました", "success", 3000);
-                        }}
-                        onDuplicateTab={() => {
-                          if (!activeTab) return;
-                          
-                          const newTab = {
-                            ...activeTab,
-                            id: Date.now().toString(),
-                            isDuplicate: true
-                          };
-                          
-                          setTabs(prev => [...prev, newTab]);
-                          setActiveTabId(newTab.id);
-
-                          const thumbUrl = activeTab.thumbnailUrl;
-                          const rect = previewRef.current?.getBoundingClientRect();
-                          if (rect && thumbUrl) {
-                            setTimeout(() => {
-                              let deltaX = 0;
-                              let deltaY = -window.innerHeight * 0.8;
-                              const targetTab = document.getElementById(`tab-${newTab.id}`);
-                              if (targetTab) {
-                                const targetRect = targetTab.getBoundingClientRect();
-                                deltaX = (targetRect.left + targetRect.width / 2) - (rect.left + rect.width / 2);
-                                deltaY = (targetRect.top + targetRect.height / 2) - (rect.top + rect.height / 2);
-                              }
-                              setFlyingThumbnail({ id: Date.now(), src: thumbUrl, rect, deltaX, deltaY });
-                            }, 10);
-
-                            if (scrollContainerRef.current) {
-                              scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
-                            }
-                            setHighlightedTabId(newTab.id);
-                            
-                            if (flyTimerRef.current) clearTimeout(flyTimerRef.current);
-                            if (highlightTimerRef.current) clearTimeout(highlightTimerRef.current);
-
-                            flyTimerRef.current = setTimeout(() => {
-                              setFlyingThumbnail(null);
-                            }, 710);
-                            
-                            highlightTimerRef.current = setTimeout(() => {
-                              setHighlightedTabId(null);
-                            }, 2000);
-                          } else {
-                            showToastMessage(`タブを複製しました`, "success", 3000);
-                          }
-                        }}
-                        addedSkillIds={activeTab.addedSkillIds || []}
-                        onAddSkill={(skillId) => {
-                          const insertIndex = activeTab.umaData.skillIds.length;
-                          if (!canPlaceSkillAtIndex(skillId, insertIndex)) {
-                            showToastMessage('通常固有スキルは先頭スロットのみ配置できます', 'error', 3000);
-                            return;
-                          }
-                          setTabs(prev => prev.map(t => {
-                            if (t.id === activeTabId) {
-                              return {
-                                ...t,
-                                umaData: {
-                                  ...t.umaData,
-                                  skillIds: [...t.umaData.skillIds, skillId]
-                                },
-                                addedSkillIds: [...(t.addedSkillIds || []), skillId]
-                              };
-                            }
-                            return t;
-                          }));
-                          showToastMessage(`仮想追加しました！差分検証を実行してください。`, "success", 4000);
-                        }}
-                        onRemoveSkill={(skillId) => {
-                          setTabs(prev => prev.map(t => {
-                            if (t.id === activeTabId) {
-                              return {
-                                ...t,
-                                umaData: {
-                                  ...t.umaData,
-                                  skillIds: t.umaData.skillIds.filter(s => s !== skillId)
-                                },
-                                addedSkillIds: (t.addedSkillIds || []).filter(s => s !== skillId),
-                                disabledSkillIds: t.disabledSkillIds.filter(s => s !== skillId)
-                              };
-                            }
-                            return t;
-                          }));
-                          showToastMessage(`削除しました`, "success", 3000);
-                        }}
-                        onShowToast={showToastMessage}
-                        onRunComparativeSimulation={async () => {
-                          if (!activeTab.umaData) return;
-                          setIsSimulating(true);
-                          setSimulationProgress({ current: 0, total: simulationCount });
-                          showToastMessage('検証シミュレーションを実行中...', 'success', 3000);
-                          try {
-                            const { runMultipleSimulations } = await import('../lib/engine/umaemuAdapter');
-                            const clonedUmaData = {
-                              ...activeTab.umaData,
-                              skillIds: activeTab.umaData.skillIds.filter(s => !activeTab.disabledSkillIds.includes(s))
-                            };
-                            const simResult = await runMultipleSimulations(
-                              clonedUmaData, 
-                              activeTab.raceCondition,
-                              simulationCount,
-                              (current, total) => setSimulationProgress({ current, total })
-                            );
-                            
-                            setTabs(prev => prev.map(t => {
-                              if (t.id === activeTabId) {
-                                return { 
-                                  ...t, 
-                                  simResultDump: simResult,
-                                  appliedDisabledSkillIds: [...t.disabledSkillIds],
-                                  appliedAddedSkillIds: t.addedSkillIds ? [...t.addedSkillIds] : []
-                                };
-                              }
-                              return t;
-                            }));
-                            
-                            showToastMessage(`比較検証が完了しました！`, 'success', 5000);
-                          } catch (e: any) {
-                            console.error("Verification error:", e);
-                            const msg = e && e.message ? e.message : String(e);
-                            showToastMessage(`検証エラー: ${msg}`, 'error', 5000);
-                          } finally {
-                            setIsSimulating(false);
-                            setSimulationProgress(null);
-                          }
-                        }}
-                      />
-                    ) : undefined
-                  }
-                />
-              ) : null}
+              {/* Body: keep-alive タブパネル（sim 済みタブのみ mount） */}
+              <div className="relative flex flex-col flex-1 min-h-0 overflow-hidden">
+                {tabs
+                  .filter((t) => t.simResultDump)
+                  .map((tab) => {
+                    const isActive = tab.id === activeTabId;
+                    return (
+                      <div
+                        key={tab.id}
+                        hidden={!isActive}
+                        aria-hidden={!isActive}
+                        className="flex flex-col flex-1 min-h-0 overflow-hidden"
+                      >
+                        <SimTabPanel
+                          tab={tab}
+                          displayUnit={displayUnit}
+                          isSimulating={isSimulating}
+                          simulationCount={simulationCount}
+                          setTabs={setTabs}
+                          setActiveTabId={setActiveTabId}
+                          setIsSimulating={setIsSimulating}
+                          setSimulationProgress={setSimulationProgress}
+                          showToastMessage={showToastMessage}
+                          previewRef={previewRef}
+                          scrollContainerRef={scrollContainerRef}
+                          setFlyingThumbnail={setFlyingThumbnail}
+                          setHighlightedTabId={setHighlightedTabId}
+                          flyTimerRef={flyTimerRef}
+                          highlightTimerRef={highlightTimerRef}
+                        />
+                      </div>
+                    );
+                  })}
               </div>
             </div>
           ) : (

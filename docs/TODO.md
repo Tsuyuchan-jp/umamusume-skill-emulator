@@ -4,13 +4,13 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-12 04:27
+最終更新: 2026-06-12 04:37
 
 ---
 
 ## 現在のフォーカス
 
-P1 改善タスク（タブ切り替え引っかかり等）
+P1 改善タスク（パレット参照統一等）
 
 ---
 
@@ -27,12 +27,6 @@ P1 改善タスク（タブ切り替え引っかかり等）
 （なし — 次は P1）
 
 ### P1 — 重要
-
-- [ ] **タブ切り替え時の引っかかり改善**
-  - 症状: タブ切り替えのみ軽い引っかかりを感じる。スキル表示 ON/OFF どちらでも同程度のため、Phase 1 グラフ性能修正とは無関係の可能性が高い
-  - 目標: タブ切替をスキル表示状態に依存せず快適にする
-  - 触る想定: `page.tsx`（タブ state・右カラム再描画境界）、必要なら `ResultCard.tsx` / `SkillVerifier.tsx`
-  - 注意: Phase 2 性能 REQ 完了後でも可。着手前に Profiler で原因切り分け推奨
 
 - [ ] **パレットのスキルデータ参照をローカルに統一**
   - 現状: パレット一覧は `fetchSkillData()`（GitHub）、色分けは `umasimSkillData.ts`（ローカル）の二重参照
@@ -82,6 +76,7 @@ P1 改善タスク（タブ切り替え引っかかり等）
 
 ## 完了済み
 
+- [x] タブ切り替え時の引っかかり改善 — keep-alive 化 + SimTabPanel 集約（実装完了・**実機検証待ち** / コミット後更新 / [`REQ-tab-switch-performance.md`](tasks/REQ-tab-switch-performance.md)）
 - [x] スタミナキープ持続線異常 — WASM endTime センチネル + 条件付き水平線描画（**実機検証クローズ** / `8b02849` / [`REQ-race-detail-graph-stamina-keep-line.md`](tasks/REQ-race-detail-graph-stamina-keep-line.md)）
 - [x] グラフ縦拡大 ON 時の末尾スキル帯クリップ — `computeExpandedChartHeight` 式修正（`6a9b0fb` / [`REQ-race-detail-graph-vertical-clip.md`](tasks/REQ-race-detail-graph-vertical-clip.md)）
 - [x] グラフスキル hover UI ポリッシュ — カーソル default + hover ピル発光（`67b3707` / [`REQ-race-detail-graph-skill-tooltip.md`](tasks/REQ-race-detail-graph-skill-tooltip.md)）
@@ -125,7 +120,7 @@ P1 改善タスク（タブ切り替え引っかかり等）
 - 全画面 Cockpit UI（Phase 1〜3）は完了（[`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)）
 - グラフ Y軸・m/s は [`REQ-race-detail-graph-axis.md`](tasks/REQ-race-detail-graph-axis.md) で対応済み
 - 直近レース詳細グラフ: ロードマップ [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md)。**Phase 4 baseline diff 実機検証クローズ**（2026-06-12 01:41）。**スキル hover Tooltip 完了**（2026-06-12 02:58）。**縦拡大クリップ修正完了**（2026-06-12 03:58 / `6a9b0fb`）。**スタミナキープ持続線 実機検証クローズ**（2026-06-12 04:27 / `8b02849`）。次の本線は P1 タブ切り替え改善
-- **タブ切り替え**（2026-06-11）: 現状許容・詳細改善は P1 Backlog（グラフ性能 REQ とは別件）
+- **タブ切り替え**（2026-06-12）: keep-alive 化実装完了（`REQ-tab-switch-performance.md`）。実機検証待ち
 - 現代ウマ娘: 所持 50〜70+ スキル。グラフ `skillEvents` は発動イベント数（20〜40+ あり得る）
 - **別作業で発見（2026-06-11）**: サイドバー折りたたみボタンのスクロール追従、ステータス条件ボタンのテキスト化、グラフ/スキル表記以降のレスポンス低下 — いずれも Backlog 登録済み
 - **REQ 運用**: 着手候補の正本は **本 TODO**。`draft` REQ 起票時は Backlog へ必ず1行追加（`.cursor/rules/docs-management.mdc`）

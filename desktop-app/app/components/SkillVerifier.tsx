@@ -113,7 +113,7 @@ export const SkillVerifier: React.FC<SkillVerifierProps> = ({
   };
 
   return (
-    <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-3 h-full min-h-0 flex flex-col animate-fadeIn">
+    <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-3 h-full min-h-0 flex flex-col">
       <div className="shrink-0 flex items-center justify-between mb-3 gap-2">
         <h3 className="text-sm font-bold text-zinc-300 flex items-center gap-2 min-w-0">
           <div className="w-2 h-2 rounded-full bg-purple-500 shrink-0"></div>

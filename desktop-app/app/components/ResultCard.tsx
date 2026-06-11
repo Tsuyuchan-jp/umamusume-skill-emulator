@@ -29,15 +29,15 @@ const formatPercent = (rate: number) => {
   return `${(rate * 100).toFixed(1)}%`;
 };
 
-export const ResultCard: React.FC<ResultCardProps> = ({ 
-  result, 
+export const ResultCard = React.memo<ResultCardProps>(function ResultCard({
+  result,
   baseline,
   graphCompareActive = false,
   displayUnit = 'seconds',
   umaData,
   raceCondition,
   rightPane,
-}) => {
+}) {
   const spurtTargetSpeed = useMemo(() => {
     if (!umaData || !raceCondition) return 24.0;
     return estimateSpurtTargetSpeed(umaData, raceCondition);
@@ -240,4 +240,4 @@ export const ResultCard: React.FC<ResultCardProps> = ({
       )}
     </div>
   );
-};
+});
