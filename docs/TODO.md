@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-12 01:41
+最終更新: 2026-06-12 01:54
 
 ---
 
@@ -40,6 +40,11 @@ P1 改善タスク（グラフスキル Tooltip / 縦拡大クリップ等）
   - 症状: 縦拡大を有効にすると、レース後半（終盤）で発動したスキルが縦幅から溢れて表示されない
   - 触る想定: `RaceDetailChart.tsx`, `raceGraphBuilder.ts`（スキル行レイアウト・縦拡大時の SVG/コンテナ高さ計算）
   - 関連: Phase 3 UX 縦拡大レイアウト（[`REQ-race-detail-graph-phase3-ux.md`](tasks/REQ-race-detail-graph-phase3-ux.md)）
+
+- [ ] **「スタミナキープ」の発動時間赤ライン異常表示**
+  - 症状: このスキルのみ、発動時間を表す赤ラインが発動ポイントからレース終了まで伸びる。本来は短い発動時間のスキルで、他スキルと同様の長さで表示されるべき
+  - 触る想定: `raceGraphBuilder.ts`, `RaceDetailChart.tsx`（`startTime` / `endTime` 算出・skillEvents 解釈）、必要なら WASM `SkillEventDump` / umasim 側
+  - 関連: Phase 3 スキル帯・赤線（[`REQ-race-detail-graph-phase3.md`](tasks/REQ-race-detail-graph-phase3.md)）
 
 - [ ] **タブ切り替え時の引っかかり改善**
   - 症状: タブ切り替えのみ軽い引っかかりを感じる。スキル表示 ON/OFF どちらでも同程度のため、Phase 1 グラフ性能修正とは無関係の可能性が高い
