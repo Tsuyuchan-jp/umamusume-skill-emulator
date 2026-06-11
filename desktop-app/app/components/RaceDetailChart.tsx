@@ -323,15 +323,18 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
                 labelFormatter={(t) => `経過: ${formatTime(Number(t))}`}
                 formatter={(value, name, item) => {
                   const payload = item?.payload as GraphPoint | undefined;
+                  const key = String(name);
+
+                  // 破線系列は speed/stamina/lane の formatter で併記するため単独行は出さない
+                  if (key === "baselineSpeed" || key === "baselineStamina" || key === "baselineLane") {
+                    return null;
+                  }
+
                   const labels: Record<string, string> = {
                     speed: "速度",
                     stamina: "体力",
                     lane: "レーン",
-                    baselineSpeed: "速度（初期）",
-                    baselineStamina: "体力（初期）",
-                    baselineLane: "レーン（初期）",
                   };
-                  const key = String(name);
                   const label = labels[key] ?? key;
 
                   if (key === "speed" && payload) {
