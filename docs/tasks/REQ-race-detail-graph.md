@@ -5,7 +5,7 @@
 
 - **ステータス**: Phase 1 完了（シリーズ継続中）
 - **作成日**: 2026-06-10 15:55
-- **最終更新**: 2026-06-11 18:39
+- **最終更新**: 2026-06-12 01:41
 
 ---
 
@@ -25,7 +25,7 @@
 | 3 | スキル帯・表示切替 | [`REQ-race-detail-graph-phase3.md`](REQ-race-detail-graph-phase3.md) | **done** | → UX / 性能 |
 | 3-UX | UX ポリッシュ | [`REQ-race-detail-graph-phase3-ux.md`](REQ-race-detail-graph-phase3-ux.md) | **done**（D OK / E → 性能 REQ で解消） | → 性能 |
 | 3-P | UI レスポンス | [`REQ-race-detail-graph-performance.md`](REQ-race-detail-graph-performance.md) | **done**（`873080e` 実機検証完了） | → Phase 4 |
-| 4 | baseline diff（核） | [`REQ-race-detail-graph-phase4.md`](REQ-race-detail-graph-phase4.md) | draft | → skill Tooltip / 完了 |
+| 4 | baseline diff（核） | [`REQ-race-detail-graph-phase4.md`](REQ-race-detail-graph-phase4.md) | **done**（`e780b3d` / `a4752cf` 実機検証クローズ） | → skill Tooltip |
 | 4+ | スキル hover Tooltip | [`REQ-race-detail-graph-skill-tooltip.md`](REQ-race-detail-graph-skill-tooltip.md) | draft | シリーズ polish |
 
 ### 1 Phase の進め方
@@ -66,6 +66,7 @@
 | 2026-06-11 18:20 | Phase 3-P（性能）実機検証クローズ | `f8158c8`〜`873080e`。次は Phase 4 baseline diff（Ask mode 設計レビューから） |
 | 2026-06-11 18:39 | スキル hover Tooltip REQ 起票（4+） | 本家準拠の効果量/持続/発動位置％。Phase 4 完了後に着手推奨（RaceDetailChart 二度手間回避） |
 | 2026-06-11 07:50 | Phase 2 完了（`5e2b401`）。次は Phase 3 設計レビュー | 実機確認・UX 改善含む完全完了 |
+| 2026-06-12 01:41 | Phase 4 実機検証クローズ（A〜F 全項目 OK） | レース詳細グラフ本線完了。次は 4+ スキル hover Tooltip |
 
 ---
 

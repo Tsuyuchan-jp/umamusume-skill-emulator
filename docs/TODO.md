@@ -4,13 +4,13 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-12 01:06
+最終更新: 2026-06-12 01:41
 
 ---
 
 ## 現在のフォーカス
 
-直近レース詳細グラフ Phase 4 実機確認 — または P1 改善タスク
+P1 改善タスク（グラフスキル Tooltip / 縦拡大クリップ等）
 
 ---
 
@@ -27,7 +27,7 @@
 
 ### P0 — 次に着手
 
-（なし — Phase 4 実装完了。実機確認後 P1 へ）
+（なし — 次は P1）
 
 ### P1 — 重要
 
@@ -36,8 +36,6 @@
   - 算出可: 持続時間（start/endTime）、発動位置％（frames + courseLength）
   - REQ: [`REQ-race-detail-graph-skill-tooltip.md`](tasks/REQ-race-detail-graph-skill-tooltip.md)
   - 触る想定: `RaceDetailChart.tsx`, `raceGraphBuilder.ts`、必要なら `WasmEngine.kt`
-  - **優先判断**: Phase 4（P0）を先。Phase 4 で `RaceDetailChart` が2系列化するため、先に本機能を実装すると差分表示への追従で二度手間になりやすい
-
 - [ ] **グラフ縦拡大 ON 時の末尾スキル帯クリップ**
   - 症状: 縦拡大を有効にすると、レース後半（終盤）で発動したスキルが縦幅から溢れて表示されない
   - 触る想定: `RaceDetailChart.tsx`, `raceGraphBuilder.ts`（スキル行レイアウト・縦拡大時の SVG/コンテナ高さ計算）
@@ -85,7 +83,7 @@
 
 ## 完了済み
 
-- [x] 直近レース詳細グラフ Phase 4 — baseline グラフ diff（2系列オーバーレイ・初回 clone・Tooltip/Legend）（`e780b3d` / [`REQ-race-detail-graph-phase4.md`](tasks/REQ-race-detail-graph-phase4.md)）
+- [x] 直近レース詳細グラフ Phase 4 — baseline グラフ diff（2系列オーバーレイ・**実機検証クローズ** A〜F OK）（`e780b3d` / `a4752cf` / [`REQ-race-detail-graph-phase4.md`](tasks/REQ-race-detail-graph-phase4.md)）
 - [x] レース詳細グラフ UI レスポンス改善 Phase 1+2 — overlay SVG・useMemo 分割・スクロールバー/Tooltip 追従修正・**実機検証クローズ**（`f8158c8` / `2c8e1ed` / `e9b337f` / `873080e` / [`REQ-race-detail-graph-performance.md`](tasks/REQ-race-detail-graph-performance.md)）
 - [x] Phase 3 UX スキル行 B案 — 下ライン・28px 行高・zinc ピル・縦拡大一貫レイアウト（`447d25e` / [`REQ-race-detail-graph-phase3-ux.md`](tasks/REQ-race-detail-graph-phase3-ux.md)）
 - [x] 直近レース詳細グラフ Phase 3 UX ポリッシュ — ラベル TopLeft・ダーク scrollbar・フォーカス白線除去・Legend 同期（`7a91cb7` / [`REQ-race-detail-graph-phase3-ux.md`](tasks/REQ-race-detail-graph-phase3-ux.md)）
@@ -123,7 +121,7 @@
 - サイドバー狭幅 UI（380px / min 320px）は Phase S1+S2 で完了（[`REQ-sidebar-compact-layout.md`](tasks/REQ-sidebar-compact-layout.md)）。S3 コンテナクエリは見送り
 - 全画面 Cockpit UI（Phase 1〜3）は完了（[`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)）
 - グラフ Y軸・m/s は [`REQ-race-detail-graph-axis.md`](tasks/REQ-race-detail-graph-axis.md) で対応済み
-- 直近レース詳細グラフ: ロードマップ [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md)。**Phase 4 baseline diff 実装完了**（2026-06-12）— 実機確認（50+ スキル・比較検証）推奨
+- 直近レース詳細グラフ: ロードマップ [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md)。**Phase 4 baseline diff 実機検証クローズ**（2026-06-12 01:41）。次の本線は P1 スキル hover Tooltip
 - **タブ切り替え**（2026-06-11）: 現状許容・詳細改善は P1 Backlog（グラフ性能 REQ とは別件）
 - 現代ウマ娘: 所持 50〜70+ スキル。グラフ `skillEvents` は発動イベント数（20〜40+ あり得る）
 - **別作業で発見（2026-06-11）**: サイドバー折りたたみボタンのスクロール追従、ステータス条件ボタンのテキスト化、グラフ/スキル表記以降のレスポンス低下 — いずれも Backlog 登録済み

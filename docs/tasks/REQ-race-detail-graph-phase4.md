@@ -5,7 +5,7 @@
 
 - **ステータス**: done
 - **作成日**: 2026-06-11 04:54
-- **関連コミット**: `e780b3d`
+- **関連コミット**: `e780b3d` / `a4752cf`（Tooltip 重複修正）
 
 ---
 
@@ -63,7 +63,7 @@ SkillVerifier でスキル ON/OFF を比較したとき、数値 KPI だけで�
 - [x] 比較前・リセット後は単一系列のみ
 - [x] 既存 SkillVerifier KPI 比較・Phase 3 UX に退行なし（コード上）
 - [x] `npm run build` 通過
-- [ ] `npm run tauri dev` 実機確認（50+ スキル・比較検証フロー）— ユーザー確認待ち
+- [x] `npm run tauri dev` 実機確認（50+ スキル・比較検証フロー・A〜F 全項目 OK）
 - [x] REQ ステータス `done` + `docs/TODO.md` 更新 + コミット
 
 ---
@@ -76,6 +76,8 @@ SkillVerifier でスキル ON/OFF を比較したとき、数値 KPI だけで�
 | 2026-06-11 04:54 | Phase 4 を単体 REQ として起票（draft） | 開発フロー明確化 |
 | 2026-06-12 01:04 | 2系列オーバーレイのみ・compare 自動 ON・index マージ・スキルは current のみ | Ask mode Q1〜Q7 推奨案で確定 |
 | 2026-06-12 01:04 | `graphCompareActive` = simResult≠baseline かつ applied スキル変更あり | 初回 structuredClone 後も比較前は単一系列を維持 |
+| 2026-06-12 01:41 | 実機検証クローズ（A〜F 全項目 OK） | 比較フロー・Phase 3 UX 退行なし・性能・エッジケース確認済み |
+| 2026-06-12 01:41 | Tooltip baseline 系列の重複行を `formatter` で非表示（`a4752cf`） | 実機で速度（初期）/体力（初期）の生値行が二重表示されていた |
 
 ---
 
