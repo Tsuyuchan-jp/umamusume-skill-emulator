@@ -154,6 +154,7 @@ Phase 3 本家準拠スキル表示（名前+赤線）の **UX 仕上げ**。実
 |------|---------|------|
 | 2026-06-11 15:12 | Phase 3 UX を sibling REQ として起票 | 新 Agent チャット引き継ぎ。検証 checklist は本 REQ に集約 |
 | 2026-06-11 15:15 | UX-1〜4 実装完了 | ReferenceDot カスタムラベル（TopLeft）、ダーク scrollbar、フォーカス outline 除去、SyncedChartLegend |
+| 2026-06-11 15:23 | UX-1 退行修正: label props を cx/cy 優先に | 実機でラベル消滅。Recharts 3.8 は x/y ではなく cx/cy を渡す |
 
 ---
 

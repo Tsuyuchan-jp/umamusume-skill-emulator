@@ -66,10 +66,20 @@ const SERIES_LEGEND_ITEMS: {
   { stateKey: "showLane", label: "走行レーン", color: "#22c55e" },
 ];
 
+/** Recharts 3.8 ReferenceDot の label は cx/cy または viewBox でピクセル座標が渡る */
+type SkillLabelProps = {
+  cx?: number;
+  cy?: number;
+  x?: number;
+  y?: number;
+  viewBox?: { x?: number; y?: number };
+};
+
 /** 本家 GraphOutput.kt: XYAnnotation TopLeft — 左端＝startTime、テキストは下方向へ */
 const renderSkillLabel = (text: string, fill: string) =>
-  function SkillLabel(props: { x?: number; y?: number }) {
-    const { x, y } = props;
+  function SkillLabel(props: SkillLabelProps) {
+    const x = props.cx ?? props.viewBox?.x ?? props.x;
+    const y = props.cy ?? props.viewBox?.y ?? props.y;
     if (x == null || y == null) return null;
     return (
       <text x={x} y={y} textAnchor="start" dominantBaseline="hanging" fill={fill} fontSize={10}>
