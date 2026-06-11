@@ -4,19 +4,22 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-12 03:45
+最終更新: 2026-06-12 03:56
 
 ---
 
 ## 現在のフォーカス
 
-P1 改善タスク（グラフ縦拡大クリップ等）
+グラフ縦拡大 ON 時の末尾スキル帯クリップ修正（REQ vertical-clip）
 
 ---
 
 ## 進行中
 
-なし
+- **グラフ縦拡大 ON 時の末尾スキル帯クリップ** — [`REQ-race-detail-graph-vertical-clip.md`](tasks/REQ-race-detail-graph-vertical-clip.md)
+  - 症状: 縦拡大を有効にすると、レース後半（終盤）で発動したスキルが縦幅から溢れて表示されない
+  - 触る想定: `raceGraphBuilder.ts`（`computeExpandedChartHeight` + `expandedChartHeight` 式修正）
+  - 関連: Phase 3 UX 縦拡大レイアウト（[`REQ-race-detail-graph-phase3-ux.md`](tasks/REQ-race-detail-graph-phase3-ux.md)）
 
 ## 次にやること（Backlog）
 
@@ -27,11 +30,6 @@ P1 改善タスク（グラフ縦拡大クリップ等）
 （なし — 次は P1）
 
 ### P1 — 重要
-
-- [ ] **グラフ縦拡大 ON 時の末尾スキル帯クリップ**
-  - 症状: 縦拡大を有効にすると、レース後半（終盤）で発動したスキルが縦幅から溢れて表示されない
-  - 触る想定: `RaceDetailChart.tsx`, `raceGraphBuilder.ts`（スキル行レイアウト・縦拡大時の SVG/コンテナ高さ計算）
-  - 関連: Phase 3 UX 縦拡大レイアウト（[`REQ-race-detail-graph-phase3-ux.md`](tasks/REQ-race-detail-graph-phase3-ux.md)）
 
 - [ ] **「スタミナキープ」の発動時間赤ライン異常表示**
   - 症状: このスキルのみ、発動時間を表す赤ラインが発動ポイントからレース終了まで伸びる。本来は短い発動時間のスキルで、他スキルと同様の長さで表示されるべき

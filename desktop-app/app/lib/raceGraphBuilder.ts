@@ -116,6 +116,17 @@ export const SKILL_ROW_TOP_PAD = 4;
 export const SKILL_CHART_MARGIN_TOP = 24;
 export const SKILL_CHART_MARGIN_BOTTOM = 4;
 
+/** 縦拡大 ON 時に全スキル行を収める chartHeight（margin + 行高の単一ソース） */
+export function computeExpandedChartHeight(eventCount: number): number {
+  return Math.max(
+    SKILL_CHART_BASE_HEIGHT,
+    SKILL_CHART_MARGIN_TOP +
+      SKILL_ROW_TOP_PAD +
+      eventCount * SKILL_ROW_HEIGHT +
+      SKILL_CHART_MARGIN_BOTTOM,
+  );
+}
+
 export interface SkillLayoutOptions {
   /** true: 19px 固定行。false: skillMargin ドメイン詰め（重なり OK・枠内収納） */
   expanded?: boolean;
@@ -369,7 +380,7 @@ export function buildSkillMarkers(
   }
 
   const eventCount = filtered.length;
-  const expandedChartHeight = Math.max(SKILL_CHART_BASE_HEIGHT, eventCount * SKILL_ROW_HEIGHT);
+  const expandedChartHeight = computeExpandedChartHeight(eventCount);
   const frames = detail?.frames ?? [];
   const courseLength = detail?.courseLength ?? 0;
 
