@@ -101,3 +101,5 @@
 | 2026-06-12 04:36 | **Before（Profiler 所感）**: タブ A→B→A 1 サイクルで Ranked に ResultCard・RaceDetailChart・SkillVerifier（50+ 行）が毎回 commit。activeTab 差し替えにより Body 全体がアンマウント→再マウント相当。commit 時間 ~数十 ms 級の体感引っかかり | 実装前コード構造確認（単一 ResultCard + activeTab props 更新）。keep-alive なし |
 | 2026-06-12 04:36 | 案 A（keep-alive）+ 最小 B（SimTabPanel 集約）を採用 | 設計レビュー合意 |
 | 2026-06-12 04:36 | keep-alive 上限: 全タブ / displayUnit: ページ共通維持 | 未決事項確定 |
+| 2026-06-12 05:07 | **実機検証**: チェックリスト全 OK・引っかかり大幅軽減。残件: グラフのみ遅延表示・TabBar サムネ transition カクつき | keep-alive + `hidden`（display:none）で ResizeObserver/Recharts 再レイアウト |
+| 2026-06-12 05:07 | 追従修正: `hidden` → `absolute inset-0` + `visibility` 重ね / TabBar `transition-all`+幅差分を廃止（固定 w-40・opacity/border/shadow のみ） | 案 C 前の最小追従。display:none 回避でグラフ計測維持、width transition 除去でメインスレッド競合低減 |

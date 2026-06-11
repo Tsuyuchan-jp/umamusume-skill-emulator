@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-12 04:55
+最終更新: 2026-06-12 05:07
 
 ---
 
@@ -83,7 +83,7 @@ P1 改善タスク（パレット参照統一等）
 
 ## 完了済み
 
-- [x] タブ切り替え時の引っかかり改善 — keep-alive 化 + SimTabPanel 集約（実装完了・**実機検証待ち** / `224d67a` / [`REQ-tab-switch-performance.md`](tasks/REQ-tab-switch-performance.md)）
+- [x] タブ切り替え時の引っかかり改善 — keep-alive 化 + visibility 重ね追従（`224d67a` / 追従コミット後更新 / [`REQ-tab-switch-performance.md`](tasks/REQ-tab-switch-performance.md)）
 - [x] スタミナキープ持続線異常 — WASM endTime センチネル + 条件付き水平線描画（**実機検証クローズ** / `8b02849` / [`REQ-race-detail-graph-stamina-keep-line.md`](tasks/REQ-race-detail-graph-stamina-keep-line.md)）
 - [x] グラフ縦拡大 ON 時の末尾スキル帯クリップ — `computeExpandedChartHeight` 式修正（`6a9b0fb` / [`REQ-race-detail-graph-vertical-clip.md`](tasks/REQ-race-detail-graph-vertical-clip.md)）
 - [x] グラフスキル hover UI ポリッシュ — カーソル default + hover ピル発光（`67b3707` / [`REQ-race-detail-graph-skill-tooltip.md`](tasks/REQ-race-detail-graph-skill-tooltip.md)）

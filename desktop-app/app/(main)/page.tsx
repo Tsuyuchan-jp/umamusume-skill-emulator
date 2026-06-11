@@ -618,9 +618,12 @@ export default function Home() {
                     return (
                       <div
                         key={tab.id}
-                        hidden={!isActive}
                         aria-hidden={!isActive}
-                        className="flex flex-col flex-1 min-h-0 overflow-hidden"
+                        className={`absolute inset-0 flex flex-col min-h-0 overflow-hidden ${
+                          isActive
+                            ? "visible z-10"
+                            : "invisible z-0 pointer-events-none"
+                        }`}
                       >
                         <SimTabPanel
                           tab={tab}
