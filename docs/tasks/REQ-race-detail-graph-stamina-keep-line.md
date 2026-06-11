@@ -75,3 +75,4 @@
 | 2026-06-12 04:11 | `operating.duration` フォールバックは実装しない | 200562 特例ハック禁止 |
 | 2026-06-12 04:11 | 単体テスト追加なし | vertical-clip 同様 |
 | 2026-06-12 04:13 | 完了: endTime センチネル + hasDurationLine + WASM 再ビルド + build 通過 | 実機 UI 確認は tauri dev で推奨 |
+| 2026-06-12 04:27 | **実機検証クローズ**（200562 ラベルのみ・持続バフ赤線・縦拡大/Tooltip/Phase 4 compare 退行なし） | ユーザー確認 |
