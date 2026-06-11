@@ -95,6 +95,8 @@ export const SKILL_CHART_BASE_HEIGHT = 360;
 export const SKILL_ROW_HEIGHT = 20;
 export const SKILL_FONT_SIZE = 10;
 export const SKILL_LINE_GAP = 3;
+/** 赤線を上方向へ寄せる微調整（px） */
+export const SKILL_LINE_Y_NUDGE_UP = 1;
 export const SKILL_ROW_TOP_PAD = 4;
 /** LineChart margin と同期（layoutSkillMarkers 用） */
 export const SKILL_CHART_MARGIN_TOP = 24;
@@ -116,7 +118,7 @@ export function layoutSkillMarkers(
   if (plotHeight <= 0 || markers.length === 0) return markers;
 
   const eventCount = markers.length;
-  const lineOffsetDomain = (SKILL_FONT_SIZE + SKILL_LINE_GAP) / plotHeight;
+  const lineOffsetDomain = (SKILL_FONT_SIZE + SKILL_LINE_GAP - SKILL_LINE_Y_NUDGE_UP) / plotHeight;
 
   if (!expanded) {
     const skillMargin = Math.min(0.1, 0.8 / eventCount);
@@ -132,7 +134,7 @@ export function layoutSkillMarkers(
 
   return markers.map((marker) => {
     const labelTopPx = SKILL_ROW_TOP_PAD + marker.row * SKILL_ROW_HEIGHT;
-    const lineTopPx = labelTopPx + SKILL_FONT_SIZE + SKILL_LINE_GAP;
+    const lineTopPx = labelTopPx + SKILL_FONT_SIZE + SKILL_LINE_GAP - SKILL_LINE_Y_NUDGE_UP;
     return {
       ...marker,
       y: 1 - labelTopPx / plotHeight,
