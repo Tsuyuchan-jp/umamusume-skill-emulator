@@ -4,7 +4,7 @@
 
 - **ステータス**: done
 - **作成日**: 2026-06-12 04:36
-- **関連コミット**: `224d67a` / `c6cba51` / `1cb76aa`
+- **関連コミット**: `224d67a` / `c6cba51` / `1cb76aa` / `132d56a`（実機検証クローズ）
 
 ---
 
@@ -73,10 +73,10 @@
 
 ## 完了条件
 
-- [ ] タブ 2〜3 枚・sim 済み・50+ スキルで切替が気にならない（実機検証待ち）
-- [ ] スキル表示 ON/OFF どちらでも切替快適（実機検証待ち）
-- [ ] 縦拡大・Phase 4 compare・SkillVerifier 操作・タブ複製に退行なし（実機検証待ち）
-- [ ] タブごとにグラフ checkbox 状態が独立保持（実機検証待ち）
+- [x] タブ 2〜3 枚・sim 済み・50+ スキルで切替が気にならない
+- [x] スキル表示 ON/OFF どちらでも切替快適
+- [x] 縦拡大・Phase 4 compare・SkillVerifier 操作・タブ複製に退行なし
+- [x] タブごとにグラフ checkbox 状態が独立保持
 - [x] Profiler Before を決定ログに記録済み
 - [x] `npm run build` 通過
 - [x] TODO 着手時・完了時更新
@@ -104,3 +104,4 @@
 | 2026-06-12 05:07 | **実機検証**: チェックリスト全 OK・引っかかり大幅軽減。残件: グラフのみ遅延表示・TabBar サムネ transition カクつき | keep-alive + `hidden`（display:none）で ResizeObserver/Recharts 再レイアウト |
 | 2026-06-12 05:07 | 追従修正: `hidden` → `absolute inset-0` + `visibility` 重ね / TabBar `transition-all`+幅差分を廃止（固定 w-40・opacity/border/shadow のみ） | 案 C 前の最小追従。display:none 回避でグラフ計測維持、width transition 除去でメインスレッド競合低減 |
 | 2026-06-12 05:13 | visibility 追従後実機: #1 グラフ同期 OK / #3 退行なし / #2 幅アニメ消失 → **TabBar scale 案**（`scale-105` + `transition-transform`、幅固定維持） | width reflow を避けつつ切替フィードバックを復活 |
+| 2026-06-12 05:40 | **実機検証クローズ**（ユーザー確認）: チェックリスト全 OK。追従修正（visibility 重ね・TabBar UI 刷新 `132d56a`）含めデザイン・動作問題なし。案 C（右カラム分離）は不要 | タブ切替性能 REQ 正式クローズ |
