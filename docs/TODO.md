@@ -87,7 +87,7 @@ P1 改善タスク（グラフ縦拡大クリップ等）
 
 ## 完了済み
 
-- [x] グラフ内スキル hover Tooltip — 効果量・持続時間・発動位置％（本家 GraphSkill.description 準拠）（`a5e5e7d` / 完了コミット追記 / [`REQ-race-detail-graph-skill-tooltip.md`](tasks/REQ-race-detail-graph-skill-tooltip.md)）
+- [x] グラフ内スキル hover Tooltip — 効果量・持続時間・発動位置％（本家 GraphSkill.description 準拠）（`a5e5e7d` / `2c73c81` / [`REQ-race-detail-graph-skill-tooltip.md`](tasks/REQ-race-detail-graph-skill-tooltip.md)）
 - [x] 直近レース詳細グラフ Phase 4 — baseline グラフ diff（2系列オーバーレイ・**実機検証クローズ** A〜F OK）（`e780b3d` / `a4752cf` / [`REQ-race-detail-graph-phase4.md`](tasks/REQ-race-detail-graph-phase4.md)）
 - [x] レース詳細グラフ UI レスポンス改善 Phase 1+2 — overlay SVG・useMemo 分割・スクロールバー/Tooltip 追従修正・**実機検証クローズ**（`f8158c8` / `2c8e1ed` / `e9b337f` / `873080e` / [`REQ-race-detail-graph-performance.md`](tasks/REQ-race-detail-graph-performance.md)）
 - [x] Phase 3 UX スキル行 B案 — 下ライン・28px 行高・zinc ピル・縦拡大一貫レイアウト（`447d25e` / [`REQ-race-detail-graph-phase3-ux.md`](tasks/REQ-race-detail-graph-phase3-ux.md)）

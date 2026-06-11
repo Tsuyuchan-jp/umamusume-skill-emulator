@@ -4,7 +4,7 @@
 
 - **ステータス**: done
 - **作成日**: 2026-06-11 18:39
-- **関連コミット**: `a5e5e7d`（Phase A hover UI）、（Phase B WASM — 完了コミット追記）
+- **関連コミット**: `a5e5e7d`（Phase A hover UI）、`2c73c81`（Phase B WASM + umaemu）
 
 ---
 
