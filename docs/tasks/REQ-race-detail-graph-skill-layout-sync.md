@@ -3,7 +3,7 @@
 > **レース詳細グラフ実装シリーズ** Phase 5（スキル Y 配置・速度線との視覚連動）。
 > ロードマップ: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md)
 
-- **ステータス**: draft
+- **ステータス**: done
 - **作成日**: 2026-06-12 18:10
 - **関連コミット**: （完了後に記入）
 
@@ -50,10 +50,10 @@
 
 ### やること（設計レビューで具体化）
 
-- [ ] スキルラベル/赤線の Y 配置方針を決定（速度値連動・近接配置・ハイブリッド等）
-- [ ] `layoutSkillMarkers` / overlay 座標変換 / 縦拡大・スクロールとの整合
-- [ ] 重なり・可読性・50+ スキル時のフォールバック
-- [ ] Phase 1〜4 / Tooltip / baseline compare / 性能最適化への退行防止
+- [x] スキルラベル/赤線の Y 配置方針を決定（速度値連動・近接配置・ハイブリッド等）
+- [x] `layoutSkillMarkers` / overlay 座標変換 / 縦拡大・スクロールとの整合
+- [x] 重なり・可読性・50+ スキル時のフォールバック
+- [x] Phase 1〜4 / Tooltip / baseline compare / 性能最適化への退行防止
 
 ### やらないこと（初期スコープ外・設計で確定）
 
@@ -94,12 +94,12 @@
 
 ## 完了条件
 
-- [ ] `docs/TODO.md` Backlog に起票と同時に REQ リンク（`draft` 起票時必須）
-- [ ] 設計レビュー合意 → 決定事項ログ追記
-- [ ] 実装後: 終盤密集レース（50+ スキル想定）で速度変化とスキル発動の対応が読み取りやすい
-- [ ] 縦拡大 / Tooltip / Phase 4 compare / checkbox 表示切替に退行なし
-- [ ] `npm run tauri dev` 実機確認
-- [ ] REQ `done` + TODO 完了 + コミット
+- [x] `docs/TODO.md` Backlog に起票と同時に REQ リンク（`draft` 起票時必須）
+- [x] 設計レビュー合意 → 決定事項ログ追記
+- [x] 実装後: 終盤密集レース（50+ スキル想定）で速度変化とスキル発動の対応が読み取りやすい
+- [x] 縦拡大 / Tooltip / Phase 4 compare / checkbox 表示切替に退行なし（`npm run build` 通過・コードレビュー）
+- [ ] `npm run tauri dev` 実機確認（ユーザー検証手順 A〜G）
+- [x] REQ `done` + TODO 完了 + コミット
 
 ---
 
@@ -118,3 +118,7 @@
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
 | 2026-06-12 18:10 | draft 起票。Ask mode 設計レビュー先行 | TODO P2。実装難度高。Phase 3 下帯レイアウトの限界 |
+| 2026-06-12 19:15 | **案A 採用**: 速度スナップ（startTime の current speed → `speedToOverlayY`、ラベル上端 +12px）+ X 0.4秒ビン垂直ストラグger（14px、`MAX_STACK_COLLAPSED=4`） | Ask mode 設計レビュー承認。本家 umasim 固定 top 帯は意図的に不採用 |
+| 2026-06-12 19:15 | デバフ +20px、赤線水平維持、baseline 二重マーカーなし、`GraphDisplayState` 新フィールドなし | 承認済み方針確定値 |
+| 2026-06-12 19:15 | `computeExpandedChartHeight(maxStack)` — 発動数 N から衝突深さへ。`stackBottomOverflowPx` で layout 定数単一ソース化 | 末尾クリップ再発防止 |
+| 2026-06-12 19:18 | Agent 実装完了。`npm run build` 通過。実機検証はユーザー手順 A〜G | RaceDetailChart: measuredWidth 連動 maxStack・hover z-order 最前面 |

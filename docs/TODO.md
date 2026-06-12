@@ -4,13 +4,13 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-12 18:10
+最終更新: 2026-06-12 19:18
 
 ---
 
 ## 現在のフォーカス
 
-スキル帯×速度折れ線連動レイアウト — **Ask mode 設計レビュー待ち**（[`REQ-race-detail-graph-skill-layout-sync.md`](tasks/REQ-race-detail-graph-skill-layout-sync.md)）
+（なし — 次は P2 Backlog）
 
 ---
 
@@ -45,14 +45,6 @@
   - 目標: `flyingThumbnail` / `flyToTab` アニメーションと関連 state・タイマーを削除
   - 触る想定: `page.tsx`, `SimTabPanel.tsx`
   - 関連: 全画面 Cockpit UI（[`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)）
-
-- [ ] **スキル帯を速度折れ線グラフに連動させるレイアウト**
-  - 現状: レース最終盤ではスキル帯がグラフ下部・速度折れ線が上部に分離し、発動タイミングと速度変化の対応分析がしづらい
-  - 目標: スキル帯の表示位置を速度折れ線にうまく追従・連携させ、同一視野で詳細分析できる UI にする
-  - 触る想定: `RaceDetailChart.tsx`, `raceGraphBuilder.ts`（スキル行 Y 配置・スクロール/sync 連動）
-  - 注意: **実装難度高。Ask mode 設計レビュー → 承認 → Agent 実装**
-  - REQ: [`REQ-race-detail-graph-skill-layout-sync.md`](tasks/REQ-race-detail-graph-skill-layout-sync.md)
-  - 関連: Phase 3 スキル帯（[`REQ-race-detail-graph-phase3.md`](tasks/REQ-race-detail-graph-phase3.md)）
 
 - [ ] **グラフ デバフ帯（B-3）の実機検証**
   - 現状: `minus` 系はパレット/OCR 経路で sim に載らず、紫線・デバフ checkbox の検証不可
@@ -94,6 +86,7 @@
 
 ## 完了済み
 
+- [x] スキル帯×速度折れ線連動レイアウト — 速度スナップ + 0.4秒ビンストラグger（案A）（**実機検証待ち** / コミット後ハッシュ / [`REQ-race-detail-graph-skill-layout-sync.md`](tasks/REQ-race-detail-graph-skill-layout-sync.md)）
 - [x] パレットのスキルデータ参照をローカルに統一 — `buildPaletteSkillOptions` + inherit 優先 dedupe + SkillPanel warm-up 削除（**実機検証クローズ** / `f564898` / [`REQ-palette-local-skill-data.md`](tasks/REQ-palette-local-skill-data.md)）
 - [x] タブ切り替え時の引っかかり改善 — keep-alive + visibility 重ね + TabBar UI 刷新（**実機検証クローズ** / `224d67a`〜`132d56a` / [`REQ-tab-switch-performance.md`](tasks/REQ-tab-switch-performance.md)）
 - [x] スタミナキープ持続線異常 — WASM endTime センチネル + 条件付き水平線描画（**実機検証クローズ** / `8b02849` / [`REQ-race-detail-graph-stamina-keep-line.md`](tasks/REQ-race-detail-graph-stamina-keep-line.md)）

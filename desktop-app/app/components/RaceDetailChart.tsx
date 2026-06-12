@@ -18,6 +18,8 @@ import { RaceDetailDump } from "../lib/types";
 import {
   buildRaceGraphPoints,
   buildSkillMarkers,
+  computeExpandedChartHeight,
+  computeSkillMaxStack,
   DEFAULT_GRAPH_DISPLAY_STATE,
   GraphDisplayState,
   GraphPoint,
@@ -29,6 +31,8 @@ import {
   SKILL_CHART_MARGIN_BOTTOM,
   SKILL_CHART_MARGIN_TOP,
   SKILL_FONT_SIZE,
+  OVERLAY_MARGIN_LEFT,
+  OVERLAY_MARGIN_RIGHT,
   SPEED_MIN,
   SPEED_MAX,
   STAMINA_PLOT_FLOOR,
@@ -236,8 +240,8 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
 
   /** displayState 依存部分（スキル/デバフ表示フィルタ）— checkbox トグル時のみ再計算 */
   const skillData = useMemo(
-    () => buildSkillMarkers(detail.skillEvents, displayState, detail),
-    [detail, displayState],
+    () => buildSkillMarkers(detail.skillEvents, displayState, detail, graphPoints),
+    [detail, displayState, graphPoints],
   );
 
   const chartAreaRef = useRef<HTMLDivElement>(null);
@@ -257,19 +261,41 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
   }, []);
 
   const isExpanded = displayState.expandSkillRows && skillData.skillMarkers.length > 0;
-  const chartHeight = isExpanded ? skillData.expandedChartHeight : SKILL_CHART_BASE_HEIGHT;
+  const maxTime =
+    graphPoints.points.length > 0 ? graphPoints.points[graphPoints.points.length - 1].time : 0;
+  const overlayPlotWidth = Math.max(measuredWidth - OVERLAY_MARGIN_LEFT - OVERLAY_MARGIN_RIGHT, 1);
+  const hasDebuffMarkers = skillData.skillMarkers.some((m) => m.kind === "debuff");
+  const maxStackForHeight = useMemo(
+    () => computeSkillMaxStack(skillData.skillMarkers, maxTime, overlayPlotWidth),
+    [skillData.skillMarkers, maxTime, overlayPlotWidth],
+  );
+  const expandedChartHeight = useMemo(
+    () => computeExpandedChartHeight(maxStackForHeight, hasDebuffMarkers),
+    [maxStackForHeight, hasDebuffMarkers],
+  );
+  const chartHeight = isExpanded ? expandedChartHeight : SKILL_CHART_BASE_HEIGHT;
   const effectiveChartHeight = isExpanded ? chartHeight : measuredHeight;
   const skillMarkers = useMemo(
-    () => layoutSkillMarkers(skillData.skillMarkers, effectiveChartHeight, { expanded: isExpanded }),
-    [skillData.skillMarkers, effectiveChartHeight, isExpanded],
+    () =>
+      layoutSkillMarkers(skillData.skillMarkers, effectiveChartHeight, {
+        expanded: isExpanded,
+        points: graphPoints.points,
+        maxTime,
+        plotWidth: overlayPlotWidth,
+      }),
+    [
+      skillData.skillMarkers,
+      effectiveChartHeight,
+      isExpanded,
+      graphPoints.points,
+      maxTime,
+      overlayPlotWidth,
+    ],
   );
 
   /** overlay 用ピクセル座標。スキル表示 OFF または markers なしのときは空配列 */
   const showSkillOverlay =
     (displayState.showSkills || displayState.showDebuffs) && skillMarkers.length > 0;
-  const maxTime = graphPoints.points.length > 0
-    ? graphPoints.points[graphPoints.points.length - 1].time
-    : 0;
   const skillMarkersPx = useMemo(
     () =>
       showSkillOverlay
@@ -277,6 +303,14 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
         : [],
     [showSkillOverlay, skillMarkers, effectiveChartHeight, measuredWidth, maxTime],
   );
+
+  /** 密集時: hover 対象を SVG 末尾へ（z-order 最前面） */
+  const orderedSkillMarkersPx = useMemo(() => {
+    if (!hoveredSkillKey) return skillMarkersPx;
+    const rest = skillMarkersPx.filter((m) => m.tooltipKey !== hoveredSkillKey);
+    const hovered = skillMarkersPx.filter((m) => m.tooltipKey === hoveredSkillKey);
+    return [...rest, ...hovered];
+  }, [skillMarkersPx, hoveredSkillKey]);
 
   const labelTextRefs = useRef<Map<string, SVGTextElement>>(new Map());
   const [labelTextWidths, setLabelTextWidths] = useState<Record<string, number>>({});
@@ -624,7 +658,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
                   </feMerge>
                 </filter>
               </defs>
-              {skillMarkersPx.map((m, i) => {
+              {orderedSkillMarkersPx.map((m, i) => {
                 const isHovered = hoveredSkillKey === m.tooltipKey;
                 const { pillWidth, pillHeight, pillY, pillRx } = getSkillPillLayout(m, labelTextWidths);
                 const pillStyle = SKILL_HOVER_PILL_STYLE[m.kind];

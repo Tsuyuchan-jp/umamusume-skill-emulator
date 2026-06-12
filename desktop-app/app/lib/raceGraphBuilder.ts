@@ -103,13 +103,15 @@ export interface SkillMarker {
   label: string;
   startTime: number;
   endTime: number;
-  /** ラベル上端 y（percent 軸・下ライン配置） */
+  /** ラベル上端 y（percent 軸・速度スナップ + ストラグger） */
   y: number;
   /** 発動区間の水平線 y（スキル名の下・非接触） */
   lineY: number;
   labelColor: string;
   kind: SkillEventKind;
   row: number;
+  /** 衝突解決用垂直ストラグger段（0 始まり） */
+  stackLevel?: number;
   /** hover 一意キー（skillId + startTime） */
   tooltipKey: string;
   /** Tooltip 本文（GraphSkill.description 相当。WASM effectText 優先） */
@@ -120,67 +122,219 @@ export interface SkillMarker {
 
 /** 縦拡大時のチャート高さ */
 export const SKILL_CHART_BASE_HEIGHT = 360;
-/** 1 スキル行の高さ（px）— 縦拡大 ON 時 */
+/** @deprecated 下帯行レイアウト用。速度スナップ後は STAGGER_ROW を使用 */
 export const SKILL_ROW_HEIGHT = 19;
 export const SKILL_FONT_SIZE = 10;
 export const SKILL_LINE_GAP = 3;
 /** 赤線を上方向へ寄せる微調整（px） */
 export const SKILL_LINE_Y_NUDGE_UP = 1;
+/** @deprecated 下帯行レイアウト用 */
 export const SKILL_ROW_TOP_PAD = 4;
+/** 速度点からラベル上端までのオフセット（px） */
+export const SKILL_SPEED_LABEL_OFFSET = 12;
+/** 衝突解決: 垂直ストラグger 1 段あたり（px） */
+export const STAGGER_ROW = 14;
+/** 衝突検出: X 方向ビン幅（秒） */
+export const STAGGER_BIN_SECONDS = 0.4;
+/** 縦拡大 OFF 時の最大ストラグger段数（0..3 = 4 段） */
+export const MAX_STACK_COLLAPSED = 4;
+/** デバフラベル: スキル基準 Y からの追加オフセット（px） */
+export const DEBUFF_Y_OFFSET = 20;
 /** LineChart margin と同期（layoutSkillMarkers 用） */
 export const SKILL_CHART_MARGIN_TOP = 24;
 export const SKILL_CHART_MARGIN_BOTTOM = 4;
 
-/** 縦拡大 ON 時に全スキル行を収める chartHeight（margin + 行高の単一ソース） */
-export function computeExpandedChartHeight(eventCount: number): number {
+/** ラベル hit box 幅（px）— layout / skillMarkersToPx 共通 */
+export function estimateSkillHitWidth(label: string): number {
+  return Math.max(label.length * SKILL_FONT_SIZE * 0.55, SKILL_FONT_SIZE * 2) + 4;
+}
+
+/** ラベル hit box 高さ（px） */
+export const SKILL_HIT_HEIGHT = SKILL_FONT_SIZE + 4;
+
+/**
+ * 速度 m/s を overlay プロット領域内の Y（px・上端 0）へ変換する。
+ * 左速度軸 SPEED_MIN〜SPEED_MAX と同一 plot 高さ。
+ */
+export function speedToOverlayY(speed: number, plotHeight: number): number {
+  if (plotHeight <= 0) return 0;
+  const clamped = Math.min(SPEED_MAX, Math.max(SPEED_MIN, speed));
+  const norm = (clamped - SPEED_MIN) / (SPEED_MAX - SPEED_MIN);
+  return (1 - norm) * plotHeight;
+}
+
+/** startTime に対応する current 速度（graphPoints.points） */
+function getSpeedAtTime(points: GraphPoint[], startTime: number): number {
+  if (!points.length) return SPEED_MIN;
+  const idx = Math.min(Math.round(startTime * FRAME_PER_SECOND), points.length - 1);
+  return points[idx]?.speed ?? SPEED_MIN;
+}
+
+/** stackLevel 最大値に必要な plot 下端余白（px）— layout / computeExpandedChartHeight 単一ソース */
+function stackBottomOverflowPx(maxStack: number, hasDebuff: boolean): number {
+  return (
+    SKILL_SPEED_LABEL_OFFSET +
+    maxStack * STAGGER_ROW +
+    SKILL_FONT_SIZE +
+    SKILL_LINE_GAP -
+    SKILL_LINE_Y_NUDGE_UP +
+    (hasDebuff ? DEBUFF_Y_OFFSET : 0)
+  );
+}
+
+/** 縦拡大 ON: maxStack 基準の chartHeight（margin + ストラグger 余白の単一ソース） */
+export function computeExpandedChartHeight(maxStack: number, hasDebuff = false): number {
+  const basePlot = SKILL_CHART_BASE_HEIGHT - SKILL_CHART_MARGIN_TOP - SKILL_CHART_MARGIN_BOTTOM;
+  const requiredPlot = basePlot + stackBottomOverflowPx(maxStack, hasDebuff);
   return Math.max(
     SKILL_CHART_BASE_HEIGHT,
-    SKILL_CHART_MARGIN_TOP +
-      SKILL_ROW_TOP_PAD +
-      eventCount * SKILL_ROW_HEIGHT +
-      SKILL_CHART_MARGIN_BOTTOM,
+    SKILL_CHART_MARGIN_TOP + requiredPlot + SKILL_CHART_MARGIN_BOTTOM,
   );
 }
 
 export interface SkillLayoutOptions {
-  /** true: 19px 固定行。false: skillMargin ドメイン詰め（重なり OK・枠内収納） */
+  /** true: maxStack までストラグger展開。false: 最大4段・超過は重なり許容 */
   expanded?: boolean;
+  /** 速度スナップ用。未指定時は SPEED_MIN 固定 */
+  points?: GraphPoint[];
+  /** hit box X 衝突判定用 */
+  maxTime?: number;
+  /** hit box X 衝突判定用（px）。未指定時は OVERLAY 基準幅 */
+  plotWidth?: number;
 }
 
-/** 下ライン行レイアウトを percent 軸 y に変換 */
+interface StackLayoutInput {
+  tooltipKey: string;
+  label: string;
+  startTime: number;
+}
+
+/** 0.4 秒ビン内 hit box 重なりで stackLevel を付与し maxStack を返す */
+function assignStackLevels(
+  items: StackLayoutInput[],
+  options: { expanded: boolean; maxTime: number; plotWidth: number },
+): { stackLevels: Map<string, number>; maxStack: number } {
+  const { expanded, maxTime, plotWidth } = options;
+  const stackLevels = new Map<string, number>();
+  let maxStack = 0;
+
+  if (!items.length || maxTime <= 0 || plotWidth <= 0) {
+    return { stackLevels, maxStack };
+  }
+
+  const binMap = new Map<number, StackLayoutInput[]>();
+  for (const item of items) {
+    const bin = Math.floor(item.startTime / STAGGER_BIN_SECONDS);
+    const group = binMap.get(bin) ?? [];
+    group.push(item);
+    binMap.set(bin, group);
+  }
+
+  for (const group of binMap.values()) {
+    group.sort((a, b) => a.startTime - b.startTime || a.tooltipKey.localeCompare(b.tooltipKey));
+    const placed: { startTime: number; hitWidthTime: number; stackLevel: number }[] = [];
+
+    for (const item of group) {
+      const hitWidthPx = estimateSkillHitWidth(item.label);
+      const hitWidthTime = (hitWidthPx / plotWidth) * maxTime;
+      let stackLevel = 0;
+
+      for (;;) {
+        const capped = expanded ? stackLevel : Math.min(stackLevel, MAX_STACK_COLLAPSED - 1);
+        const startX = item.startTime;
+        const endX = startX + hitWidthTime;
+
+        const overlaps = placed.some((p) => {
+          if (p.stackLevel !== capped) return false;
+          const pStart = p.startTime;
+          const pEnd = p.startTime + p.hitWidthTime;
+          return startX < pEnd && endX > pStart;
+        });
+
+        if (!overlaps) {
+          stackLevels.set(item.tooltipKey, capped);
+          placed.push({ startTime: item.startTime, hitWidthTime, stackLevel: capped });
+          maxStack = Math.max(maxStack, capped);
+          break;
+        }
+
+        stackLevel += 1;
+        if (!expanded && stackLevel >= MAX_STACK_COLLAPSED) {
+          const cappedOverflow = MAX_STACK_COLLAPSED - 1;
+          stackLevels.set(item.tooltipKey, cappedOverflow);
+          placed.push({ startTime: item.startTime, hitWidthTime, stackLevel: cappedOverflow });
+          maxStack = Math.max(maxStack, cappedOverflow);
+          break;
+        }
+      }
+    }
+  }
+
+  return { stackLevels, maxStack };
+}
+
+/** 速度スナップ + ストラグger で percent 軸 y / lineY を確定 */
 export function layoutSkillMarkers(
   markers: SkillMarker[],
   chartHeightPx: number,
   options: SkillLayoutOptions = {},
 ): SkillMarker[] {
-  const { expanded = true } = options;
+  const {
+    expanded = true,
+    points = [],
+    maxTime = 0,
+    plotWidth = 800 - OVERLAY_MARGIN_LEFT - OVERLAY_MARGIN_RIGHT,
+  } = options;
+
   const plotHeight = chartHeightPx - SKILL_CHART_MARGIN_TOP - SKILL_CHART_MARGIN_BOTTOM;
   if (plotHeight <= 0 || markers.length === 0) return markers;
 
-  const eventCount = markers.length;
-  const lineOffsetDomain = (SKILL_FONT_SIZE + SKILL_LINE_GAP - SKILL_LINE_Y_NUDGE_UP) / plotHeight;
+  const effectiveMaxTime =
+    maxTime > 0
+      ? maxTime
+      : points.length > 0
+        ? points[points.length - 1].time
+        : Math.max(...markers.map((m) => m.endTime), 1);
 
-  if (!expanded) {
-    const skillMargin = Math.min(0.1, 0.8 / eventCount);
-    return markers.map((marker) => {
-      const labelY = 1 - skillMargin * marker.row;
-      return {
-        ...marker,
-        y: labelY,
-        lineY: labelY - lineOffsetDomain,
-      };
-    });
-  }
+  const { stackLevels, maxStack: _maxStack } = assignStackLevels(
+    markers.map((m) => ({ tooltipKey: m.tooltipKey, label: m.label, startTime: m.startTime })),
+    { expanded, maxTime: effectiveMaxTime, plotWidth },
+  );
+
+  const lineOffsetPx = SKILL_FONT_SIZE + SKILL_LINE_GAP - SKILL_LINE_Y_NUDGE_UP;
 
   return markers.map((marker) => {
-    const labelTopPx = SKILL_ROW_TOP_PAD + marker.row * SKILL_ROW_HEIGHT;
-    const lineTopPx = labelTopPx + SKILL_FONT_SIZE + SKILL_LINE_GAP - SKILL_LINE_Y_NUDGE_UP;
+    const speed = getSpeedAtTime(points, marker.startTime);
+    const speedY = speedToOverlayY(speed, plotHeight);
+    const stackLevel = stackLevels.get(marker.tooltipKey) ?? marker.stackLevel ?? 0;
+    const kindOffset = marker.kind === "debuff" ? DEBUFF_Y_OFFSET : 0;
+    const labelTopPx = speedY + SKILL_SPEED_LABEL_OFFSET + stackLevel * STAGGER_ROW + kindOffset;
+    const lineTopPx = labelTopPx + lineOffsetPx;
+
     return {
       ...marker,
+      stackLevel,
+      row: stackLevel,
       y: 1 - labelTopPx / plotHeight,
       lineY: 1 - lineTopPx / plotHeight,
     };
   });
+}
+
+/** layoutSkillMarkers と同一条件で maxStack を算出（expandedChartHeight 用） */
+export function computeSkillMaxStack(
+  markers: Pick<SkillMarker, "tooltipKey" | "label" | "startTime">[],
+  maxTime: number,
+  plotWidth = 800 - OVERLAY_MARGIN_LEFT - OVERLAY_MARGIN_RIGHT,
+): number {
+  return assignStackLevels(
+    markers.map((m) => ({
+      tooltipKey: m.tooltipKey,
+      label: m.label,
+      startTime: m.startTime,
+    })),
+    { expanded: true, maxTime, plotWidth },
+  ).maxStack;
 }
 
 /** overlay SVG 座標変換用: Recharts LineChart の固定マージン＋軸幅 */
@@ -230,7 +384,7 @@ export function skillMarkersToPx(
   if (plotHeight <= 0 || plotWidth <= 0) return [];
 
   return markers.map((m) => {
-    const hitWidth = Math.max(m.label.length * SKILL_FONT_SIZE * 0.55, SKILL_FONT_SIZE * 2) + 4;
+    const hitWidth = estimateSkillHitWidth(m.label);
     return {
       skillId: m.skillId,
       label: m.label,
@@ -245,7 +399,7 @@ export function skillMarkersToPx(
       lineY: (1 - m.lineY) * plotHeight + SKILL_CHART_MARGIN_TOP,
       hasDurationLine: m.hasDurationLine,
       hitWidth,
-      hitHeight: SKILL_FONT_SIZE + 4,
+      hitHeight: SKILL_HIT_HEIGHT,
     };
   });
 }
@@ -311,7 +465,7 @@ export interface RaceGraphData {
   staminaMax: number;
   areaBands: AreaBand[];
   skillMarkers: SkillMarker[];
-  /** 縦拡大 ON 時のみ使用: max(360, 発動数 × 19) */
+  /** 縦拡大 ON 時のみ使用: maxStack 基準の chartHeight */
   expandedChartHeight: number;
 }
 
@@ -379,11 +533,12 @@ function buildAreaBands(
   ];
 }
 
-/** skillEvents から本家準拠のスキルマーカー（発動ごと 1 行）を生成 */
+/** skillEvents から本家準拠のスキルマーカー（発動ごと 1 件）を生成 */
 export function buildSkillMarkers(
   skillEvents: SkillEventDump[] | undefined,
   displayState: GraphDisplayState,
   detail?: Pick<RaceDetailDump, "frames" | "courseLength">,
+  graphPoints?: Pick<RaceGraphPoints, "points">,
 ): Pick<RaceGraphData, "skillMarkers" | "expandedChartHeight"> {
   if (!skillEvents?.length) {
     return { skillMarkers: [], expandedChartHeight: SKILL_CHART_BASE_HEIGHT };
@@ -397,10 +552,11 @@ export function buildSkillMarkers(
     return { skillMarkers: [], expandedChartHeight: SKILL_CHART_BASE_HEIGHT };
   }
 
-  const eventCount = filtered.length;
-  const expandedChartHeight = computeExpandedChartHeight(eventCount);
   const frames = detail?.frames ?? [];
   const courseLength = detail?.courseLength ?? 0;
+  const points = graphPoints?.points ?? [];
+  const maxTime = points.length > 0 ? points[points.length - 1].time : 0;
+  const hasDebuff = filtered.some((event) => event.kind === "debuff");
 
   const baseMarkers: SkillMarker[] = filtered.map((event, index) => {
     const marker = {
@@ -413,6 +569,7 @@ export function buildSkillMarkers(
       labelColor: event.kind === "debuff" ? DEBUFF_LABEL_COLOR : getSkillLabelColorById(event.skillId),
       kind: event.kind,
       row: index,
+      stackLevel: 0,
       tooltipKey: makeTooltipKey(event.skillId, event.startTime),
       effectText: buildProvisionalEffectText(event, frames, courseLength),
       hasDurationLine: false,
@@ -420,8 +577,9 @@ export function buildSkillMarkers(
     return { ...marker, hasDurationLine: hasSkillDurationLine(marker) };
   });
 
-  const skillMarkers = layoutSkillMarkers(baseMarkers, expandedChartHeight, { expanded: true });
-  return { skillMarkers, expandedChartHeight };
+  const maxStack = computeSkillMaxStack(baseMarkers, maxTime);
+  const expandedChartHeight = computeExpandedChartHeight(maxStack, hasDebuff);
+  return { skillMarkers: baseMarkers, expandedChartHeight };
 }
 
 /** detail 固定部分（frames 依存）のみを計算する — displayState に依存しない */
@@ -553,7 +711,13 @@ export function buildRaceGraphData(
   }
 
   const { points, phaseLines, staminaMax, areaBands } = buildRaceGraphPoints(detail);
-  const { skillMarkers, expandedChartHeight } = buildSkillMarkers(detail.skillEvents, displayState, detail);
+  const graphPoints = { points, phaseLines, staminaMax, areaBands };
+  const { skillMarkers, expandedChartHeight } = buildSkillMarkers(
+    detail.skillEvents,
+    displayState,
+    detail,
+    graphPoints,
+  );
 
   return { points, phaseLines, staminaMax, areaBands, skillMarkers, expandedChartHeight };
 }
