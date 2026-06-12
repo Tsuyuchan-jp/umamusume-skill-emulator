@@ -86,7 +86,7 @@
 
 ## 完了済み
 
-- [x] 縦拡大 = Y クローズアップ（密集度自動 zoom）— 速度追従+相関維持・detail 縦スクロール（**実機検証待ち** / コミット後 / [`REQ-race-detail-graph-skill-layout-sync.md`](tasks/REQ-race-detail-graph-skill-layout-sync.md)）
+- [x] 縦拡大 = Y クローズアップ（密集度自動 zoom）— 速度追従+相関維持・detail 縦スクロール（**実機検証待ち** / `b7f3838` / [`REQ-race-detail-graph-skill-layout-sync.md`](tasks/REQ-race-detail-graph-skill-layout-sync.md)）
 - [x] 縦拡大 ON 時 Y 軸圧縮（360px 固定）修正 — viewport 高さ LineChart + 下スキル band（**superseded** / `e1ef3f2`）
 - [x] 縦拡大 ON 時の Y 軸縮小・スキル重なり修正 — 速度 plot 固定 + スキル band 分離 + X+Y stagger（**実機検証待ち** / `cff8573` / [`REQ-race-detail-graph-skill-layout-sync.md`](tasks/REQ-race-detail-graph-skill-layout-sync.md)）
 - [x] スキル帯×速度折れ線連動レイアウト — 速度スナップ + 0.4秒ビンストラグger（案A）（**実機検証待ち** / `6816447` / [`REQ-race-detail-graph-skill-layout-sync.md`](tasks/REQ-race-detail-graph-skill-layout-sync.md)）
