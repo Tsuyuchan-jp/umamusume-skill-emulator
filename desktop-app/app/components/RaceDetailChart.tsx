@@ -18,8 +18,7 @@ import { RaceDetailDump } from "../lib/types";
 import {
   buildRaceGraphPoints,
   buildSkillMarkers,
-  computeSkillMaxStack,
-  computeYZoomFactor,
+  computeDetailYZoomFactor,
   computeZoomedChartHeight,
   DEFAULT_GRAPH_DISPLAY_STATE,
   GraphDisplayState,
@@ -273,21 +272,25 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
     viewportChartHeight - SKILL_CHART_MARGIN_TOP - SKILL_CHART_MARGIN_BOTTOM,
     1,
   );
-  const maxStackForZoom = useMemo(
-    () =>
-      computeSkillMaxStack(
-        skillData.skillMarkers,
-        maxTime,
-        overlayPlotWidth,
-        graphPoints.points,
-        viewportPlotHeight,
-        1,
-      ),
-    [skillData.skillMarkers, maxTime, overlayPlotWidth, graphPoints.points, viewportPlotHeight],
-  );
-  const yZoomFactor = isExpanded
-    ? computeYZoomFactor(viewportPlotHeight, maxStackForZoom, hasDebuffMarkers)
-    : 1;
+  const yZoomFactor = useMemo(() => {
+    if (!isExpanded) return 1;
+    return computeDetailYZoomFactor({
+      markers: skillData.skillMarkers,
+      viewportPlotHeight,
+      maxTime,
+      plotWidth: overlayPlotWidth,
+      points: graphPoints.points,
+      hasDebuff: hasDebuffMarkers,
+    });
+  }, [
+    isExpanded,
+    skillData.skillMarkers,
+    viewportPlotHeight,
+    maxTime,
+    overlayPlotWidth,
+    graphPoints.points,
+    hasDebuffMarkers,
+  ]);
   const contentChartHeight = isExpanded
     ? computeZoomedChartHeight(viewportChartHeight, yZoomFactor)
     : viewportChartHeight;

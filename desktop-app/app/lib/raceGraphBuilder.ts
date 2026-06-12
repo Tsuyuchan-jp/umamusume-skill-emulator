@@ -138,8 +138,129 @@ export const STAGGER_ROW = 14;
 export const STAGGER_BIN_SECONDS = 0.4;
 /** 縦拡大 OFF 時の最大ストラグger段数（0..3 = 4 段） */
 export const MAX_STACK_COLLAPSED = 4;
+/** detail モード Y zoom 下限（詳細表示感のため） */
+export const DETAIL_ZOOM_MIN = 1.5;
+/** detail モード Y zoom 上限（スクロール破綻防止） */
+export const DETAIL_ZOOM_MAX = 5.0;
+/** assignStackLevels の無限ループ防止 */
+const STACK_ASSIGN_MAX_ITER = 256;
 /** デバフラベル: スキル基準 Y からの追加オフセット（px） */
 export const DEBUFF_Y_OFFSET = 20;
+interface StackAssignOptions {
+  expanded: boolean;
+  maxTime: number;
+  plotWidth: number;
+  points: GraphPoint[];
+  speedPlotHeight: number;
+  yZoomFactor: number;
+  /** detail: X hit box 重なりでも stagger（近接 speed 帯含む） */
+  xStaggerOnly?: boolean;
+}
+
+function hitBoxesOverlap(
+  a: { startTime: number; hitWidthTime: number; yTop: number; hitHeight: number },
+  b: { startTime: number; hitWidthTime: number; yTop: number; hitHeight: number },
+): boolean {
+  const aEnd = a.startTime + a.hitWidthTime;
+  const bEnd = b.startTime + b.hitWidthTime;
+  const xOverlap = a.startTime < bEnd && aEnd > b.startTime;
+  const yOverlap = a.yTop < b.yTop + b.hitHeight && a.yTop + a.hitHeight > b.yTop;
+  return xOverlap && yOverlap;
+}
+
+/** assignStackLevels 後の 2D hit box 被りが残るか */
+function hasSkillLabelOverlaps(
+  items: StackLayoutInput[],
+  options: StackAssignOptions,
+): boolean {
+  const { stackLevels } = assignStackLevels(items, options);
+  if (!items.length) return false;
+
+  const { maxTime, plotWidth, points, speedPlotHeight, yZoomFactor } = options;
+  const staggerStep = STAGGER_ROW * yZoomFactor;
+  const hitHeight = SKILL_HIT_HEIGHT * yZoomFactor;
+
+  const boxes = items.map((item) => {
+    const stackLevel = stackLevels.get(item.tooltipKey) ?? 0;
+    const baseY = markerBaseLabelY(points, item.startTime, item.kind, speedPlotHeight, yZoomFactor);
+    const hitWidthPx = estimateSkillHitWidth(item.label);
+    const hitWidthTime = (hitWidthPx / plotWidth) * maxTime;
+    return {
+      startTime: item.startTime,
+      hitWidthTime,
+      yTop: baseY + stackLevel * staggerStep,
+      hitHeight,
+    };
+  });
+
+  for (let i = 0; i < boxes.length; i += 1) {
+    for (let j = i + 1; j < boxes.length; j += 1) {
+      if (hitBoxesOverlap(boxes[i], boxes[j])) return true;
+    }
+  }
+  return false;
+}
+
+/** detail: 2D 被りが解消する最小 yZoomFactor を探索（[DETAIL_ZOOM_MIN, DETAIL_ZOOM_MAX]） */
+export function computeDetailYZoomFactor(params: {
+  markers: Pick<SkillMarker, "tooltipKey" | "label" | "startTime" | "kind">[];
+  viewportPlotHeight: number;
+  maxTime: number;
+  plotWidth: number;
+  points: GraphPoint[];
+  hasDebuff?: boolean;
+}): number {
+  const { markers, viewportPlotHeight, maxTime, plotWidth, points, hasDebuff = false } = params;
+  if (viewportPlotHeight <= 0 || !markers.length || maxTime <= 0 || plotWidth <= 0) {
+    return DETAIL_ZOOM_MIN;
+  }
+
+  const items: StackLayoutInput[] = markers.map((m) => ({
+    tooltipKey: m.tooltipKey,
+    label: m.label,
+    startTime: m.startTime,
+    kind: m.kind,
+  }));
+
+  const seedStack = assignStackLevels(items, {
+    expanded: true,
+    maxTime,
+    plotWidth,
+    points,
+    speedPlotHeight: viewportPlotHeight,
+    yZoomFactor: 1,
+    xStaggerOnly: true,
+  }).maxStack;
+  const seedK = computeYZoomFactor(viewportPlotHeight, seedStack, hasDebuff);
+  let lo = Math.max(DETAIL_ZOOM_MIN, seedK);
+  let hi = DETAIL_ZOOM_MAX;
+
+  const testAt = (k: number) =>
+    hasSkillLabelOverlaps(items, {
+      expanded: true,
+      maxTime,
+      plotWidth,
+      points,
+      speedPlotHeight: viewportPlotHeight * k,
+      yZoomFactor: k,
+      xStaggerOnly: true,
+    });
+
+  if (!testAt(lo)) return lo;
+  if (testAt(hi)) return DETAIL_ZOOM_MAX;
+
+  let best = hi;
+  for (let i = 0; i < 16; i += 1) {
+    const mid = (lo + hi) / 2;
+    if (!testAt(mid)) {
+      best = mid;
+      hi = mid;
+    } else {
+      lo = mid;
+    }
+  }
+  return Math.min(DETAIL_ZOOM_MAX, Math.max(DETAIL_ZOOM_MIN, best));
+}
 /** LineChart margin と同期（layoutSkillMarkers 用） */
 export const SKILL_CHART_MARGIN_TOP = 24;
 export const SKILL_CHART_MARGIN_BOTTOM = 4;
@@ -228,6 +349,8 @@ export interface SkillLayoutOptions {
   maxTime?: number;
   /** hit box 衝突判定用（px）。未指定時は OVERLAY 基準幅 */
   plotWidth?: number;
+  /** detail: X 重なりでも stagger（expanded 時デフォルト true） */
+  xStaggerOnly?: boolean;
 }
 
 interface StackLayoutInput {
@@ -250,19 +373,20 @@ function markerBaseLabelY(
   return speedY + SKILL_SPEED_LABEL_OFFSET * yZoomFactor + kindOffset;
 }
 
-/** X+Y hit box 重なりで stackLevel を付与（0.4秒ビンは startTime 昇順処理で近似） */
+/** X+Y hit box 重なりで stackLevel を付与 */
 function assignStackLevels(
   items: StackLayoutInput[],
-  options: {
-    expanded: boolean;
-    maxTime: number;
-    plotWidth: number;
-    points: GraphPoint[];
-    speedPlotHeight: number;
-    yZoomFactor: number;
-  },
+  options: StackAssignOptions,
 ): { stackLevels: Map<string, number>; maxStack: number } {
-  const { expanded, maxTime, plotWidth, points, speedPlotHeight, yZoomFactor } = options;
+  const {
+    expanded,
+    maxTime,
+    plotWidth,
+    points,
+    speedPlotHeight,
+    yZoomFactor,
+    xStaggerOnly = false,
+  } = options;
   const stackLevels = new Map<string, number>();
   let maxStack = 0;
 
@@ -291,6 +415,13 @@ function assignStackLevels(
 
     for (;;) {
       const capped = expanded ? stackLevel : Math.min(stackLevel, MAX_STACK_COLLAPSED - 1);
+      if (stackLevel >= STACK_ASSIGN_MAX_ITER) {
+        stackLevels.set(item.tooltipKey, capped);
+        placed.push({ startTime: item.startTime, hitWidthTime, stackLevel: capped, baseY });
+        maxStack = Math.max(maxStack, capped);
+        break;
+      }
+
       const yTop = baseY + capped * staggerStep;
       const yBottom = yTop + hitHeight;
       const startX = item.startTime;
@@ -303,6 +434,10 @@ function assignStackLevels(
         const pEnd = p.startTime + p.hitWidthTime;
         const xOverlap = startX < pEnd && endX > pStart;
         const yOverlap = yTop < pYBottom && yBottom > pYTop;
+        if (expanded && xStaggerOnly) {
+          if (!xOverlap) return false;
+          return yOverlap || Math.abs(baseY - p.baseY) < hitHeight;
+        }
         return xOverlap && yOverlap;
       });
 
@@ -345,7 +480,10 @@ export function layoutSkillMarkers(
     yZoomFactor = 1,
     maxTime = 0,
     plotWidth = 800 - OVERLAY_MARGIN_LEFT - OVERLAY_MARGIN_RIGHT,
+    xStaggerOnly: xStaggerOnlyOpt,
   } = options;
+
+  const xStaggerOnly = xStaggerOnlyOpt ?? expanded;
 
   const totalPlotHeight = chartHeightPx - SKILL_CHART_MARGIN_TOP - SKILL_CHART_MARGIN_BOTTOM;
   const speedPlotHeight = speedPlotHeightOpt ?? totalPlotHeight;
@@ -365,7 +503,7 @@ export function layoutSkillMarkers(
       startTime: m.startTime,
       kind: m.kind,
     })),
-    { expanded, maxTime: effectiveMaxTime, plotWidth, points, speedPlotHeight, yZoomFactor },
+    { expanded, maxTime: effectiveMaxTime, plotWidth, points, speedPlotHeight, yZoomFactor, xStaggerOnly },
   );
 
   const lineOffsetPx =
@@ -409,7 +547,15 @@ export function computeSkillMaxStack(
       startTime: m.startTime,
       kind: m.kind,
     })),
-    { expanded: true, maxTime, plotWidth, points, speedPlotHeight, yZoomFactor },
+    {
+      expanded: true,
+      maxTime,
+      plotWidth,
+      points,
+      speedPlotHeight,
+      yZoomFactor,
+      xStaggerOnly: true,
+    },
   ).maxStack;
 }
 

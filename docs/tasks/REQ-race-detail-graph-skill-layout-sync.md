@@ -5,7 +5,7 @@
 
 - **ステータス**: done
 - **作成日**: 2026-06-12 18:10
-- **関連コミット**: `6816447`（初版）〜 `b7f3838`（Y クローズアップ）
+- **関連コミット**: `6816447`（初版）〜 `b7f3838`（Y クローズアップ）→ detail 反復 zoom + X-only stagger（本コミット）
 
 ---
 
@@ -127,3 +127,5 @@
 | 2026-06-12 19:55 | **要件変更・確定**: 「縦拡大」= **Y 方向クローズアップ**（Google Map 的 XY パンは将来）。overview（OFF）= 被り許容・zoom=1。detail（ON）= 折れ線+スキル+赤線を **同一 canvas で yZoomFactor 倍**、相関維持、縦スクロール | ユーザー意図: 速度追従で影響分析。詳細時は相対位置そのまま解像度 UP で被り解消 |
 | 2026-06-12 19:55 | **yZoomFactor 密集度自動**: `max(1, (viewportPlot + computeSkillBandHeight(maxStack)) / viewportPlot)`。オフセット(+12/+20)・stagger(14px)も zoom 倍率でスケール | skill band 分離方式を廃止。単一 content 高さ = viewportChart × yZoomFactor |
 | 2026-06-12 19:55 | Agent 実装: `computeYZoomFactor` / `computeZoomedChartHeight`。LineChart+overlay 同一 content 高さ。`npm run build` 通過（`b7f3838`） | RaceDetailChart: scroll viewport 基準・detail 時縦スクロール |
+| 2026-06-12 20:33 | **detail 強化（試行）**: 反復 zoom（2D 被りゼロまで K 探索）、`DETAIL_ZOOM_MIN=1.5` / `MAX=5.0`、detail 時 **X 重なりでも stagger**（近接 speed 帯含む） | 実機: ON でも被り残存。X 被りは Y zoom だけでは不足 |
+| 2026-06-12 20:36 | Agent 実装: `computeDetailYZoomFactor`（二分探索・最小 K）、`hasSkillLabelOverlaps` / `hitBoxesOverlap`、`assignStackLevels` に `xStaggerOnly`。RaceDetailChart を反復 zoom に切替。`npm run build` 通過 | 推奨案一括試行。実機で被り・scroll・Y 相関をユーザー確認 |
