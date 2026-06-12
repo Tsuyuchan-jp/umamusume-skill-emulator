@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-12 17:28
+最終更新: 2026-06-12 17:52
 
 ---
 
@@ -31,6 +31,13 @@ P2 Backlog（次候補: タブ追加時サムネイル飛翔アニメーショ�
 （なし）
 
 ### P2 — 改善・アイデア
+
+- [ ] **スキルパレットの並び順をレアリティ段階別に変更**
+  - 現状: `buildPaletteSkillOptions` は `umasimSkillDataList` の出現順（extract 順）
+  - 目標: 可能なら **❖緑（inherit）→ ★赤（evo）→ ✦金（rare）+ 白（normal）混合** の3段階でグループ化して表示
+  - 触る想定: `umasimSkillData.ts`（`buildPaletteSkillOptions` の sort）、必要なら `SkillCommandPalette.tsx`
+  - 注意: `onlyUnique` パレットは unique のみのため別扱い。各段階内の名前順は要検討
+  - 関連: [`REQ-palette-local-skill-data.md`](tasks/REQ-palette-local-skill-data.md)
 
 - [ ] **タブ追加時のサムネイル飛翔アニメーション削除**
   - 経緯: 旧レイアウトでは右カラム上部タブが見えないことがあり、タブ追加をユーザーに認知させるための対処だった
@@ -86,7 +93,7 @@ P2 Backlog（次候補: タブ追加時サムネイル飛翔アニメーショ�
 
 ## 完了済み
 
-- [x] パレットのスキルデータ参照をローカルに統一 — `buildPaletteSkillOptions` + inherit 優先 dedupe + SkillPanel warm-up 削除（`f564898` / [`REQ-palette-local-skill-data.md`](tasks/REQ-palette-local-skill-data.md)）
+- [x] パレットのスキルデータ参照をローカルに統一 — `buildPaletteSkillOptions` + inherit 優先 dedupe + SkillPanel warm-up 削除（**実機検証クローズ** / `f564898` / [`REQ-palette-local-skill-data.md`](tasks/REQ-palette-local-skill-data.md)）
 - [x] タブ切り替え時の引っかかり改善 — keep-alive + visibility 重ね + TabBar UI 刷新（**実機検証クローズ** / `224d67a`〜`132d56a` / [`REQ-tab-switch-performance.md`](tasks/REQ-tab-switch-performance.md)）
 - [x] スタミナキープ持続線異常 — WASM endTime センチネル + 条件付き水平線描画（**実機検証クローズ** / `8b02849` / [`REQ-race-detail-graph-stamina-keep-line.md`](tasks/REQ-race-detail-graph-stamina-keep-line.md)）
 - [x] グラフ縦拡大 ON 時の末尾スキル帯クリップ — `computeExpandedChartHeight` 式修正（`6a9b0fb` / [`REQ-race-detail-graph-vertical-clip.md`](tasks/REQ-race-detail-graph-vertical-clip.md)）
@@ -132,7 +139,7 @@ P2 Backlog（次候補: タブ追加時サムネイル飛翔アニメーショ�
 - サイドバー狭幅 UI（380px / min 320px）は Phase S1+S2 で完了（[`REQ-sidebar-compact-layout.md`](tasks/REQ-sidebar-compact-layout.md)）。S3 コンテナクエリは見送り
 - 全画面 Cockpit UI（Phase 1〜3）は完了（[`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)）
 - グラフ Y軸・m/s は [`REQ-race-detail-graph-axis.md`](tasks/REQ-race-detail-graph-axis.md) で対応済み
-- 直近レース詳細グラフ: ロードマップ [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md)。**Phase 4 baseline diff 実機検証クローズ**（2026-06-12 01:41）。**スタミナキープ持続線 実機検証クローズ**（2026-06-12 04:27 / `8b02849`）。**タブ切り替え 実機検証クローズ**（2026-06-12 05:40 / `132d56a` / [`REQ-tab-switch-performance.md`](tasks/REQ-tab-switch-performance.md)）。**パレット参照ローカル統一**（2026-06-12 / [`REQ-palette-local-skill-data.md`](tasks/REQ-palette-local-skill-data.md)）
+- 直近レース詳細グラフ: ロードマップ [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md)。**Phase 4 baseline diff 実機検証クローズ**（2026-06-12 01:41）。**スタミナキープ持続線 実機検証クローズ**（2026-06-12 04:27 / `8b02849`）。**タブ切り替え 実機検証クローズ**（2026-06-12 05:40 / `132d56a` / [`REQ-tab-switch-performance.md`](tasks/REQ-tab-switch-performance.md)）。**パレット参照ローカル統一 実機検証クローズ**（2026-06-12 17:52 / `f564898` / [`REQ-palette-local-skill-data.md`](tasks/REQ-palette-local-skill-data.md)）
 - 現代ウマ娘: 所持 50〜70+ スキル。グラフ `skillEvents` は発動イベント数（20〜40+ あり得る）
 - **別作業で発見（2026-06-11）**: サイドバー折りたたみボタンのスクロール追従、ステータス条件ボタンのテキスト化、グラフ/スキル表記以降のレスポンス低下 — いずれも Backlog 登録済み
 - **REQ 運用**: 着手候補の正本は **本 TODO**。`draft` REQ 起票時は Backlog へ必ず1行追加（`.cursor/rules/docs-management.mdc`）
