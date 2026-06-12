@@ -142,6 +142,12 @@ export const MAX_STACK_COLLAPSED = 4;
 export const DETAIL_ZOOM_MIN = 1.5;
 /** detail モード Y zoom 上限（スクロール破綻防止） */
 export const DETAIL_ZOOM_MAX = 5.0;
+/**
+ * detail yZoomFactor のスケール対象:
+ * - 速度 plot 高さ（speedPlotHeight）
+ * - stagger 段間隔（STAGGER_ROW × K）
+ * px 固定（K で拡大しない）: フォント・hit box・速度ラベルオフセット・赤線 gap
+ */
 /** assignStackLevels の無限ループ防止 */
 const STACK_ASSIGN_MAX_ITER = 256;
 /** デバフラベル: スキル基準 Y からの追加オフセット（px） */
@@ -178,11 +184,11 @@ function hasSkillLabelOverlaps(
 
   const { maxTime, plotWidth, points, speedPlotHeight, yZoomFactor } = options;
   const staggerStep = STAGGER_ROW * yZoomFactor;
-  const hitHeight = SKILL_HIT_HEIGHT * yZoomFactor;
+  const hitHeight = SKILL_HIT_HEIGHT;
 
   const boxes = items.map((item) => {
     const stackLevel = stackLevels.get(item.tooltipKey) ?? 0;
-    const baseY = markerBaseLabelY(points, item.startTime, item.kind, speedPlotHeight, yZoomFactor);
+    const baseY = markerBaseLabelY(points, item.startTime, item.kind, speedPlotHeight);
     const hitWidthPx = estimateSkillHitWidth(item.label);
     const hitWidthTime = (hitWidthPx / plotWidth) * maxTime;
     return {
@@ -365,12 +371,11 @@ function markerBaseLabelY(
   startTime: number,
   kind: SkillEventKind,
   speedPlotHeight: number,
-  yZoomFactor = 1,
 ): number {
   const speed = getSpeedAtTime(points, startTime);
   const speedY = speedToOverlayY(speed, speedPlotHeight);
-  const kindOffset = kind === "debuff" ? DEBUFF_Y_OFFSET * yZoomFactor : 0;
-  return speedY + SKILL_SPEED_LABEL_OFFSET * yZoomFactor + kindOffset;
+  const kindOffset = kind === "debuff" ? DEBUFF_Y_OFFSET : 0;
+  return speedY + SKILL_SPEED_LABEL_OFFSET + kindOffset;
 }
 
 /** X+Y hit box 重なりで stackLevel を付与 */
@@ -405,12 +410,12 @@ function assignStackLevels(
   }[] = [];
 
   const staggerStep = STAGGER_ROW * yZoomFactor;
-  const hitHeight = SKILL_HIT_HEIGHT * yZoomFactor;
+  const hitHeight = SKILL_HIT_HEIGHT;
 
   for (const item of sorted) {
     const hitWidthPx = estimateSkillHitWidth(item.label);
     const hitWidthTime = (hitWidthPx / plotWidth) * maxTime;
-    const baseY = markerBaseLabelY(points, item.startTime, item.kind, speedPlotHeight, yZoomFactor);
+    const baseY = markerBaseLabelY(points, item.startTime, item.kind, speedPlotHeight);
     let stackLevel = 0;
 
     for (;;) {
@@ -506,17 +511,10 @@ export function layoutSkillMarkers(
     { expanded, maxTime: effectiveMaxTime, plotWidth, points, speedPlotHeight, yZoomFactor, xStaggerOnly },
   );
 
-  const lineOffsetPx =
-    (SKILL_FONT_SIZE + SKILL_LINE_GAP - SKILL_LINE_Y_NUDGE_UP) * yZoomFactor;
+  const lineOffsetPx = SKILL_FONT_SIZE + SKILL_LINE_GAP - SKILL_LINE_Y_NUDGE_UP;
 
   return markers.map((marker) => {
-    const baseY = markerBaseLabelY(
-      points,
-      marker.startTime,
-      marker.kind,
-      speedPlotHeight,
-      yZoomFactor,
-    );
+    const baseY = markerBaseLabelY(points, marker.startTime, marker.kind, speedPlotHeight);
     const stackLevel = stackLevels.get(marker.tooltipKey) ?? marker.stackLevel ?? 0;
     const labelTopPx = baseY + stackLevel * STAGGER_ROW * yZoomFactor;
     const lineTopPx = labelTopPx + lineOffsetPx;
@@ -598,7 +596,6 @@ export function skillMarkersToPx(
   chartHeightPx: number,
   chartWidthPx: number,
   maxTime: number,
-  yZoomFactor = 1,
 ): SkillMarkerPx[] {
   if (!markers.length || maxTime <= 0 || chartWidthPx <= 0 || chartHeightPx <= 0) return [];
 
@@ -622,7 +619,7 @@ export function skillMarkersToPx(
       lineY: (1 - m.lineY) * plotHeight + SKILL_CHART_MARGIN_TOP,
       hasDurationLine: m.hasDurationLine,
       hitWidth,
-      hitHeight: SKILL_HIT_HEIGHT * yZoomFactor,
+      hitHeight: SKILL_HIT_HEIGHT,
     };
   });
 }

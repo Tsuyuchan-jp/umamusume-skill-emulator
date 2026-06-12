@@ -323,9 +323,9 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
   const skillMarkersPx = useMemo(
     () =>
       showSkillOverlay
-        ? skillMarkersToPx(skillMarkers, contentChartHeight, measuredWidth, maxTime, yZoomFactor)
+        ? skillMarkersToPx(skillMarkers, contentChartHeight, measuredWidth, maxTime)
         : [],
-    [showSkillOverlay, skillMarkers, contentChartHeight, measuredWidth, maxTime, yZoomFactor],
+    [showSkillOverlay, skillMarkers, contentChartHeight, measuredWidth, maxTime],
   );
 
   /** 密集時: hover 対象を SVG 末尾へ（z-order 最前面） */
@@ -756,7 +756,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
                       textAnchor="start"
                       dominantBaseline="hanging"
                       fill={m.labelColor}
-                      fontSize={SKILL_FONT_SIZE * yZoomFactor}
+                      fontSize={SKILL_FONT_SIZE}
                       pointerEvents="none"
                     >
                       {m.label}
