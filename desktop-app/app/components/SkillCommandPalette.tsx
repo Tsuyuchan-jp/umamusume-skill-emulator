@@ -1,8 +1,6 @@
 "use client";
-import React, { useState, useEffect, useRef } from 'react';
-import { RawSkillData } from '../lib/types';
-import { fetchSkillData } from '../lib/engine/umaemuAdapter';
-import { canPlaceSkillAtIndex, getSkillNameById, getSkillRarityInfoById } from '../lib/umasimSkillData';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { buildPaletteSkillOptions, canPlaceSkillAtIndex, getSkillNameById, getSkillRarityInfoById } from '../lib/umasimSkillData';
 
 interface SkillCommandPaletteProps {
   isOpen: boolean;
@@ -14,17 +12,11 @@ interface SkillCommandPaletteProps {
   onlyUnique?: boolean;
 }
 
-/** パレットに表示しないレアリティ（育成外の特殊スキル・マイナス効果スキル） */
-const PALETTE_EXCLUDED_RARITIES = new Set(['special', 'minus']);
-
-function isPaletteVisibleSkill(skill: RawSkillData, onlyUnique: boolean): boolean {
-  if (onlyUnique) return skill.rarity === 'unique';
-  if (skill.rarity === 'unique') return false;
-  return !PALETTE_EXCLUDED_RARITIES.has(skill.rarity);
-}
-
 export function SkillCommandPalette({ isOpen, onClose, onSelect, existingSkills = [], onError, variant = 'default', onlyUnique = false }: SkillCommandPaletteProps) {
-  const [skillOptions, setSkillOptions] = useState<{value: string, label: string}[]>([]);
+  const skillOptions = useMemo(
+    () => (isOpen ? buildPaletteSkillOptions({ onlyUnique }) : []),
+    [isOpen, onlyUnique]
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [focusedIndex, setFocusedIndex] = useState(0);
   const [isShaking, setIsShaking] = useState(false);
@@ -34,26 +26,7 @@ export function SkillCommandPalette({ isOpen, onClose, onSelect, existingSkills 
 
   useEffect(() => {
     if (!isOpen) return;
-    
-    const loadSkills = async () => {
-      try {
-        const skillsData = await fetchSkillData();
-        const names = Array.from(new Set(
-          skillsData
-            .filter((s: RawSkillData) => isPaletteVisibleSkill(s, onlyUnique))
-            .map((s: RawSkillData) => s.name)
-        ));
-        const options = names.map((name: string) => {
-          const matchedSkill = skillsData.find(s => s.name === name && isPaletteVisibleSkill(s, onlyUnique));
-          return { value: matchedSkill ? String(matchedSkill.id) : name, label: name };
-        });
-        setSkillOptions(options);
-      } catch (err) {
-        console.error("Failed to load skills for palette:", err);
-      }
-    };
-    loadSkills();
-    
+
     setTimeout(() => inputRef.current?.focus(), 50);
     setSearchQuery("");
     setFocusedIndex(0);

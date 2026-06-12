@@ -3,6 +3,7 @@ import { getCourseById, getSurfaceKey, getDistanceKey, getStyleKey } from "../ap
 
 let cachedSkillsJson: string | null = null;
 
+/** WASM sim / SIMULATE_DETAIL 専用（mee1080/umasim GitHub fetch）。パレットは umasimSkillDataList を正本とする。 */
 export async function fetchSkillData(): Promise<RawSkillData[]> {
   if (cachedSkillsJson) return JSON.parse(cachedSkillsJson) as RawSkillData[];
   

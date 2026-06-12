@@ -10090,6 +10090,65 @@ export const umasimSkillDataList = [
 ];
 export const umasimSkillNames = umasimSkillDataList.map(s => s.name);
 
+type UmasimSkillEntry = (typeof umasimSkillDataList)[number];
+
+/** パレットに表示しないレアリティ（育成外の特殊スキル・マイナス効果スキル） */
+export const PALETTE_EXCLUDED_RARITIES = new Set(['special', 'minus']);
+
+/** 同名スキル dedupe 時の ID 解決優先順位（inherit 明示優先） */
+const PALETTE_ID_RESOLVE_PRIORITY = ['inherit', 'evo', 'rare', 'normal'] as const;
+
+export function isPaletteVisibleSkill(skill: UmasimSkillEntry, onlyUnique: boolean): boolean {
+  if (onlyUnique) return skill.rarity === 'unique';
+  if (skill.rarity === 'unique') return false;
+  return !PALETTE_EXCLUDED_RARITIES.has(skill.rarity);
+}
+
+function resolvePaletteSkillId(candidates: UmasimSkillEntry[]): string {
+  for (const rarity of PALETTE_ID_RESOLVE_PRIORITY) {
+    const match = candidates.find((s) => s.rarity === rarity);
+    if (match) return String(match.id);
+  }
+  const other = candidates.find(
+    (s) => !PALETTE_ID_RESOLVE_PRIORITY.includes(s.rarity as (typeof PALETTE_ID_RESOLVE_PRIORITY)[number])
+  );
+  if (other) return String(other.id);
+  return String(candidates[0].id);
+}
+
+export interface PaletteSkillOption {
+  value: string;
+  label: string;
+}
+
+/** パレット用スキル一覧（正本: umasimSkillDataList） */
+export function buildPaletteSkillOptions(options: { onlyUnique?: boolean } = {}): PaletteSkillOption[] {
+  const { onlyUnique = false } = options;
+  const byName = new Map<string, UmasimSkillEntry[]>();
+
+  for (const skill of umasimSkillDataList) {
+    if (!isPaletteVisibleSkill(skill, onlyUnique)) continue;
+    const list = byName.get(skill.name) ?? [];
+    list.push(skill);
+    byName.set(skill.name, list);
+  }
+
+  const seen = new Set<string>();
+  const result: PaletteSkillOption[] = [];
+
+  for (const skill of umasimSkillDataList) {
+    if (!isPaletteVisibleSkill(skill, onlyUnique)) continue;
+    if (seen.has(skill.name)) continue;
+    seen.add(skill.name);
+    result.push({
+      value: resolvePaletteSkillId(byName.get(skill.name)!),
+      label: skill.name,
+    });
+  }
+
+  return result;
+}
+
 export function getSkillById(id: string) {
   return umasimSkillDataList.find(s => String(s.id) === String(id));
 }

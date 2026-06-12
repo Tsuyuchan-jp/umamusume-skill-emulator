@@ -1,7 +1,6 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { UmaStatusData } from '../lib/types';
-import { fetchSkillData } from '../lib/engine/umaemuAdapter';
 import { useToast } from '../hooks/useToast';
 import { SkillCommandPalette } from './SkillCommandPalette';
 
@@ -14,27 +13,9 @@ interface SkillPanelProps {
 
 export function SkillPanel({ data, onChange }: SkillPanelProps) {
 
-  const [skillLoadError, setSkillLoadError] = useState<boolean>(false);
-
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
   const [isUniquePaletteOpen, setIsUniquePaletteOpen] = useState(false);
   const { showToastMessage } = useToast();
-
-  const loadSkills = async () => {
-    setSkillLoadError(false);
-    try {
-      await fetchSkillData();
-    } catch (err) {
-      console.error("Failed to load skills for editor:", err);
-      setSkillLoadError(true);
-    }
-  };
-
-  useEffect(() => {
-    loadSkills();
-  }, []);
-
-
 
   const addSkill = (skillId: string) => {
     if (!skillId) return;
@@ -86,18 +67,6 @@ export function SkillPanel({ data, onChange }: SkillPanelProps) {
             すべてのスキルを削除
           </button>
         </div>
-        
-        {skillLoadError && (
-          <div className="bg-rose-500/10 border border-rose-500/30 text-rose-400 p-3 rounded-lg mb-4 text-sm flex items-center justify-between">
-            <span>スキルの読み込みに失敗しました。ネットワークを確認してください。</span>
-            <button 
-              onClick={loadSkills}
-              className="bg-rose-500/20 hover:bg-rose-500/40 text-rose-300 px-3 py-1 rounded transition-colors"
-            >
-              再試行
-            </button>
-          </div>
-        )}
         
         {!hasNormalUniqueAtFirst && (
           <div className="bg-rose-950/40 border border-rose-500/50 rounded-lg p-3 mb-4 animate-shake">

@@ -4,13 +4,13 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-12 17:16
+最終更新: 2026-06-12 17:28
 
 ---
 
 ## 現在のフォーカス
 
-P1 パレットのスキルデータ参照ローカル統一（設計レビュー合意済み・実装待ち）
+P2 Backlog（次候補: タブ追加時サムネイル飛翔アニメーション削除 等）
 
 ---
 
@@ -24,17 +24,11 @@ P1 パレットのスキルデータ参照ローカル統一（設計レビュ�
 
 ### P0 — 次に着手
 
-（なし — 次は P1）
+（なし — 次は P2）
 
 ### P1 — 重要
 
-- [ ] **パレットのスキルデータ参照をローカルに統一**
-  - 現状: パレット一覧は `fetchSkillData()`（GitHub）、色分けは `umasimSkillData.ts`（ローカル）の二重参照
-  - 目標: `umasimSkillDataList` を正本にして不整合リスクを減らす
-  - 設計合意（2026-06-12）: `buildPaletteSkillOptions` 新設、同名は inherit 明示優先、SkillPanel warm-up/エラー UI 削除、WASM fetch（mee1080/umasim）は現状維持
-  - 触る想定: `SkillCommandPalette.tsx`, `SkillPanel.tsx`, `umasimSkillData.ts`, `umaemuAdapter.ts`（コメント整理）
-  - REQ: `REQ-palette-local-skill-data.md` 起票予定
-  - 注意: フィルタ条件（special/minus 除外）は維持
+（なし）
 
 ### P2 — 改善・アイデア
 
@@ -92,6 +86,7 @@ P1 パレットのスキルデータ参照ローカル統一（設計レビュ�
 
 ## 完了済み
 
+- [x] パレットのスキルデータ参照をローカルに統一 — `buildPaletteSkillOptions` + inherit 優先 dedupe + SkillPanel warm-up 削除（`COMMIT_HASH` / [`REQ-palette-local-skill-data.md`](tasks/REQ-palette-local-skill-data.md)）
 - [x] タブ切り替え時の引っかかり改善 — keep-alive + visibility 重ね + TabBar UI 刷新（**実機検証クローズ** / `224d67a`〜`132d56a` / [`REQ-tab-switch-performance.md`](tasks/REQ-tab-switch-performance.md)）
 - [x] スタミナキープ持続線異常 — WASM endTime センチネル + 条件付き水平線描画（**実機検証クローズ** / `8b02849` / [`REQ-race-detail-graph-stamina-keep-line.md`](tasks/REQ-race-detail-graph-stamina-keep-line.md)）
 - [x] グラフ縦拡大 ON 時の末尾スキル帯クリップ — `computeExpandedChartHeight` 式修正（`6a9b0fb` / [`REQ-race-detail-graph-vertical-clip.md`](tasks/REQ-race-detail-graph-vertical-clip.md)）
@@ -129,7 +124,7 @@ P1 パレットのスキルデータ参照ローカル統一（設計レビュ�
 
 ## 既知の問題・メモ
 
-- パレットのスキル一覧は `fetchSkillData()`（GitHub）から取得。色分けは `umasimSkillData.ts`（ローカル）の ID 参照 → **P1 でパレットのみローカル正本化（設計合意済み）**
+- パレットのスキル一覧は **`umasimSkillDataList`（ローカル）正本** — `buildPaletteSkillOptions`。WASM sim のみ `fetchSkillData()`（GitHub）
 - **将来（案B・Backlog）**: `skill_data.txt` を自前 GitHub に置き fetch 一本化 → extract→push でユーザー再配布を減らす方針。sim 定義と UI 一覧を同一 JSON に揃える
 - **新スキル時の現状**: 同梱 `umasimSkillData.ts` 利用箇所（P1 後のパレット/OCR）は **extract + アプリ再配布** が必要。WASM のみ mee1080/umasim fetch なら sim 定義はオンラインで追従しうるが、パレット/OCR は同梱更新まで新スキル非対応
 - `special`（14件）+ `minus`（1件）が `unique` 直後に並んでいたため、除外前は先頭がすべて白表示だった
@@ -137,7 +132,7 @@ P1 パレットのスキルデータ参照ローカル統一（設計レビュ�
 - サイドバー狭幅 UI（380px / min 320px）は Phase S1+S2 で完了（[`REQ-sidebar-compact-layout.md`](tasks/REQ-sidebar-compact-layout.md)）。S3 コンテナクエリは見送り
 - 全画面 Cockpit UI（Phase 1〜3）は完了（[`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)）
 - グラフ Y軸・m/s は [`REQ-race-detail-graph-axis.md`](tasks/REQ-race-detail-graph-axis.md) で対応済み
-- 直近レース詳細グラフ: ロードマップ [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md)。**Phase 4 baseline diff 実機検証クローズ**（2026-06-12 01:41）。**スタミナキープ持続線 実機検証クローズ**（2026-06-12 04:27 / `8b02849`）。**タブ切り替え 実機検証クローズ**（2026-06-12 05:40 / `132d56a` / [`REQ-tab-switch-performance.md`](tasks/REQ-tab-switch-performance.md)）。次の本線は P1 パレット参照統一
+- 直近レース詳細グラフ: ロードマップ [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md)。**Phase 4 baseline diff 実機検証クローズ**（2026-06-12 01:41）。**スタミナキープ持続線 実機検証クローズ**（2026-06-12 04:27 / `8b02849`）。**タブ切り替え 実機検証クローズ**（2026-06-12 05:40 / `132d56a` / [`REQ-tab-switch-performance.md`](tasks/REQ-tab-switch-performance.md)）。**パレット参照ローカル統一**（2026-06-12 / [`REQ-palette-local-skill-data.md`](tasks/REQ-palette-local-skill-data.md)）
 - 現代ウマ娘: 所持 50〜70+ スキル。グラフ `skillEvents` は発動イベント数（20〜40+ あり得る）
 - **別作業で発見（2026-06-11）**: サイドバー折りたたみボタンのスクロール追従、ステータス条件ボタンのテキスト化、グラフ/スキル表記以降のレスポンス低下 — いずれも Backlog 登録済み
 - **REQ 運用**: 着手候補の正本は **本 TODO**。`draft` REQ 起票時は Backlog へ必ず1行追加（`.cursor/rules/docs-management.mdc`）
