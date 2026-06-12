@@ -86,7 +86,7 @@ detail Y zoom 反復収束 + X-only stagger — 実装完了、ユーザー実�
 
 ## 完了済み
 
-- [x] detail Y zoom 反復収束 + X-only stagger — 2D 被りゼロまで K 探索・detail 時 X 重なり stagger（**実機検証待ち** / [`REQ-race-detail-graph-skill-layout-sync.md`](tasks/REQ-race-detail-graph-skill-layout-sync.md)）
+- [x] detail Y zoom 反復収束 + X-only stagger — 2D 被りゼロまで K 探索・detail 時 X 重なり stagger（**実機検証待ち** / `12af1e1` / [`REQ-race-detail-graph-skill-layout-sync.md`](tasks/REQ-race-detail-graph-skill-layout-sync.md)）
 - [x] 縦拡大 = Y クローズアップ（密集度自動 zoom）— 速度追従+相関維持・detail 縦スクロール（**superseded by 反復 zoom** / `b7f3838` / [`REQ-race-detail-graph-skill-layout-sync.md`](tasks/REQ-race-detail-graph-skill-layout-sync.md)）
 - [x] 縦拡大 ON 時 Y 軸圧縮（360px 固定）修正 — viewport 高さ LineChart + 下スキル band（**superseded** / `e1ef3f2`）
 - [x] 縦拡大 ON 時の Y 軸縮小・スキル重なり修正 — 速度 plot 固定 + スキル band 分離 + X+Y stagger（**実機検証待ち** / `cff8573` / [`REQ-race-detail-graph-skill-layout-sync.md`](tasks/REQ-race-detail-graph-skill-layout-sync.md)）
