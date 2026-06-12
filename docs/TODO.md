@@ -4,13 +4,13 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-12 05:40
+最終更新: 2026-06-12 17:16
 
 ---
 
 ## 現在のフォーカス
 
-P1 パレットのスキルデータ参照ローカル統一（設計レビュー着手前）
+P1 パレットのスキルデータ参照ローカル統一（設計レビュー合意済み・実装待ち）
 
 ---
 
@@ -31,7 +31,9 @@ P1 パレットのスキルデータ参照ローカル統一（設計レビュ�
 - [ ] **パレットのスキルデータ参照をローカルに統一**
   - 現状: パレット一覧は `fetchSkillData()`（GitHub）、色分けは `umasimSkillData.ts`（ローカル）の二重参照
   - 目標: `umasimSkillDataList` を正本にして不整合リスクを減らす
-  - 触る想定: `SkillCommandPalette.tsx`, `umaemuAdapter.ts`
+  - 設計合意（2026-06-12）: `buildPaletteSkillOptions` 新設、同名は inherit 明示優先、SkillPanel warm-up/エラー UI 削除、WASM fetch（mee1080/umasim）は現状維持
+  - 触る想定: `SkillCommandPalette.tsx`, `SkillPanel.tsx`, `umasimSkillData.ts`, `umaemuAdapter.ts`（コメント整理）
+  - REQ: `REQ-palette-local-skill-data.md` 起票予定
   - 注意: フィルタ条件（special/minus 除外）は維持
 
 ### P2 — 改善・アイデア
@@ -79,6 +81,13 @@ P1 パレットのスキルデータ参照ローカル統一（設計レビュ�
   - 現状: スキル名のみ（`getSkillNameById`）
   - 低優先: SkillPanel / Verifier で足りるなら見送り可
 
+- [ ] **skill_data.txt 参照の一本化（案B）— 自前 GitHub fetch**
+  - 背景: P1 後も WASM=mee1080/umasim 実行時 fetch、UI=同梱 `umasimSkillData.ts` と更新経路が分かれる。参照正本を1本にすると保守・不整合防止に有利
+  - 目標: 開発者が `extract-umasim-skills` 等で生成した `skill_data.txt` を **自前リポジトリ** に置き、アプリはそこから fetch（WASM 初期化 + パレット/OCR 用一覧の共通正本）。extract→push のみで **アプリ再配布なし** に近づける（オンライン時）
+  - 想定: `umaemuAdapter.fetchSkillData` の URL を自前 raw に変更、パレット/OCR も同一 JSON から派生（または runtime キャッシュ共有）。オフライン用に同梱フォールバック要検討
+  - 触る想定: `umaemuAdapter.ts`, `umasimSkillData.ts`, `UPDATE_SKILLS.md`, extract/publish 手順（CI 化も可）
+  - **今回やらない**: P1 完了後・余裕ができたら着手。`race.js`/WASM 本体更新・`skillRarityData.ts`（mdb）は別経路のまま
+
 ---
 
 ## 完了済み
@@ -120,7 +129,9 @@ P1 パレットのスキルデータ参照ローカル統一（設計レビュ�
 
 ## 既知の問題・メモ
 
-- パレットのスキル一覧は `fetchSkillData()`（GitHub）から取得。色分けは `umasimSkillData.ts`（ローカル）の ID 参照
+- パレットのスキル一覧は `fetchSkillData()`（GitHub）から取得。色分けは `umasimSkillData.ts`（ローカル）の ID 参照 → **P1 でパレットのみローカル正本化（設計合意済み）**
+- **将来（案B・Backlog）**: `skill_data.txt` を自前 GitHub に置き fetch 一本化 → extract→push でユーザー再配布を減らす方針。sim 定義と UI 一覧を同一 JSON に揃える
+- **新スキル時の現状**: 同梱 `umasimSkillData.ts` 利用箇所（P1 後のパレット/OCR）は **extract + アプリ再配布** が必要。WASM のみ mee1080/umasim fetch なら sim 定義はオンラインで追従しうるが、パレット/OCR は同梱更新まで新スキル非対応
 - `special`（14件）+ `minus`（1件）が `unique` 直後に並んでいたため、除外前は先頭がすべて白表示だった
 - Gemini API キーは Windows 資格情報マネージャー（`com.umamusume.race-analyzer` / `gemini_api_key`）に保存
 - サイドバー狭幅 UI（380px / min 320px）は Phase S1+S2 で完了（[`REQ-sidebar-compact-layout.md`](tasks/REQ-sidebar-compact-layout.md)）。S3 コンテナクエリは見送り
