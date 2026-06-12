@@ -86,7 +86,7 @@ P2 Backlog（次候補: タブ追加時サムネイル飛翔アニメーショ�
 
 ## 完了済み
 
-- [x] パレットのスキルデータ参照をローカルに統一 — `buildPaletteSkillOptions` + inherit 優先 dedupe + SkillPanel warm-up 削除（`COMMIT_HASH` / [`REQ-palette-local-skill-data.md`](tasks/REQ-palette-local-skill-data.md)）
+- [x] パレットのスキルデータ参照をローカルに統一 — `buildPaletteSkillOptions` + inherit 優先 dedupe + SkillPanel warm-up 削除（`f564898` / [`REQ-palette-local-skill-data.md`](tasks/REQ-palette-local-skill-data.md)）
 - [x] タブ切り替え時の引っかかり改善 — keep-alive + visibility 重ね + TabBar UI 刷新（**実機検証クローズ** / `224d67a`〜`132d56a` / [`REQ-tab-switch-performance.md`](tasks/REQ-tab-switch-performance.md)）
 - [x] スタミナキープ持続線異常 — WASM endTime センチネル + 条件付き水平線描画（**実機検証クローズ** / `8b02849` / [`REQ-race-detail-graph-stamina-keep-line.md`](tasks/REQ-race-detail-graph-stamina-keep-line.md)）
 - [x] グラフ縦拡大 ON 時の末尾スキル帯クリップ — `computeExpandedChartHeight` 式修正（`6a9b0fb` / [`REQ-race-detail-graph-vertical-clip.md`](tasks/REQ-race-detail-graph-vertical-clip.md)）
