@@ -4,13 +4,13 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-12 17:52
+最終更新: 2026-06-12 18:10
 
 ---
 
 ## 現在のフォーカス
 
-P2 Backlog（次候補: タブ追加時サムネイル飛翔アニメーション削除 等）
+スキル帯×速度折れ線連動レイアウト — **Ask mode 設計レビュー待ち**（[`REQ-race-detail-graph-skill-layout-sync.md`](tasks/REQ-race-detail-graph-skill-layout-sync.md)）
 
 ---
 
@@ -50,7 +50,8 @@ P2 Backlog（次候補: タブ追加時サムネイル飛翔アニメーショ�
   - 現状: レース最終盤ではスキル帯がグラフ下部・速度折れ線が上部に分離し、発動タイミングと速度変化の対応分析がしづらい
   - 目標: スキル帯の表示位置を速度折れ線にうまく追従・連携させ、同一視野で詳細分析できる UI にする
   - 触る想定: `RaceDetailChart.tsx`, `raceGraphBuilder.ts`（スキル行 Y 配置・スクロール/sync 連動）
-  - 注意: **実装難度が高い想定。着手前に Ask mode で UI 案・実現性の検証が必要**
+  - 注意: **実装難度高。Ask mode 設計レビュー → 承認 → Agent 実装**
+  - REQ: [`REQ-race-detail-graph-skill-layout-sync.md`](tasks/REQ-race-detail-graph-skill-layout-sync.md)
   - 関連: Phase 3 スキル帯（[`REQ-race-detail-graph-phase3.md`](tasks/REQ-race-detail-graph-phase3.md)）
 
 - [ ] **グラフ デバフ帯（B-3）の実機検証**
