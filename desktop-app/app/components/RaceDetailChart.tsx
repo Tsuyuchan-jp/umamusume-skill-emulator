@@ -18,7 +18,7 @@ import { RaceDetailDump } from "../lib/types";
 import {
   buildRaceGraphPoints,
   buildSkillMarkers,
-  computeExpandedChartHeight,
+  computeSkillBandHeight,
   computeSkillMaxStack,
   DEFAULT_GRAPH_DISPLAY_STATE,
   GraphDisplayState,
@@ -33,7 +33,6 @@ import {
   SKILL_FONT_SIZE,
   OVERLAY_MARGIN_LEFT,
   OVERLAY_MARGIN_RIGHT,
-  SPEED_PLOT_HEIGHT,
   SPEED_MIN,
   SPEED_MAX,
   STAMINA_PLOT_FLOOR,
@@ -245,16 +244,18 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
     [detail, displayState, graphPoints],
   );
 
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const chartAreaRef = useRef<HTMLDivElement>(null);
-  const [measuredHeight, setMeasuredHeight] = useState(SKILL_CHART_BASE_HEIGHT);
+  /** scroll コンテナの可視高さ — LineChart は ON/OFF 共通でこれに合わせる */
+  const [viewportHeight, setViewportHeight] = useState(SKILL_CHART_BASE_HEIGHT);
   const [measuredWidth, setMeasuredWidth] = useState(800);
 
   useEffect(() => {
-    const el = chartAreaRef.current;
+    const el = scrollContainerRef.current;
     if (!el) return;
     const ro = new ResizeObserver(([entry]) => {
       const { width, height } = entry.contentRect;
-      if (height > 0) setMeasuredHeight(height);
+      if (height > 0) setViewportHeight(height);
       if (width > 0) setMeasuredWidth(width);
     });
     ro.observe(el);
@@ -266,6 +267,11 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
     graphPoints.points.length > 0 ? graphPoints.points[graphPoints.points.length - 1].time : 0;
   const overlayPlotWidth = Math.max(measuredWidth - OVERLAY_MARGIN_LEFT - OVERLAY_MARGIN_RIGHT, 1);
   const hasDebuffMarkers = skillData.skillMarkers.some((m) => m.kind === "debuff");
+  const lineChartHeight = Math.max(viewportHeight, 1);
+  const speedPlotHeight = Math.max(
+    lineChartHeight - SKILL_CHART_MARGIN_TOP - SKILL_CHART_MARGIN_BOTTOM,
+    1,
+  );
   const maxStackForHeight = useMemo(
     () =>
       computeSkillMaxStack(
@@ -273,20 +279,16 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
         maxTime,
         overlayPlotWidth,
         graphPoints.points,
-        SPEED_PLOT_HEIGHT,
+        speedPlotHeight,
       ),
-    [skillData.skillMarkers, maxTime, overlayPlotWidth, graphPoints.points],
+    [skillData.skillMarkers, maxTime, overlayPlotWidth, graphPoints.points, speedPlotHeight],
   );
-  const expandedChartHeight = useMemo(
-    () => computeExpandedChartHeight(maxStackForHeight, hasDebuffMarkers),
+  const skillBandHeight = useMemo(
+    () => computeSkillBandHeight(maxStackForHeight, hasDebuffMarkers),
     [maxStackForHeight, hasDebuffMarkers],
   );
-  /** 縦拡大 ON: 速度 plot 固定 + 下にスキル band。OFF: 親高さに追従 */
-  const lineChartHeight = isExpanded ? SKILL_CHART_BASE_HEIGHT : measuredHeight;
-  const chartHeight = isExpanded ? expandedChartHeight : measuredHeight;
-  const speedPlotHeight = isExpanded
-    ? SPEED_PLOT_HEIGHT
-    : Math.max(lineChartHeight - SKILL_CHART_MARGIN_TOP - SKILL_CHART_MARGIN_BOTTOM, 1);
+  /** 縦拡大 ON: viewport 高さの LineChart + 下スキル band。OFF: viewport のみ */
+  const chartHeight = isExpanded ? lineChartHeight + skillBandHeight : lineChartHeight;
   const skillMarkers = useMemo(
     () =>
       layoutSkillMarkers(skillData.skillMarkers, chartHeight, {
@@ -410,6 +412,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
   return (
     <div className="relative flex h-full min-h-0 w-full min-w-0 flex-col">
       <div
+        ref={scrollContainerRef}
         className={`race-detail-chart relative min-h-0 flex-1 overflow-x-hidden outline-none ${
           isExpanded
             ? "overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent"
@@ -430,7 +433,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
             width="100%"
             height={isExpanded ? lineChartHeight : "100%"}
             minWidth={0}
-            initialDimension={{ width: 800, height: lineChartHeight }}
+            initialDimension={{ width: 800, height: Math.max(lineChartHeight, SKILL_CHART_BASE_HEIGHT) }}
           >
             <LineChart data={graphPoints.points} margin={{ top: 24, right: 48, left: 4, bottom: 4 }}>
               {displayState.showAreas &&

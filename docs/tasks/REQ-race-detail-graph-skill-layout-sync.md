@@ -123,3 +123,4 @@
 | 2026-06-12 19:15 | `computeExpandedChartHeight(maxStack)` — 発動数 N から衝突深さへ。`stackBottomOverflowPx` で layout 定数単一ソース化 | 末尾クリップ再発防止 |
 | 2026-06-12 19:18 | Agent 実装完了。`npm run build` 通過。実機検証はユーザー手順 A〜G | RaceDetailChart: measuredWidth 連動 maxStack・hover z-order 最前面 |
 | 2026-06-12 19:36 | **退行修正**: 縦拡大 ON で速度 plot 固定（`SPEED_PLOT_HEIGHT`）+ 下にスキル band のみ拡張。stagger を X+Y hit box 判定に変更 | 実機報告: Y 軸縮小・終盤ラベル被り。詳細確認＝速度解像度維持 + スキル band スクロール |
+| 2026-06-12 19:41 | **再修正**: LineChart 高さを scroll viewport（`viewportHeight`）に統一。360px 固定を廃止。`chartHeight = viewport + skillBand` | 360px 固定で Cockpit pane より低く Y 圧縮。OFF/ON で同一 viewport 解像度 |

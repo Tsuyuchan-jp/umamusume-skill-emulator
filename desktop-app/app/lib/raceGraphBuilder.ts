@@ -185,9 +185,13 @@ export function computeSkillBandHeight(maxStack: number, hasDebuff = false): num
   );
 }
 
-/** 縦拡大 ON: 速度 plot 固定 + 下にスキル band を追加 */
-export function computeExpandedChartHeight(maxStack: number, hasDebuff = false): number {
-  return SKILL_CHART_BASE_HEIGHT + computeSkillBandHeight(maxStack, hasDebuff);
+/** 縦拡大 ON: lineChartHeight + 下スキル band */
+export function computeExpandedChartHeight(
+  lineChartHeight: number,
+  maxStack: number,
+  hasDebuff = false,
+): number {
+  return lineChartHeight + computeSkillBandHeight(maxStack, hasDebuff);
 }
 
 export interface SkillLayoutOptions {
@@ -195,7 +199,7 @@ export interface SkillLayoutOptions {
   expanded?: boolean;
   /** 速度スナップ用。未指定時は SPEED_MIN 固定 */
   points?: GraphPoint[];
-  /** 速度スナップ plot 高さ（px）。縦拡大 ON 時は SPEED_PLOT_HEIGHT 固定 */
+  /** 速度スナップ plot 高さ（px）。未指定時は chart plot と同じ */
   speedPlotHeight?: number;
   /** hit box 衝突判定用 */
   maxTime?: number;
@@ -612,8 +616,8 @@ export function buildSkillMarkers(
     return { ...marker, hasDurationLine: hasSkillDurationLine(marker) };
   });
 
-  const maxStack = computeSkillMaxStack(baseMarkers, maxTime, undefined, points);
-  const expandedChartHeight = computeExpandedChartHeight(maxStack, hasDebuff);
+  const maxStack = computeSkillMaxStack(baseMarkers, maxTime, undefined, points, SPEED_PLOT_HEIGHT);
+  const expandedChartHeight = computeExpandedChartHeight(SKILL_CHART_BASE_HEIGHT, maxStack, hasDebuff);
   return { skillMarkers: baseMarkers, expandedChartHeight };
 }
 
