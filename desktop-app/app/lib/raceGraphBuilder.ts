@@ -185,13 +185,34 @@ export function computeSkillBandHeight(maxStack: number, hasDebuff = false): num
   );
 }
 
-/** 縦拡大 ON: lineChartHeight + 下スキル band */
+/** 密集度から Y クローズアップ倍率を算出（overview=1、detail>=1） */
+export function computeYZoomFactor(
+  viewportPlotHeight: number,
+  maxStack: number,
+  hasDebuff = false,
+): number {
+  if (viewportPlotHeight <= 0) return 1;
+  const extraPx = computeSkillBandHeight(maxStack, hasDebuff);
+  return Math.max(1, (viewportPlotHeight + extraPx) / viewportPlotHeight);
+}
+
+/** detail モードの chart 高さ = viewportChartHeight × yZoomFactor */
+export function computeZoomedChartHeight(viewportChartHeight: number, yZoomFactor: number): number {
+  return Math.max(viewportChartHeight, viewportChartHeight * yZoomFactor);
+}
+
+/** @deprecated computeZoomedChartHeight を使用 */
 export function computeExpandedChartHeight(
   lineChartHeight: number,
   maxStack: number,
   hasDebuff = false,
 ): number {
-  return lineChartHeight + computeSkillBandHeight(maxStack, hasDebuff);
+  const viewportPlotHeight = Math.max(
+    lineChartHeight - SKILL_CHART_MARGIN_TOP - SKILL_CHART_MARGIN_BOTTOM,
+    1,
+  );
+  const yZoomFactor = computeYZoomFactor(viewportPlotHeight, maxStack, hasDebuff);
+  return computeZoomedChartHeight(lineChartHeight, yZoomFactor);
 }
 
 export interface SkillLayoutOptions {
@@ -201,6 +222,8 @@ export interface SkillLayoutOptions {
   points?: GraphPoint[];
   /** 速度スナップ plot 高さ（px）。未指定時は chart plot と同じ */
   speedPlotHeight?: number;
+  /** Y クローズアップ倍率（overview=1）。オフセット・stagger も同倍率でスケール */
+  yZoomFactor?: number;
   /** hit box 衝突判定用 */
   maxTime?: number;
   /** hit box 衝突判定用（px）。未指定時は OVERLAY 基準幅 */
@@ -219,11 +242,12 @@ function markerBaseLabelY(
   startTime: number,
   kind: SkillEventKind,
   speedPlotHeight: number,
+  yZoomFactor = 1,
 ): number {
   const speed = getSpeedAtTime(points, startTime);
   const speedY = speedToOverlayY(speed, speedPlotHeight);
-  const kindOffset = kind === "debuff" ? DEBUFF_Y_OFFSET : 0;
-  return speedY + SKILL_SPEED_LABEL_OFFSET + kindOffset;
+  const kindOffset = kind === "debuff" ? DEBUFF_Y_OFFSET * yZoomFactor : 0;
+  return speedY + SKILL_SPEED_LABEL_OFFSET * yZoomFactor + kindOffset;
 }
 
 /** X+Y hit box 重なりで stackLevel を付与（0.4秒ビンは startTime 昇順処理で近似） */
@@ -235,9 +259,10 @@ function assignStackLevels(
     plotWidth: number;
     points: GraphPoint[];
     speedPlotHeight: number;
+    yZoomFactor: number;
   },
 ): { stackLevels: Map<string, number>; maxStack: number } {
-  const { expanded, maxTime, plotWidth, points, speedPlotHeight } = options;
+  const { expanded, maxTime, plotWidth, points, speedPlotHeight, yZoomFactor } = options;
   const stackLevels = new Map<string, number>();
   let maxStack = 0;
 
@@ -255,22 +280,25 @@ function assignStackLevels(
     baseY: number;
   }[] = [];
 
+  const staggerStep = STAGGER_ROW * yZoomFactor;
+  const hitHeight = SKILL_HIT_HEIGHT * yZoomFactor;
+
   for (const item of sorted) {
     const hitWidthPx = estimateSkillHitWidth(item.label);
     const hitWidthTime = (hitWidthPx / plotWidth) * maxTime;
-    const baseY = markerBaseLabelY(points, item.startTime, item.kind, speedPlotHeight);
+    const baseY = markerBaseLabelY(points, item.startTime, item.kind, speedPlotHeight, yZoomFactor);
     let stackLevel = 0;
 
     for (;;) {
       const capped = expanded ? stackLevel : Math.min(stackLevel, MAX_STACK_COLLAPSED - 1);
-      const yTop = baseY + capped * STAGGER_ROW;
-      const yBottom = yTop + SKILL_HIT_HEIGHT;
+      const yTop = baseY + capped * staggerStep;
+      const yBottom = yTop + hitHeight;
       const startX = item.startTime;
       const endX = startX + hitWidthTime;
 
       const overlaps = placed.some((p) => {
-        const pYTop = p.baseY + p.stackLevel * STAGGER_ROW;
-        const pYBottom = pYTop + SKILL_HIT_HEIGHT;
+        const pYTop = p.baseY + p.stackLevel * staggerStep;
+        const pYBottom = pYTop + hitHeight;
         const pStart = p.startTime;
         const pEnd = p.startTime + p.hitWidthTime;
         const xOverlap = startX < pEnd && endX > pStart;
@@ -314,6 +342,7 @@ export function layoutSkillMarkers(
     expanded = true,
     points = [],
     speedPlotHeight: speedPlotHeightOpt,
+    yZoomFactor = 1,
     maxTime = 0,
     plotWidth = 800 - OVERLAY_MARGIN_LEFT - OVERLAY_MARGIN_RIGHT,
   } = options;
@@ -336,15 +365,22 @@ export function layoutSkillMarkers(
       startTime: m.startTime,
       kind: m.kind,
     })),
-    { expanded, maxTime: effectiveMaxTime, plotWidth, points, speedPlotHeight },
+    { expanded, maxTime: effectiveMaxTime, plotWidth, points, speedPlotHeight, yZoomFactor },
   );
 
-  const lineOffsetPx = SKILL_FONT_SIZE + SKILL_LINE_GAP - SKILL_LINE_Y_NUDGE_UP;
+  const lineOffsetPx =
+    (SKILL_FONT_SIZE + SKILL_LINE_GAP - SKILL_LINE_Y_NUDGE_UP) * yZoomFactor;
 
   return markers.map((marker) => {
-    const baseY = markerBaseLabelY(points, marker.startTime, marker.kind, speedPlotHeight);
+    const baseY = markerBaseLabelY(
+      points,
+      marker.startTime,
+      marker.kind,
+      speedPlotHeight,
+      yZoomFactor,
+    );
     const stackLevel = stackLevels.get(marker.tooltipKey) ?? marker.stackLevel ?? 0;
-    const labelTopPx = baseY + stackLevel * STAGGER_ROW;
+    const labelTopPx = baseY + stackLevel * STAGGER_ROW * yZoomFactor;
     const lineTopPx = labelTopPx + lineOffsetPx;
 
     return {
@@ -364,6 +400,7 @@ export function computeSkillMaxStack(
   plotWidth = 800 - OVERLAY_MARGIN_LEFT - OVERLAY_MARGIN_RIGHT,
   points: GraphPoint[] = [],
   speedPlotHeight = SPEED_PLOT_HEIGHT,
+  yZoomFactor = 1,
 ): number {
   return assignStackLevels(
     markers.map((m) => ({
@@ -372,7 +409,7 @@ export function computeSkillMaxStack(
       startTime: m.startTime,
       kind: m.kind,
     })),
-    { expanded: true, maxTime, plotWidth, points, speedPlotHeight },
+    { expanded: true, maxTime, plotWidth, points, speedPlotHeight, yZoomFactor },
   ).maxStack;
 }
 
@@ -415,6 +452,7 @@ export function skillMarkersToPx(
   chartHeightPx: number,
   chartWidthPx: number,
   maxTime: number,
+  yZoomFactor = 1,
 ): SkillMarkerPx[] {
   if (!markers.length || maxTime <= 0 || chartWidthPx <= 0 || chartHeightPx <= 0) return [];
 
@@ -438,7 +476,7 @@ export function skillMarkersToPx(
       lineY: (1 - m.lineY) * plotHeight + SKILL_CHART_MARGIN_TOP,
       hasDurationLine: m.hasDurationLine,
       hitWidth,
-      hitHeight: SKILL_HIT_HEIGHT,
+      hitHeight: SKILL_HIT_HEIGHT * yZoomFactor,
     };
   });
 }
@@ -616,8 +654,9 @@ export function buildSkillMarkers(
     return { ...marker, hasDurationLine: hasSkillDurationLine(marker) };
   });
 
-  const maxStack = computeSkillMaxStack(baseMarkers, maxTime, undefined, points, SPEED_PLOT_HEIGHT);
-  const expandedChartHeight = computeExpandedChartHeight(SKILL_CHART_BASE_HEIGHT, maxStack, hasDebuff);
+  const maxStack = computeSkillMaxStack(baseMarkers, maxTime, undefined, points, SPEED_PLOT_HEIGHT, 1);
+  const yZoomFactor = computeYZoomFactor(SPEED_PLOT_HEIGHT, maxStack, hasDebuff);
+  const expandedChartHeight = computeZoomedChartHeight(SKILL_CHART_BASE_HEIGHT, yZoomFactor);
   return { skillMarkers: baseMarkers, expandedChartHeight };
 }
 

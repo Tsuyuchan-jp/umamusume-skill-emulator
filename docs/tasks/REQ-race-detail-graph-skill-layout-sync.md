@@ -5,7 +5,7 @@
 
 - **ステータス**: done
 - **作成日**: 2026-06-12 18:10
-- **関連コミット**: `6816447`
+- **関連コミット**: `6816447`（初版）〜 本修正コミット後更新
 
 ---
 
@@ -33,7 +33,7 @@
 - `raceGraphBuilder.ts`: `buildSkillMarkers` → `layoutSkillMarkers` → `skillMarkersToPx`
 - スキル Y: **下ライン行レイアウト**（Phase 3 UX B 案）。`expandSkillRows` ON 時は 19px 固定行で下から積み上げ
 - 速度線: プロット座標 0–1 の上部域。区間帯（直線/コーナー/坂）は y=0〜0.2 付近
-- 縦拡大: `computeExpandedChartHeight` で chart 高さを伸ばし、親 `overflow-y-auto` でスクロール
+- 縦拡大: **`expandSkillRows` = Y 方向クローズアップ（密集度自動 zoom）**。overview OFF / detail ON。下 band 追加方式は廃止（2026-06-12 19:55 決定）
 
 ### ユーザーが感じる問題
 
@@ -124,3 +124,6 @@
 | 2026-06-12 19:18 | Agent 実装完了。`npm run build` 通過。実機検証はユーザー手順 A〜G | RaceDetailChart: measuredWidth 連動 maxStack・hover z-order 最前面 |
 | 2026-06-12 19:36 | **退行修正**: 縦拡大 ON で速度 plot 固定（`SPEED_PLOT_HEIGHT`）+ 下にスキル band のみ拡張。stagger を X+Y hit box 判定に変更 | 実機報告: Y 軸縮小・終盤ラベル被り。詳細確認＝速度解像度維持 + スキル band スクロール |
 | 2026-06-12 19:41 | **再修正**: LineChart 高さを scroll viewport（`viewportHeight`）に統一。360px 固定を廃止。`chartHeight = viewport + skillBand` | 360px 固定で Cockpit pane より低く Y 圧縮。OFF/ON で同一 viewport 解像度 |
+| 2026-06-12 19:55 | **要件変更・確定**: 「縦拡大」= **Y 方向クローズアップ**（Google Map 的 XY パンは将来）。overview（OFF）= 被り許容・zoom=1。detail（ON）= 折れ線+スキル+赤線を **同一 canvas で yZoomFactor 倍**、相関維持、縦スクロール | ユーザー意図: 速度追従で影響分析。詳細時は相対位置そのまま解像度 UP で被り解消 |
+| 2026-06-12 19:55 | **yZoomFactor 密集度自動**: `max(1, (viewportPlot + computeSkillBandHeight(maxStack)) / viewportPlot)`。オフセット(+12/+20)・stagger(14px)も zoom 倍率でスケール | skill band 分離方式を廃止。単一 content 高さ = viewportChart × yZoomFactor |
+| 2026-06-12 19:55 | Agent 実装: `computeYZoomFactor` / `computeZoomedChartHeight`。LineChart+overlay 同一 content 高さ。`npm run build` 通過 | RaceDetailChart: scroll viewport 基準・detail 時縦スクロール |
