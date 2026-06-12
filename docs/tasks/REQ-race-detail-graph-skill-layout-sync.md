@@ -122,3 +122,4 @@
 | 2026-06-12 19:15 | デバフ +20px、赤線水平維持、baseline 二重マーカーなし、`GraphDisplayState` 新フィールドなし | 承認済み方針確定値 |
 | 2026-06-12 19:15 | `computeExpandedChartHeight(maxStack)` — 発動数 N から衝突深さへ。`stackBottomOverflowPx` で layout 定数単一ソース化 | 末尾クリップ再発防止 |
 | 2026-06-12 19:18 | Agent 実装完了。`npm run build` 通過。実機検証はユーザー手順 A〜G | RaceDetailChart: measuredWidth 連動 maxStack・hover z-order 最前面 |
+| 2026-06-12 19:36 | **退行修正**: 縦拡大 ON で速度 plot 固定（`SPEED_PLOT_HEIGHT`）+ 下にスキル band のみ拡張。stagger を X+Y hit box 判定に変更 | 実機報告: Y 軸縮小・終盤ラベル被り。詳細確認＝速度解像度維持 + スキル band スクロール |

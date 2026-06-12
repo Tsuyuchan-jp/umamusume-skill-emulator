@@ -143,6 +143,9 @@ export const DEBUFF_Y_OFFSET = 20;
 /** LineChart margin と同期（layoutSkillMarkers 用） */
 export const SKILL_CHART_MARGIN_TOP = 24;
 export const SKILL_CHART_MARGIN_BOTTOM = 4;
+/** 速度折れ線 plot 高さ（px）— 縦拡大 ON でも Recharts はこの高さを維持 */
+export const SPEED_PLOT_HEIGHT =
+  SKILL_CHART_BASE_HEIGHT - SKILL_CHART_MARGIN_TOP - SKILL_CHART_MARGIN_BOTTOM;
 
 /** ラベル hit box 幅（px）— layout / skillMarkersToPx 共通 */
 export function estimateSkillHitWidth(label: string): number {
@@ -170,8 +173,8 @@ function getSpeedAtTime(points: GraphPoint[], startTime: number): number {
   return points[idx]?.speed ?? SPEED_MIN;
 }
 
-/** stackLevel 最大値に必要な plot 下端余白（px）— layout / computeExpandedChartHeight 単一ソース */
-function stackBottomOverflowPx(maxStack: number, hasDebuff: boolean): number {
+/** 速度 plot 下のスキル band 高さ（px）— layout / computeExpandedChartHeight 単一ソース */
+export function computeSkillBandHeight(maxStack: number, hasDebuff = false): number {
   return (
     SKILL_SPEED_LABEL_OFFSET +
     maxStack * STAGGER_ROW +
@@ -182,14 +185,9 @@ function stackBottomOverflowPx(maxStack: number, hasDebuff: boolean): number {
   );
 }
 
-/** 縦拡大 ON: maxStack 基準の chartHeight（margin + ストラグger 余白の単一ソース） */
+/** 縦拡大 ON: 速度 plot 固定 + 下にスキル band を追加 */
 export function computeExpandedChartHeight(maxStack: number, hasDebuff = false): number {
-  const basePlot = SKILL_CHART_BASE_HEIGHT - SKILL_CHART_MARGIN_TOP - SKILL_CHART_MARGIN_BOTTOM;
-  const requiredPlot = basePlot + stackBottomOverflowPx(maxStack, hasDebuff);
-  return Math.max(
-    SKILL_CHART_BASE_HEIGHT,
-    SKILL_CHART_MARGIN_TOP + requiredPlot + SKILL_CHART_MARGIN_BOTTOM,
-  );
+  return SKILL_CHART_BASE_HEIGHT + computeSkillBandHeight(maxStack, hasDebuff);
 }
 
 export interface SkillLayoutOptions {
@@ -197,9 +195,11 @@ export interface SkillLayoutOptions {
   expanded?: boolean;
   /** 速度スナップ用。未指定時は SPEED_MIN 固定 */
   points?: GraphPoint[];
-  /** hit box X 衝突判定用 */
+  /** 速度スナップ plot 高さ（px）。縦拡大 ON 時は SPEED_PLOT_HEIGHT 固定 */
+  speedPlotHeight?: number;
+  /** hit box 衝突判定用 */
   maxTime?: number;
-  /** hit box X 衝突判定用（px）。未指定時は OVERLAY 基準幅 */
+  /** hit box 衝突判定用（px）。未指定時は OVERLAY 基準幅 */
   plotWidth?: number;
 }
 
@@ -207,65 +207,92 @@ interface StackLayoutInput {
   tooltipKey: string;
   label: string;
   startTime: number;
+  kind: SkillEventKind;
 }
 
-/** 0.4 秒ビン内 hit box 重なりで stackLevel を付与し maxStack を返す */
+function markerBaseLabelY(
+  points: GraphPoint[],
+  startTime: number,
+  kind: SkillEventKind,
+  speedPlotHeight: number,
+): number {
+  const speed = getSpeedAtTime(points, startTime);
+  const speedY = speedToOverlayY(speed, speedPlotHeight);
+  const kindOffset = kind === "debuff" ? DEBUFF_Y_OFFSET : 0;
+  return speedY + SKILL_SPEED_LABEL_OFFSET + kindOffset;
+}
+
+/** X+Y hit box 重なりで stackLevel を付与（0.4秒ビンは startTime 昇順処理で近似） */
 function assignStackLevels(
   items: StackLayoutInput[],
-  options: { expanded: boolean; maxTime: number; plotWidth: number },
+  options: {
+    expanded: boolean;
+    maxTime: number;
+    plotWidth: number;
+    points: GraphPoint[];
+    speedPlotHeight: number;
+  },
 ): { stackLevels: Map<string, number>; maxStack: number } {
-  const { expanded, maxTime, plotWidth } = options;
+  const { expanded, maxTime, plotWidth, points, speedPlotHeight } = options;
   const stackLevels = new Map<string, number>();
   let maxStack = 0;
 
-  if (!items.length || maxTime <= 0 || plotWidth <= 0) {
+  if (!items.length || maxTime <= 0 || plotWidth <= 0 || speedPlotHeight <= 0) {
     return { stackLevels, maxStack };
   }
 
-  const binMap = new Map<number, StackLayoutInput[]>();
-  for (const item of items) {
-    const bin = Math.floor(item.startTime / STAGGER_BIN_SECONDS);
-    const group = binMap.get(bin) ?? [];
-    group.push(item);
-    binMap.set(bin, group);
-  }
+  const sorted = [...items].sort(
+    (a, b) => a.startTime - b.startTime || a.tooltipKey.localeCompare(b.tooltipKey),
+  );
+  const placed: {
+    startTime: number;
+    hitWidthTime: number;
+    stackLevel: number;
+    baseY: number;
+  }[] = [];
 
-  for (const group of binMap.values()) {
-    group.sort((a, b) => a.startTime - b.startTime || a.tooltipKey.localeCompare(b.tooltipKey));
-    const placed: { startTime: number; hitWidthTime: number; stackLevel: number }[] = [];
+  for (const item of sorted) {
+    const hitWidthPx = estimateSkillHitWidth(item.label);
+    const hitWidthTime = (hitWidthPx / plotWidth) * maxTime;
+    const baseY = markerBaseLabelY(points, item.startTime, item.kind, speedPlotHeight);
+    let stackLevel = 0;
 
-    for (const item of group) {
-      const hitWidthPx = estimateSkillHitWidth(item.label);
-      const hitWidthTime = (hitWidthPx / plotWidth) * maxTime;
-      let stackLevel = 0;
+    for (;;) {
+      const capped = expanded ? stackLevel : Math.min(stackLevel, MAX_STACK_COLLAPSED - 1);
+      const yTop = baseY + capped * STAGGER_ROW;
+      const yBottom = yTop + SKILL_HIT_HEIGHT;
+      const startX = item.startTime;
+      const endX = startX + hitWidthTime;
 
-      for (;;) {
-        const capped = expanded ? stackLevel : Math.min(stackLevel, MAX_STACK_COLLAPSED - 1);
-        const startX = item.startTime;
-        const endX = startX + hitWidthTime;
+      const overlaps = placed.some((p) => {
+        const pYTop = p.baseY + p.stackLevel * STAGGER_ROW;
+        const pYBottom = pYTop + SKILL_HIT_HEIGHT;
+        const pStart = p.startTime;
+        const pEnd = p.startTime + p.hitWidthTime;
+        const xOverlap = startX < pEnd && endX > pStart;
+        const yOverlap = yTop < pYBottom && yBottom > pYTop;
+        return xOverlap && yOverlap;
+      });
 
-        const overlaps = placed.some((p) => {
-          if (p.stackLevel !== capped) return false;
-          const pStart = p.startTime;
-          const pEnd = p.startTime + p.hitWidthTime;
-          return startX < pEnd && endX > pStart;
+      if (!overlaps) {
+        stackLevels.set(item.tooltipKey, capped);
+        placed.push({ startTime: item.startTime, hitWidthTime, stackLevel: capped, baseY });
+        maxStack = Math.max(maxStack, capped);
+        break;
+      }
+
+      stackLevel += 1;
+      if (!expanded && stackLevel >= MAX_STACK_COLLAPSED) {
+        const cappedOverflow = MAX_STACK_COLLAPSED - 1;
+        stackLevels.set(item.tooltipKey, cappedOverflow);
+        placed.push({
+          startTime: item.startTime,
+          hitWidthTime,
+          stackLevel: cappedOverflow,
+          baseY,
         });
-
-        if (!overlaps) {
-          stackLevels.set(item.tooltipKey, capped);
-          placed.push({ startTime: item.startTime, hitWidthTime, stackLevel: capped });
-          maxStack = Math.max(maxStack, capped);
-          break;
-        }
-
-        stackLevel += 1;
-        if (!expanded && stackLevel >= MAX_STACK_COLLAPSED) {
-          const cappedOverflow = MAX_STACK_COLLAPSED - 1;
-          stackLevels.set(item.tooltipKey, cappedOverflow);
-          placed.push({ startTime: item.startTime, hitWidthTime, stackLevel: cappedOverflow });
-          maxStack = Math.max(maxStack, cappedOverflow);
-          break;
-        }
+        maxStack = Math.max(maxStack, cappedOverflow);
+        break;
       }
     }
   }
@@ -282,12 +309,14 @@ export function layoutSkillMarkers(
   const {
     expanded = true,
     points = [],
+    speedPlotHeight: speedPlotHeightOpt,
     maxTime = 0,
     plotWidth = 800 - OVERLAY_MARGIN_LEFT - OVERLAY_MARGIN_RIGHT,
   } = options;
 
-  const plotHeight = chartHeightPx - SKILL_CHART_MARGIN_TOP - SKILL_CHART_MARGIN_BOTTOM;
-  if (plotHeight <= 0 || markers.length === 0) return markers;
+  const totalPlotHeight = chartHeightPx - SKILL_CHART_MARGIN_TOP - SKILL_CHART_MARGIN_BOTTOM;
+  const speedPlotHeight = speedPlotHeightOpt ?? totalPlotHeight;
+  if (totalPlotHeight <= 0 || speedPlotHeight <= 0 || markers.length === 0) return markers;
 
   const effectiveMaxTime =
     maxTime > 0
@@ -296,44 +325,50 @@ export function layoutSkillMarkers(
         ? points[points.length - 1].time
         : Math.max(...markers.map((m) => m.endTime), 1);
 
-  const { stackLevels, maxStack: _maxStack } = assignStackLevels(
-    markers.map((m) => ({ tooltipKey: m.tooltipKey, label: m.label, startTime: m.startTime })),
-    { expanded, maxTime: effectiveMaxTime, plotWidth },
+  const { stackLevels } = assignStackLevels(
+    markers.map((m) => ({
+      tooltipKey: m.tooltipKey,
+      label: m.label,
+      startTime: m.startTime,
+      kind: m.kind,
+    })),
+    { expanded, maxTime: effectiveMaxTime, plotWidth, points, speedPlotHeight },
   );
 
   const lineOffsetPx = SKILL_FONT_SIZE + SKILL_LINE_GAP - SKILL_LINE_Y_NUDGE_UP;
 
   return markers.map((marker) => {
-    const speed = getSpeedAtTime(points, marker.startTime);
-    const speedY = speedToOverlayY(speed, plotHeight);
+    const baseY = markerBaseLabelY(points, marker.startTime, marker.kind, speedPlotHeight);
     const stackLevel = stackLevels.get(marker.tooltipKey) ?? marker.stackLevel ?? 0;
-    const kindOffset = marker.kind === "debuff" ? DEBUFF_Y_OFFSET : 0;
-    const labelTopPx = speedY + SKILL_SPEED_LABEL_OFFSET + stackLevel * STAGGER_ROW + kindOffset;
+    const labelTopPx = baseY + stackLevel * STAGGER_ROW;
     const lineTopPx = labelTopPx + lineOffsetPx;
 
     return {
       ...marker,
       stackLevel,
       row: stackLevel,
-      y: 1 - labelTopPx / plotHeight,
-      lineY: 1 - lineTopPx / plotHeight,
+      y: 1 - labelTopPx / totalPlotHeight,
+      lineY: 1 - lineTopPx / totalPlotHeight,
     };
   });
 }
 
 /** layoutSkillMarkers と同一条件で maxStack を算出（expandedChartHeight 用） */
 export function computeSkillMaxStack(
-  markers: Pick<SkillMarker, "tooltipKey" | "label" | "startTime">[],
+  markers: Pick<SkillMarker, "tooltipKey" | "label" | "startTime" | "kind">[],
   maxTime: number,
   plotWidth = 800 - OVERLAY_MARGIN_LEFT - OVERLAY_MARGIN_RIGHT,
+  points: GraphPoint[] = [],
+  speedPlotHeight = SPEED_PLOT_HEIGHT,
 ): number {
   return assignStackLevels(
     markers.map((m) => ({
       tooltipKey: m.tooltipKey,
       label: m.label,
       startTime: m.startTime,
+      kind: m.kind,
     })),
-    { expanded: true, maxTime, plotWidth },
+    { expanded: true, maxTime, plotWidth, points, speedPlotHeight },
   ).maxStack;
 }
 
@@ -577,7 +612,7 @@ export function buildSkillMarkers(
     return { ...marker, hasDurationLine: hasSkillDurationLine(marker) };
   });
 
-  const maxStack = computeSkillMaxStack(baseMarkers, maxTime);
+  const maxStack = computeSkillMaxStack(baseMarkers, maxTime, undefined, points);
   const expandedChartHeight = computeExpandedChartHeight(maxStack, hasDebuff);
   return { skillMarkers: baseMarkers, expandedChartHeight };
 }

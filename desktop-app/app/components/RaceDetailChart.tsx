@@ -33,6 +33,7 @@ import {
   SKILL_FONT_SIZE,
   OVERLAY_MARGIN_LEFT,
   OVERLAY_MARGIN_RIGHT,
+  SPEED_PLOT_HEIGHT,
   SPEED_MIN,
   SPEED_MAX,
   STAMINA_PLOT_FLOOR,
@@ -266,28 +267,41 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
   const overlayPlotWidth = Math.max(measuredWidth - OVERLAY_MARGIN_LEFT - OVERLAY_MARGIN_RIGHT, 1);
   const hasDebuffMarkers = skillData.skillMarkers.some((m) => m.kind === "debuff");
   const maxStackForHeight = useMemo(
-    () => computeSkillMaxStack(skillData.skillMarkers, maxTime, overlayPlotWidth),
-    [skillData.skillMarkers, maxTime, overlayPlotWidth],
+    () =>
+      computeSkillMaxStack(
+        skillData.skillMarkers,
+        maxTime,
+        overlayPlotWidth,
+        graphPoints.points,
+        SPEED_PLOT_HEIGHT,
+      ),
+    [skillData.skillMarkers, maxTime, overlayPlotWidth, graphPoints.points],
   );
   const expandedChartHeight = useMemo(
     () => computeExpandedChartHeight(maxStackForHeight, hasDebuffMarkers),
     [maxStackForHeight, hasDebuffMarkers],
   );
-  const chartHeight = isExpanded ? expandedChartHeight : SKILL_CHART_BASE_HEIGHT;
-  const effectiveChartHeight = isExpanded ? chartHeight : measuredHeight;
+  /** 縦拡大 ON: 速度 plot 固定 + 下にスキル band。OFF: 親高さに追従 */
+  const lineChartHeight = isExpanded ? SKILL_CHART_BASE_HEIGHT : measuredHeight;
+  const chartHeight = isExpanded ? expandedChartHeight : measuredHeight;
+  const speedPlotHeight = isExpanded
+    ? SPEED_PLOT_HEIGHT
+    : Math.max(lineChartHeight - SKILL_CHART_MARGIN_TOP - SKILL_CHART_MARGIN_BOTTOM, 1);
   const skillMarkers = useMemo(
     () =>
-      layoutSkillMarkers(skillData.skillMarkers, effectiveChartHeight, {
+      layoutSkillMarkers(skillData.skillMarkers, chartHeight, {
         expanded: isExpanded,
         points: graphPoints.points,
+        speedPlotHeight,
         maxTime,
         plotWidth: overlayPlotWidth,
       }),
     [
       skillData.skillMarkers,
-      effectiveChartHeight,
+      chartHeight,
       isExpanded,
       graphPoints.points,
+      speedPlotHeight,
       maxTime,
       overlayPlotWidth,
     ],
@@ -299,9 +313,9 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
   const skillMarkersPx = useMemo(
     () =>
       showSkillOverlay
-        ? skillMarkersToPx(skillMarkers, effectiveChartHeight, measuredWidth, maxTime)
+        ? skillMarkersToPx(skillMarkers, chartHeight, measuredWidth, maxTime)
         : [],
-    [showSkillOverlay, skillMarkers, effectiveChartHeight, measuredWidth, maxTime],
+    [showSkillOverlay, skillMarkers, chartHeight, measuredWidth, maxTime],
   );
 
   /** 密集時: hover 対象を SVG 末尾へ（z-order 最前面） */
@@ -340,7 +354,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
         keys.length === Object.keys(prev).length && keys.every((k) => prev[k] === next[k]);
       return unchanged ? prev : next;
     });
-  }, [showSkillOverlay, skillMarkersPx, effectiveChartHeight, measuredWidth, isExpanded]);
+  }, [showSkillOverlay, skillMarkersPx, chartHeight, measuredWidth, isExpanded]);
 
   const hoveredSkillMarker = useMemo(
     () => skillMarkersPx.find((m) => m.tooltipKey === hoveredSkillKey) ?? null,
@@ -363,12 +377,14 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
     setHoveredSkillKey(null);
   }, []);
 
-  /** プロット下端ではみ出して scrollHeight が増えないよう、ツールチップ位置を枠内に収める */
-  const plotHeight =
-    effectiveChartHeight - SKILL_CHART_MARGIN_TOP - SKILL_CHART_MARGIN_BOTTOM;
+  /** 折れ線 Tooltip は LineChart plot 内に収める（スキル band は対象外） */
+  const linePlotHeight = Math.max(
+    lineChartHeight - SKILL_CHART_MARGIN_TOP - SKILL_CHART_MARGIN_BOTTOM,
+    1,
+  );
   const getTooltipPosition = useCallback(
     ({ x, y }: { x: number; y: number }) => {
-      if (y + TOOLTIP_EDGE_GAP > plotHeight - TOOLTIP_APPROX_HEIGHT) {
+      if (y + TOOLTIP_EDGE_GAP > linePlotHeight - TOOLTIP_APPROX_HEIGHT) {
         return { x, y: Math.max(TOOLTIP_EDGE_GAP, y - TOOLTIP_APPROX_HEIGHT - TOOLTIP_EDGE_GAP) };
       }
       if (y - TOOLTIP_Y_OFFSET < TOOLTIP_EDGE_GAP) {
@@ -376,7 +392,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
       }
       return { x, y: y - TOOLTIP_Y_OFFSET };
     },
-    [plotHeight],
+    [linePlotHeight],
   );
 
   const toggleDisplay = (key: keyof GraphDisplayState) => {
@@ -406,11 +422,15 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
           className="relative w-full overflow-hidden"
           style={{ height: isExpanded ? chartHeight : "100%" }}
         >
+          <div
+            className="relative w-full shrink-0 overflow-hidden"
+            style={{ height: isExpanded ? lineChartHeight : "100%" }}
+          >
           <ResponsiveContainer
             width="100%"
-            height={isExpanded ? chartHeight : "100%"}
+            height={isExpanded ? lineChartHeight : "100%"}
             minWidth={0}
-            initialDimension={{ width: 800, height: chartHeight }}
+            initialDimension={{ width: 800, height: lineChartHeight }}
           >
             <LineChart data={graphPoints.points} margin={{ top: 24, right: 48, left: 4, bottom: 4 }}>
               {displayState.showAreas &&
@@ -633,6 +653,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
               )}
             </LineChart>
           </ResponsiveContainer>
+          </div>
 
           {/* スキル発動 overlay SVG — Recharts 外の absolute レイヤー（ラベルのみ pointer-events） */}
           {showSkillOverlay && skillMarkersPx.length > 0 && (
