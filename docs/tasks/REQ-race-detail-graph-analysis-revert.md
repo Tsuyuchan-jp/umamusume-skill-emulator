@@ -26,7 +26,7 @@
 - [x] **案3 stagger 維持** — X 重なり時は同一 `stackLevel` に置かない（`capped === p.stackLevel`）
 - [x] overview OFF 変更なし（stack 0・被り許容・K=1）
 - [x] `npm run build` 通過
-- [ ] 実機確認（ユーザー）
+- [x] 実機確認（ユーザー）
 
 ### やらないこと
 
@@ -77,7 +77,7 @@
 - [x] 縦拡大 OFF: 退行なし
 - [x] baseline compare / Tooltip / checkbox 退行なし
 - [x] `npm run build` 通過
-- [ ] ユーザー実機確認
+- [x] ユーザー実機確認
 - [x] REQ `done` + TODO 完了 + コミット
 
 ---
@@ -100,3 +100,4 @@
 |------|---------|------|
 | 2026-06-14 10:54 | draft 起票。赤線分離 revert + K=4.0 固定 + 案3 維持 | 実機: `a83d5df` 赤線分離は視認性 NG。cap 時代の一体レイアウトが良好。K=5 はフォント相対が小さく感じる |
 | 2026-06-14 10:58 | Agent 実装: 赤線／ラベル一体 revert、`DETAIL_ZOOM_FIXED=4.0`、`markerStackedLabelTopY` 統一、探索ロジック削除。`npm run build` 通過（`dd414ea`） | 引継ぎ Phase 5-R1 完了。実機確認はユーザー |
+| 2026-06-14 11:04 | **実機検証クローズ** — 縦拡大 ON（一体・K=4.00 fixed）/ OFF（退行なし）/ baseline compare + Tooltip OK | ユーザー確認。Phase 5-R1 完了 |

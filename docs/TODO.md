@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-14 10:58
+最終更新: 2026-06-14 11:04
 
 ---
 
@@ -101,7 +101,7 @@ Phase 5-R2 — X 時間窓 + ドラッグパン（Backlog P2、R1 完了後）
 
 ## 完了済み
 
-- [x] detail 分析モード revert + K 固定（Phase 5-R1）— 赤線／ラベル一体・K=4.0 固定・案3 維持（**実機検証待ち** / `dd414ea` / [`REQ-race-detail-graph-analysis-revert.md`](tasks/REQ-race-detail-graph-analysis-revert.md)）
+- [x] detail 分析モード revert + K 固定（Phase 5-R1）— 赤線／ラベル一体・K=4.0 固定・案3 維持（**実機検証クローズ** 2026-06-14 11:04 / `dd414ea` / [`REQ-race-detail-graph-analysis-revert.md`](tasks/REQ-race-detail-graph-analysis-revert.md)）
 - [x] detail 分析モード刷新 — 案3 + K 下限 3.0 + 赤線分離（**赤線分離 NG・R1 で revert 予定** / `a83d5df` / [`REQ-race-detail-graph-skill-layout-sync.md`](tasks/REQ-race-detail-graph-skill-layout-sync.md)）
 - [x] xStaggerOnly 衝突条件修正（案A）— baseY 近接判定除去、Y zoom 探索 dead code 解消（**superseded** / `0545e9f` / [`REQ-race-detail-graph-skill-layout-sync.md`](tasks/REQ-race-detail-graph-skill-layout-sync.md)）
 - [x] overview stack 0 優先（案1）— OFF 時 Y stagger なし・速度スナップ維持・被り許容（**実機検証待ち** / `3806581` / [`REQ-race-detail-graph-skill-layout-sync.md`](tasks/REQ-race-detail-graph-skill-layout-sync.md)）
@@ -157,7 +157,7 @@ Phase 5-R2 — X 時間窓 + ドラッグパン（Backlog P2、R1 完了後）
 - サイドバー狭幅 UI（380px / min 320px）は Phase S1+S2 で完了（[`REQ-sidebar-compact-layout.md`](tasks/REQ-sidebar-compact-layout.md)）。S3 コンテナクエリは見送り
 - 全画面 Cockpit UI（Phase 1〜3）は完了（[`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)）
 - グラフ Y軸・m/s は [`REQ-race-detail-graph-axis.md`](tasks/REQ-race-detail-graph-axis.md) で対応済み
-- 直近レース詳細グラフ: ロードマップ [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md)。**Phase 4 baseline diff 実機検証クローズ**（2026-06-12 01:41）。**スタミナキープ持続線 実機検証クローズ**（2026-06-12 04:27 / `8b02849`）。**タブ切り替え 実機検証クローズ**（2026-06-12 05:40 / `132d56a` / [`REQ-tab-switch-performance.md`](tasks/REQ-tab-switch-performance.md)）。**パレット参照ローカル統一 実機検証クローズ**（2026-06-12 17:52 / `f564898` / [`REQ-palette-local-skill-data.md`](tasks/REQ-palette-local-skill-data.md)）
+- 直近レース詳細グラフ: ロードマップ [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md)。**Phase 5-R1 分析モード revert 実機検証クローズ**（2026-06-14 11:04 / `dd414ea` / [`REQ-race-detail-graph-analysis-revert.md`](tasks/REQ-race-detail-graph-analysis-revert.md)）。**Phase 4 baseline diff 実機検証クローズ**（2026-06-12 01:41）。**スタミナキープ持続線 実機検証クローズ**（2026-06-12 04:27 / `8b02849`）。**タブ切り替え 実機検証クローズ**（2026-06-12 05:40 / `132d56a` / [`REQ-tab-switch-performance.md`](tasks/REQ-tab-switch-performance.md)）。**パレット参照ローカル統一 実機検証クローズ**（2026-06-12 17:52 / `f564898` / [`REQ-palette-local-skill-data.md`](tasks/REQ-palette-local-skill-data.md)）
 - 現代ウマ娘: 所持 50〜70+ スキル。グラフ `skillEvents` は発動イベント数（20〜40+ あり得る）
 - **別作業で発見（2026-06-11）**: サイドバー折りたたみボタンのスクロール追従、ステータス条件ボタンのテキスト化、グラフ/スキル表記以降のレスポンス低下 — いずれも Backlog 登録済み
 - **REQ 運用**: 着手候補の正本は **本 TODO**。`draft` REQ 起票時は Backlog へ必ず1行追加（`.cursor/rules/docs-management.mdc`）
