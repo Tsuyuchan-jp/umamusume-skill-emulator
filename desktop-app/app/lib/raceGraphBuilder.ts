@@ -501,7 +501,7 @@ function assignStackLevels(
         const yOverlap = yTop < pYBottom && yBottom > pYTop;
         if (expanded && xStaggerOnly) {
           if (!xOverlap) return false;
-          return yOverlap || Math.abs(baseY - p.baseY) < hitHeight;
+          return yOverlap;
         }
         return xOverlap && yOverlap;
       });
