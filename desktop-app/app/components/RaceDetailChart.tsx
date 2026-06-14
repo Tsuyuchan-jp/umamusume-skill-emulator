@@ -272,8 +272,10 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
     viewportChartHeight - SKILL_CHART_MARGIN_TOP - SKILL_CHART_MARGIN_BOTTOM,
     1,
   );
-  const yZoomFactor = useMemo(() => {
-    if (!isExpanded) return 1;
+  const detailYZoom = useMemo(() => {
+    if (!isExpanded) {
+      return { yZoomFactor: 1 as number, source: null as null };
+    }
     return computeDetailYZoomFactor({
       markers: skillData.skillMarkers,
       viewportPlotHeight,
@@ -291,6 +293,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
     graphPoints.points,
     hasDebuffMarkers,
   ]);
+  const yZoomFactor = detailYZoom.yZoomFactor;
   const contentChartHeight = isExpanded
     ? computeZoomedChartHeight(viewportChartHeight, yZoomFactor)
     : viewportChartHeight;
@@ -808,10 +811,22 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
         {process.env.NODE_ENV === "development" && (
           <span
             className="ml-auto font-mono text-[10px] text-amber-400/90"
-            title="detail 時の yZoomFactor（computeDetailYZoomFactor）。検証用表示。"
+            title={
+              detailYZoom.source === "cap"
+                ? "K=5.0 でも hit box 被り検出 → 上限打ち切り"
+                : detailYZoom.source === "min-lo"
+                  ? "探索下限 lo で被りなし → 即 return"
+                  : detailYZoom.source === "min-search"
+                    ? "二分探索で最小 K を特定"
+                    : "overview（zoom=1）"
+            }
           >
             Y zoom: {yZoomFactor.toFixed(2)}
-            {!isExpanded ? " (OFF)" : ""}
+            {!isExpanded
+              ? " (OFF)"
+              : detailYZoom.source === "cap"
+                ? " (cap)"
+                : " (min)"}
           </span>
         )}
       </div>

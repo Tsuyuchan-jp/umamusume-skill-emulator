@@ -207,6 +207,15 @@ function hasSkillLabelOverlaps(
   return false;
 }
 
+/** detail Y zoom 探索結果の由来（検証用） */
+export type DetailYZoomSource = "min-lo" | "min-search" | "cap";
+
+export interface DetailYZoomResult {
+  yZoomFactor: number;
+  /** min-lo: 下限で被りなし / min-search: 二分探索 / cap: 上限でも被り残存 */
+  source: DetailYZoomSource;
+}
+
 /** detail: 2D 被りが解消する最小 yZoomFactor を探索（[DETAIL_ZOOM_MIN, DETAIL_ZOOM_MAX]） */
 export function computeDetailYZoomFactor(params: {
   markers: Pick<SkillMarker, "tooltipKey" | "label" | "startTime" | "kind">[];
@@ -215,10 +224,10 @@ export function computeDetailYZoomFactor(params: {
   plotWidth: number;
   points: GraphPoint[];
   hasDebuff?: boolean;
-}): number {
+}): DetailYZoomResult {
   const { markers, viewportPlotHeight, maxTime, plotWidth, points, hasDebuff = false } = params;
   if (viewportPlotHeight <= 0 || !markers.length || maxTime <= 0 || plotWidth <= 0) {
-    return DETAIL_ZOOM_MIN;
+    return { yZoomFactor: DETAIL_ZOOM_MIN, source: "min-lo" };
   }
 
   const items: StackLayoutInput[] = markers.map((m) => ({
@@ -252,8 +261,8 @@ export function computeDetailYZoomFactor(params: {
       xStaggerOnly: true,
     });
 
-  if (!testAt(lo)) return lo;
-  if (testAt(hi)) return DETAIL_ZOOM_MAX;
+  if (!testAt(lo)) return { yZoomFactor: lo, source: "min-lo" };
+  if (testAt(hi)) return { yZoomFactor: DETAIL_ZOOM_MAX, source: "cap" };
 
   let best = hi;
   for (let i = 0; i < 16; i += 1) {
@@ -265,7 +274,10 @@ export function computeDetailYZoomFactor(params: {
       lo = mid;
     }
   }
-  return Math.min(DETAIL_ZOOM_MAX, Math.max(DETAIL_ZOOM_MIN, best));
+  return {
+    yZoomFactor: Math.min(DETAIL_ZOOM_MAX, Math.max(DETAIL_ZOOM_MIN, best)),
+    source: "min-search",
+  };
 }
 /** LineChart margin と同期（layoutSkillMarkers 用） */
 export const SKILL_CHART_MARGIN_TOP = 24;
