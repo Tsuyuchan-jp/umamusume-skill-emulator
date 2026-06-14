@@ -1,0 +1,110 @@
+@docs/TODO.md @docs/tasks/REQ-race-detail-graph-skill-layout-sync.md
+
+=== 引継ぎ: レース詳細グラフ Phase 5 / xStaggerOnly 修正 Step 1 ===
+
+■ 背景・シリーズ
+- REQ: docs/tasks/REQ-race-detail-graph-skill-layout-sync.md（Phase 5）
+- 縦拡大 OFF = overview（密度のざっくり把握）
+- 縦拡大 ON = detail（個別スキル解析・被り解消）
+
+■ ユーザー確定 UX
+- OFF: 個別スキル名の読解不要。中盤/終盤の密度が分かれば OK → 案1 採用済み・good
+- ON: 速度折れ線にスキル/赤線追従、被り解消、縦スクロール可
+- Google Map 形式 XY パンは今回やらない（将来検討）
+
+■ 正本ファイル
+- desktop-app/app/lib/raceGraphBuilder.ts（layout / zoom / stagger）
+- desktop-app/app/components/RaceDetailChart.tsx（Recharts + overlay SVG）
+
+■ 現行実装概要
+【OFF overview】
+- yZoomFactor = 1
+- assignStackLevels: stack 0 固定（Y stagger なし、被り許容）コミット 3806581
+
+【ON detail】
+- computeDetailYZoomFactor: [1.5, 5.0] 二分探索、2D hit box 被りゼロまで最小 K
+- assignStackLevels expanded + xStaggerOnly: true
+- ラベル typography / hit box / オフセット / 赤線 gap は px 固定（K で拡大しない）コミット af78fe8
+- K が効くのは plot 高さ + stagger 段間隔（STAGGER_ROW × K）のみ
+
+■ 主要コミット（新→旧）
+- 9bcf68b  dev: cap 時 need 表示（5〜20 探索）
+- ec2ef0b  dev: Y zoom (cap)/(min) 表示
+- 696132e  dev: Y zoom 倍率表示
+- 3806581  overview stack 0 固定（案1）
+- af78fe8  detail ラベル px 固定
+- 12af1e1  detail 反復 zoom + xStaggerOnly
+- b7f3838  縦拡大 = Y クローズアップ（ユーザー高評価ベース）
+
+■ 開発専用 UI（本番前に削除予定）
+RaceDetailChart.tsx 下部、NODE_ENV === development のみ:
+- 例: Y zoom: 5.00 (cap → need 8.42) または (cap → need >20)
+- DETAIL_ZOOM_PROBE_MAX = 20（raceGraphBuilder.ts）
+- probeUncappedDetailYZoomMin / DetailYZoomSource（cap / min-lo / min-search）
+
+■ ユーザー実機検証結果
+1. 案1 OFF stack 0: good
+2. ON 被り: px 固定後は画面上ほぼ解消（良好）
+3. Y zoom: 約30レースすべて 5.00 (cap)、need 探索もすべて need >20
+   → 反復 zoom + hasSkillLabelOverlaps は実質 dead code
+
+■ 根本原因（修正対象）
+raceGraphBuilder.ts assignStackLevels の xStaggerOnly 衝突条件（502行付近）:
+
+  if (expanded && xStaggerOnly) {
+    if (!xOverlap) return false;
+    return yOverlap || Math.abs(baseY - p.baseY) < hitHeight;  // ← バグ
+  }
+
+Math.abs(baseY - p.baseY) < hitHeight が stack 段数に関係なく常に効く。
+X 重なり + 近接 speed（baseY 差 < 14px）では段を上げても衝突が解消されない。
+→ STACK_ASSIGN_MAX_ITER(256) 打ち切り → hasSkillLabelOverlaps が常に true
+→ zoom 探索が常に cap / need >20（画面は読めるのに探索だけ失敗）
+
+■ 次の作業: Step 1（最優先）
+
+【案 A 推奨】baseY 近接だけでは conflict にしない:
+
+  if (expanded && xStaggerOnly) {
+    if (!xOverlap) return false;
+    return yOverlap;
+  }
+
+【案 B】近接 speed を同一段に限定:
+
+  return yOverlap || (capped === p.stackLevel && Math.abs(baseY - p.baseY) < hitHeight);
+
+実装後 npm run tauri dev で dev 表示確認:
+- (cap → need X.XX) が 5〜20 内に分散するか
+- ON 時の視覚的被りが悪化しないか
+
+■ Step 2（Step 1 後、まだ cap だらけなら）
+- maxStack + computeSkillBandHeight ハイブリッド、または被りペア数閾値
+- UX「ON で読める」が維持できていれば探索は補助に降格可
+
+■ Step 3
+- dev 検証 UI 削除（Y zoom / cap / need 表示）
+
+■ 着手時必須
+1. docs/TODO.md 読む → Step 1 を進行中へ
+2. REQ 決定ログ追記（Get-Date -Format "yyyy-MM-dd HH:mm" 必須）
+3. npm run build → git add . → git commit（別ステップ）
+4. TODO/REQ 更新 → 完了コミット
+
+■ 触るファイル
+- desktop-app/app/lib/raceGraphBuilder.ts（assignStackLevels overlaps 分岐）
+
+■ 触らない（今回）
+- Google Map XY パン
+- 案2〜4（stagger 縮小 / OFF 最低 zoom / 赤線 speed スナップ）
+- P1「シミュレーション失敗トースト文言改善」（TODO 起票済み 314393b）
+
+■ 定数
+- DETAIL_ZOOM_MIN = 1.5, DETAIL_ZOOM_MAX = 5.0
+- DETAIL_ZOOM_PROBE_MAX = 20（dev のみ）
+- STAGGER_ROW = 14, SKILL_HIT_HEIGHT = 14, SKILL_SPEED_LABEL_OFFSET = 12
+- STACK_ASSIGN_MAX_ITER = 256
+
+■ 依頼
+上記 Step 1（xStaggerOnly 修正、案 A 推奨）を実装してください。
+実装後 development の Y zoom 表示で cap/need の変化を確認できる状態にし、ユーザー実機確認を促してください。
