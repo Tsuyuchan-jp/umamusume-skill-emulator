@@ -4,13 +4,13 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-14 11:04
+最終更新: 2026-06-14 11:15
 
 ---
 
 ## 現在のフォーカス
 
-Phase 5-R2 — X 時間窓 + ドラッグパン（Backlog P2、R1 完了後）
+Backlog — P0 トースト改善 / P1 同時刻スタック圧縮 / P2 Phase 5-R2（いずれも未着手）
 
 ---
 
@@ -34,6 +34,15 @@ Phase 5-R2 — X 時間窓 + ドラッグパン（Backlog P2、R1 完了後）
   - 文案例: 「シミュレーションを完了できませんでした。一時的な不具合の可能性があります。もう一度実行してみてください。繰り返す場合はアプリの再読み込みをお試しください。」
   - 触る想定: `umaemuAdapter.ts`, `SimulationLauncher.tsx`
   - REQ: 不要（数行〜小タスク）
+
+### P1 — 重要
+
+- [ ] **同時刻スキル縦スタック圧縮（案3 維持・段間隔見直し）**
+  - 経緯: 同時発動スキルが `STAGGER_ROW × K`（56px/段）で必要以上に下へスライド。実機例: Peerless Heroine〜中距離コーナー◎ 付近
+  - 目標: X 重なり（案3）は維持しつつ、同時刻スタックのみ hit box 基準（〜14–16px/段）に圧縮
+  - 注意: layout / hit 判定変更のため **Phase 5-R2 着手前** の実施を推奨
+  - 触る想定: `raceGraphBuilder.ts`（`assignStackLevels` / layout Y）
+  - REQ: [`REQ-race-detail-graph-same-time-stack-compact.md`](tasks/REQ-race-detail-graph-same-time-stack-compact.md)
 
 ### P2 — 改善・アイデア
 
