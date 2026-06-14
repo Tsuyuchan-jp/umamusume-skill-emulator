@@ -3,7 +3,7 @@
 > **レース詳細グラフ実装シリーズ** Phase 5（スキル Y 配置・速度線との視覚連動）。
 > ロードマップ: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md)
 
-- **ステータス**: done
+- **ステータス**: in-progress（Phase 5-R1〜R3 に作業分割。本 REQ はシリーズ文脈・決定ログの正本）
 - **作成日**: 2026-06-12 18:10
 - **関連コミット**: `6816447`（初版）〜 `b7f3838`（Y クローズアップ）→ `12af1e1`（反復 zoom）→ `af78fe8`（ラベル px 固定）
 
@@ -133,3 +133,4 @@
 | 2026-06-14 09:17 | **案1**: overview（縦拡大 OFF）で **stack 0 固定** — Y stagger 廃止、速度スナップ維持、テキスト被り許容。`npm run build` 通過（`3806581`） | OFF/ON で相対位置差。stack 2–3 押し下げが主因 |
 | 2026-06-14 09:57 | **Step 1 案A**: `xStaggerOnly` 衝突条件から `baseY` 近接判定を除去。X 重なり時は **2D hit box 重なり（yOverlap）のみ** conflict | 実機: 全レースで Y zoom cap / need >20。近接 speed 帯で段を上げても衝突が解消されず探索が dead code 化 |
 | 2026-06-14 10:24 | **分析モード刷新**: 案3（X 重なり→同一 stack 不可）+ `DETAIL_ZOOM_ANALYSIS_FLOOR=3.0` ハイブリッド K + 赤線 Y=speed 固定・ラベルは赤線下のみ stack | 実機: 案A 後は全て 1.5(min)・X 被り残存。赤線が stack で速度線から離れていた。赤線は速度線と重なり許容（分析優先） |
+| 2026-06-14 10:54 | **赤線分離 NG・作業分割**: revert + K=4.0 固定 → [`REQ-race-detail-graph-analysis-revert.md`](REQ-race-detail-graph-analysis-revert.md)。時間窓+ドラッグ → R2。ホイール+checkbox削除 → R3 | 実機: 分離で視認性著しく低下。cap 時代の一体レイアウトが良好。K=5 はフォント相対が小さい |

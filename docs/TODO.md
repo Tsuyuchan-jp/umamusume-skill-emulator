@@ -4,13 +4,13 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-14 10:25
+最終更新: 2026-06-14 10:54
 
 ---
 
 ## 現在のフォーカス
 
-detail 分析モード刷新 — 実装完了、ユーザー実機確認待ち
+Phase 5-R1 — detail 分析モード revert + K 固定（次チャット実装）
 
 ---
 
@@ -24,7 +24,12 @@ detail 分析モード刷新 — 実装完了、ユーザー実機確認待ち
 
 ### P0 — 次に着手
 
-（なし — 次は P1）
+- [ ] **detail 分析モード revert + K 固定（Phase 5-R1）**
+  - 目標: 赤線／ラベル一体に戻す、detail ON 時 K=4.0 固定、案3 stagger 維持
+  - 経緯: `a83d5df` 赤線分離は視認性 NG。cap 時代の見え方を復元
+  - 触る想定: `raceGraphBuilder.ts`, `RaceDetailChart.tsx`
+  - 引継ぎ: [`handoff-race-graph-analysis-revert-phase1.txt`](handoff-race-graph-analysis-revert-phase1.txt)
+  - REQ: [`REQ-race-detail-graph-analysis-revert.md`](tasks/REQ-race-detail-graph-analysis-revert.md)
 
 ### P1 — 重要
 
@@ -40,6 +45,16 @@ detail 分析モード刷新 — 実装完了、ユーザー実機確認待ち
   - REQ: 不要（数行〜小タスク）
 
 ### P2 — 改善・アイデア
+
+- [ ] **X 時間窓 + ドラッグパン（Phase 5-R2）**
+  - 目標: 終盤 30% 窓、「終盤へ」、plot 全域ドラッグで時間シフト。X 被り解消
+  - 前提: Phase 5-R1 完了後
+  - REQ: [`REQ-race-detail-graph-time-window.md`](tasks/REQ-race-detail-graph-time-window.md)
+
+- [ ] **ホイール拡大 + パン + 縦拡大削除（Phase 5-R3）**
+  - 目標: 俯瞰から操作で分析へ。ホイール=拡大、ドラッグ=移動、checkbox 削除、dev UI 削除
+  - 前提: Phase 5-R2 完了後（推奨）
+  - REQ: [`REQ-race-detail-graph-pan-zoom.md`](tasks/REQ-race-detail-graph-pan-zoom.md)
 
 - [ ] **スキルパレットの並び順をレアリティ段階別に変更**
   - 現状: `buildPaletteSkillOptions` は `umasimSkillDataList` の出現順（extract 順）
@@ -95,7 +110,7 @@ detail 分析モード刷新 — 実装完了、ユーザー実機確認待ち
 
 ## 完了済み
 
-- [x] detail 分析モード刷新 — 案3 stagger + K 下限 3.0 + 赤線 speed 固定・ラベル分離（**実機検証待ち** / `a83d5df` / [`REQ-race-detail-graph-skill-layout-sync.md`](tasks/REQ-race-detail-graph-skill-layout-sync.md)）
+- [x] detail 分析モード刷新 — 案3 + K 下限 3.0 + 赤線分離（**赤線分離 NG・R1 で revert 予定** / `a83d5df` / [`REQ-race-detail-graph-skill-layout-sync.md`](tasks/REQ-race-detail-graph-skill-layout-sync.md)）
 - [x] xStaggerOnly 衝突条件修正（案A）— baseY 近接判定除去、Y zoom 探索 dead code 解消（**superseded** / `0545e9f` / [`REQ-race-detail-graph-skill-layout-sync.md`](tasks/REQ-race-detail-graph-skill-layout-sync.md)）
 - [x] overview stack 0 優先（案1）— OFF 時 Y stagger なし・速度スナップ維持・被り許容（**実機検証待ち** / `3806581` / [`REQ-race-detail-graph-skill-layout-sync.md`](tasks/REQ-race-detail-graph-skill-layout-sync.md)）
 - [x] detail ラベル px 固定（A案）— font/hit box/オフセット固定、yZoom は plot+stagger のみ（**実機検証待ち** / `af78fe8` / [`REQ-race-detail-graph-skill-layout-sync.md`](tasks/REQ-race-detail-graph-skill-layout-sync.md)）

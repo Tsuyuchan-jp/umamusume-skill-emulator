@@ -5,7 +5,7 @@
 
 - **ステータス**: Phase 1 完了（シリーズ継続中）
 - **作成日**: 2026-06-10 15:55
-- **最終更新**: 2026-06-12 18:10
+- **最終更新**: 2026-06-14 10:54
 
 ---
 
@@ -27,7 +27,10 @@
 | 3-P | UI レスポンス | [`REQ-race-detail-graph-performance.md`](REQ-race-detail-graph-performance.md) | **done**（`873080e` 実機検証完了） | → Phase 4 |
 | 4 | baseline diff（核） | [`REQ-race-detail-graph-phase4.md`](REQ-race-detail-graph-phase4.md) | **done**（`e780b3d` / `a4752cf` 実機検証クローズ） | → skill Tooltip |
 | 4+ | スキル hover Tooltip | [`REQ-race-detail-graph-skill-tooltip.md`](REQ-race-detail-graph-skill-tooltip.md) | **done** | → skill layout sync |
-| 5 | スキル帯×速度線連動 | [`REQ-race-detail-graph-skill-layout-sync.md`](REQ-race-detail-graph-skill-layout-sync.md) | **draft** | Ask mode 設計レビュー |
+| 5 | スキル帯×速度線連動 | [`REQ-race-detail-graph-skill-layout-sync.md`](REQ-race-detail-graph-skill-layout-sync.md) | **in-progress**（R1〜R3 に分割継続） | → 5-R1 revert |
+| 5-R1 | 分析モード revert + K 固定 | [`REQ-race-detail-graph-analysis-revert.md`](REQ-race-detail-graph-analysis-revert.md) | **draft** | → 5-R2 |
+| 5-R2 | X 時間窓 + ドラッグ | [`REQ-race-detail-graph-time-window.md`](REQ-race-detail-graph-time-window.md) | **draft** | → 5-R3 |
+| 5-R3 | ホイール + パン + 縦拡大削除 | [`REQ-race-detail-graph-pan-zoom.md`](REQ-race-detail-graph-pan-zoom.md) | **draft** | シリーズ Phase 5 完了 |
 
 ### 1 Phase の進め方
 
@@ -69,6 +72,7 @@
 | 2026-06-11 07:50 | Phase 2 完了（`5e2b401`）。次は Phase 3 設計レビュー | 実機確認・UX 改善含む完全完了 |
 | 2026-06-12 01:41 | Phase 4 実機検証クローズ（A〜F 全項目 OK） | レース詳細グラフ本線完了。次は 4+ スキル hover Tooltip |
 | 2026-06-12 18:10 | Phase 5（skill layout sync）draft 起票 | 終盤の速度線とスキル帯の縦分離問題。設計レビュー先行 |
+| 2026-06-14 10:54 | Phase 5 を **5-R1〜R3** sibling REQ に分割（revert / 時間窓 / パン） | 赤線分離 NG・パン方針合意。ロードマップ索引を更新 |
 
 ---
 
