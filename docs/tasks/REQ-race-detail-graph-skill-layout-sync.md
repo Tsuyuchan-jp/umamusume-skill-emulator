@@ -132,3 +132,4 @@
 | 2026-06-12 20:49 | **A案**: detail ラベル typography / hit box / オフセット / 赤線 gap を **px 固定**。yZoomFactor は plot 高さ + stagger 段間隔のみ。`npm run build` 通過（`af78fe8`） | 実機: フォントが K 倍で巨大化。layout と描画の不整合を解消 |
 | 2026-06-14 09:17 | **案1**: overview（縦拡大 OFF）で **stack 0 固定** — Y stagger 廃止、速度スナップ維持、テキスト被り許容。`npm run build` 通過（`3806581`） | OFF/ON で相対位置差。stack 2–3 押し下げが主因 |
 | 2026-06-14 09:57 | **Step 1 案A**: `xStaggerOnly` 衝突条件から `baseY` 近接判定を除去。X 重なり時は **2D hit box 重なり（yOverlap）のみ** conflict | 実機: 全レースで Y zoom cap / need >20。近接 speed 帯で段を上げても衝突が解消されず探索が dead code 化 |
+| 2026-06-14 10:24 | **分析モード刷新**: 案3（X 重なり→同一 stack 不可）+ `DETAIL_ZOOM_ANALYSIS_FLOOR=3.0` ハイブリッド K + 赤線 Y=speed 固定・ラベルは赤線下のみ stack | 実機: 案A 後は全て 1.5(min)・X 被り残存。赤線が stack で速度線から離れていた。赤線は速度線と重なり許容（分析優先） |

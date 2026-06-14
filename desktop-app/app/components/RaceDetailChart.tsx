@@ -843,9 +843,9 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
                   ? `K=5.0 でも被り検出。cap なし推定最小 K≈${uncappedNeedK.toFixed(2)}（探索上限 ${DETAIL_ZOOM_PROBE_MAX}）`
                   : `K=5.0 でも被り検出。${DETAIL_ZOOM_PROBE_MAX} 超も必要（解消不能の可能性）`
                 : detailYZoom.source === "min-lo"
-                  ? "探索下限 lo で被りなし → 即 return"
+                  ? "分析目標 K（下限 3.0 または maxStack 由来）で被りなし"
                   : detailYZoom.source === "min-search"
-                    ? "二分探索で最小 K を特定"
+                    ? "目標 K から被り解消まで引き上げ（二分探索）"
                     : "overview（zoom=1）"
             }
           >
