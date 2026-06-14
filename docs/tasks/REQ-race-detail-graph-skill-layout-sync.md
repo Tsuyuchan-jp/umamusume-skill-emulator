@@ -130,4 +130,4 @@
 | 2026-06-12 20:33 | **detail 強化（試行）**: 反復 zoom（2D 被りゼロまで K 探索）、`DETAIL_ZOOM_MIN=1.5` / `MAX=5.0`、detail 時 **X 重なりでも stagger**（近接 speed 帯含む） | 実機: ON でも被り残存。X 被りは Y zoom だけでは不足 |
 | 2026-06-12 20:36 | Agent 実装: `computeDetailYZoomFactor`（二分探索・最小 K）、`hasSkillLabelOverlaps` / `hitBoxesOverlap`、`assignStackLevels` に `xStaggerOnly`。RaceDetailChart を反復 zoom に切替。`npm run build` 通過（`12af1e1`） | 推奨案一括試行。実機で被り・scroll・Y 相関をユーザー確認 |
 | 2026-06-12 20:49 | **A案**: detail ラベル typography / hit box / オフセット / 赤線 gap を **px 固定**。yZoomFactor は plot 高さ + stagger 段間隔のみ。`npm run build` 通過（`af78fe8`） | 実機: フォントが K 倍で巨大化。layout と描画の不整合を解消 |
-| 2026-06-14 09:17 | **案1**: overview（縦拡大 OFF）で **stack 0 固定** — Y stagger 廃止、速度スナップ維持、テキスト被り許容 | OFF/ON で相対位置差。stack 2–3 押し下げが主因 |
+| 2026-06-14 09:17 | **案1**: overview（縦拡大 OFF）で **stack 0 固定** — Y stagger 廃止、速度スナップ維持、テキスト被り許容。`npm run build` 通過（`3806581`） | OFF/ON で相対位置差。stack 2–3 押し下げが主因 |
