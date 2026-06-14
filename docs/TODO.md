@@ -95,7 +95,7 @@ detail 分析モード刷新 — 実装完了、ユーザー実機確認待ち
 
 ## 完了済み
 
-- [x] detail 分析モード刷新 — 案3 stagger + K 下限 3.0 + 赤線 speed 固定・ラベル分離（**実機検証待ち** / コミット後追記 / [`REQ-race-detail-graph-skill-layout-sync.md`](tasks/REQ-race-detail-graph-skill-layout-sync.md)）
+- [x] detail 分析モード刷新 — 案3 stagger + K 下限 3.0 + 赤線 speed 固定・ラベル分離（**実機検証待ち** / `a83d5df` / [`REQ-race-detail-graph-skill-layout-sync.md`](tasks/REQ-race-detail-graph-skill-layout-sync.md)）
 - [x] xStaggerOnly 衝突条件修正（案A）— baseY 近接判定除去、Y zoom 探索 dead code 解消（**superseded** / `0545e9f` / [`REQ-race-detail-graph-skill-layout-sync.md`](tasks/REQ-race-detail-graph-skill-layout-sync.md)）
 - [x] overview stack 0 優先（案1）— OFF 時 Y stagger なし・速度スナップ維持・被り許容（**実機検証待ち** / `3806581` / [`REQ-race-detail-graph-skill-layout-sync.md`](tasks/REQ-race-detail-graph-skill-layout-sync.md)）
 - [x] detail ラベル px 固定（A案）— font/hit box/オフセット固定、yZoom は plot+stagger のみ（**実機検証待ち** / `af78fe8` / [`REQ-race-detail-graph-skill-layout-sync.md`](tasks/REQ-race-detail-graph-skill-layout-sync.md)）
