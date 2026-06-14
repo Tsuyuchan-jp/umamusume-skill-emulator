@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-14 09:17
+最終更新: 2026-06-14 09:45
 
 ---
 
@@ -24,11 +24,20 @@ overview stack 0 優先（案1）— 実装完了、ユーザー実機確認待�
 
 ### P0 — 次に着手
 
-（なし — 次は P2）
+（なし — 次は P1）
 
 ### P1 — 重要
 
-（なし）
+- [ ] **シミュレーション失敗トーストの文言改善（`null` 非表示・再試行案内）**
+  - 経緯: WASM Worker 異常終了時に `シミュレーションエラー: null` がユーザー向けトーストに表示された。フルリロードで復旧した事例あり
+  - 現状: `SimulationLauncher.tsx` が `e.message` をそのまま表示。`umaemuAdapter.ts` が Worker の `error: null` / `"null"` を `new Error(error)` で渡す
+  - 目標: 無意味なメッセージ（`null`・空・`Worker terminated` 等）は **日本語の案内文** に置換。「もう一度実行」「解消しない場合は再読み込み」を含める
+  - 実装方針（2段）:
+    1. `umaemuAdapter.ts` — reject 時に `toSimulationError()` で正規化（内部コード `SIMULATION_ENGINE_UNAVAILABLE` 等）
+    2. `SimulationLauncher.tsx` — `formatSimulationErrorMessage()` でトースト文言確定。`console.error` は詳細ログ用に維持
+  - 文案例: 「シミュレーションを完了できませんでした。一時的な不具合の可能性があります。もう一度実行してみてください。繰り返す場合はアプリの再読み込みをお試しください。」
+  - 触る想定: `umaemuAdapter.ts`, `SimulationLauncher.tsx`
+  - REQ: 不要（数行〜小タスク）
 
 ### P2 — 改善・アイデア
 
