@@ -792,7 +792,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
           )}
         </div>
       </div>
-      <div className="flex shrink-0 flex-wrap gap-x-3 gap-y-1 px-1 py-1.5 text-xs text-zinc-300">
+      <div className="flex w-full shrink-0 flex-wrap items-center gap-x-3 gap-y-1 px-1 py-1.5 text-xs text-zinc-300">
         {DISPLAY_CHECKBOXES.map(({ key, label }) => (
           <label key={key} className="inline-flex cursor-pointer items-center gap-1">
             <input
@@ -804,6 +804,16 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
             {label}
           </label>
         ))}
+        {/* 検証用: 縦拡大 Y zoom 倍率（development のみ。本番前に削除） */}
+        {process.env.NODE_ENV === "development" && (
+          <span
+            className="ml-auto font-mono text-[10px] text-amber-400/90"
+            title="detail 時の yZoomFactor（computeDetailYZoomFactor）。検証用表示。"
+          >
+            Y zoom: {yZoomFactor.toFixed(2)}
+            {!isExpanded ? " (OFF)" : ""}
+          </span>
+        )}
       </div>
     </div>
   );
