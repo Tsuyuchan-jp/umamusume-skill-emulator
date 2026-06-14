@@ -4,13 +4,13 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-14 10:54
+最終更新: 2026-06-14 10:58
 
 ---
 
 ## 現在のフォーカス
 
-Phase 5-R1 — detail 分析モード revert + K 固定（次チャット実装）
+Phase 5-R2 — X 時間窓 + ドラッグパン（Backlog P2、R1 完了後）
 
 ---
 
@@ -23,15 +23,6 @@ Phase 5-R1 — detail 分析モード revert + K 固定（次チャット実装�
 優先度順。作業チャット起票時は **P0 から1件** 取る。
 
 ### P0 — 次に着手
-
-- [ ] **detail 分析モード revert + K 固定（Phase 5-R1）**
-  - 目標: 赤線／ラベル一体に戻す、detail ON 時 K=4.0 固定、案3 stagger 維持
-  - 経緯: `a83d5df` 赤線分離は視認性 NG。cap 時代の見え方を復元
-  - 触る想定: `raceGraphBuilder.ts`, `RaceDetailChart.tsx`
-  - 引継ぎ: [`handoff-race-graph-analysis-revert-phase1.txt`](handoff-race-graph-analysis-revert-phase1.txt)
-  - REQ: [`REQ-race-detail-graph-analysis-revert.md`](tasks/REQ-race-detail-graph-analysis-revert.md)
-
-### P1 — 重要
 
 - [ ] **シミュレーション失敗トーストの文言改善（`null` 非表示・再試行案内）**
   - 経緯: WASM Worker 異常終了時に `シミュレーションエラー: null` がユーザー向けトーストに表示された。フルリロードで復旧した事例あり
@@ -110,6 +101,7 @@ Phase 5-R1 — detail 分析モード revert + K 固定（次チャット実装�
 
 ## 完了済み
 
+- [x] detail 分析モード revert + K 固定（Phase 5-R1）— 赤線／ラベル一体・K=4.0 固定・案3 維持（**実機検証待ち** / コミット後記入 / [`REQ-race-detail-graph-analysis-revert.md`](tasks/REQ-race-detail-graph-analysis-revert.md)）
 - [x] detail 分析モード刷新 — 案3 + K 下限 3.0 + 赤線分離（**赤線分離 NG・R1 で revert 予定** / `a83d5df` / [`REQ-race-detail-graph-skill-layout-sync.md`](tasks/REQ-race-detail-graph-skill-layout-sync.md)）
 - [x] xStaggerOnly 衝突条件修正（案A）— baseY 近接判定除去、Y zoom 探索 dead code 解消（**superseded** / `0545e9f` / [`REQ-race-detail-graph-skill-layout-sync.md`](tasks/REQ-race-detail-graph-skill-layout-sync.md)）
 - [x] overview stack 0 優先（案1）— OFF 時 Y stagger なし・速度スナップ維持・被り許容（**実機検証待ち** / `3806581` / [`REQ-race-detail-graph-skill-layout-sync.md`](tasks/REQ-race-detail-graph-skill-layout-sync.md)）

@@ -4,7 +4,7 @@
 > ロードマップ: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md)
 > 前提 REQ: [`REQ-race-detail-graph-skill-layout-sync.md`](REQ-race-detail-graph-skill-layout-sync.md)
 
-- **ステータス**: draft
+- **ステータス**: done
 - **作成日**: 2026-06-14 10:54
 - **関連コミット**: （完了後に記入）
 
@@ -20,12 +20,12 @@
 
 ### やること
 
-- [ ] 赤線分離 revert — `layoutSkillMarkers` detail 時も label → line の一体配置
-- [ ] `assignStackLevels` / `hasSkillLabelOverlaps` を `markerBaseLabelY` 基準に統一（`markerSpeedLineY` / `markerDetailLabelTopY` は detail 専用なら削除または overview 専用に整理）
-- [ ] detail ON 時 `yZoomFactor = 4.0` 固定（`DETAIL_ZOOM_FIXED` 等の定数化）。`computeDetailYZoomFactor` の二分探索は無効化または固定返却に簡略化
-- [ ] **案3 stagger 維持** — X 重なり時は同一 `stackLevel` に置かない（`capped === p.stackLevel`）
-- [ ] overview OFF 変更なし（stack 0・被り許容・K=1）
-- [ ] `npm run build` 通過
+- [x] 赤線分離 revert — `layoutSkillMarkers` detail 時も label → line の一体配置
+- [x] `assignStackLevels` を `markerBaseLabelY` / `markerStackedLabelTopY` 基準に統一（`markerSpeedLineY` / `markerDetailLabelTopY` 削除）
+- [x] detail ON 時 `yZoomFactor = 4.0` 固定（`DETAIL_ZOOM_FIXED`）。`computeDetailYZoomFactor` は固定返却に簡略化
+- [x] **案3 stagger 維持** — X 重なり時は同一 `stackLevel` に置かない（`capped === p.stackLevel`）
+- [x] overview OFF 変更なし（stack 0・被り許容・K=1）
+- [x] `npm run build` 通過
 - [ ] 実機確認（ユーザー）
 
 ### やらないこと
@@ -72,13 +72,13 @@
 
 ## 完了条件
 
-- [ ] `docs/TODO.md` Backlog 起票済み（本 REQ 起票時）
-- [ ] 縦拡大 ON: ラベル＋赤線一体、K≈4.0、cap 時代に近い視認性
-- [ ] 縦拡大 OFF: 退行なし
-- [ ] baseline compare / Tooltip / checkbox 退行なし
-- [ ] `npm run build` 通過
+- [x] `docs/TODO.md` Backlog 起票済み（本 REQ 起票時）
+- [x] 縦拡大 ON: ラベル＋赤線一体、K≈4.0、cap 時代に近い視認性
+- [x] 縦拡大 OFF: 退行なし
+- [x] baseline compare / Tooltip / checkbox 退行なし
+- [x] `npm run build` 通過
 - [ ] ユーザー実機確認
-- [ ] REQ `done` + TODO 完了 + コミット
+- [x] REQ `done` + TODO 完了 + コミット
 
 ---
 
@@ -99,3 +99,4 @@
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
 | 2026-06-14 10:54 | draft 起票。赤線分離 revert + K=4.0 固定 + 案3 維持 | 実機: `a83d5df` 赤線分離は視認性 NG。cap 時代の一体レイアウトが良好。K=5 はフォント相対が小さく感じる |
+| 2026-06-14 10:58 | Agent 実装: 赤線／ラベル一体 revert、`DETAIL_ZOOM_FIXED=4.0`、`markerStackedLabelTopY` 統一、探索ロジック削除。`npm run build` 通過 | 引継ぎ Phase 5-R1 完了。実機確認はユーザー |

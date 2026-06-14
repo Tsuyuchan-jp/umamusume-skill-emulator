@@ -19,8 +19,6 @@ import {
   buildRaceGraphPoints,
   buildSkillMarkers,
   computeDetailYZoomFactor,
-  DETAIL_ZOOM_PROBE_MAX,
-  probeUncappedDetailYZoomMin,
   computeZoomedChartHeight,
   DEFAULT_GRAPH_DISPLAY_STATE,
   GraphDisplayState,
@@ -296,30 +294,6 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
     hasDebuffMarkers,
   ]);
   const yZoomFactor = detailYZoom.yZoomFactor;
-  const detailYZoomParams = useMemo(
-    () => ({
-      markers: skillData.skillMarkers,
-      viewportPlotHeight,
-      maxTime,
-      plotWidth: overlayPlotWidth,
-      points: graphPoints.points,
-      hasDebuff: hasDebuffMarkers,
-    }),
-    [
-      skillData.skillMarkers,
-      viewportPlotHeight,
-      maxTime,
-      overlayPlotWidth,
-      graphPoints.points,
-      hasDebuffMarkers,
-    ],
-  );
-  const uncappedNeedK = useMemo(() => {
-    if (process.env.NODE_ENV !== "development" || !isExpanded || detailYZoom.source !== "cap") {
-      return undefined;
-    }
-    return probeUncappedDetailYZoomMin(detailYZoomParams);
-  }, [isExpanded, detailYZoom.source, detailYZoomParams]);
   const contentChartHeight = isExpanded
     ? computeZoomedChartHeight(viewportChartHeight, yZoomFactor)
     : viewportChartHeight;
@@ -838,25 +812,13 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
           <span
             className="ml-auto font-mono text-[10px] text-amber-400/90"
             title={
-              detailYZoom.source === "cap"
-                ? uncappedNeedK != null
-                  ? `K=5.0 でも被り検出。cap なし推定最小 K≈${uncappedNeedK.toFixed(2)}（探索上限 ${DETAIL_ZOOM_PROBE_MAX}）`
-                  : `K=5.0 でも被り検出。${DETAIL_ZOOM_PROBE_MAX} 超も必要（解消不能の可能性）`
-                : detailYZoom.source === "min-lo"
-                  ? "分析目標 K（下限 3.0 または maxStack 由来）で被りなし"
-                  : detailYZoom.source === "min-search"
-                    ? "目標 K から被り解消まで引き上げ（二分探索）"
-                    : "overview（zoom=1）"
+              isExpanded
+                ? "detail 分析モード: Y zoom 固定（DETAIL_ZOOM_FIXED）"
+                : "overview（zoom=1）"
             }
           >
             Y zoom: {yZoomFactor.toFixed(2)}
-            {!isExpanded
-              ? " (OFF)"
-              : detailYZoom.source === "cap"
-                ? uncappedNeedK != null
-                  ? ` (cap → need ${uncappedNeedK.toFixed(2)})`
-                  : ` (cap → need >${DETAIL_ZOOM_PROBE_MAX})`
-                : " (min)"}
+            {!isExpanded ? " (OFF)" : " (fixed)"}
           </span>
         )}
       </div>

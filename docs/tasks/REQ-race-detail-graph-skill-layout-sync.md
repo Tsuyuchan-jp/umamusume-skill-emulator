@@ -134,3 +134,4 @@
 | 2026-06-14 09:57 | **Step 1 案A**: `xStaggerOnly` 衝突条件から `baseY` 近接判定を除去。X 重なり時は **2D hit box 重なり（yOverlap）のみ** conflict | 実機: 全レースで Y zoom cap / need >20。近接 speed 帯で段を上げても衝突が解消されず探索が dead code 化 |
 | 2026-06-14 10:24 | **分析モード刷新**: 案3（X 重なり→同一 stack 不可）+ `DETAIL_ZOOM_ANALYSIS_FLOOR=3.0` ハイブリッド K + 赤線 Y=speed 固定・ラベルは赤線下のみ stack | 実機: 案A 後は全て 1.5(min)・X 被り残存。赤線が stack で速度線から離れていた。赤線は速度線と重なり許容（分析優先） |
 | 2026-06-14 10:54 | **赤線分離 NG・作業分割**: revert + K=4.0 固定 → [`REQ-race-detail-graph-analysis-revert.md`](REQ-race-detail-graph-analysis-revert.md)。時間窓+ドラッグ → R2。ホイール+checkbox削除 → R3 | 実機: 分離で視認性著しく低下。cap 時代の一体レイアウトが良好。K=5 はフォント相対が小さい |
+| 2026-06-14 10:58 | **Phase 5-R1 実装**: 赤線／ラベル一体 revert、`DETAIL_ZOOM_FIXED=4.0`、案3 維持。探索・赤線分離ヘルパー削除 | 引継ぎどおり。実機確認はユーザー |
