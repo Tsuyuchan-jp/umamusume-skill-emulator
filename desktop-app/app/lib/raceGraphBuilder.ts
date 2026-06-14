@@ -142,6 +142,8 @@ export const MAX_STACK_COLLAPSED = 4;
 export const DETAIL_ZOOM_MIN = 1.5;
 /** detail モード Y zoom 上限（スクロール破綻防止） */
 export const DETAIL_ZOOM_MAX = 5.0;
+/** 検証用: cap 超えの必要 K 探索上限（development 表示のみ） */
+export const DETAIL_ZOOM_PROBE_MAX = 20;
 /**
  * detail yZoomFactor のスケール対象:
  * - 速度 plot 高さ（speedPlotHeight）
@@ -216,18 +218,21 @@ export interface DetailYZoomResult {
   source: DetailYZoomSource;
 }
 
-/** detail: 2D 被りが解消する最小 yZoomFactor を探索（[DETAIL_ZOOM_MIN, DETAIL_ZOOM_MAX]） */
-export function computeDetailYZoomFactor(params: {
+export type DetailYZoomParams = {
   markers: Pick<SkillMarker, "tooltipKey" | "label" | "startTime" | "kind">[];
   viewportPlotHeight: number;
   maxTime: number;
   plotWidth: number;
   points: GraphPoint[];
   hasDebuff?: boolean;
-}): DetailYZoomResult {
+};
+
+function buildDetailYZoomTestAt(
+  params: DetailYZoomParams,
+): { items: StackLayoutInput[]; testAt: (k: number) => boolean; seedLo: number } | null {
   const { markers, viewportPlotHeight, maxTime, plotWidth, points, hasDebuff = false } = params;
   if (viewportPlotHeight <= 0 || !markers.length || maxTime <= 0 || plotWidth <= 0) {
-    return { yZoomFactor: DETAIL_ZOOM_MIN, source: "min-lo" };
+    return null;
   }
 
   const items: StackLayoutInput[] = markers.map((m) => ({
@@ -247,8 +252,7 @@ export function computeDetailYZoomFactor(params: {
     xStaggerOnly: true,
   }).maxStack;
   const seedK = computeYZoomFactor(viewportPlotHeight, seedStack, hasDebuff);
-  let lo = Math.max(DETAIL_ZOOM_MIN, seedK);
-  let hi = DETAIL_ZOOM_MAX;
+  const seedLo = Math.max(DETAIL_ZOOM_MIN, seedK);
 
   const testAt = (k: number) =>
     hasSkillLabelOverlaps(items, {
@@ -261,7 +265,43 @@ export function computeDetailYZoomFactor(params: {
       xStaggerOnly: true,
     });
 
-  if (!testAt(lo)) return { yZoomFactor: lo, source: "min-lo" };
+  return { items, testAt, seedLo };
+}
+
+/** 検証用: cap 時に上限なしで被り解消に必要な最小 K（[DETAIL_ZOOM_MAX, PROBE_MAX]）。解消不能なら null */
+export function probeUncappedDetailYZoomMin(params: DetailYZoomParams): number | null {
+  const ctx = buildDetailYZoomTestAt(params);
+  if (!ctx) return null;
+
+  const { testAt } = ctx;
+  if (!testAt(DETAIL_ZOOM_MAX)) return DETAIL_ZOOM_MAX;
+  if (testAt(DETAIL_ZOOM_PROBE_MAX)) return null;
+
+  let lo = DETAIL_ZOOM_MAX;
+  let hi = DETAIL_ZOOM_PROBE_MAX;
+  let best = hi;
+  for (let i = 0; i < 20; i += 1) {
+    const mid = (lo + hi) / 2;
+    if (!testAt(mid)) {
+      best = mid;
+      hi = mid;
+    } else {
+      lo = mid;
+    }
+  }
+  return best;
+}
+
+/** detail: 2D 被りが解消する最小 yZoomFactor を探索（[DETAIL_ZOOM_MIN, DETAIL_ZOOM_MAX]） */
+export function computeDetailYZoomFactor(params: DetailYZoomParams): DetailYZoomResult {
+  const ctx = buildDetailYZoomTestAt(params);
+  if (!ctx) {
+    return { yZoomFactor: DETAIL_ZOOM_MIN, source: "min-lo" };
+  }
+
+  const { testAt, seedLo } = ctx;
+  let lo = seedLo;
+  let hi = DETAIL_ZOOM_MAX;
   if (testAt(hi)) return { yZoomFactor: DETAIL_ZOOM_MAX, source: "cap" };
 
   let best = hi;
