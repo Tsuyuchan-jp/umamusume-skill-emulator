@@ -399,6 +399,14 @@ function assignStackLevels(
     return { stackLevels, maxStack };
   }
 
+  // overview（expanded=false）: stack 0 固定。速度スナップ位置を維持し被りは許容（案1）
+  if (!expanded) {
+    for (const item of items) {
+      stackLevels.set(item.tooltipKey, 0);
+    }
+    return { stackLevels, maxStack: 0 };
+  }
+
   const sorted = [...items].sort(
     (a, b) => a.startTime - b.startTime || a.tooltipKey.localeCompare(b.tooltipKey),
   );
