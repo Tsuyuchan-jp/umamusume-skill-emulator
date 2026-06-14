@@ -4,13 +4,13 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-14 09:45
+最終更新: 2026-06-14 09:58
 
 ---
 
 ## 現在のフォーカス
 
-overview stack 0 優先（案1）— 実装完了、ユーザー実機確認待ち
+xStaggerOnly 衝突条件修正（案A）— 実装完了、ユーザー実機確認待ち
 
 ---
 
@@ -95,6 +95,7 @@ overview stack 0 優先（案1）— 実装完了、ユーザー実機確認待�
 
 ## 完了済み
 
+- [x] xStaggerOnly 衝突条件修正（案A）— baseY 近接判定除去、Y zoom 探索 dead code 解消（**実機検証待ち** / `0545e9f` / [`REQ-race-detail-graph-skill-layout-sync.md`](tasks/REQ-race-detail-graph-skill-layout-sync.md)）
 - [x] overview stack 0 優先（案1）— OFF 時 Y stagger なし・速度スナップ維持・被り許容（**実機検証待ち** / `3806581` / [`REQ-race-detail-graph-skill-layout-sync.md`](tasks/REQ-race-detail-graph-skill-layout-sync.md)）
 - [x] detail ラベル px 固定（A案）— font/hit box/オフセット固定、yZoom は plot+stagger のみ（**実機検証待ち** / `af78fe8` / [`REQ-race-detail-graph-skill-layout-sync.md`](tasks/REQ-race-detail-graph-skill-layout-sync.md)）
 - [x] detail Y zoom 反復収束 + X-only stagger — 2D 被りゼロまで K 探索・detail 時 X 重なり stagger（**実機検証待ち** / `12af1e1` / [`REQ-race-detail-graph-skill-layout-sync.md`](tasks/REQ-race-detail-graph-skill-layout-sync.md)）
