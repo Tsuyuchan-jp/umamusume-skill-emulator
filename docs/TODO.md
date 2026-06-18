@@ -105,7 +105,7 @@ Backlog — P0 トースト改善 / P2 Phase 5-R2
 
 ## 完了済み
 
-- [x] Phase 5-R1b ポリッシュ: speedPlotHeight に Legend 分を反映（`コミット後` / 実機確認待ち）
+- [x] Phase 5-R1b ポリッシュ: speedPlotHeight に Legend 分を反映（`ba4e172` / 実機確認待ち）
 - [x] Phase 5-R1b ポリッシュ: contentPlotHeight 修正 + nudge リセット（`2e52a26` — Legend 未考慮で過補正）
 - [x] Phase 5-R1b ポリッシュ: stack 0 赤線の半px整列 + 速度線 nudge（`b94777d` — **plot 高さ修正で置換**）
 - [x] Phase 5-R1b ポリッシュ: 赤線アンカー分離 + 同時刻のみスタック（`7af3b0c` — **案1は撤回**）
