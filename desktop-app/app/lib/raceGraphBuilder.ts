@@ -128,6 +128,8 @@ export const SKILL_FONT_SIZE = 10;
 export const SKILL_LINE_GAP = 3;
 /** 赤線を上方向へ寄せる微調整（px） */
 export const SKILL_LINE_Y_NUDGE_UP = 1;
+/** detail stack 0: 速度折れ線と赤線の視覚合わせ（上方向が負・実機調整） */
+export const SKILL_LINE_SPEED_ANCHOR_NUDGE = -2;
 /** @deprecated 下帯行レイアウト用 */
 export const SKILL_ROW_TOP_PAD = 4;
 /** 速度点からラベル上端までのオフセット（px） */
@@ -315,6 +317,11 @@ function markerKindOffsetY(kind: SkillEventKind): number {
   return kind === "debuff" ? DEBUFF_Y_OFFSET : 0;
 }
 
+/** SVG strokeWidth=2 向けの半ピクセル整列 */
+function alignOverlayStrokeY(y: number): number {
+  return Math.round(y * 2) / 2;
+}
+
 /** detail: 赤線 Y。stack 0 は速度線上、下段は yStackOffset でラベルと一体で下げる（赤線重なり禁止） */
 function markerLineY_px(
   points: GraphPoint[],
@@ -325,7 +332,11 @@ function markerLineY_px(
 ): number {
   const speed = getSpeedAtTime(points, startTime);
   const speedY = speedToOverlayY(speed, speedPlotHeight);
-  return speedY + yStackOffset + markerKindOffsetY(kind);
+  let lineY = speedY + yStackOffset + markerKindOffsetY(kind);
+  if (yStackOffset === 0 && kind !== "debuff") {
+    lineY += SKILL_LINE_SPEED_ANCHOR_NUDGE;
+  }
+  return alignOverlayStrokeY(lineY);
 }
 
 /** detail: ラベル hit box 上端 Y（衝突判定用・赤線の上） */

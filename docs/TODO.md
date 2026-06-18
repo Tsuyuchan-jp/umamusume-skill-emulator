@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-18 19:25
+最終更新: 2026-06-18 19:34
 
 ---
 
@@ -105,7 +105,7 @@ Backlog — P0 トースト改善 / P2 Phase 5-R2
 
 ## 完了済み
 
-- [x] Phase 5-R1b ポリッシュ: 案1撤回・赤線ラベル一体 compact スタック（`d2d1315`）
+- [x] Phase 5-R1b ポリッシュ: stack 0 赤線の半px整列 + 速度線 nudge（`コミット後` / 実機確認待ち）
 - [x] Phase 5-R1b ポリッシュ: 赤線アンカー分離 + 同時刻のみスタック（`7af3b0c` — **案1は撤回**）
 - [x] Phase 5-R1b ポリッシュ: ラベル↔赤線隙間 + 速度線 linear 補間統一（`cce0314` / 5-R1b 実機指摘）
 - [x] Phase 5-R1b: 詳細表示レイアウト（赤線アンカー + 同時刻スタック圧縮）— yStackOffset 二段階・赤線速度線アンカー・ラベル上配置（**実機検証待ち** / `782dabe` / [`REQ-race-detail-graph-same-time-stack-compact.md`](tasks/REQ-race-detail-graph-same-time-stack-compact.md)）— 赤線／ラベル一体・K=4.0 固定・案3 維持（**実機検証クローズ** 2026-06-14 11:04 / `dd414ea` / [`REQ-race-detail-graph-analysis-revert.md`](tasks/REQ-race-detail-graph-analysis-revert.md)）
