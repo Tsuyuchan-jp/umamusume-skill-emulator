@@ -34,6 +34,7 @@ import {
   layoutSkillMarkers,
   legacyFullVisibleWindow,
   mergeBaselineGraphPoints,
+  plotMetricsEquivalent,
   plotMetricsScalesMatchWindow,
   skillMarkersToPx,
   SkillMarkerPx,
@@ -417,7 +418,10 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
 
   const handlePlotMetrics = useCallback((metrics: ChartPlotMetrics) => {
     if (!plotMetricsScalesMatchWindow(metrics)) return;
-    setMeasuredPlotMetrics(metrics);
+    setMeasuredPlotMetrics((prev) => {
+      if (prev && plotMetricsEquivalent(prev, metrics)) return prev;
+      return metrics;
+    });
   }, []);
 
   const handleViewReset = useCallback(() => {
@@ -468,21 +472,6 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
     plotMetricsScalesMatchWindow(measuredPlotMetrics) &&
     chartViewStatesEqual(measuredPlotMetrics.view, metricsViewState) &&
     visibleWindowsEqual(measuredPlotMetrics, visibleWindow);
-
-  useEffect(() => {
-    if (isMapInteracting) return;
-    setMeasuredPlotMetrics((prev) => {
-      if (!prev) return prev;
-      if (
-        !chartViewStatesEqual(prev.view, metricsViewState) ||
-        !visibleWindowsEqual(prev, visibleWindow) ||
-        !plotMetricsScalesMatchWindow(prev)
-      ) {
-        return null;
-      }
-      return prev;
-    });
-  }, [chartViewState, visibleWindow, metricsViewState, isMapInteracting]);
 
   useEffect(() => {
     if (isMapInteracting) {

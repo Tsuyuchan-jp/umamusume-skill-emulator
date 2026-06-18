@@ -115,6 +115,34 @@ export function plotMetricsScalesMatchWindow(metrics: ChartPlotMetrics): boolean
   return true;
 }
 
+/** 保存済み metrics と新 metrics が実効同一か（setState ループ防止 + stale scales 検出） */
+export function plotMetricsEquivalent(a: ChartPlotMetrics, b: ChartPlotMetrics): boolean {
+  if (!chartViewStatesEqual(a.view, b.view)) return false;
+  if (!visibleWindowsEqual(a, b)) return false;
+  if (
+    a.cartesian.left !== b.cartesian.left ||
+    a.cartesian.top !== b.cartesian.top ||
+    a.cartesian.width !== b.cartesian.width ||
+    a.cartesian.height !== b.cartesian.height
+  ) {
+    return false;
+  }
+  if (!a.scales || !b.scales) return false;
+
+  const tol = 1e-3;
+  const pairs: [number | undefined, number | undefined][] = [
+    [a.scales.timeToX(a.timeMin), b.scales.timeToX(b.timeMin)],
+    [a.scales.timeToX(a.timeMax), b.scales.timeToX(b.timeMax)],
+    [a.scales.speedToY(a.speedMin), b.scales.speedToY(b.speedMin)],
+    [a.scales.speedToY(a.speedMax), b.scales.speedToY(b.speedMax)],
+  ];
+  for (const [av, bv] of pairs) {
+    if (av == null || bv == null || !Number.isFinite(av) || !Number.isFinite(bv)) return false;
+    if (Math.abs(av - bv) > tol) return false;
+  }
+  return true;
+}
+
 /** viewState から可視窓 domain を算出（パターン B: 全軸連動） */
 export function visibleWindowFromViewState(
   view: ChartViewState,
