@@ -188,6 +188,8 @@ interface StackAssignOptions {
 /** LineChart margin と同期（layoutSkillMarkers 用） */
 export const SKILL_CHART_MARGIN_TOP = 24;
 export const SKILL_CHART_MARGIN_BOTTOM = 4;
+/** Recharts Legend（下部）が占有する cartesian 領域の高さ（px） */
+export const SKILL_CHART_LEGEND_RESERVE = 28;
 /** 速度折れ線 plot 高さ（px）— 縦拡大 ON でも Recharts はこの高さを維持 */
 export const SPEED_PLOT_HEIGHT =
   SKILL_CHART_BASE_HEIGHT - SKILL_CHART_MARGIN_TOP - SKILL_CHART_MARGIN_BOTTOM;

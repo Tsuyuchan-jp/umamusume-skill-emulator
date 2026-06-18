@@ -30,6 +30,7 @@ import {
   SKILL_CHART_BASE_HEIGHT,
   SKILL_CHART_MARGIN_BOTTOM,
   SKILL_CHART_MARGIN_TOP,
+  SKILL_CHART_LEGEND_RESERVE,
   SKILL_FONT_SIZE,
   OVERLAY_MARGIN_LEFT,
   OVERLAY_MARGIN_RIGHT,
@@ -301,12 +302,14 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
     contentChartHeight - SKILL_CHART_MARGIN_TOP - SKILL_CHART_MARGIN_BOTTOM,
     1,
   );
+  /** 速度スナップ用: Legend 分を除いた Recharts cartesian の高さ */
+  const speedPlotHeight = Math.max(contentPlotHeight - SKILL_CHART_LEGEND_RESERVE, 1);
   const skillMarkers = useMemo(
     () =>
       layoutSkillMarkers(skillData.skillMarkers, contentChartHeight, {
         expanded: isExpanded,
         points: graphPoints.points,
-        speedPlotHeight: contentPlotHeight,
+        speedPlotHeight,
         yZoomFactor,
         maxTime,
         plotWidth: overlayPlotWidth,
@@ -317,6 +320,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
       isExpanded,
       graphPoints.points,
       contentPlotHeight,
+      speedPlotHeight,
       yZoomFactor,
       maxTime,
       overlayPlotWidth,
