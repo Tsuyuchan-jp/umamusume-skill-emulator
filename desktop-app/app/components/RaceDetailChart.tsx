@@ -13,13 +13,16 @@ import {
   ReferenceLine,
   ReferenceArea,
   Legend,
+  Customized,
 } from "recharts";
 import { RaceDetailDump } from "../lib/types";
 import {
   buildRaceGraphPoints,
   buildSkillMarkers,
+  ChartPlotMetrics,
   computeDetailYZoomFactor,
   computeZoomedChartHeight,
+  createChartPlotMetrics,
   DEFAULT_GRAPH_DISPLAY_STATE,
   GraphDisplayState,
   GraphPoint,
@@ -30,8 +33,6 @@ import {
   SKILL_CHART_BASE_HEIGHT,
   SKILL_CHART_MARGIN_BOTTOM,
   SKILL_CHART_MARGIN_TOP,
-  SKILL_CHART_LEGEND_RESERVE,
-  SKILL_CHART_XAXIS_RESERVE,
   SKILL_FONT_SIZE,
   OVERLAY_MARGIN_LEFT,
   OVERLAY_MARGIN_RIGHT,
@@ -201,6 +202,36 @@ const SyncedChartLegend: React.FC<{
   </ul>
 );
 
+type RechartsCartesianOffset = {
+  top: number;
+  left: number;
+  width: number;
+  height: number;
+};
+
+/** Recharts Customized から cartesian 実測を親へ渡す */
+const ChartMetricsProbe: React.FC<{
+  offset?: RechartsCartesianOffset;
+  maxTime: number;
+  onMetrics: (metrics: ChartPlotMetrics) => void;
+}> = ({ offset, maxTime, onMetrics }) => {
+  useLayoutEffect(() => {
+    if (!offset || offset.width <= 0 || offset.height <= 0 || maxTime <= 0) return;
+    onMetrics(
+      createChartPlotMetrics(
+        {
+          left: offset.left,
+          top: offset.top,
+          width: offset.width,
+          height: offset.height,
+        },
+        maxTime,
+      ),
+    );
+  }, [offset, maxTime, onMetrics]);
+  return null;
+};
+
 const renderPercentAxisTick = (props: {
   x?: number | string;
   y?: number | string;
@@ -251,6 +282,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
   /** scroll コンテナの可視高さ — LineChart は ON/OFF 共通でこれに合わせる */
   const [viewportHeight, setViewportHeight] = useState(SKILL_CHART_BASE_HEIGHT);
   const [measuredWidth, setMeasuredWidth] = useState(800);
+  const [measuredPlotMetrics, setMeasuredPlotMetrics] = useState<ChartPlotMetrics | null>(null);
 
   useEffect(() => {
     const el = scrollContainerRef.current;
@@ -303,31 +335,60 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
     contentChartHeight - SKILL_CHART_MARGIN_TOP - SKILL_CHART_MARGIN_BOTTOM,
     1,
   );
-  /** 速度スナップ用: Legend + XAxis 分を除いた Recharts cartesian の高さ */
-  const speedPlotHeight = Math.max(
-    contentPlotHeight - SKILL_CHART_LEGEND_RESERVE - SKILL_CHART_XAXIS_RESERVE,
-    1,
+
+  useEffect(() => {
+    setMeasuredPlotMetrics(null);
+  }, [isExpanded, contentChartHeight, measuredWidth]);
+
+  const handlePlotMetrics = useCallback((metrics: ChartPlotMetrics) => {
+    setMeasuredPlotMetrics((prev) => {
+      if (
+        prev &&
+        prev.cartesian.left === metrics.cartesian.left &&
+        prev.cartesian.top === metrics.cartesian.top &&
+        prev.cartesian.width === metrics.cartesian.width &&
+        prev.cartesian.height === metrics.cartesian.height &&
+        prev.timeMax === metrics.timeMax
+      ) {
+        return prev;
+      }
+      return metrics;
+    });
+  }, []);
+
+  /** Customized 実測前のフォールバック（固定 LEGEND/XAXIS reserve は使わない） */
+  const estimatedPlotMetrics = useMemo(
+    () =>
+      createChartPlotMetrics(
+        {
+          left: OVERLAY_MARGIN_LEFT,
+          top: SKILL_CHART_MARGIN_TOP,
+          width: overlayPlotWidth,
+          height: Math.max(isExpanded ? contentPlotHeight : viewportPlotHeight, 1),
+        },
+        maxTime,
+      ),
+    [isExpanded, contentPlotHeight, viewportPlotHeight, overlayPlotWidth, maxTime],
   );
+
+  const plotMetrics = measuredPlotMetrics ?? estimatedPlotMetrics;
+
   const skillMarkers = useMemo(
     () =>
-      layoutSkillMarkers(skillData.skillMarkers, contentChartHeight, {
+      layoutSkillMarkers(skillData.skillMarkers, plotMetrics, {
         expanded: isExpanded,
         points: graphPoints.points,
-        speedPlotHeight,
         yZoomFactor,
         maxTime,
-        plotWidth: overlayPlotWidth,
+        xStaggerOnly: true,
       }),
     [
       skillData.skillMarkers,
-      contentChartHeight,
+      plotMetrics,
       isExpanded,
       graphPoints.points,
-      contentPlotHeight,
-      speedPlotHeight,
       yZoomFactor,
       maxTime,
-      overlayPlotWidth,
     ],
   );
 
@@ -335,17 +396,8 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
   const showSkillOverlay =
     (displayState.showSkills || displayState.showDebuffs) && skillMarkers.length > 0;
   const skillMarkersPx = useMemo(
-    () =>
-      showSkillOverlay
-        ? skillMarkersToPx(
-            skillMarkers,
-            contentChartHeight,
-            measuredWidth,
-            maxTime,
-            isExpanded ? speedPlotHeight : undefined,
-          )
-        : [],
-    [showSkillOverlay, skillMarkers, contentChartHeight, measuredWidth, maxTime, isExpanded, speedPlotHeight],
+    () => (showSkillOverlay ? skillMarkersToPx(skillMarkers, plotMetrics) : []),
+    [showSkillOverlay, skillMarkers, plotMetrics],
   );
 
   /** 密集時: hover 対象を SVG 末尾へ（z-order 最前面） */
@@ -678,6 +730,15 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
                   legendType="none"
                 />
               )}
+              <Customized
+                component={(props: { offset?: RechartsCartesianOffset }) => (
+                  <ChartMetricsProbe
+                    offset={props.offset}
+                    maxTime={maxTime}
+                    onMetrics={handlePlotMetrics}
+                  />
+                )}
+              />
             </LineChart>
           </ResponsiveContainer>
 

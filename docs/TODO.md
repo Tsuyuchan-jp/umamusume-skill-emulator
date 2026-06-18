@@ -4,13 +4,13 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-18 21:01
+最終更新: 2026-06-18 21:22
 
 ---
 
 ## 現在のフォーカス
 
-Backlog — P0 トースト改善 / P1 Google Map 型グラフ UI
+Backlog — P0 トースト改善 / P1 Google Map 型グラフ UI（ステップ 2〜4）
 
 ---
 
@@ -37,11 +37,9 @@ Backlog — P0 トースト改善 / P1 Google Map 型グラフ UI
 
 ### P1 — 重要
 
-- [ ] **Google Map 型グラフ UI（Phase 5 最終）**
-  - 目標: 等倍 XY ズーム + 2D パン。縦拡大 checkbox / K=4 廃止。俯瞰→操作だけで分析へ
-  - 座標: `ChartPlotMetrics`（cartesian 実測 + viewState）を正本。固定 px reserve は廃止方向
-  - スキル: 全 scale で赤線↔速度線一致 + 同時刻 compact（5-R1b 知見を統合 layout へ）
-  - 旧 R2/R3 は **superseded**（実装は一本化。段階分割しない）
+- [ ] **Google Map 型グラフ UI（Phase 5 最終）— ステップ 2〜4**
+  - ステップ 1 完了: ChartPlotMetrics 実測 + 俯瞰（scale=1）統合 layout
+  - 残: ホイール等倍ズーム + 2D パン、暫定 UI 削除（縦拡大 checkbox / K=4）、実機検証クローズ
   - REQ: [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)
   - 触る想定: `RaceDetailChart.tsx`, `raceGraphBuilder.ts`
 
@@ -101,6 +99,7 @@ Backlog — P0 トースト改善 / P1 Google Map 型グラフ UI
 
 ## 完了済み
 
+- [x] Google Map 型グラフ UI — map-view ステップ 1（ChartPlotMetrics + cartesian 実測 + 俯瞰統合 layout）（`COMMIT_HASH` / [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)）
 - [x] Phase 5-R1b ポリッシュ: XAxis reserve + overlay domain を speedPlotHeight に統一（`a8744ef` / 実機確認待ち）
 - [x] Phase 5-R1b ポリッシュ: speedPlotHeight に Legend 分を反映（`ba4e172` — XAxis 未考慮で stack 16px 低下）
 - [x] Phase 5-R1b ポリッシュ: contentPlotHeight 修正 + nudge リセット（`2e52a26` — Legend 未考慮で過補正）

@@ -6,7 +6,7 @@
 >
 > **本 REQ は [`REQ-race-detail-graph-time-window.md`](REQ-race-detail-graph-time-window.md)（R2）および [`REQ-race-detail-graph-pan-zoom.md`](REQ-race-detail-graph-pan-zoom.md)（R3）を統合・置換する。**
 
-- **ステータス**: draft
+- **ステータス**: in-progress
 - **作成日**: 2026-06-18 21:01
 - **関連コミット**: （完了後に記入）
 
@@ -216,6 +216,7 @@ function svgToSpeed(y: number, m: ChartPlotMetrics): number;
 | 2026-06-18 21:01 | 座標正本は **ChartPlotMetrics**（cartesian 実測 + viewState）。固定 px reserve は廃止方向 | K=4・パンで破綻。OFF(scale=1) で揃えた変換式を scale/pan に拡張する |
 | 2026-06-18 21:01 | スキル layout は **scale によらず同一ロジック**（赤線アンカー + 同時刻 compact） | ON/OFF 二重パスがズレの温床。5-R1b 知見は統合して流用 |
 | 2026-06-18 21:01 | `expandSkillRows` / `DETAIL_ZOOM_FIXED` / Y 単独クローズアップを廃止 | 暫定 UI。最終操作はホイール+ドラッグのみ |
+| 2026-06-18 21:22 | **ステップ 1 完了**: ChartPlotMetrics + Recharts Customized 実測、統合 layout（赤線アンカー + 同時刻 compact + 案3）、scale=1 固定 | 固定 LEGEND/XAXIS reserve を OFF 経路から除去。ステップ 2 で viewState 配線 |
 
 ---
 

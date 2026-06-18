@@ -18,6 +18,88 @@ export function hasSkillDurationLine(
 }
 export const SPEED_MIN = 13;
 export const SPEED_MAX = 30;
+
+/** グラフの表示変換。scale=1, pan=0 がレース全体の初期俯瞰（ステップ 2 で配線） */
+export interface ChartViewState {
+  scale: number;
+  panX: number;
+  panY: number;
+}
+
+export const INITIAL_CHART_VIEW_STATE: ChartViewState = {
+  scale: 1,
+  panX: 0,
+  panY: 0,
+};
+
+/** Recharts cartesian 矩形（overlay SVG 座標系・px） */
+export interface CartesianRect {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+
+/** 座標変換の正本。cartesian は Recharts Customized offset 等で実測 */
+export interface ChartPlotMetrics {
+  cartesian: CartesianRect;
+  view: ChartViewState;
+  timeMin: number;
+  timeMax: number;
+  speedMin: number;
+  speedMax: number;
+}
+
+export function createChartPlotMetrics(
+  cartesian: CartesianRect,
+  timeMax: number,
+  view: ChartViewState = INITIAL_CHART_VIEW_STATE,
+  timeMin = 0,
+  speedMin = SPEED_MIN,
+  speedMax = SPEED_MAX,
+): ChartPlotMetrics {
+  return { cartesian, view, timeMin, timeMax, speedMin, speedMax };
+}
+
+function timeSpan(metrics: ChartPlotMetrics): number {
+  return Math.max(metrics.timeMax - metrics.timeMin, 1e-9);
+}
+
+function speedSpan(metrics: ChartPlotMetrics): number {
+  return Math.max(metrics.speedMax - metrics.speedMin, 1e-9);
+}
+
+/** 経過秒 → overlay SVG x（ステップ 1: scale=1, pan=0） */
+export function timeToSvgX(time: number, metrics: ChartPlotMetrics): number {
+  const t = Math.min(metrics.timeMax, Math.max(metrics.timeMin, time));
+  const normalized = (t - metrics.timeMin) / timeSpan(metrics);
+  return metrics.cartesian.left + normalized * metrics.cartesian.width;
+}
+
+/** 速度 m/s → overlay SVG y（ステップ 1: scale=1, pan=0） */
+export function speedToSvgY(speed: number, metrics: ChartPlotMetrics): number {
+  const s = Math.min(metrics.speedMax, Math.max(metrics.speedMin, speed));
+  const normalized = (s - metrics.speedMin) / speedSpan(metrics);
+  return metrics.cartesian.top + (1 - normalized) * metrics.cartesian.height;
+}
+
+/** overlay SVG x → 経過秒（layout / ヒット判定の逆変換用） */
+export function svgToTime(x: number, metrics: ChartPlotMetrics): number {
+  const normalized = (x - metrics.cartesian.left) / Math.max(metrics.cartesian.width, 1e-9);
+  return metrics.timeMin + normalized * timeSpan(metrics);
+}
+
+/** overlay SVG y → 速度 m/s */
+export function svgToSpeed(y: number, metrics: ChartPlotMetrics): number {
+  const normalized = 1 - (y - metrics.cartesian.top) / Math.max(metrics.cartesian.height, 1e-9);
+  return metrics.speedMin + normalized * speedSpan(metrics);
+}
+
+/** cartesian 内の相対 Y（上端 0）。speedToSvgY − cartesian.top */
+export function speedToPlotY(speed: number, metrics: ChartPlotMetrics): number {
+  return speedToSvgY(speed, metrics) - metrics.cartesian.top;
+}
+
 const STAMINA_MIN = -200;
 const HORSE_LANE = 11.25 / 18;
 export const STAMINA_PLOT_FLOOR = 0.05;
@@ -182,15 +264,15 @@ interface StackAssignOptions {
   points: GraphPoint[];
   speedPlotHeight: number;
   yZoomFactor: number;
-  /** detail: X 重なり時は同一 stackLevel に置かない（案3） */
+  /** X 重なり時は同一 stackLevel に置かない（案3）。同時刻以外の X 被りは許容 */
   xStaggerOnly?: boolean;
 }
 /** LineChart margin と同期（layoutSkillMarkers 用） */
 export const SKILL_CHART_MARGIN_TOP = 24;
 export const SKILL_CHART_MARGIN_BOTTOM = 4;
-/** Recharts Legend（下部）が占有する cartesian 領域の高さ（px） */
+/** Recharts Legend（下部）が占有する cartesian 領域の高さ（px）— フォールバック推定のみ */
 export const SKILL_CHART_LEGEND_RESERVE = 28;
-/** Recharts XAxis（目盛 +「経過時間」ラベル）が占有する cartesian 下端の高さ（px） */
+/** Recharts XAxis が占有する cartesian 下端の高さ（px）— フォールバック推定のみ */
 export const SKILL_CHART_XAXIS_RESERVE = 16;
 /** 速度折れ線 plot 高さ（px）— 縦拡大 ON でも Recharts はこの高さを維持 */
 export const SPEED_PLOT_HEIGHT =
@@ -275,19 +357,15 @@ export function computeExpandedChartHeight(
 }
 
 export interface SkillLayoutOptions {
-  /** true: maxStack までストラグger展開。false: 最大4段・超過は重なり許容 */
+  /** true: maxStack まで stackLevel 探索。false: 最大4段・超過は重なり許容 */
   expanded?: boolean;
-  /** 速度スナップ用。未指定時は SPEED_MIN 固定 */
+  /** 速度スナップ用 */
   points?: GraphPoint[];
-  /** 速度スナップ plot 高さ（px）。未指定時は chart plot と同じ */
-  speedPlotHeight?: number;
-  /** Y クローズアップ倍率（overview=1）。オフセット・stagger も同倍率でスケール */
+  /** Y クローズアップ倍率（overview=1）。近接時刻の full 段間隔に使用 */
   yZoomFactor?: number;
   /** hit box 衝突判定用 */
   maxTime?: number;
-  /** hit box 衝突判定用（px）。未指定時は OVERLAY 基準幅 */
-  plotWidth?: number;
-  /** detail: X 重なりでも stagger（expanded 時デフォルト true） */
+  /** X 重なり時は同一 stackLevel に置かない（案3）。同時刻以外の X 被りは許容 */
   xStaggerOnly?: boolean;
 }
 
@@ -298,16 +376,8 @@ interface StackLayoutInput {
   kind: SkillEventKind;
 }
 
-function markerBaseLabelY(
-  points: GraphPoint[],
-  startTime: number,
-  kind: SkillEventKind,
-  speedPlotHeight: number,
-): number {
-  const speed = getSpeedAtTime(points, startTime);
-  const speedY = speedToOverlayY(speed, speedPlotHeight);
-  const kindOffset = kind === "debuff" ? DEBUFF_Y_OFFSET : 0;
-  return speedY + SKILL_SPEED_LABEL_OFFSET + kindOffset;
+function markerKindOffsetY(kind: SkillEventKind): number {
+  return kind === "debuff" ? DEBUFF_Y_OFFSET : 0;
 }
 
 /** 同時刻スタック判定: 1 フレーム以内（ラベル幅による誤スタックを防ぐ） */
@@ -315,10 +385,6 @@ const SAME_TIME_STACK_EPSILON = 1 / FRAME_PER_SECOND;
 
 function isSameTimeStack(a: number, b: number): boolean {
   return Math.abs(a - b) <= SAME_TIME_STACK_EPSILON;
-}
-
-function markerKindOffsetY(kind: SkillEventKind): number {
-  return kind === "debuff" ? DEBUFF_Y_OFFSET : 0;
 }
 
 /** SVG strokeWidth=2 向けの半ピクセル整列 */
@@ -359,21 +425,6 @@ function markerDetailLabelTopY_px(
 /** detail: ラベル描画上端 Y（フォント基準・赤線の上。lineY に offset 済み） */
 function markerDetailLabelVisualTopY_px(lineY: number): number {
   return lineY - SKILL_LINE_GAP - SKILL_FONT_SIZE;
-}
-
-/** overview / legacy: ラベル上端 Y（速度スナップ + stack stagger） */
-function markerStackedLabelTopY(
-  points: GraphPoint[],
-  startTime: number,
-  kind: SkillEventKind,
-  speedPlotHeight: number,
-  stackLevel: number,
-  yZoomFactor: number,
-): number {
-  return (
-    markerBaseLabelY(points, startTime, kind, speedPlotHeight) +
-    stackLevel * STAGGER_ROW * yZoomFactor
-  );
 }
 
 function fullStackStep(yZoomFactor: number): number {
@@ -445,15 +496,6 @@ function assignStackLevels(
     return { stackLevels, yStackOffsets, maxStack };
   }
 
-  // overview（expanded=false）: stack 0 固定。速度スナップ位置を維持し被りは許容（案1）
-  if (!expanded) {
-    for (const item of items) {
-      stackLevels.set(item.tooltipKey, 0);
-      yStackOffsets.set(item.tooltipKey, 0);
-    }
-    return { stackLevels, yStackOffsets, maxStack: 0 };
-  }
-
   const sorted = [...items].sort(
     (a, b) => a.startTime - b.startTime || a.tooltipKey.localeCompare(b.tooltipKey),
   );
@@ -467,7 +509,6 @@ function assignStackLevels(
 
   const hitHeight = SKILL_HIT_HEIGHT;
   const lineOffsetPx = SKILL_FONT_SIZE + SKILL_LINE_GAP - SKILL_LINE_Y_NUDGE_UP;
-  const useDetailAnchorLayout = expanded && xStaggerOnly;
 
   for (const item of sorted) {
     const hitWidthPx = estimateSkillHitWidth(item.label);
@@ -490,73 +531,53 @@ function assignStackLevels(
         break;
       }
 
-      const yStackOffset = useDetailAnchorLayout
-        ? placed.reduce((maxOffset, p) => {
-            if (!isSameTimeStack(item.startTime, p.startTime)) return maxOffset;
-            const step = stackStepAboveBlocker(
-              capped,
-              p,
-              item,
-              points,
-              speedPlotHeight,
-              yZoomFactor,
-              lineOffsetPx,
-            );
-            return Math.max(maxOffset, p.yStackOffset + step);
-          }, 0)
-        : 0;
+      const yStackOffset = placed.reduce((maxOffset, p) => {
+        if (!isSameTimeStack(item.startTime, p.startTime)) return maxOffset;
+        const step = stackStepAboveBlocker(
+          capped,
+          p,
+          item,
+          points,
+          speedPlotHeight,
+          yZoomFactor,
+          lineOffsetPx,
+        );
+        return Math.max(maxOffset, p.yStackOffset + step);
+      }, 0);
 
-      const yTop = useDetailAnchorLayout
-        ? markerDetailLabelTopY_px(
-            points,
-            item.startTime,
-            item.kind,
-            speedPlotHeight,
-            yStackOffset,
-            lineOffsetPx,
-          )
-        : markerStackedLabelTopY(
-            points,
-            item.startTime,
-            item.kind,
-            speedPlotHeight,
-            capped,
-            yZoomFactor,
-          );
+      const yTop = markerDetailLabelTopY_px(
+        points,
+        item.startTime,
+        item.kind,
+        speedPlotHeight,
+        yStackOffset,
+        lineOffsetPx,
+      );
       const yBottom = yTop + hitHeight;
       const startX = item.startTime;
       const endX = startX + hitWidthTime;
 
       const overlaps = placed.some((p) => {
-        if (useDetailAnchorLayout && !isSameTimeStack(item.startTime, p.startTime)) {
+        if (xStaggerOnly && !isSameTimeStack(item.startTime, p.startTime)) {
           return false;
         }
 
-        const pYTop = useDetailAnchorLayout
-          ? markerDetailLabelTopY_px(
-              points,
-              p.startTime,
-              p.kind,
-              speedPlotHeight,
-              p.yStackOffset,
-              lineOffsetPx,
-            )
-          : markerStackedLabelTopY(
-              points,
-              p.startTime,
-              p.kind,
-              speedPlotHeight,
-              p.stackLevel,
-              yZoomFactor,
-            );
+        const pYTop = markerDetailLabelTopY_px(
+          points,
+          p.startTime,
+          p.kind,
+          speedPlotHeight,
+          p.yStackOffset,
+          lineOffsetPx,
+        );
         const pYBottom = pYTop + hitHeight;
         const pStart = p.startTime;
         const pEnd = p.startTime + p.hitWidthTime;
-        const xOverlap = useDetailAnchorLayout
+        const xOverlap = xStaggerOnly
           ? isSameTimeStack(item.startTime, p.startTime)
           : startX < pEnd && endX > pStart;
         const yOverlap = yTop < pYBottom && yBottom > pYTop;
-        if (expanded && xStaggerOnly) {
+        if (xStaggerOnly) {
           if (!xOverlap) return false;
           return yOverlap || capped === p.stackLevel;
         }
@@ -565,12 +586,12 @@ function assignStackLevels(
 
       if (!overlaps) {
         stackLevels.set(item.tooltipKey, capped);
-        yStackOffsets.set(item.tooltipKey, useDetailAnchorLayout ? yStackOffset : 0);
+        yStackOffsets.set(item.tooltipKey, yStackOffset);
         placed.push({
           startTime: item.startTime,
           hitWidthTime,
           stackLevel: capped,
-          yStackOffset: useDetailAnchorLayout ? yStackOffset : 0,
+          yStackOffset,
           kind: item.kind,
         });
         maxStack = Math.max(maxStack, capped);
@@ -598,29 +619,25 @@ function assignStackLevels(
   return { stackLevels, yStackOffsets, maxStack };
 }
 
-/** 速度スナップ + ストラグger で percent 軸 y / lineY を確定 */
+/** 速度スナップ + 赤線アンカー + 同時刻 compact で percent 軸 y / lineY を確定 */
 export function layoutSkillMarkers(
   markers: SkillMarker[],
-  chartHeightPx: number,
+  metrics: ChartPlotMetrics,
   options: SkillLayoutOptions = {},
 ): SkillMarker[] {
   const {
-    expanded = true,
+    expanded = false,
     points = [],
-    speedPlotHeight: speedPlotHeightOpt,
     yZoomFactor = 1,
     maxTime = 0,
-    plotWidth = 800 - OVERLAY_MARGIN_LEFT - OVERLAY_MARGIN_RIGHT,
     xStaggerOnly: xStaggerOnlyOpt,
   } = options;
 
-  const xStaggerOnly = xStaggerOnlyOpt ?? expanded;
-
-  const totalPlotHeight = chartHeightPx - SKILL_CHART_MARGIN_TOP - SKILL_CHART_MARGIN_BOTTOM;
-  const speedPlotHeight = speedPlotHeightOpt ?? totalPlotHeight;
-  /** overlay domain: 速度スナップと同一の plot 高さで正規化（Legend 帯との二重計上を防ぐ） */
-  const domainPlotHeight = speedPlotHeightOpt != null ? speedPlotHeight : totalPlotHeight;
-  if (totalPlotHeight <= 0 || speedPlotHeight <= 0 || markers.length === 0) return markers;
+  const xStaggerOnly = xStaggerOnlyOpt ?? true;
+  const speedPlotHeight = metrics.cartesian.height;
+  const plotWidth = metrics.cartesian.width;
+  const domainPlotHeight = speedPlotHeight;
+  if (speedPlotHeight <= 0 || plotWidth <= 0 || markers.length === 0) return markers;
 
   const effectiveMaxTime =
     maxTime > 0
@@ -636,33 +653,29 @@ export function layoutSkillMarkers(
       startTime: m.startTime,
       kind: m.kind,
     })),
-    { expanded, maxTime: effectiveMaxTime, plotWidth, points, speedPlotHeight, yZoomFactor, xStaggerOnly },
+    {
+      expanded,
+      maxTime: effectiveMaxTime,
+      plotWidth,
+      points,
+      speedPlotHeight,
+      yZoomFactor,
+      xStaggerOnly,
+    },
   );
-
-  const lineOffsetPx = SKILL_FONT_SIZE + SKILL_LINE_GAP - SKILL_LINE_Y_NUDGE_UP;
-  const useDetailAnchorLayout = expanded && xStaggerOnly;
 
   return markers.map((marker) => {
     const stackLevel = stackLevels.get(marker.tooltipKey) ?? marker.stackLevel ?? 0;
     const yStackOffset = yStackOffsets.get(marker.tooltipKey) ?? 0;
 
-    let labelTopPx: number;
-    let lineTopPx: number;
-
-    if (useDetailAnchorLayout) {
-      lineTopPx = markerLineY_px(
-        points,
-        marker.startTime,
-        marker.kind,
-        speedPlotHeight,
-        yStackOffset,
-      );
-      labelTopPx = markerDetailLabelVisualTopY_px(lineTopPx);
-    } else {
-      const baseY = markerBaseLabelY(points, marker.startTime, marker.kind, speedPlotHeight);
-      labelTopPx = baseY + stackLevel * STAGGER_ROW * yZoomFactor;
-      lineTopPx = labelTopPx + lineOffsetPx;
-    }
+    const lineTopPx = markerLineY_px(
+      points,
+      marker.startTime,
+      marker.kind,
+      speedPlotHeight,
+      yStackOffset,
+    );
+    const labelTopPx = markerDetailLabelVisualTopY_px(lineTopPx);
 
     return {
       ...marker,
@@ -732,24 +745,21 @@ export interface SkillMarkerPx {
 }
 
 /**
- * layoutSkillMarkers の domain 座標を overlay SVG ピクセル座標に変換する
- *   x = (time / maxTime) * plotWidth + OVERLAY_MARGIN_LEFT
- *   y = (1 - domainY) * yPlotHeight + SKILL_CHART_MARGIN_TOP
- * yPlotHeight 未指定時は chart plot 全体。detail では speedPlotHeight を渡す。
+ * layoutSkillMarkers の domain 座標を overlay SVG ピクセル座標に変換する（ChartPlotMetrics 経由）
  */
 export function skillMarkersToPx(
   markers: SkillMarker[],
-  chartHeightPx: number,
-  chartWidthPx: number,
-  maxTime: number,
-  yPlotHeight?: number,
+  metrics: ChartPlotMetrics,
 ): SkillMarkerPx[] {
-  if (!markers.length || maxTime <= 0 || chartWidthPx <= 0 || chartHeightPx <= 0) return [];
-
-  const totalPlotHeight = chartHeightPx - SKILL_CHART_MARGIN_TOP - SKILL_CHART_MARGIN_BOTTOM;
-  const plotHeight = yPlotHeight ?? totalPlotHeight;
-  const plotWidth = chartWidthPx - OVERLAY_MARGIN_LEFT - OVERLAY_MARGIN_RIGHT;
-  if (plotHeight <= 0 || plotWidth <= 0) return [];
+  const { cartesian, timeMax, timeMin } = metrics;
+  if (
+    !markers.length ||
+    timeMax <= timeMin ||
+    cartesian.width <= 0 ||
+    cartesian.height <= 0
+  ) {
+    return [];
+  }
 
   return markers.map((m) => {
     const hitWidth = estimateSkillHitWidth(m.label);
@@ -761,10 +771,10 @@ export function skillMarkersToPx(
       startTime: m.startTime,
       tooltipKey: m.tooltipKey,
       effectText: m.effectText,
-      startX: (m.startTime / maxTime) * plotWidth + OVERLAY_MARGIN_LEFT,
-      endX: (m.endTime / maxTime) * plotWidth + OVERLAY_MARGIN_LEFT,
-      labelY: (1 - m.y) * plotHeight + SKILL_CHART_MARGIN_TOP,
-      lineY: (1 - m.lineY) * plotHeight + SKILL_CHART_MARGIN_TOP,
+      startX: timeToSvgX(m.startTime, metrics),
+      endX: timeToSvgX(m.endTime, metrics),
+      labelY: cartesian.top + (1 - m.y) * cartesian.height,
+      lineY: cartesian.top + (1 - m.lineY) * cartesian.height,
       hasDurationLine: m.hasDurationLine,
       hitWidth,
       hitHeight: SKILL_HIT_HEIGHT,
