@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-18 23:40
+最終更新: 2026-06-18 23:56
 
 ---
 
@@ -43,6 +43,16 @@ Backlog — P0 トースト改善 / P1 Google Map 型グラフ UI（ステップ
   - REQ: [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)
 
 ### P2 — 改善・アイデア
+
+- [ ] **Google Map 型グラフ — 操作中 overlay 中間レベル**（赤線のみ表示。ラベル・layout・getBBox は defer 維持）
+  - 前提: 現状は最小レベル（操作中 overlay 全非表示）でパフォーマンス優先
+  - 目標: パン/ズーム中も発動区間の赤線だけ見せる（`skillMarkersToPx` のみ、layout キャッシュ再利用検討）
+  - 関連: [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)
+
+- [ ] **Google Map 型グラフ — 操作中 overlay 理想レベル**（赤線 + ラベル表示）
+  - 前提: 中間レベル実装後・実機計測で許容できる場合のみ
+  - 注意: `layoutSkillMarkers` + SVG DOM + getBBox が毎フレーム戻り、レスポンス改善分が相殺されやすい
+  - 関連: [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)
 
 - [ ] **スキルパレットの並び順をレアリティ段階別に変更**
   - 現状: `buildPaletteSkillOptions` は `umasimSkillDataList` の出現順（extract 順）
@@ -98,6 +108,7 @@ Backlog — P0 トースト改善 / P1 Google Map 型グラフ UI（ステップ
 
 ## 完了済み
 
+- [x] Google Map 型グラフ — overlay 復帰位置ずれ修正（metrics 同期ゲート + 操作終了時 pending flush）（`COMMIT_HASH` / [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)）
 - [x] Google Map 型グラフ — ズーム操作のレスポンス改善（rAF バッチ・metrics リセット削減・操作中 overlay defer）（`98c0cea` / [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)）
 - [x] Google Map 型グラフ — percent 軸追従修正（ホイール・縦パンで centerPercent 連動）（**実機検証クローズ** 2026-06-18 23:30 / `f8a62f0` / [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)）
 - [x] Google Map 型グラフ UI — ステップ 2（ChartViewState 配線・ホイール等倍ズーム・2D パン・ダブルクリックリセット）（`91e76cb` / [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)）

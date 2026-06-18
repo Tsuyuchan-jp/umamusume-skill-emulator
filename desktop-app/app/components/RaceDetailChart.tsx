@@ -23,6 +23,7 @@ import {
   buildSkillMarkers,
   ChartPlotMetrics,
   ChartViewState,
+  chartViewStatesEqual,
   computeDetailYZoomFactor,
   computeZoomedChartHeight,
   createChartPlotMetrics,
@@ -458,6 +459,10 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
     setViewState: setChartViewState,
   });
 
+  /** ChartMetricsBridge scales が viewState と一致するまで overlay を出さない（操作終了直後の 1 フレームずれ防止） */
+  const plotMetricsViewSynced = chartViewStatesEqual(plotMetrics.view, metricsViewState);
+  const overlayLayoutReady = !isMapInteracting && plotMetricsReady && plotMetricsViewSynced;
+
   useEffect(() => {
     if (isMapInteracting) {
       setHoveredSkillKey(null);
@@ -470,7 +475,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
   ]);
 
   const skillMarkers = useMemo(() => {
-    if (isMapInteracting) return [];
+    if (!overlayLayoutReady) return [];
     return layoutSkillMarkers(skillData.skillMarkers, plotMetrics, {
       expanded: isExpanded,
       points: graphPoints.points,
@@ -479,7 +484,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
       xStaggerOnly: true,
     });
   }, [
-    isMapInteracting,
+    overlayLayoutReady,
     skillData.skillMarkers,
     plotMetrics,
     isExpanded,
@@ -488,10 +493,9 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
     maxTime,
   ]);
 
-  /** overlay 用ピクセル座標。操作中は非表示・scales 未取得時も描画しない（Y ずれ防止） */
+  /** overlay 用ピクセル座標。同期完了前・操作中は非表示（Y ずれ防止） */
   const showSkillOverlay =
-    !isMapInteracting &&
-    plotMetricsReady &&
+    overlayLayoutReady &&
     (displayState.showSkills || displayState.showDebuffs) &&
     skillMarkers.length > 0;
   const skillMarkersPx = useMemo(
@@ -511,7 +515,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
   const [labelTextWidths, setLabelTextWidths] = useState<Record<string, number>>({});
 
   useLayoutEffect(() => {
-    if (isMapInteracting) return;
+    if (!overlayLayoutReady) return;
     if (!showSkillOverlay || skillMarkersPx.length === 0) {
       setLabelTextWidths({});
       return;
@@ -536,7 +540,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
         keys.length === Object.keys(prev).length && keys.every((k) => prev[k] === next[k]);
       return unchanged ? prev : next;
     });
-  }, [isMapInteracting, showSkillOverlay, skillMarkersPx, contentChartHeight, measuredWidth, isExpanded]);
+  }, [overlayLayoutReady, showSkillOverlay, skillMarkersPx, contentChartHeight, measuredWidth, isExpanded]);
 
   const hoveredSkillMarker = useMemo(
     () => skillMarkersPx.find((m) => m.tooltipKey === hoveredSkillKey) ?? null,

@@ -70,6 +70,15 @@ export function useChartViewInteraction({
     setViewState(pending);
   }, [setViewState]);
 
+  /** rAF 待ちの pending を即時 commit（操作終了時の overlay 同期用） */
+  const commitPendingViewStateNow = useCallback(() => {
+    if (rafIdRef.current != null) {
+      cancelAnimationFrame(rafIdRef.current);
+      rafIdRef.current = null;
+    }
+    flushPendingViewState();
+  }, [flushPendingViewState]);
+
   const scheduleViewStateCommit = useCallback(
     (next: ChartViewState) => {
       pendingViewStateRef.current = next;
@@ -87,10 +96,11 @@ export function useChartViewInteraction({
     }
     wheelIdleTimerRef.current = setTimeout(() => {
       wheelIdleTimerRef.current = null;
+      commitPendingViewStateNow();
       wheelActiveRef.current = false;
       syncInteracting();
     }, MAP_INTERACTION_WHEEL_IDLE_MS);
-  }, [syncInteracting]);
+  }, [commitPendingViewStateNow, syncInteracting]);
 
   const resetView = useCallback(() => {
     if (raceEnd <= 0) return;
@@ -170,6 +180,7 @@ export function useChartViewInteraction({
     const handlePointerUp = (event: PointerEvent) => {
       if (!dragRef.current) return;
       dragRef.current = null;
+      commitPendingViewStateNow();
       isDraggingRef.current = false;
       syncInteracting();
       if (el.hasPointerCapture(event.pointerId)) {
@@ -212,6 +223,7 @@ export function useChartViewInteraction({
     scheduleViewStateCommit,
     scheduleWheelIdleEnd,
     syncInteracting,
+    commitPendingViewStateNow,
   ]);
 
   return { isMapInteracting };

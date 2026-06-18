@@ -61,6 +61,16 @@ export function createInitialChartViewState(raceEnd: number): ChartViewState {
   };
 }
 
+/** ChartViewState の各フィールドが一致するか（overlay 同期ゲート用） */
+export function chartViewStatesEqual(a: ChartViewState, b: ChartViewState): boolean {
+  return (
+    a.scale === b.scale &&
+    a.centerTime === b.centerTime &&
+    a.centerSpeed === b.centerSpeed &&
+    a.centerPercent === b.centerPercent
+  );
+}
+
 /** viewState から可視窓 domain を算出（パターン B: 全軸連動） */
 export function visibleWindowFromViewState(
   view: ChartViewState,
