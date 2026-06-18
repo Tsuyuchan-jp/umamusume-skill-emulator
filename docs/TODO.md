@@ -105,7 +105,7 @@ Backlog — P0 トースト改善 / P2 Phase 5-R2
 
 ## 完了済み
 
-- [x] Phase 5-R1b ポリッシュ: contentPlotHeight 修正 + nudge リセット（`コミット後` / 実機確認待ち）
+- [x] Phase 5-R1b ポリッシュ: contentPlotHeight 修正 + nudge リセット（`2e52a26` / 実機確認待ち）
 - [x] Phase 5-R1b ポリッシュ: stack 0 赤線の半px整列 + 速度線 nudge（`b94777d` — **plot 高さ修正で置換**）
 - [x] Phase 5-R1b ポリッシュ: 赤線アンカー分離 + 同時刻のみスタック（`7af3b0c` — **案1は撤回**）
 - [x] Phase 5-R1b ポリッシュ: ラベル↔赤線隙間 + 速度線 linear 補間統一（`cce0314` / 5-R1b 実機指摘）
