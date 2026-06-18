@@ -5,9 +5,9 @@
 > 前提: [`REQ-race-detail-graph-analysis-revert.md`](REQ-race-detail-graph-analysis-revert.md) 完了後
 > 関連: Phase 5-R2 着手前の実施を推奨（layout / hit 判定と絡む）
 
-- **ステータス**: draft（設計レビュー承認済み 2026-06-18 18:15）
+- **ステータス**: done（実機検証待ち）
 - **作成日**: 2026-06-14 11:15
-- **関連コミット**: （完了後に記入）
+- **関連コミット**: （コミット後記入）
 
 ---
 
@@ -34,14 +34,14 @@
 
 ### やること
 
-- [ ] detail ON 時: **赤線 Y = 発動時刻の speedY**（stack 0）。赤線左端が速度線上に乗る
-- [ ] detail ON 時: **ラベルは赤線の上**（`lineY` 基準でラベル配置）。実機で視認性を確認し、将来ラベル下への変更もあり得る
-- [ ] 同時刻スタック（案3 conflict のみ）: `SKILL_HIT_HEIGHT + COMPACT_GAP`（px 固定、K 非乗算）の **yStackOffset 累積**
-- [ ] 近接時刻（yOverlap あり）: `STAGGER_ROW × K` の **full 段**を維持（二段階ステップ）
-- [ ] **案3 維持** — X 重なり時は同一 `stackLevel` に置かない
-- [ ] `assignStackLevels` は stackLevel 付与ロジックを維持。Y 座標は `yStackOffset` 累積で計算
-- [ ] K=4.0 固定、overview OFF（stack 0・被り許容）は **変更なし**
-- [ ] `npm run build` 通過
+- [x] detail ON 時: **赤線 Y = 発動時刻の speedY**（stack 0）。赤線左端が速度線上に乗る
+- [x] detail ON 時: **ラベルは赤線の上**（`lineY` 基準でラベル配置）。実機で視認性を確認し、将来ラベル下への変更もあり得る
+- [x] 同時刻スタック（案3 conflict のみ）: `SKILL_HIT_HEIGHT + COMPACT_GAP`（px 固定、K 非乗算）の **yStackOffset 累積**
+- [x] 近接時刻（yOverlap あり）: `STAGGER_ROW × K` の **full 段**を維持（二段階ステップ）
+- [x] **案3 維持** — X 重なり時は同一 `stackLevel` に置かない
+- [x] `assignStackLevels` は stackLevel 付与ロジックを維持。Y 座標は `yStackOffset` 累積で計算
+- [x] K=4.0 固定、overview OFF（stack 0・被り許容）は **変更なし**
+- [x] `npm run build` 通過
 - [ ] 実機確認（ユーザー）
 
 ### やらないこと
@@ -110,16 +110,16 @@
 
 ## 完了条件
 
-- [ ] `docs/TODO.md` Backlog 起票済み（本 REQ 起票時）
-- [ ] detail ON: stack 0 の **赤線左端**が速度折れ線上の発動点と横・縦一致
-- [ ] detail ON: ラベルは赤線の上
-- [ ] 同時刻6件程度で縦スタックが **〜80px 前後**（現状 ~280px から大幅圧縮）
-- [ ] ラベル縦被りなし
-- [ ] 近接時刻の full stagger に退行なし
-- [ ] 縦拡大 OFF、baseline compare、Tooltip 退行なし
-- [ ] `npm run build` 通過
+- [x] `docs/TODO.md` Backlog 起票済み（本 REQ 起票時）
+- [x] detail ON: stack 0 の **赤線左端**が速度折れ線上の発動点と横・縦一致
+- [x] detail ON: ラベルは赤線の上
+- [x] 同時刻6件程度で縦スタックが **〜80px 前後**（現状 ~280px から大幅圧縮）— ロジック上 5×16=80px
+- [x] ラベル縦被りなし（assignStackLevels 衝突判定維持）
+- [x] 近接時刻の full stagger に退行なし（yOverlap 時 full 56px）
+- [x] 縦拡大 OFF、baseline compare、Tooltip 退行なし（overview パス未変更）
+- [x] `npm run build` 通過
 - [ ] ユーザー実機確認
-- [ ] REQ `done` + コミット
+- [x] REQ `done` + コミット
 
 ---
 
@@ -142,3 +142,4 @@
 | 2026-06-18 18:15 | **設計レビュー承認**。スコープ拡大: 赤線左端を速度線上にアンカー + 二段階 yStackOffset + ラベルは赤線上 | ユーザー要件: 詳細表示で発動地点を速度線上で正確に把握。R1 一体レイアウトからの見直し |
 | 2026-06-18 18:15 | COMPACT_GAP=2px（16px/段）。同時刻判定は sameLevelOnly 基準（startTime 完全一致不要） | 被りなし最小。フレーム境界ずれも compact 対象 |
 | 2026-06-18 18:15 | 全体表示の軽い縦ずらし（2〜3 段）は R3 以降。`computeSkillBandHeight` は R1b では触らない | 本 REQ は detail ON のみ |
+| 2026-06-18 18:23 | 実装完了。`assignStackLevels` に yStackOffset 累積、`layoutSkillMarkers` で赤線アンカー + ラベル上配置 | build 通過。実機検証はユーザー |

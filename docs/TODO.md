@@ -4,13 +4,13 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-18 18:15
+最終更新: 2026-06-18 18:23
 
 ---
 
 ## 現在のフォーカス
 
-Backlog — P0 トースト改善 / **P1 5-R1b（設計承認済・実装待ち）** / P2 Phase 5-R2
+Backlog — P0 トースト改善 / P2 Phase 5-R2
 
 ---
 
@@ -37,12 +37,7 @@ Backlog — P0 トースト改善 / **P1 5-R1b（設計承認済・実装待ち�
 
 ### P1 — 重要
 
-- [ ] **Phase 5-R1b: 詳細表示レイアウト（赤線アンカー + 同時刻スタック圧縮）** — 設計承認済 2026-06-18
-  - 経緯: 同時発動が 56px/段で速度線から離れすぎ。詳細表示では赤線左端を速度線上の発動点に合わせたい
-  - 目標（detail ON）: 赤線左端＝速度線上（stack 0）。ラベルは赤線の上。同時刻のみ compact（16px/段）。近接 yOverlap は full 56px 維持
-  - 全体表示: 変更なし（将来 R3 で軽い縦ずらし 2〜3 段）
-  - 触る想定: `raceGraphBuilder.ts`（`assignStackLevels` / `yStackOffset` / layout Y）
-  - REQ: [`REQ-race-detail-graph-same-time-stack-compact.md`](tasks/REQ-race-detail-graph-same-time-stack-compact.md)
+（なし）
 
 ### P2 — 改善・アイデア
 
@@ -110,7 +105,7 @@ Backlog — P0 トースト改善 / **P1 5-R1b（設計承認済・実装待ち�
 
 ## 完了済み
 
-- [x] detail 分析モード revert + K 固定（Phase 5-R1）— 赤線／ラベル一体・K=4.0 固定・案3 維持（**実機検証クローズ** 2026-06-14 11:04 / `dd414ea` / [`REQ-race-detail-graph-analysis-revert.md`](tasks/REQ-race-detail-graph-analysis-revert.md)）
+- [x] Phase 5-R1b: 詳細表示レイアウト（赤線アンカー + 同時刻スタック圧縮）— yStackOffset 二段階・赤線速度線アンカー・ラベル上配置（**実機検証待ち** / コミット後記入 / [`REQ-race-detail-graph-same-time-stack-compact.md`](tasks/REQ-race-detail-graph-same-time-stack-compact.md)）— 赤線／ラベル一体・K=4.0 固定・案3 維持（**実機検証クローズ** 2026-06-14 11:04 / `dd414ea` / [`REQ-race-detail-graph-analysis-revert.md`](tasks/REQ-race-detail-graph-analysis-revert.md)）
 - [x] detail 分析モード刷新 — 案3 + K 下限 3.0 + 赤線分離（**赤線分離 NG・R1 で revert 予定** / `a83d5df` / [`REQ-race-detail-graph-skill-layout-sync.md`](tasks/REQ-race-detail-graph-skill-layout-sync.md)）
 - [x] xStaggerOnly 衝突条件修正（案A）— baseY 近接判定除去、Y zoom 探索 dead code 解消（**superseded** / `0545e9f` / [`REQ-race-detail-graph-skill-layout-sync.md`](tasks/REQ-race-detail-graph-skill-layout-sync.md)）
 - [x] overview stack 0 優先（案1）— OFF 時 Y stagger なし・速度スナップ維持・被り許容（**実機検証待ち** / `3806581` / [`REQ-race-detail-graph-skill-layout-sync.md`](tasks/REQ-race-detail-graph-skill-layout-sync.md)）

@@ -29,7 +29,7 @@
 | 4+ | スキル hover Tooltip | [`REQ-race-detail-graph-skill-tooltip.md`](REQ-race-detail-graph-skill-tooltip.md) | **done** | → skill layout sync |
 | 5 | スキル帯×速度線連動 | [`REQ-race-detail-graph-skill-layout-sync.md`](REQ-race-detail-graph-skill-layout-sync.md) | **in-progress**（R1〜R3 に分割継続） | → 5-R1 revert |
 | 5-R1 | 分析モード revert + K 固定 | [`REQ-race-detail-graph-analysis-revert.md`](REQ-race-detail-graph-analysis-revert.md) | **done**（`dd414ea` 実機検証クローズ） | → 5-R1b |
-| 5-R1b | 赤線アンカー + 同時刻スタック圧縮 | [`REQ-race-detail-graph-same-time-stack-compact.md`](REQ-race-detail-graph-same-time-stack-compact.md) | **draft**（設計承認済） | → 5-R2 |
+| 5-R1b | 赤線アンカー + 同時刻スタック圧縮 | [`REQ-race-detail-graph-same-time-stack-compact.md`](REQ-race-detail-graph-same-time-stack-compact.md) | **done**（実機検証待ち） | → 5-R2 |
 | 5-R2 | X 時間窓 + ドラッグ | [`REQ-race-detail-graph-time-window.md`](REQ-race-detail-graph-time-window.md) | **draft** | → 5-R3 |
 | 5-R3 | ホイール + パン + 縦拡大削除 | [`REQ-race-detail-graph-pan-zoom.md`](REQ-race-detail-graph-pan-zoom.md) | **draft** | シリーズ Phase 5 完了 |
 
