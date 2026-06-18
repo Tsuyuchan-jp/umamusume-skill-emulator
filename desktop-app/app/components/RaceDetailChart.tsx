@@ -34,6 +34,7 @@ import {
   layoutSkillMarkers,
   legacyFullVisibleWindow,
   mergeBaselineGraphPoints,
+  plotMetricsScalesMatchWindow,
   skillMarkersToPx,
   SkillMarkerPx,
   SKILL_CHART_BASE_HEIGHT,
@@ -44,6 +45,7 @@ import {
   OVERLAY_MARGIN_RIGHT,
   STAMINA_PLOT_FLOOR,
   visibleWindowFromViewState,
+  visibleWindowsEqual,
   VisibleWindow,
 } from "../lib/raceGraphBuilder";
 import { useChartViewInteraction, useClampChartViewOnResize } from "../hooks/useChartViewInteraction";
@@ -231,8 +233,10 @@ const ChartMetricsBridge: React.FC<{
     if (!timeToX || !speedToY) return;
     if (visibleWindow.timeMax <= visibleWindow.timeMin) return;
 
-    onMetrics(
-      createChartPlotMetrics(
+    let rafId: number | null = null;
+
+    const tryCommitMetrics = () => {
+      const metrics = createChartPlotMetrics(
         {
           left: plotArea.x,
           top: plotArea.y,
@@ -251,8 +255,22 @@ const ChartMetricsBridge: React.FC<{
             return y == null || !Number.isFinite(y) ? undefined : y;
           },
         },
-      ),
-    );
+      );
+      if (!plotMetricsScalesMatchWindow(metrics)) return false;
+      onMetrics(metrics);
+      return true;
+    };
+
+    if (!tryCommitMetrics()) {
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        tryCommitMetrics();
+      });
+    }
+
+    return () => {
+      if (rafId != null) cancelAnimationFrame(rafId);
+    };
   }, [plotArea, timeToX, speedToY, visibleWindow, viewState, onMetrics]);
 
   return null;
@@ -398,29 +416,12 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
   }, [isExpanded, measuredWidth, contentChartHeight, viewportHeight]);
 
   const handlePlotMetrics = useCallback((metrics: ChartPlotMetrics) => {
-    setMeasuredPlotMetrics((prev) => {
-      if (
-        prev &&
-        prev.cartesian.left === metrics.cartesian.left &&
-        prev.cartesian.top === metrics.cartesian.top &&
-        prev.cartesian.width === metrics.cartesian.width &&
-        prev.cartesian.height === metrics.cartesian.height &&
-        prev.timeMin === metrics.timeMin &&
-        prev.timeMax === metrics.timeMax &&
-        prev.speedMin === metrics.speedMin &&
-        prev.speedMax === metrics.speedMax &&
-        prev.percentMin === metrics.percentMin &&
-        prev.percentMax === metrics.percentMax &&
-        prev.view.scale === metrics.view.scale &&
-        prev.view.centerTime === metrics.view.centerTime &&
-        prev.view.centerSpeed === metrics.view.centerSpeed &&
-        prev.view.centerPercent === metrics.view.centerPercent &&
-        Boolean(prev.scales) === Boolean(metrics.scales)
-      ) {
-        return prev;
-      }
-      return metrics;
-    });
+    if (!plotMetricsScalesMatchWindow(metrics)) return;
+    setMeasuredPlotMetrics(metrics);
+  }, []);
+
+  const handleViewReset = useCallback(() => {
+    setMeasuredPlotMetrics(null);
   }, []);
 
   /** scales 未取得時の暫定（初回フレームのみ。誤った Y は描画しない） */
@@ -457,11 +458,31 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
     plotMetricsReady,
     viewState: chartViewState,
     setViewState: setChartViewState,
+    onViewReset: handleViewReset,
   });
 
-  /** ChartMetricsBridge scales が viewState と一致するまで overlay を出さない（操作終了直後の 1 フレームずれ防止） */
-  const plotMetricsViewSynced = chartViewStatesEqual(plotMetrics.view, metricsViewState);
-  const overlayLayoutReady = !isMapInteracting && plotMetricsReady && plotMetricsViewSynced;
+  /** measured scales が view/domain と実効一致するまで overlay を defer */
+  const overlayLayoutReady =
+    !isMapInteracting &&
+    measuredPlotMetrics != null &&
+    plotMetricsScalesMatchWindow(measuredPlotMetrics) &&
+    chartViewStatesEqual(measuredPlotMetrics.view, metricsViewState) &&
+    visibleWindowsEqual(measuredPlotMetrics, visibleWindow);
+
+  useEffect(() => {
+    if (isMapInteracting) return;
+    setMeasuredPlotMetrics((prev) => {
+      if (!prev) return prev;
+      if (
+        !chartViewStatesEqual(prev.view, metricsViewState) ||
+        !visibleWindowsEqual(prev, visibleWindow) ||
+        !plotMetricsScalesMatchWindow(prev)
+      ) {
+        return null;
+      }
+      return prev;
+    });
+  }, [chartViewState, visibleWindow, metricsViewState, isMapInteracting]);
 
   useEffect(() => {
     if (isMapInteracting) {

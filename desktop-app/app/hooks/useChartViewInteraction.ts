@@ -22,6 +22,8 @@ interface UseChartViewInteractionOptions {
   plotMetricsReady: boolean;
   viewState: ChartViewState;
   setViewState: Dispatch<SetStateAction<ChartViewState>>;
+  /** ダブルクリックリセット直前（measured metrics 無効化用） */
+  onViewReset?: () => void;
 }
 
 interface UseChartViewInteractionResult {
@@ -38,6 +40,7 @@ export function useChartViewInteraction({
   plotMetricsReady,
   viewState,
   setViewState,
+  onViewReset,
 }: UseChartViewInteractionOptions): UseChartViewInteractionResult {
   const viewStateRef = useRef(viewState);
   const plotMetricsRef = useRef(plotMetrics);
@@ -109,8 +112,16 @@ export function useChartViewInteraction({
       rafIdRef.current = null;
     }
     pendingViewStateRef.current = null;
+    wheelActiveRef.current = false;
+    if (wheelIdleTimerRef.current != null) {
+      clearTimeout(wheelIdleTimerRef.current);
+      wheelIdleTimerRef.current = null;
+    }
+    isDraggingRef.current = false;
+    syncInteracting();
+    onViewReset?.();
     setViewState(createInitialChartViewState(raceEnd));
-  }, [raceEnd, setViewState]);
+  }, [raceEnd, onViewReset, setViewState, syncInteracting]);
 
   useEffect(() => {
     const el = chartAreaRef.current;

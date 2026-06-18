@@ -71,6 +71,50 @@ export function chartViewStatesEqual(a: ChartViewState, b: ChartViewState): bool
   );
 }
 
+/** VisibleWindow の各 domain が一致するか */
+export function visibleWindowsEqual(a: VisibleWindow, b: VisibleWindow): boolean {
+  return (
+    a.timeMin === b.timeMin &&
+    a.timeMax === b.timeMax &&
+    a.speedMin === b.speedMin &&
+    a.speedMax === b.speedMax &&
+    a.percentMin === b.percentMin &&
+    a.percentMax === b.percentMax
+  );
+}
+
+/** scales が cartesian 矩形と domain 端点で一致するか（Recharts 1 パス遅れ検出） */
+const METRICS_SCALE_PROBE_TOLERANCE_PX = 1.5;
+
+export function plotMetricsScalesMatchWindow(metrics: ChartPlotMetrics): boolean {
+  const { scales, cartesian, timeMin, timeMax, speedMin, speedMax } = metrics;
+  if (!scales) return false;
+  if (timeMax <= timeMin || speedMax <= speedMin) return false;
+  if (cartesian.width <= 0 || cartesian.height <= 0) return false;
+
+  const xMin = scales.timeToX(timeMin);
+  const xMax = scales.timeToX(timeMax);
+  const ySpeedMin = scales.speedToY(speedMin);
+  const ySpeedMax = scales.speedToY(speedMax);
+
+  if (xMin == null || xMax == null || ySpeedMin == null || ySpeedMax == null) return false;
+  if (![xMin, xMax, ySpeedMin, ySpeedMax].every(Number.isFinite)) return false;
+
+  const plotLeft = cartesian.left;
+  const plotRight = cartesian.left + cartesian.width;
+  const plotTop = cartesian.top;
+  const plotBottom = cartesian.top + cartesian.height;
+  const tol = METRICS_SCALE_PROBE_TOLERANCE_PX;
+
+  if (Math.abs(xMin - plotLeft) > tol) return false;
+  if (Math.abs(xMax - plotRight) > tol) return false;
+  // 速度軸: speedMax が上、speedMin が下
+  if (Math.abs(ySpeedMax - plotTop) > tol) return false;
+  if (Math.abs(ySpeedMin - plotBottom) > tol) return false;
+
+  return true;
+}
+
 /** viewState から可視窓 domain を算出（パターン B: 全軸連動） */
 export function visibleWindowFromViewState(
   view: ChartViewState,
