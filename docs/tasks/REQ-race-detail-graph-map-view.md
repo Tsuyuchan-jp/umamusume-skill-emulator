@@ -248,6 +248,7 @@ function svgToSpeed(y: number, m: ChartPlotMetrics): number;
 | 2026-06-19 00:35 | **overlay scales 同期修正**: `plotMetricsScalesMatchWindow` probe（domain 端点 ↔ cartesian）、`visibleWindowsEqual`、`handlePlotMetrics` dedup 廃止、ChartMetricsBridge rAF リトライ、ダブルクリック `onViewReset` で measured null、stale measured 自動無効化 | 実機: ズーム後リセットで俯瞰ずれ・単独スキルでもずれ。view 一致だけでは不十分と判明 |
 | 2026-06-19 00:40 | **follow-up**: `plotMetricsEquivalent` で scale 端点出力比較 + dedup 復活。無条件 setState と invalidation effect が Maximum update depth を招いたため除去 | probe ゲートは維持 |
 | 2026-06-19 00:46 | **ズーム操作レスポンス + overlay 同期の実機検証クローズ**（俯瞰・拡大→ダブルクリック俯瞰・パン停止後・単独 stack0 各拡大率で赤線↔速度線 OK） | `98c0cea`〜`a1dd542`。次はステップ 3 暫定 UI 削除 |
+| 2026-06-19 01:03 | **perf fallback を sibling REQ へ分離**（[`REQ-race-detail-graph-map-view-perf-fallback.md`](REQ-race-detail-graph-map-view-perf-fallback.md)）: 操作中 domain commit 30fps cap | Step A+B 後もホイール/2D ドラッグのもたつき残存。設計レビュー承認済み |
 
 ---
 
