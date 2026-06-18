@@ -4,13 +4,13 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-19 01:12
+最終更新: 2026-06-19 01:19
 
 ---
 
 ## 現在のフォーカス
 
-Backlog — P0 トースト改善 / P1 Google Map 型グラフ UI（ステップ 3〜4）
+設計レビュー待ち — Interaction Canvas Engine（Google Maps 級）/ P1 map-view ステップ 3〜4
 
 ---
 
@@ -36,6 +36,14 @@ Backlog — P0 トースト改善 / P1 Google Map 型グラフ UI（ステップ
   - REQ: 不要（数行〜小タスク）
 
 ### P1 — 重要
+
+- [ ] **Google Map 型グラフ — Interaction Canvas Engine（Dual-Viewport）**
+  - 経緯: 30fps cap 実機クローズ後も Maps 級を目指す。ユーザー合意: 構造変更・工数可・妥協しない
+  - 目標: 操作中は Canvas 60fps 折れ線、停止後 Recharts + probe overlay。Phase 1〜4
+  - 優先: perf fallback 完了後の **次の性能正本**（ステップ 3 暫定 UI 削除と並行可）
+  - 触る想定: `chartLineRenderer.ts`（新）, `useInteractionCanvasLoop.ts`（新）, `useChartViewInteraction.ts`, `RaceDetailChart.tsx`
+  - 触らない: pan/zoom ロジック、probe ゲート、WASM/OCR
+  - REQ: [`REQ-race-detail-graph-interaction-engine.md`](tasks/REQ-race-detail-graph-interaction-engine.md) — **設計レビュー待ち**
 
 - [ ] **Google Map 型グラフ UI（Phase 5 最終）— ステップ 3〜4**
   - ステップ 2 + percent 軸追従は実装済み（percent 実機検証クローズ 2026-06-18 23:30）

@@ -5,7 +5,7 @@
 
 - **ステータス**: Phase 1 完了（シリーズ継続中 — **Phase 5 実装正本**: [`REQ-race-detail-graph-map-view.md`](REQ-race-detail-graph-map-view.md)）
 - **作成日**: 2026-06-10 15:55
-- **最終更新**: 2026-06-18 21:01
+- **最終更新**: 2026-06-19 01:19
 
 ---
 
@@ -30,7 +30,9 @@
 | 5 | スキル帯×速度線連動 | [`REQ-race-detail-graph-skill-layout-sync.md`](REQ-race-detail-graph-skill-layout-sync.md) | **superseded**（決定ログ参照） | → map-view |
 | 5-R1 | 分析モード revert + K 固定 | [`REQ-race-detail-graph-analysis-revert.md`](REQ-race-detail-graph-analysis-revert.md) | **done**（`dd414ea` 実機検証クローズ） | 知見利用 |
 | 5-R1b | 赤線アンカー + 同時刻スタック圧縮 | [`REQ-race-detail-graph-same-time-stack-compact.md`](REQ-race-detail-graph-same-time-stack-compact.md) | **done**（知見利用） | → map-view |
-| **5 最終** | **Google Map 型グラフ UI** | [**`REQ-race-detail-graph-map-view.md`**](REQ-race-detail-graph-map-view.md) | **draft**（**Phase 5 実装正本**） | シリーズ Phase 5 完了 |
+| **5 最終** | **Google Map 型グラフ UI** | [**`REQ-race-detail-graph-map-view.md`**](REQ-race-detail-graph-map-view.md) | **in-progress**（ステップ 3〜4 残） | Interaction Engine |
+| **5-P2** | **Interaction Canvas Engine** | [**`REQ-race-detail-graph-interaction-engine.md`**](REQ-race-detail-graph-interaction-engine.md) | **draft**（設計レビュー待ち） | map-view ステップ 3 or Engine Phase 1 |
+| **5-P1** | **domain 30fps cap（fallback）** | [`REQ-race-detail-graph-map-view-perf-fallback.md`](REQ-race-detail-graph-map-view-perf-fallback.md) | **done**（`5053012`） | Engine へ移行 |
 | ~~5-R2~~ | ~~X 時間窓 + ドラッグ~~ | [`REQ-race-detail-graph-time-window.md`](REQ-race-detail-graph-time-window.md) | **superseded** | map-view へ統合 |
 | ~~5-R3~~ | ~~ホイール + パン + 縦拡大削除~~ | [`REQ-race-detail-graph-pan-zoom.md`](REQ-race-detail-graph-pan-zoom.md) | **superseded** | map-view へ統合 |
 
