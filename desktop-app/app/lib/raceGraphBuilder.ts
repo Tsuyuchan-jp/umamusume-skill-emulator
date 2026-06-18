@@ -315,19 +315,20 @@ function markerKindOffsetY(kind: SkillEventKind): number {
   return kind === "debuff" ? DEBUFF_Y_OFFSET : 0;
 }
 
-/** detail: 赤線 Y（px・plot 上端 0）。常に発動時刻の速度線上（yStackOffset はラベルのみ） */
+/** detail: 赤線 Y。stack 0 は速度線上、下段は yStackOffset でラベルと一体で下げる（赤線重なり禁止） */
 function markerLineY_px(
   points: GraphPoint[],
   startTime: number,
   kind: SkillEventKind,
   speedPlotHeight: number,
+  yStackOffset: number,
 ): number {
   const speed = getSpeedAtTime(points, startTime);
   const speedY = speedToOverlayY(speed, speedPlotHeight);
-  return speedY + markerKindOffsetY(kind);
+  return speedY + yStackOffset + markerKindOffsetY(kind);
 }
 
-/** detail: ラベル hit box 上端 Y（衝突判定用・赤線の上 + yStackOffset） */
+/** detail: ラベル hit box 上端 Y（衝突判定用・赤線の上） */
 function markerDetailLabelTopY_px(
   points: GraphPoint[],
   startTime: number,
@@ -336,13 +337,13 @@ function markerDetailLabelTopY_px(
   yStackOffset: number,
   lineOffsetPx: number,
 ): number {
-  const lineY = markerLineY_px(points, startTime, kind, speedPlotHeight);
-  return lineY - lineOffsetPx - SKILL_HIT_HEIGHT - yStackOffset;
+  const lineY = markerLineY_px(points, startTime, kind, speedPlotHeight, yStackOffset);
+  return lineY - lineOffsetPx - SKILL_HIT_HEIGHT;
 }
 
-/** detail: ラベル描画上端 Y（フォント基準・赤線の上 + yStackOffset） */
-function markerDetailLabelVisualTopY_px(lineY: number, yStackOffset: number): number {
-  return lineY - SKILL_LINE_GAP - SKILL_FONT_SIZE - yStackOffset;
+/** detail: ラベル描画上端 Y（フォント基準・赤線の上。lineY に offset 済み） */
+function markerDetailLabelVisualTopY_px(lineY: number): number {
+  return lineY - SKILL_LINE_GAP - SKILL_FONT_SIZE;
 }
 
 /** overview / legacy: ラベル上端 Y（速度スナップ + stack stagger） */
@@ -632,8 +633,14 @@ export function layoutSkillMarkers(
     let lineTopPx: number;
 
     if (useDetailAnchorLayout) {
-      lineTopPx = markerLineY_px(points, marker.startTime, marker.kind, speedPlotHeight);
-      labelTopPx = markerDetailLabelVisualTopY_px(lineTopPx, yStackOffset);
+      lineTopPx = markerLineY_px(
+        points,
+        marker.startTime,
+        marker.kind,
+        speedPlotHeight,
+        yStackOffset,
+      );
+      labelTopPx = markerDetailLabelVisualTopY_px(lineTopPx);
     } else {
       const baseY = markerBaseLabelY(points, marker.startTime, marker.kind, speedPlotHeight);
       labelTopPx = baseY + stackLevel * STAGGER_ROW * yZoomFactor;
