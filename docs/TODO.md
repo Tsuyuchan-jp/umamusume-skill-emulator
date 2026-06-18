@@ -4,21 +4,19 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-18 23:24
+最終更新: 2026-06-18 23:26
 
 ---
 
 ## 現在のフォーカス
 
-Google Map 型グラフ — percent 軸ズーム/パン追従修正（ステップ 2 フォローアップ）
+Backlog — P0 トースト改善 / P1 Google Map 型グラフ UI（パフォーマンス・ステップ 3〜4）
 
 ---
 
 ## 進行中
 
-- [ ] **Google Map 型グラフ — percent 軸追従修正**（ホイール・縦パンで centerPercent 連動、レーン拡大）
-  - REQ: [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)
-  - 触る想定: `raceGraphBuilder.ts`, `useChartViewInteraction.ts`
+（なし）
 
 ## 次にやること（Backlog）
 
@@ -38,6 +36,10 @@ Google Map 型グラフ — percent 軸ズーム/パン追従修正（ステッ�
   - REQ: 不要（数行〜小タスク）
 
 ### P1 — 重要
+
+- [ ] **Google Map 型グラフ UI — ズーム操作のレスポンス改善**（ホイール/ドラッグの rAF バッチ・metrics リセット削減）
+  - 経緯: ステップ 2 実機で操作が非常に重い
+  - REQ: [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)
 
 - [ ] **Google Map 型グラフ UI（Phase 5 最終）— ステップ 3〜4**
   - ステップ 2 実装中（進行中参照）
@@ -100,7 +102,7 @@ Google Map 型グラフ — percent 軸ズーム/パン追従修正（ステッ�
 
 ## 完了済み
 
-- [x] Google Map 型グラフ UI — ステップ 2（ChartViewState 配線・ホイール等倍ズーム・2D パン・ダブルクリックリセット）（`91e76cb` / [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)）
+- [x] Google Map 型グラフ — percent 軸追従修正（ホイール・縦パンで centerPercent 連動）（`f8a62f0` / [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)）
 - [x] Google Map 型グラフ UI — map-view ステップ 1（ChartPlotMetrics + cartesian 実測 + 俯瞰統合 layout）（`aca5f6f` / [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)）
 - [x] Phase 5-R1b ポリッシュ: XAxis reserve + overlay domain を speedPlotHeight に統一（`a8744ef` / 実機確認待ち）
 - [x] Phase 5-R1b ポリッシュ: speedPlotHeight に Legend 分を反映（`ba4e172` — XAxis 未考慮で stack 16px 低下）

@@ -8,7 +8,7 @@
 
 - **ステータス**: in-progress
 - **作成日**: 2026-06-18 21:01
-- **関連コミット**: `aca5f6f`（ステップ 1）、`91e76cb`（ステップ 2）
+- **関連コミット**: `aca5f6f`（ステップ 1）、`91e76cb`（ステップ 2）、`f8a62f0`（percent 軸追従）
 
 ---
 
@@ -241,6 +241,7 @@ function svgToSpeed(y: number, m: ChartPlotMetrics): number;
 | 2026-06-18 22:49 | **ステップ 2 設計承認**: domain 駆動（center+scale）、`CHART_VIEW_SCALE_MAX=24`、ホイール `k=1.1`、ダブルクリックリセット、リサイズは center 維持+clamp、イベントは `chartAreaRef` のみ | ステップ 1 資産（ChartMetricsBridge/scales）を維持。`expandSkillRows` ON 時は map 無効 |
 | 2026-06-18 22:49 | **percent 軸はパターン B**（時間・速度と同じ `scale` で可視窓連動）。将来トグルでパターン A（0–100% 固定）を足せる設計 | 全系列の見た目一貫性（Google Map 型）。将来コストは B 土台 + A 上書きが最小 |
 | 2026-06-18 23:01 | **ステップ 2 実装完了**: `ChartViewState`（center+scale）、`visibleWindowFromViewState`、ホイール `k=1.1` カーソル中心ズーム、2D パン、ダブルクリックリセット、`useChartViewInteraction`、全軸 domain 配線、`expandSkillRows` ON 時 legacy 無効 | 設計承認どおり domain 駆動。`npm run build` 通過。実機検証はステップ 4 |
+| 2026-06-18 23:26 | **percent 軸フォローアップ**: 実機でレーンのみ拡大されない問題。`applyWheelZoom` / `applyPanDrag` で `centerPercent` をカーソル追従・縦パン連動（`svgToPercent` 追加） | ステップ 2 は centerPercent 固定の暫定だった。体力・レーンは右軸共有のため同じ画面 Y で percent 変換が必要 |
 
 ---
 
