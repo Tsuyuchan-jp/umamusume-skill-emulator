@@ -14,6 +14,10 @@ import {
 /** ホイール停止後、isMapInteracting を false にするまでの待機（ms） */
 export const MAP_INTERACTION_WHEEL_IDLE_MS = 150;
 
+/** 操作中の chartViewState → Recharts domain 反映の上限 fps */
+export const MAP_CHART_DOMAIN_COMMIT_FPS = 30;
+export const MAP_CHART_DOMAIN_COMMIT_MS = Math.ceil(1000 / MAP_CHART_DOMAIN_COMMIT_FPS);
+
 interface UseChartViewInteractionOptions {
   enabled: boolean;
   raceEnd: number;
@@ -47,6 +51,8 @@ export function useChartViewInteraction({
   const dragRef = useRef<{ startX: number; startY: number; view: ChartViewState } | null>(null);
   const pendingViewStateRef = useRef<ChartViewState | null>(null);
   const rafIdRef = useRef<number | null>(null);
+  const domainCommitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastDomainCommitTimeRef = useRef(0);
   const wheelIdleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isDraggingRef = useRef(false);
   const wheelActiveRef = useRef(false);
@@ -65,29 +71,64 @@ export function useChartViewInteraction({
     setIsMapInteracting(isDraggingRef.current || wheelActiveRef.current);
   }, []);
 
-  const flushPendingViewState = useCallback(() => {
-    rafIdRef.current = null;
-    const pending = pendingViewStateRef.current;
-    if (pending == null) return;
-    pendingViewStateRef.current = null;
-    setViewState(pending);
-  }, [setViewState]);
+  const cancelDomainCommitTimer = useCallback(() => {
+    if (domainCommitTimerRef.current != null) {
+      clearTimeout(domainCommitTimerRef.current);
+      domainCommitTimerRef.current = null;
+    }
+  }, []);
 
-  /** rAF 待ちの pending を即時 commit（操作終了時の overlay 同期用） */
+  const flushPendingViewState = useCallback(
+    (bypassThrottle = false) => {
+      rafIdRef.current = null;
+      const pending = pendingViewStateRef.current;
+      if (pending == null) return;
+
+      const isInteracting = isDraggingRef.current || wheelActiveRef.current;
+
+      if (!bypassThrottle && isInteracting) {
+        const now = performance.now();
+        const elapsed = now - lastDomainCommitTimeRef.current;
+
+        if (elapsed < MAP_CHART_DOMAIN_COMMIT_MS) {
+          if (domainCommitTimerRef.current == null) {
+            const delay = MAP_CHART_DOMAIN_COMMIT_MS - elapsed;
+            domainCommitTimerRef.current = setTimeout(() => {
+              domainCommitTimerRef.current = null;
+              if (rafIdRef.current == null) {
+                rafIdRef.current = requestAnimationFrame(() => {
+                  flushPendingViewState(false);
+                });
+              }
+            }, delay);
+          }
+          return;
+        }
+      }
+
+      pendingViewStateRef.current = null;
+      lastDomainCommitTimeRef.current = performance.now();
+      setViewState(pending);
+    },
+    [setViewState],
+  );
+
+  /** rAF / throttle 待ちの pending を即時 commit（操作終了時の overlay 同期用） */
   const commitPendingViewStateNow = useCallback(() => {
     if (rafIdRef.current != null) {
       cancelAnimationFrame(rafIdRef.current);
       rafIdRef.current = null;
     }
-    flushPendingViewState();
-  }, [flushPendingViewState]);
+    cancelDomainCommitTimer();
+    flushPendingViewState(true);
+  }, [cancelDomainCommitTimer, flushPendingViewState]);
 
   const scheduleViewStateCommit = useCallback(
     (next: ChartViewState) => {
       pendingViewStateRef.current = next;
       if (rafIdRef.current != null) return;
       rafIdRef.current = requestAnimationFrame(() => {
-        flushPendingViewState();
+        flushPendingViewState(false);
       });
     },
     [flushPendingViewState],
@@ -111,6 +152,7 @@ export function useChartViewInteraction({
       cancelAnimationFrame(rafIdRef.current);
       rafIdRef.current = null;
     }
+    cancelDomainCommitTimer();
     pendingViewStateRef.current = null;
     wheelActiveRef.current = false;
     if (wheelIdleTimerRef.current != null) {
@@ -120,8 +162,9 @@ export function useChartViewInteraction({
     isDraggingRef.current = false;
     syncInteracting();
     onViewReset?.();
+    lastDomainCommitTimeRef.current = performance.now();
     setViewState(createInitialChartViewState(raceEnd));
-  }, [raceEnd, onViewReset, setViewState, syncInteracting]);
+  }, [raceEnd, onViewReset, setViewState, syncInteracting, cancelDomainCommitTimer]);
 
   useEffect(() => {
     const el = chartAreaRef.current;
@@ -217,6 +260,7 @@ export function useChartViewInteraction({
         cancelAnimationFrame(rafIdRef.current);
         rafIdRef.current = null;
       }
+      cancelDomainCommitTimer();
       if (wheelIdleTimerRef.current != null) {
         clearTimeout(wheelIdleTimerRef.current);
         wheelIdleTimerRef.current = null;
@@ -235,6 +279,7 @@ export function useChartViewInteraction({
     scheduleWheelIdleEnd,
     syncInteracting,
     commitPendingViewStateNow,
+    cancelDomainCommitTimer,
   ]);
 
   return { isMapInteracting };
