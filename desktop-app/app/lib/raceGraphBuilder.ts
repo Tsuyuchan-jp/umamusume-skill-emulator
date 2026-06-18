@@ -190,6 +190,8 @@ export const SKILL_CHART_MARGIN_TOP = 24;
 export const SKILL_CHART_MARGIN_BOTTOM = 4;
 /** Recharts Legend（下部）が占有する cartesian 領域の高さ（px） */
 export const SKILL_CHART_LEGEND_RESERVE = 28;
+/** Recharts XAxis（目盛 +「経過時間」ラベル）が占有する cartesian 下端の高さ（px） */
+export const SKILL_CHART_XAXIS_RESERVE = 16;
 /** 速度折れ線 plot 高さ（px）— 縦拡大 ON でも Recharts はこの高さを維持 */
 export const SPEED_PLOT_HEIGHT =
   SKILL_CHART_BASE_HEIGHT - SKILL_CHART_MARGIN_TOP - SKILL_CHART_MARGIN_BOTTOM;
@@ -616,6 +618,8 @@ export function layoutSkillMarkers(
 
   const totalPlotHeight = chartHeightPx - SKILL_CHART_MARGIN_TOP - SKILL_CHART_MARGIN_BOTTOM;
   const speedPlotHeight = speedPlotHeightOpt ?? totalPlotHeight;
+  /** overlay domain: 速度スナップと同一の plot 高さで正規化（Legend 帯との二重計上を防ぐ） */
+  const domainPlotHeight = speedPlotHeightOpt != null ? speedPlotHeight : totalPlotHeight;
   if (totalPlotHeight <= 0 || speedPlotHeight <= 0 || markers.length === 0) return markers;
 
   const effectiveMaxTime =
@@ -664,8 +668,8 @@ export function layoutSkillMarkers(
       ...marker,
       stackLevel,
       row: stackLevel,
-      y: 1 - labelTopPx / totalPlotHeight,
-      lineY: 1 - lineTopPx / totalPlotHeight,
+      y: 1 - labelTopPx / domainPlotHeight,
+      lineY: 1 - lineTopPx / domainPlotHeight,
     };
   });
 }
@@ -730,17 +734,20 @@ export interface SkillMarkerPx {
 /**
  * layoutSkillMarkers の domain 座標を overlay SVG ピクセル座標に変換する
  *   x = (time / maxTime) * plotWidth + OVERLAY_MARGIN_LEFT
- *   y = (1 - domainY) * plotHeight + SKILL_CHART_MARGIN_TOP
+ *   y = (1 - domainY) * yPlotHeight + SKILL_CHART_MARGIN_TOP
+ * yPlotHeight 未指定時は chart plot 全体。detail では speedPlotHeight を渡す。
  */
 export function skillMarkersToPx(
   markers: SkillMarker[],
   chartHeightPx: number,
   chartWidthPx: number,
   maxTime: number,
+  yPlotHeight?: number,
 ): SkillMarkerPx[] {
   if (!markers.length || maxTime <= 0 || chartWidthPx <= 0 || chartHeightPx <= 0) return [];
 
-  const plotHeight = chartHeightPx - SKILL_CHART_MARGIN_TOP - SKILL_CHART_MARGIN_BOTTOM;
+  const totalPlotHeight = chartHeightPx - SKILL_CHART_MARGIN_TOP - SKILL_CHART_MARGIN_BOTTOM;
+  const plotHeight = yPlotHeight ?? totalPlotHeight;
   const plotWidth = chartWidthPx - OVERLAY_MARGIN_LEFT - OVERLAY_MARGIN_RIGHT;
   if (plotHeight <= 0 || plotWidth <= 0) return [];
 

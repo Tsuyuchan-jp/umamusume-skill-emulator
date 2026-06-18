@@ -31,6 +31,7 @@ import {
   SKILL_CHART_MARGIN_BOTTOM,
   SKILL_CHART_MARGIN_TOP,
   SKILL_CHART_LEGEND_RESERVE,
+  SKILL_CHART_XAXIS_RESERVE,
   SKILL_FONT_SIZE,
   OVERLAY_MARGIN_LEFT,
   OVERLAY_MARGIN_RIGHT,
@@ -302,8 +303,11 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
     contentChartHeight - SKILL_CHART_MARGIN_TOP - SKILL_CHART_MARGIN_BOTTOM,
     1,
   );
-  /** 速度スナップ用: Legend 分を除いた Recharts cartesian の高さ */
-  const speedPlotHeight = Math.max(contentPlotHeight - SKILL_CHART_LEGEND_RESERVE, 1);
+  /** 速度スナップ用: Legend + XAxis 分を除いた Recharts cartesian の高さ */
+  const speedPlotHeight = Math.max(
+    contentPlotHeight - SKILL_CHART_LEGEND_RESERVE - SKILL_CHART_XAXIS_RESERVE,
+    1,
+  );
   const skillMarkers = useMemo(
     () =>
       layoutSkillMarkers(skillData.skillMarkers, contentChartHeight, {
@@ -333,9 +337,15 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
   const skillMarkersPx = useMemo(
     () =>
       showSkillOverlay
-        ? skillMarkersToPx(skillMarkers, contentChartHeight, measuredWidth, maxTime)
+        ? skillMarkersToPx(
+            skillMarkers,
+            contentChartHeight,
+            measuredWidth,
+            maxTime,
+            isExpanded ? speedPlotHeight : undefined,
+          )
         : [],
-    [showSkillOverlay, skillMarkers, contentChartHeight, measuredWidth, maxTime],
+    [showSkillOverlay, skillMarkers, contentChartHeight, measuredWidth, maxTime, isExpanded, speedPlotHeight],
   );
 
   /** 密集時: hover 対象を SVG 末尾へ（z-order 最前面） */

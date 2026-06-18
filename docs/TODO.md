@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-18 19:57
+最終更新: 2026-06-18 20:16
 
 ---
 
@@ -105,7 +105,8 @@ Backlog — P0 トースト改善 / P2 Phase 5-R2
 
 ## 完了済み
 
-- [x] Phase 5-R1b ポリッシュ: speedPlotHeight に Legend 分を反映（`ba4e172` / 実機確認待ち）
+- [x] Phase 5-R1b ポリッシュ: XAxis reserve + overlay domain を speedPlotHeight に統一（`コミット後` / 実機確認待ち）
+- [x] Phase 5-R1b ポリッシュ: speedPlotHeight に Legend 分を反映（`ba4e172` — XAxis 未考慮で stack 16px 低下）
 - [x] Phase 5-R1b ポリッシュ: contentPlotHeight 修正 + nudge リセット（`2e52a26` — Legend 未考慮で過補正）
 - [x] Phase 5-R1b ポリッシュ: stack 0 赤線の半px整列 + 速度線 nudge（`b94777d` — **plot 高さ修正で置換**）
 - [x] Phase 5-R1b ポリッシュ: 赤線アンカー分離 + 同時刻のみスタック（`7af3b0c` — **案1は撤回**）
