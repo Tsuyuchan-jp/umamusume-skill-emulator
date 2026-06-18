@@ -58,24 +58,29 @@ Recharts `LineChart` と overlay SVG の **二重座標** を、`LEGEND_RESERVE`
 #### 1. ビュー状態（単一の正本）
 
 ```typescript
-/** グラフの表示変換。scale=1, pan=0 がレース全体の初期俯瞰。 */
+/** グラフの表示変換。scale=1 がレース全体の初期俯瞰（ステップ 2 承認済み） */
 interface ChartViewState {
-  /** 等倍ズーム倍率。1 = 俯瞰、>1 = 拡大 */
+  /** 等倍ズーム倍率。1 = 俯瞰、>1 = 拡大。上限 CHART_VIEW_SCALE_MAX（24） */
   scale: number;
-  /** データ空間または画面空間のパン（実装時にどちらか一方に固定） */
-  panX: number;
-  panY: number;
+  /** 可視窓中心（秒） */
+  centerTime: number;
+  /** 可視窓中心（m/s） */
+  centerSpeed: number;
+  /** 可視窓中心（percent 軸 0〜1）。既定 0.5 */
+  centerPercent: number;
 }
 
 /** scale=1 かつレース全体が viewport に収まる初期値を race から算出 */
-function createInitialChartViewState(raceEnd: number, /* bounds */): ChartViewState;
+function createInitialChartViewState(raceEnd: number): ChartViewState;
 ```
 
+- 内部正本は **center + scale**（旧 `panX` / `panY` は採用しない）
 - `scale` は **連続値**（固定 K=4 やしきい値での ON/OFF 切替はしない）
-- ホイールは **カーソル位置中心** で `scale` を増減
-- ドラッグは `panX` / `panY` を更新（2D）
-- ダブルクリック or ボタンで **リセット**（`scale=1`、全体表示）
-- 任意: **「終盤へ」** ショートカット（終盤中心にパン + 適度な scale。窓幅 30% 等は実装時に調整）
+- ホイールは **カーソル位置中心** で `scale` を増減（`k=1.1` / `k≈0.9`）
+- ドラッグは `centerTime` / `centerSpeed` を更新（2D パン）
+- ダブルクリックで **リセット**（`scale=1`、全体表示）。ステップ 2 必須
+- 任意: **「終盤へ」** ショートカット（ステップ 2 スコープ外）
+- `expandSkillRows` ON 時は map 操作無効（legacy K=4 維持）。ステップ 3 で checkbox 削除
 
 #### 2. 座標の正本（ChartPlotMetrics）
 
@@ -90,9 +95,12 @@ interface ChartPlotMetrics {
   /** 表示中の時間範囲（秒） */
   timeMin: number;
   timeMax: number;
-  /** 速度軸 domain（既定 [SPEED_MIN, SPEED_MAX]。拡大時は表示範囲が狭まってもよい） */
+  /** 速度軸 domain（拡大時は可視窓） */
   speedMin: number;
   speedMax: number;
+  /** percent 軸 domain（拡大時は可視窓。scale=1 で [0,1]） */
+  percentMin: number;
+  percentMax: number;
 }
 
 function timeToSvgX(time: number, m: ChartPlotMetrics): number;
@@ -105,11 +113,16 @@ function svgToSpeed(y: number, m: ChartPlotMetrics): number;
 - `layoutSkillMarkers` / `skillMarkersToPx` / ドラッグヒット判定は **すべて ChartPlotMetrics 経由**
 - 実装優先: Recharts `Customized` の `offset` または `useLayoutEffect` + `getBoundingClientRect`
 
-#### 3. 描画アーキテクチャ
+#### 3. 描画アーキテクチャ（ステップ 2 承認済み）
 
-- **方式 A（推奨）**: LineChart + overlay SVG を **共通 transform 親** で包み、`scale` / `pan` を一括適用
-- **方式 B**: domain 変更 + 同一 metrics 式（transform なし）。等倍ズームを厳密に保つなら A を優先検討
-- 軸・Legend・checkbox 行は **ズームに乗せない**（UI chrome 固定）か、仕様で明示
+- **採用: domain 駆動可視窓（center + scale）+ ChartPlotMetrics 同期**
+  - 速度–時間平面では transform 等倍ズームと数学的同等
+  - `ChartMetricsBridge`（`usePlotArea` + `useXAxisScale` + `useYAxisScale`）が返す `scales` を pixel 変換の正本とする
+  - transform 親は使わない
+- **全軸連動ズーム（パターン B）**: 時間・速度・percent を **同じ `scale`** で可視窓を狭める
+  - 例: `halfT = raceEnd/(2*scale)`, `halfS = (SPEED_MAX-SPEED_MIN)/(2*scale)`, `halfP = 0.5/scale`
+  - `scale=1` では俯瞰（時間全体・速度 13–30・percent 0–100%）
+- **UI chrome 固定**: Legend・checkbox 行・区間ピルは transform しない。軸目盛は可視 domain に追従
 
 #### 4. スキルレイアウト（全 scale で共通ロジック）
 
@@ -144,6 +157,13 @@ function svgToSpeed(y: number, m: ChartPlotMetrics): number;
 - ラベル X オフセット（発動時刻の横位置はずらさない）
 - 2 層キャンバス（速度層と Gantt 完全分離）
 - 旧 R2 単独（X だけ窓）の先行リリース
+
+### 将来拡張（ステップ 2 では実装しない）
+
+- **上級者向けトグル「体力・レーンは常に 0〜100% 表示」**（パターン A 相当）
+  - ステップ 2 ではパターン B（percent も `scale` 連動）を正本として実装する
+  - 将来トグル ON 時は `percentDomain = [0, 1]` 固定に上書きするだけで足せる設計にする（`lockPercentFullRange` 等）
+  - トグル実装時は `visibleWindowFromViewState` の percent 分岐と `YAxis(percent)` domain 1 行が主な差分
 
 ---
 
@@ -218,6 +238,8 @@ function svgToSpeed(y: number, m: ChartPlotMetrics): number;
 | 2026-06-18 21:01 | `expandSkillRows` / `DETAIL_ZOOM_FIXED` / Y 単独クローズアップを廃止 | 暫定 UI。最終操作はホイール+ドラッグのみ |
 | 2026-06-18 21:22 | **ステップ 1 完了**: ChartPlotMetrics + Recharts Customized 実測、統合 layout（赤線アンカー + 同時刻 compact + 案3）、scale=1 固定 | 固定 LEGEND/XAXIS reserve を OFF 経路から除去。ステップ 2 で viewState 配線 |
 | 2026-06-18 21:49 | **ステップ 1 フォローアップ**: `Customized` offset 廃止 → `usePlotArea` + `useYAxisScale('speed')` + `useXAxisScale` を正本に | Recharts 3 で offset 未注入。速度依存 Y ずれ（序盤大・終盤小）を scale 一本化で解消 |
+| 2026-06-18 22:49 | **ステップ 2 設計承認**: domain 駆動（center+scale）、`CHART_VIEW_SCALE_MAX=24`、ホイール `k=1.1`、ダブルクリックリセット、リサイズは center 維持+clamp、イベントは `chartAreaRef` のみ | ステップ 1 資産（ChartMetricsBridge/scales）を維持。`expandSkillRows` ON 時は map 無効 |
+| 2026-06-18 22:49 | **percent 軸はパターン B**（時間・速度と同じ `scale` で可視窓連動）。将来トグルでパターン A（0–100% 固定）を足せる設計 | 全系列の見た目一貫性（Google Map 型）。将来コストは B 土台 + A 上書きが最小 |
 
 ---
 
