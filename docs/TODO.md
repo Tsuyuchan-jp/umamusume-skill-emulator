@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-19 00:35
+最終更新: 2026-06-19 00:46
 
 ---
 
@@ -39,7 +39,8 @@ Backlog — P0 トースト改善 / P1 Google Map 型グラフ UI（ステップ
 
 - [ ] **Google Map 型グラフ UI（Phase 5 最終）— ステップ 3〜4**
   - ステップ 2 + percent 軸追従は実装済み（percent 実機検証クローズ 2026-06-18 23:30）
-  - 残: レスポンス改善 → 暫定 UI 削除 → 全体実機検証クローズ
+  - ズーム操作レスポンス改善 + overlay 同期は実機検証クローズ（2026-06-19 00:46 / `a1dd542`）
+  - 残: ステップ 3 暫定 UI 削除 → 全体実機検証クローズ
   - REQ: [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)
 
 ### P2 — 改善・アイデア
@@ -108,7 +109,7 @@ Backlog — P0 トースト改善 / P1 Google Map 型グラフ UI（ステップ
 
 ## 完了済み
 
-- [x] Google Map 型グラフ — overlay scales 同期修正（probe ゲート・dedup 廃止・リセット時 metrics 無効化）（`e8969b7` / [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)）
+- [x] Google Map 型グラフ — overlay scales 同期 + ズーム操作一連（レスポンス・復帰ずれ・scales probe）（**実機検証クローズ** 2026-06-19 00:46 / `98c0cea`〜`a1dd542` / [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)）
 - [x] Google Map 型グラフ — overlay 復帰位置ずれ修正（metrics 同期ゲート + 操作終了時 pending flush）（`a9125c7` / [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)）
 - [x] Google Map 型グラフ — ズーム操作のレスポンス改善（rAF バッチ・metrics リセット削減・操作中 overlay defer）（`98c0cea` / [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)）
 - [x] Google Map 型グラフ — percent 軸追従修正（ホイール・縦パンで centerPercent 連動）（**実機検証クローズ** 2026-06-18 23:30 / `f8a62f0` / [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)）

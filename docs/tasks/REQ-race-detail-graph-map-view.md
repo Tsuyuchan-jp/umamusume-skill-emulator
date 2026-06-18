@@ -247,6 +247,7 @@ function svgToSpeed(y: number, m: ChartPlotMetrics): number;
 | 2026-06-18 23:54 | **overlay 復帰ずれ修正 + 将来レベル方針**: 操作終了時 `commitPendingViewStateNow`、overlay は `chartViewStatesEqual(plotMetrics.view, metricsViewState)` まで defer。操作中 overlay の中間（赤線のみ）・理想（赤線+ラベル）は **別タスク**（TODO P2 Backlog） | 実機: 停止直後にずれ・クリックで直る症状。最小レベル（全非表示）は維持 |
 | 2026-06-19 00:35 | **overlay scales 同期修正**: `plotMetricsScalesMatchWindow` probe（domain 端点 ↔ cartesian）、`visibleWindowsEqual`、`handlePlotMetrics` dedup 廃止、ChartMetricsBridge rAF リトライ、ダブルクリック `onViewReset` で measured null、stale measured 自動無効化 | 実機: ズーム後リセットで俯瞰ずれ・単独スキルでもずれ。view 一致だけでは不十分と判明 |
 | 2026-06-19 00:40 | **follow-up**: `plotMetricsEquivalent` で scale 端点出力比較 + dedup 復活。無条件 setState と invalidation effect が Maximum update depth を招いたため除去 | probe ゲートは維持 |
+| 2026-06-19 00:46 | **ズーム操作レスポンス + overlay 同期の実機検証クローズ**（俯瞰・拡大→ダブルクリック俯瞰・パン停止後・単独 stack0 各拡大率で赤線↔速度線 OK） | `98c0cea`〜`a1dd542`。次はステップ 3 暫定 UI 削除 |
 
 ---
 
