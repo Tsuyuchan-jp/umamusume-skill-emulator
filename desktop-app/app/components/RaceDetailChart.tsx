@@ -391,9 +391,10 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
     1,
   );
 
+  // リサイズ・縦拡大切替時のみ metrics をリセット（domain 変更では ChartMetricsBridge が再計測）
   useEffect(() => {
     setMeasuredPlotMetrics(null);
-  }, [isExpanded, contentChartHeight, measuredWidth, visibleWindow, chartViewState]);
+  }, [isExpanded, measuredWidth, contentChartHeight, viewportHeight]);
 
   const handlePlotMetrics = useCallback((metrics: ChartPlotMetrics) => {
     setMeasuredPlotMetrics((prev) => {
@@ -447,7 +448,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
   const plotMetrics = measuredPlotMetrics ?? estimatedPlotMetrics;
   const plotMetricsReady = measuredPlotMetrics?.scales != null;
 
-  useChartViewInteraction({
+  const { isMapInteracting } = useChartViewInteraction({
     enabled: mapInteractionEnabled,
     raceEnd: maxTime,
     chartAreaRef,
@@ -457,32 +458,39 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
     setViewState: setChartViewState,
   });
 
+  useEffect(() => {
+    if (isMapInteracting) {
+      setHoveredSkillKey(null);
+    }
+  }, [isMapInteracting]);
+
   useClampChartViewOnResize(mapInteractionEnabled, maxTime, setChartViewState, [
     measuredWidth,
     viewportHeight,
   ]);
 
-  const skillMarkers = useMemo(
-    () =>
-      layoutSkillMarkers(skillData.skillMarkers, plotMetrics, {
-        expanded: isExpanded,
-        points: graphPoints.points,
-        yZoomFactor,
-        maxTime,
-        xStaggerOnly: true,
-      }),
-    [
-      skillData.skillMarkers,
-      plotMetrics,
-      isExpanded,
-      graphPoints.points,
+  const skillMarkers = useMemo(() => {
+    if (isMapInteracting) return [];
+    return layoutSkillMarkers(skillData.skillMarkers, plotMetrics, {
+      expanded: isExpanded,
+      points: graphPoints.points,
       yZoomFactor,
       maxTime,
-    ],
-  );
+      xStaggerOnly: true,
+    });
+  }, [
+    isMapInteracting,
+    skillData.skillMarkers,
+    plotMetrics,
+    isExpanded,
+    graphPoints.points,
+    yZoomFactor,
+    maxTime,
+  ]);
 
-  /** overlay 用ピクセル座標。scales 未取得時は描画しない（Y ずれ防止） */
+  /** overlay 用ピクセル座標。操作中は非表示・scales 未取得時も描画しない（Y ずれ防止） */
   const showSkillOverlay =
+    !isMapInteracting &&
     plotMetricsReady &&
     (displayState.showSkills || displayState.showDebuffs) &&
     skillMarkers.length > 0;
@@ -503,6 +511,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
   const [labelTextWidths, setLabelTextWidths] = useState<Record<string, number>>({});
 
   useLayoutEffect(() => {
+    if (isMapInteracting) return;
     if (!showSkillOverlay || skillMarkersPx.length === 0) {
       setLabelTextWidths({});
       return;
@@ -527,7 +536,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
         keys.length === Object.keys(prev).length && keys.every((k) => prev[k] === next[k]);
       return unchanged ? prev : next;
     });
-  }, [showSkillOverlay, skillMarkersPx, contentChartHeight, measuredWidth, isExpanded]);
+  }, [isMapInteracting, showSkillOverlay, skillMarkersPx, contentChartHeight, measuredWidth, isExpanded]);
 
   const hoveredSkillMarker = useMemo(
     () => skillMarkersPx.find((m) => m.tooltipKey === hoveredSkillKey) ?? null,
