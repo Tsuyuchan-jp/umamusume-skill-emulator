@@ -98,12 +98,13 @@ export function clampChartViewState(view: ChartViewState, raceEnd: number): Char
   };
 }
 
-/** カーソル下データ点を固定して scale / center を更新（percent 中心は維持） */
+/** カーソル下データ点を固定して scale / center を更新（時間・速度・percent 全軸） */
 export function applyWheelZoom(
   view: ChartViewState,
   raceEnd: number,
   cursorTime: number,
   cursorSpeed: number,
+  cursorPercent: number,
   zoomIn: boolean,
   zoomFactor = CHART_VIEW_WHEEL_ZOOM_FACTOR,
 ): ChartViewState {
@@ -115,23 +116,26 @@ export function applyWheelZoom(
 
   const halfT = raceEnd / (2 * view.scale);
   const halfS = (SPEED_MAX - SPEED_MIN) / (2 * view.scale);
+  const halfP = 0.5 / view.scale;
   const newHalfT = raceEnd / (2 * newScale);
   const newHalfS = (SPEED_MAX - SPEED_MIN) / (2 * newScale);
+  const newHalfP = 0.5 / newScale;
   const ratioT = newHalfT / halfT;
   const ratioS = newHalfS / halfS;
+  const ratioP = newHalfP / halfP;
 
   return clampChartViewState(
     {
       scale: newScale,
       centerTime: view.centerTime + (cursorTime - view.centerTime) * ratioT,
       centerSpeed: view.centerSpeed + (cursorSpeed - view.centerSpeed) * ratioS,
-      centerPercent: view.centerPercent,
+      centerPercent: view.centerPercent + (cursorPercent - view.centerPercent) * ratioP,
     },
     raceEnd,
   );
 }
 
-/** px 差分を現行可視窓に応じて centerTime / centerSpeed へ反映 */
+/** px 差分を現行可視窓に応じて centerTime / centerSpeed / centerPercent へ反映 */
 export function applyPanDrag(
   view: ChartViewState,
   raceEnd: number,
@@ -143,14 +147,17 @@ export function applyPanDrag(
   const window = visibleWindowFromViewState(view, raceEnd);
   const timeSpan = window.timeMax - window.timeMin;
   const speedSpan = window.speedMax - window.speedMin;
+  const percentSpan = window.percentMax - window.percentMin;
   const deltaTime = (-dx * timeSpan) / Math.max(plotWidth, 1);
   const deltaSpeed = (dy * speedSpan) / Math.max(plotHeight, 1);
+  const deltaPercent = (dy * percentSpan) / Math.max(plotHeight, 1);
 
   return clampChartViewState(
     {
       ...view,
       centerTime: view.centerTime + deltaTime,
       centerSpeed: view.centerSpeed + deltaSpeed,
+      centerPercent: view.centerPercent + deltaPercent,
     },
     raceEnd,
   );
@@ -223,6 +230,10 @@ function speedSpan(metrics: ChartPlotMetrics): number {
   return Math.max(metrics.speedMax - metrics.speedMin, 1e-9);
 }
 
+function percentSpan(metrics: ChartPlotMetrics): number {
+  return Math.max(metrics.percentMax - metrics.percentMin, 1e-9);
+}
+
 /** 経過秒 → overlay SVG x（scales 優先、なければ線形フォールバック） */
 export function timeToSvgX(time: number, metrics: ChartPlotMetrics): number {
   const scaled = metrics.scales?.timeToX(time);
@@ -251,6 +262,12 @@ export function svgToTime(x: number, metrics: ChartPlotMetrics): number {
 export function svgToSpeed(y: number, metrics: ChartPlotMetrics): number {
   const normalized = 1 - (y - metrics.cartesian.top) / Math.max(metrics.cartesian.height, 1e-9);
   return metrics.speedMin + normalized * speedSpan(metrics);
+}
+
+/** overlay SVG y → percent 軸値（体力・レーンと同一 plot 高さ） */
+export function svgToPercent(y: number, metrics: ChartPlotMetrics): number {
+  const normalized = 1 - (y - metrics.cartesian.top) / Math.max(metrics.cartesian.height, 1e-9);
+  return metrics.percentMin + normalized * percentSpan(metrics);
 }
 
 /** cartesian 内の相対 Y（上端 0）。speedToSvgY − cartesian.top */

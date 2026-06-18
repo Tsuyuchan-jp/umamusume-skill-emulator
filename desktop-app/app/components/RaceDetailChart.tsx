@@ -412,6 +412,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
         prev.view.scale === metrics.view.scale &&
         prev.view.centerTime === metrics.view.centerTime &&
         prev.view.centerSpeed === metrics.view.centerSpeed &&
+        prev.view.centerPercent === metrics.view.centerPercent &&
         Boolean(prev.scales) === Boolean(metrics.scales)
       ) {
         return prev;

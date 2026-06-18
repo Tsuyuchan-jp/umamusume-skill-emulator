@@ -6,6 +6,7 @@ import {
   ChartViewState,
   createInitialChartViewState,
   clampChartViewState,
+  svgToPercent,
   svgToSpeed,
   svgToTime,
 } from "../lib/raceGraphBuilder";
@@ -61,10 +62,11 @@ export function useChartViewInteraction({
       const metrics = plotMetricsRef.current;
       const cursorTime = svgToTime(x, metrics);
       const cursorSpeed = svgToSpeed(y, metrics);
+      const cursorPercent = svgToPercent(y, metrics);
       const zoomIn = event.deltaY < 0;
 
       setViewState((prev) =>
-        applyWheelZoom(prev, raceEnd, cursorTime, cursorSpeed, zoomIn),
+        applyWheelZoom(prev, raceEnd, cursorTime, cursorSpeed, cursorPercent, zoomIn),
       );
     };
 

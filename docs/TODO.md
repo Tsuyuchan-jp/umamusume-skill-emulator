@@ -4,19 +4,21 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-18 23:01
+最終更新: 2026-06-18 23:24
 
 ---
 
 ## 現在のフォーカス
 
-Backlog — P0 トースト改善 / P1 Google Map 型グラフ UI（ステップ 3〜4）
+Google Map 型グラフ — percent 軸ズーム/パン追従修正（ステップ 2 フォローアップ）
 
 ---
 
 ## 進行中
 
-（なし）
+- [ ] **Google Map 型グラフ — percent 軸追従修正**（ホイール・縦パンで centerPercent 連動、レーン拡大）
+  - REQ: [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)
+  - 触る想定: `raceGraphBuilder.ts`, `useChartViewInteraction.ts`
 
 ## 次にやること（Backlog）
 
