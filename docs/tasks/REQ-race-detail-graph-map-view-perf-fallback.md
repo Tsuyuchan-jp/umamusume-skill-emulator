@@ -3,9 +3,9 @@
 > 親: [`REQ-race-detail-graph-map-view.md`](REQ-race-detail-graph-map-view.md)
 > 文脈: [`REQ-race-detail-graph-performance.md`](REQ-race-detail-graph-performance.md)
 
-- **ステータス**: in-progress
+- **ステータス**: done
 - **作成日**: 2026-06-19 01:03
-- **関連コミット**: （完了後に記入）
+- **関連コミット**: `5053012`（実装）/ `cba1f4c`（REQ・TODO）
 
 ---
 
@@ -75,11 +75,11 @@ cap 中は `plotMetricsRef` が最後 commit された domain 基準のため、
 
 - [x] `isMapInteracting` 中、`chartViewState` → Recharts domain の反映が **≤30fps**
 - [x] `pointerup` / wheel idle / ダブルクリックで throttle バイパス即時同期
-- [ ] ホイール連打・2D ドラッグ 2〜3 秒で現状比 **体感が明確に軽い**（ユーザー主観。任意: React Profiler）
-- [ ] 操作停止後 **200ms 以内**に overlay が probe 合格位置へ復帰
-- [ ] ダブルクリックリセット・compare・percent 3 系列に退行なし
+- [x] ホイール連打・2D ドラッグ 2〜3 秒で現状比 **体感が明確に軽い**（ユーザー主観。任意: React Profiler）
+- [x] 操作停止後 **200ms 以内**に overlay が probe 合格位置へ復帰
+- [x] ダブルクリックリセット・compare・percent 3 系列に退行なし
 - [x] `npm run build` 通過
-- [ ] 実機検証クローズ
+- [x] 実機検証クローズ
 
 ---
 
@@ -101,3 +101,4 @@ cap 中は `plotMetricsRef` が最後 commit された domain 基準のため、
 | 2026-06-19 01:03 | **perf fallback を sibling REQ に分離**。30fps cap のみ採用（24fps 等は見送り） | Step A+B 実機クローズ後ももたつき残存。設計レビュー承認済み |
 | 2026-06-19 01:03 | cap は `setViewState` のみ。pan/zoom 計算・probe ゲート・overlay defer は不変 | 退行防止境界の維持 |
 | 2026-06-19 01:03 | ホイール連打時のカーソル中心ズーム微小ドリフトは許容 | 停止時フル同期で overlay 整合を担保 |
+| 2026-06-19 01:12 | **実機検証クローズ**（50+ スキル終盤ホイール/2D ドラッグ・停止後 overlay・percent 3 系列・compare・リサイズ・expandSkillRows 無効） | ユーザー報告: 体感軽くなった。全項目 OK |

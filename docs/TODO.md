@@ -4,25 +4,19 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-19 01:03
+最終更新: 2026-06-19 01:12
 
 ---
 
 ## 現在のフォーカス
 
-Google Map 型グラフ — domain 更新 30fps cap（perf fallback）実装
+Backlog — P0 トースト改善 / P1 Google Map 型グラフ UI（ステップ 3〜4）
 
 ---
 
 ## 進行中
 
-- [ ] **Google Map 型グラフ — domain 更新 30fps cap（perf fallback）**（実装完了・**実機検証待ち**）
-  - 経緯: Step A+B（rAF・overlay defer・probe）は実機クローズ済みだがホイール/2D ドラッグのもたつき残存
-  - 目標: `isMapInteracting` 中のみ Recharts domain commit を 30fps に制限。停止時は即時フル同期
-  - 優先: ステップ 3（暫定 UI 削除）より **先**（操作レスポンスが UX 上より急）
-  - 触る想定: `useChartViewInteraction.ts`（主）
-  - 触らない: pan/zoom ロジック、probe ゲート、ステップ 3 UI 削除
-  - REQ: [`REQ-race-detail-graph-map-view-perf-fallback.md`](tasks/REQ-race-detail-graph-map-view-perf-fallback.md)
+（なし）
 
 ## 次にやること（Backlog）
 
@@ -115,6 +109,7 @@ Google Map 型グラフ — domain 更新 30fps cap（perf fallback）実装
 
 ## 完了済み
 
+- [x] Google Map 型グラフ — domain 更新 30fps cap（perf fallback）（**実機検証クローズ** 2026-06-19 01:12 / `5053012`〜`cba1f4c` / [`REQ-race-detail-graph-map-view-perf-fallback.md`](tasks/REQ-race-detail-graph-map-view-perf-fallback.md)）
 - [x] Google Map 型グラフ — overlay scales 同期 + ズーム操作一連（レスポンス・復帰ずれ・scales probe）（**実機検証クローズ** 2026-06-19 00:46 / `98c0cea`〜`a1dd542` / [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)）
 - [x] Google Map 型グラフ — overlay 復帰位置ずれ修正（metrics 同期ゲート + 操作終了時 pending flush）（`a9125c7` / [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)）
 - [x] Google Map 型グラフ — ズーム操作のレスポンス改善（rAF バッチ・metrics リセット削減・操作中 overlay defer）（`98c0cea` / [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)）
