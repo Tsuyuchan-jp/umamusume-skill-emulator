@@ -297,7 +297,10 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
   const contentChartHeight = isExpanded
     ? computeZoomedChartHeight(viewportChartHeight, yZoomFactor)
     : viewportChartHeight;
-  const contentPlotHeight = viewportPlotHeight * yZoomFactor;
+  const contentPlotHeight = Math.max(
+    contentChartHeight - SKILL_CHART_MARGIN_TOP - SKILL_CHART_MARGIN_BOTTOM,
+    1,
+  );
   const skillMarkers = useMemo(
     () =>
       layoutSkillMarkers(skillData.skillMarkers, contentChartHeight, {

@@ -128,8 +128,8 @@ export const SKILL_FONT_SIZE = 10;
 export const SKILL_LINE_GAP = 3;
 /** 赤線を上方向へ寄せる微調整（px） */
 export const SKILL_LINE_Y_NUDGE_UP = 1;
-/** detail stack 0: 速度折れ線と赤線の視覚合わせ（上方向が負・実機調整） */
-export const SKILL_LINE_SPEED_ANCHOR_NUDGE = -2;
+/** detail stack 0: 速度折れ線と赤線の視覚合わせ（上方向が負。plot 高さ修正後は 0） */
+export const SKILL_LINE_SPEED_ANCHOR_NUDGE = 0;
 /** @deprecated 下帯行レイアウト用 */
 export const SKILL_ROW_TOP_PAD = 4;
 /** 速度点からラベル上端までのオフセット（px） */
