@@ -5,7 +5,7 @@
 
 - **ステータス**: Phase 1 完了（シリーズ継続中）
 - **作成日**: 2026-06-10 15:55
-- **最終更新**: 2026-06-14 11:15
+- **最終更新**: 2026-06-18 18:15
 
 ---
 
@@ -29,7 +29,7 @@
 | 4+ | スキル hover Tooltip | [`REQ-race-detail-graph-skill-tooltip.md`](REQ-race-detail-graph-skill-tooltip.md) | **done** | → skill layout sync |
 | 5 | スキル帯×速度線連動 | [`REQ-race-detail-graph-skill-layout-sync.md`](REQ-race-detail-graph-skill-layout-sync.md) | **in-progress**（R1〜R3 に分割継続） | → 5-R1 revert |
 | 5-R1 | 分析モード revert + K 固定 | [`REQ-race-detail-graph-analysis-revert.md`](REQ-race-detail-graph-analysis-revert.md) | **done**（`dd414ea` 実機検証クローズ） | → 5-R1b |
-| 5-R1b | 同時刻スタック圧縮 | [`REQ-race-detail-graph-same-time-stack-compact.md`](REQ-race-detail-graph-same-time-stack-compact.md) | **draft** | → 5-R2 |
+| 5-R1b | 赤線アンカー + 同時刻スタック圧縮 | [`REQ-race-detail-graph-same-time-stack-compact.md`](REQ-race-detail-graph-same-time-stack-compact.md) | **draft**（設計承認済） | → 5-R2 |
 | 5-R2 | X 時間窓 + ドラッグ | [`REQ-race-detail-graph-time-window.md`](REQ-race-detail-graph-time-window.md) | **draft** | → 5-R3 |
 | 5-R3 | ホイール + パン + 縦拡大削除 | [`REQ-race-detail-graph-pan-zoom.md`](REQ-race-detail-graph-pan-zoom.md) | **draft** | シリーズ Phase 5 完了 |
 
@@ -75,6 +75,7 @@
 | 2026-06-12 18:10 | Phase 5（skill layout sync）draft 起票 | 終盤の速度線とスキル帯の縦分離問題。設計レビュー先行 |
 | 2026-06-14 10:54 | Phase 5 を **5-R1〜R3** sibling REQ に分割（revert / 時間窓 / パン） | 赤線分離 NG・パン方針合意。ロードマップ索引を更新 |
 | 2026-06-14 11:15 | **5-R1b** 起票: 同時刻スキル縦スタック圧縮（案3 維持・hit box 段間隔） | 実機: 同時発動が 56px/段で過剰スライド。R2 前の実施推奨 |
+| 2026-06-18 18:15 | **5-R1b 設計承認**: 赤線左端を速度線上にアンカー、ラベルは赤線上、同時刻のみ compact yStackOffset | ユーザー要件: 詳細表示で発動地点の正確な把握。全体表示の軽いずらしは R3 へ |
 
 ---
 

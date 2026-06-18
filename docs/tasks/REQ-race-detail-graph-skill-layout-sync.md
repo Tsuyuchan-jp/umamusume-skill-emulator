@@ -136,3 +136,4 @@
 | 2026-06-14 10:54 | **赤線分離 NG・作業分割**: revert + K=4.0 固定 → [`REQ-race-detail-graph-analysis-revert.md`](REQ-race-detail-graph-analysis-revert.md)。時間窓+ドラッグ → R2。ホイール+checkbox削除 → R3 | 実機: 分離で視認性著しく低下。cap 時代の一体レイアウトが良好。K=5 はフォント相対が小さい |
 | 2026-06-14 10:58 | **Phase 5-R1 実装**: 赤線／ラベル一体 revert、`DETAIL_ZOOM_FIXED=4.0`、案3 維持。探索・赤線分離ヘルパー削除 | 引継ぎどおり。実機確認はユーザー |
 | 2026-06-14 11:04 | **Phase 5-R1 実機検証クローズ** — 縦拡大 ON/OFF・baseline compare・Tooltip OK（[`REQ-race-detail-graph-analysis-revert.md`](REQ-race-detail-graph-analysis-revert.md)） | ユーザー確認 |
+| 2026-06-18 18:15 | **5-R1b 設計承認**（[`REQ-race-detail-graph-same-time-stack-compact.md`](REQ-race-detail-graph-same-time-stack-compact.md)）: detail で赤線左端を速度線上に、ラベルは赤線上、同時刻 compact yStackOffset | R1 一体レイアウトからの見直し。全体表示の軽いずらしは R3 |

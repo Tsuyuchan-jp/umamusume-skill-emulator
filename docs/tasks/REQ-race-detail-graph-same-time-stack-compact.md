@@ -1,11 +1,11 @@
-# REQ-race-detail-graph-same-time-stack-compact: 同時刻スキル縦スタック圧縮
+# REQ-race-detail-graph-same-time-stack-compact: 詳細表示レイアウト（赤線アンカー + 同時刻スタック圧縮）
 
-> **レース詳細グラフ実装シリーズ** Phase 5 派生（skill layout sync の続き）。
+> **レース詳細グラフ実装シリーズ** Phase 5-R1b（skill layout sync の続き）。
 > ロードマップ: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md)
 > 前提: [`REQ-race-detail-graph-analysis-revert.md`](REQ-race-detail-graph-analysis-revert.md) 完了後
 > 関連: Phase 5-R2 着手前の実施を推奨（layout / hit 判定と絡む）
 
-- **ステータス**: draft
+- **ステータス**: draft（設計レビュー承認済み 2026-06-18 18:15）
 - **作成日**: 2026-06-14 11:15
 - **関連コミット**: （完了後に記入）
 
@@ -13,7 +13,20 @@
 
 ## 目的
 
-同一タイミング（X 完全重なり）で発動する複数スキルが、案3 stagger の段間隔 `STAGGER_ROW × K`（現状 56px/段）により **必要以上に縦に離れて表示される** 問題を解消する。ラベルが縦に被らない **最小間隔** まで詰め、速度線付近の視認性を改善する。
+**詳細表示（縦拡大 ON / 将来はホイール拡大）** で、スキル発動地点を速度グラフ上で正確に読み取れるようにする。
+
+1. **赤線の左端**を、発動時刻における **速度折れ線上の点**（横・縦一致）に配置する
+2. **同時刻（X 完全重なり）** の複数スキルは、案3 を維持しつつ **hit box 基準のコンパクト段**（〜16px/段）で縦に並べる。**stack 0（一番上）** を発動地点の基準とする
+3. 近接時刻（X 部分重なり + Y overlap）は従来どおり **広い段間隔**（`STAGGER_ROW × K`）を維持
+
+---
+
+## ユーザー要件（全体像）
+
+| モード | スキル表示の意図 |
+|--------|----------------|
+| **全体表示** | 速度・体力が主役。スキルはざっくり位置・フェーズ感。重なり許容。**将来** 軽い縦ずらし（最大 2〜3 段）— 本 REQ 外（R3 以降） |
+| **詳細表示** | 赤線左端＝速度線上の発動地点。拡大で被り解消。同時刻のみ軽い縦ずらし（上を基準に見る） |
 
 ---
 
@@ -21,19 +34,24 @@
 
 ### やること
 
-- [ ] 同時刻（X 重なり・案3 のみ conflict）スタックの段間隔を **hit box 基準のコンパクトステップ** に変更
-- [ ] 近接時刻（X 部分重なり + Y overlap あり）の既存 `STAGGER_ROW × K` stagger は維持（二段階ステップ）
+- [ ] detail ON 時: **赤線 Y = 発動時刻の speedY**（stack 0）。赤線左端が速度線上に乗る
+- [ ] detail ON 時: **ラベルは赤線の上**（`lineY` 基準でラベル配置）。実機で視認性を確認し、将来ラベル下への変更もあり得る
+- [ ] 同時刻スタック（案3 conflict のみ）: `SKILL_HIT_HEIGHT + COMPACT_GAP`（px 固定、K 非乗算）の **yStackOffset 累積**
+- [ ] 近接時刻（yOverlap あり）: `STAGGER_ROW × K` の **full 段**を維持（二段階ステップ）
 - [ ] **案3 維持** — X 重なり時は同一 `stackLevel` に置かない
-- [ ] 速度スナップ（`+12px`）、赤線一体レイアウト、K=4.0 固定は維持
+- [ ] `assignStackLevels` は stackLevel 付与ロジックを維持。Y 座標は `yStackOffset` 累積で計算
+- [ ] K=4.0 固定、overview OFF（stack 0・被り許容）は **変更なし**
 - [ ] `npm run build` 通過
 - [ ] 実機確認（ユーザー）
 
 ### やらないこと
 
-- ラベル X オフセット（ユーザー方針: ずらさない）
-- 案3 の廃止（同一段への複数スキル配置）
+- ラベル X オフセット
+- 案3 の廃止
+- 全体表示時の軽い縦ずらし（→ R3 以降）
 - X 時間窓・ドラッグ（→ [`REQ-race-detail-graph-time-window.md`](REQ-race-detail-graph-time-window.md)）
 - ホイール・縦拡大 checkbox 削除（→ [`REQ-race-detail-graph-pan-zoom.md`](REQ-race-detail-graph-pan-zoom.md)）
+- `computeSkillBandHeight` の更新（→ R3 で `yStackOffset` ベースにまとめて対応）
 - WASM / OCR / src-tauri 変更
 
 ---
@@ -44,26 +62,39 @@
 
 | 項目 | 値 |
 |------|-----|
-| 段間隔（detail ON） | `STAGGER_ROW × K` = 14 × 4.0 = **56px** |
-| hit box 高さ | `SKILL_HIT_HEIGHT` = **14px** |
-| 同時刻6件時の最下段オフセット | 5 × 56 = **280px**（先頭ラベル上端比） |
+| ラベル baseY | `speedY + 12px`（速度線より下） |
+| 赤線 Y | ラベル直下（R1 一体レイアウト）→ **速度線上ではない** |
+| 段間隔（detail ON） | `STAGGER_ROW × K` = **56px/段** |
+| 同時刻6件時の最下段オフセット | 5 × 56 = **280px** |
 
-実機例: Peerless Heroine〜中距離コーナー◎ 付近で同時発動スキルが過剰に縦スライド。
-
-### 目標
+### 目標（detail ON）
 
 | 項目 | 方針 |
 |------|------|
-| 同時刻スタック | `SKILL_HIT_HEIGHT + gap`（px 固定、**K 非乗算**）を段ステップとする |
-| gap | 2〜4px 程度（被りなし最小。実装時に調整） |
-| stack 0 | 現行どおり `markerBaseLabelY`（速度スナップ +12px） |
-| 近接 X 被り（Y overlap あり） | 現行 `STAGGER_ROW × K` を維持 |
+| stack 0 赤線 Y | `speedY`（+ debuff offset は kind 次第。要実装時確認） |
+| stack 0 ラベル | 赤線の上（`labelBottom = lineY - gap` 等） |
+| 同時刻スタック（sameLevelOnly） | `COMPACT_STACK_STEP = SKILL_HIT_HEIGHT + COMPACT_GAP`（**16px**、gap=2） |
+| 近接 yOverlap | `FULL_STACK_STEP = STAGGER_ROW × K`（**56px**） |
+| 発動地点の参照 | **同時刻グループの stack 0（一番上）** の赤線左端 |
 
-### 実装方針（案）
+### 段ステップの判定
 
-1. `assignStackLevels` で conflict 理由を区別（`yOverlap` 由来 vs `capped === p.stackLevel` のみ）
-2. `layoutSkillMarkers` / `markerStackedLabelTopY` で **コンパクト段** と **通常段** の累積 Y を計算
-3. `computeSkillMaxStack` / `computeSkillBandHeight` が新ステップと整合するよう必要なら調整
+- `startTime` 完全一致は要求しない
+- 段上げ理由が **案3 のみ**（`capped === p.stackLevel`、yOverlap なし）→ **compact**
+- **yOverlap** が絡む → **full**
+
+### レイアウト計算（承認済み）
+
+1. `assignStackLevels` — 案3 のまま stackLevel 付与。`placed` に `yStackOffset` を追加
+2. 採用時: blocker から `yStackOffset = blocker.yStackOffset + stepForReason(...)` を累積
+3. `layoutSkillMarkers`:
+   - `lineY_px = speedY + yStackOffset`（+ kind offset 方針は実装時に整合）
+   - `labelTopPx = lineY_px - lineOffsetPx - labelHeight`（ラベルは赤線上）
+4. `markerStackedLabelTopY`（衝突判定）も `yStackOffset` ベースに統一
+
+### overview OFF
+
+- 現状維持: stack 0、K=1、被り許容（変更なし）
 
 ---
 
@@ -71,8 +102,8 @@
 
 | ファイル | 変更内容 |
 |---------|---------|
-| `desktop-app/app/lib/raceGraphBuilder.ts` | 二段階 stagger、`assignStackLevels` / layout Y 計算 |
-| `desktop-app/app/components/RaceDetailChart.tsx` | 必要なら dev 表示・高さ見積もり |
+| `desktop-app/app/lib/raceGraphBuilder.ts` | 赤線アンカー、二段階 stagger、`yStackOffset`、`layoutSkillMarkers` |
+| `desktop-app/app/components/RaceDetailChart.tsx` | 必要なら overlay 描画の baseline 整合 |
 | `docs/TODO.md` | ライフサイクル |
 
 ---
@@ -80,10 +111,12 @@
 ## 完了条件
 
 - [ ] `docs/TODO.md` Backlog 起票済み（本 REQ 起票時）
-- [ ] 同時刻6件程度のレースで、縦スタックが **〜80px 前後** に収まる（現状 ~280px から大幅圧縮）
+- [ ] detail ON: stack 0 の **赤線左端**が速度折れ線上の発動点と横・縦一致
+- [ ] detail ON: ラベルは赤線の上
+- [ ] 同時刻6件程度で縦スタックが **〜80px 前後**（現状 ~280px から大幅圧縮）
 - [ ] ラベル縦被りなし
-- [ ] 近接時刻の X+Y stagger に退行なし
-- [ ] 縦拡大 ON/OFF、baseline compare、Tooltip 退行なし
+- [ ] 近接時刻の full stagger に退行なし
+- [ ] 縦拡大 OFF、baseline compare、Tooltip 退行なし
 - [ ] `npm run build` 通過
 - [ ] ユーザー実機確認
 - [ ] REQ `done` + コミット
@@ -93,10 +126,11 @@
 ## 検証手順
 
 1. 50+ スキル・同時多発レースで縦拡大 ON
-2. 同時刻スタック（Peerless Heroine 付近等）が詰まって読めること
-3. 終盤の近接時刻スキルで従来どおり stagger が効くこと
-4. 縦拡大 OFF、baseline compare、Tooltip
-5. dev 表示 `Y zoom: 4.00 (fixed)` 維持
+2. 単独スキル: 赤線左端が速度線上の発動点に乗ること
+3. 同時刻スタック（Peerless Heroine 付近等）: 一番上が速度線上、下は軽い間隔で読めること
+4. 終盤の近接時刻スキルで full stagger が効くこと
+5. 縦拡大 OFF、baseline compare、Tooltip
+6. dev 表示 `Y zoom: 4.00 (fixed)` 維持
 
 ---
 
@@ -104,4 +138,7 @@
 
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
-| 2026-06-14 11:15 | draft 起票。同時刻スタックを hit box 基準に圧縮、案3・K=4.0 維持 | 実機: 同時発動が 56px/段で過剰スライド。R2/R3 では Y stagger 方針は変わらない |
+| 2026-06-14 11:15 | draft 起票。同時刻スタックを hit box 基準に圧縮、案3・K=4.0 維持 | 実機: 同時発動が 56px/段で過剰スライド |
+| 2026-06-18 18:15 | **設計レビュー承認**。スコープ拡大: 赤線左端を速度線上にアンカー + 二段階 yStackOffset + ラベルは赤線上 | ユーザー要件: 詳細表示で発動地点を速度線上で正確に把握。R1 一体レイアウトからの見直し |
+| 2026-06-18 18:15 | COMPACT_GAP=2px（16px/段）。同時刻判定は sameLevelOnly 基準（startTime 完全一致不要） | 被りなし最小。フレーム境界ずれも compact 対象 |
+| 2026-06-18 18:15 | 全体表示の軽い縦ずらし（2〜3 段）は R3 以降。`computeSkillBandHeight` は R1b では触らない | 本 REQ は detail ON のみ |

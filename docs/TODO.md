@@ -4,13 +4,13 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-14 11:15
+最終更新: 2026-06-18 18:15
 
 ---
 
 ## 現在のフォーカス
 
-Backlog — P0 トースト改善 / P1 同時刻スタック圧縮 / P2 Phase 5-R2（いずれも未着手）
+Backlog — P0 トースト改善 / **P1 5-R1b（設計承認済・実装待ち）** / P2 Phase 5-R2
 
 ---
 
@@ -37,11 +37,11 @@ Backlog — P0 トースト改善 / P1 同時刻スタック圧縮 / P2 Phase 5-
 
 ### P1 — 重要
 
-- [ ] **同時刻スキル縦スタック圧縮（案3 維持・段間隔見直し）**
-  - 経緯: 同時発動スキルが `STAGGER_ROW × K`（56px/段）で必要以上に下へスライド。実機例: Peerless Heroine〜中距離コーナー◎ 付近
-  - 目標: X 重なり（案3）は維持しつつ、同時刻スタックのみ hit box 基準（〜14–16px/段）に圧縮
-  - 注意: layout / hit 判定変更のため **Phase 5-R2 着手前** の実施を推奨
-  - 触る想定: `raceGraphBuilder.ts`（`assignStackLevels` / layout Y）
+- [ ] **Phase 5-R1b: 詳細表示レイアウト（赤線アンカー + 同時刻スタック圧縮）** — 設計承認済 2026-06-18
+  - 経緯: 同時発動が 56px/段で速度線から離れすぎ。詳細表示では赤線左端を速度線上の発動点に合わせたい
+  - 目標（detail ON）: 赤線左端＝速度線上（stack 0）。ラベルは赤線の上。同時刻のみ compact（16px/段）。近接 yOverlap は full 56px 維持
+  - 全体表示: 変更なし（将来 R3 で軽い縦ずらし 2〜3 段）
+  - 触る想定: `raceGraphBuilder.ts`（`assignStackLevels` / `yStackOffset` / layout Y）
   - REQ: [`REQ-race-detail-graph-same-time-stack-compact.md`](tasks/REQ-race-detail-graph-same-time-stack-compact.md)
 
 ### P2 — 改善・アイデア

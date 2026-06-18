@@ -105,3 +105,4 @@ viewState: {
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
 | 2026-06-14 10:54 | draft 起票。窓幅 30%・ドラッグ plot 全域 | フル Google Map パンより実装軽量。X 被りの主因は秒あたり px 不足 |
+| 2026-06-18 18:15 | R1b 完了後に着手。layout は visibleTimeSpan / timeOffset を渡す方針（Y は R1b yStackOffset を維持） | 設計レビュー合意 |
