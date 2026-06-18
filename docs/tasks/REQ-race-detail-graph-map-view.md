@@ -242,10 +242,54 @@ function svgToSpeed(y: number, m: ChartPlotMetrics): number;
 | 2026-06-18 22:49 | **percent 軸はパターン B**（時間・速度と同じ `scale` で可視窓連動）。将来トグルでパターン A（0–100% 固定）を足せる設計 | 全系列の見た目一貫性（Google Map 型）。将来コストは B 土台 + A 上書きが最小 |
 | 2026-06-18 23:01 | **ステップ 2 実装完了**: `ChartViewState`（center+scale）、`visibleWindowFromViewState`、ホイール `k=1.1` カーソル中心ズーム、2D パン、ダブルクリックリセット、`useChartViewInteraction`、全軸 domain 配線、`expandSkillRows` ON 時 legacy 無効 | 設計承認どおり domain 駆動。`npm run build` 通過。実機検証はステップ 4 |
 | 2026-06-18 23:26 | **percent 軸フォローアップ**: 実機でレーンのみ拡大されない問題。`applyWheelZoom` / `applyPanDrag` で `centerPercent` をカーソル追従・縦パン連動（`svgToPercent` 追加） | ステップ 2 は centerPercent 固定の暫定だった。体力・レーンは右軸共有のため同じ画面 Y で percent 変換が必要 |
+| 2026-06-18 23:30 | **percent 軸追従の実機検証クローズ**（終盤ホイールで速度・体力・レーン同時拡大、縦パンでレーン付近追従、赤線整合、ダブルクリックリセット） | ユーザー実機確認 1〜4 すべて OK |
 
 ---
 
-## 設計レビュー起票プロンプト（Agent 着手時）
+## 設計レビュー起票プロンプト（ズーム操作レスポンス改善）
+
+```
+@docs/PROJECT.md
+@docs/TODO.md
+@docs/tasks/REQ-race-detail-graph-map-view.md
+@docs/tasks/REQ-race-detail-graph-performance.md
+@desktop-app/app/components/RaceDetailChart.tsx
+@desktop-app/app/hooks/useChartViewInteraction.ts
+@desktop-app/app/lib/raceGraphBuilder.ts
+
+## チャット種別
+設計レビュー（Ask mode）
+
+## 背景
+Google Map 型グラフ UI ステップ 2 + percent 軸追従（`f8a62f0`）は実機検証クローズ済み。
+機能は OK だが、ホイールズーム・2D ドラッグのレスポンスが非常に重く実用に耐えない。
+
+## 既知のボトルネック候補（レビューで裏取りしてほしい）
+1. `chartViewState` 変更のたび `setMeasuredPlotMetrics(null)` → ChartMetricsBridge 再計測 → overlay layout 連鎖
+2. ホイール/ドラッグ毎に React setState → Recharts 全 domain 変更 → 数千点 × 複数系列の再描画
+3. `pointermove` ごとに `setViewState`（rAF バッチなし）
+4. ズーム中も `layoutSkillMarkers`（衝突解決）が毎フレーム実行
+
+## レビューで決めてほしいこと
+1. **優先施策の順序**（効果/リスク比）— 例: metrics リセット削減 vs rAF バッチ vs ズーム中 overlay defer
+2. **Recharts 維持 vs 部分 escape** — domain 変更コストを下げる現実的な落とし所
+3. **インタラクション中の描画品質トレードオフ** — ドラッグ中は折れ線のみ・overlay は pointerup 後でよいか
+4. **退行防止** — 赤線↔速度線整合・percent 3 系列連動・baseline compare を壊さない境界
+5. **完了条件・検証手順** — 体感と計測（任意: Performance API / React Profiler の見方）
+
+## 触らないこと
+- percent 軸の挙動ロジック（検証済み）
+- ステップ 3 暫定 UI 削除（別タスク）
+- WASM / OCR / src-tauri
+
+## 出力形式
+- ボトルネック仮説の優先度表
+- 推奨実装方針（1案に絞る。代替案は簡潔に）
+- 変更ファイル一覧
+- 実装チャット用の承認済み方針ドラフト
+```
+
+## 設計レビュー起票プロンプト（Agent 着手時・初回）
 
 ```
 @docs/tasks/REQ-race-detail-graph-map-view.md
