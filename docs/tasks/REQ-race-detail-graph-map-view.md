@@ -8,7 +8,7 @@
 
 - **ステータス**: in-progress
 - **作成日**: 2026-06-18 21:01
-- **関連コミット**: `aca5f6f`（ステップ 1）
+- **関連コミット**: `aca5f6f`（ステップ 1）、`91e76cb`（ステップ 2）
 
 ---
 
@@ -240,6 +240,7 @@ function svgToSpeed(y: number, m: ChartPlotMetrics): number;
 | 2026-06-18 21:49 | **ステップ 1 フォローアップ**: `Customized` offset 廃止 → `usePlotArea` + `useYAxisScale('speed')` + `useXAxisScale` を正本に | Recharts 3 で offset 未注入。速度依存 Y ずれ（序盤大・終盤小）を scale 一本化で解消 |
 | 2026-06-18 22:49 | **ステップ 2 設計承認**: domain 駆動（center+scale）、`CHART_VIEW_SCALE_MAX=24`、ホイール `k=1.1`、ダブルクリックリセット、リサイズは center 維持+clamp、イベントは `chartAreaRef` のみ | ステップ 1 資産（ChartMetricsBridge/scales）を維持。`expandSkillRows` ON 時は map 無効 |
 | 2026-06-18 22:49 | **percent 軸はパターン B**（時間・速度と同じ `scale` で可視窓連動）。将来トグルでパターン A（0–100% 固定）を足せる設計 | 全系列の見た目一貫性（Google Map 型）。将来コストは B 土台 + A 上書きが最小 |
+| 2026-06-18 23:01 | **ステップ 2 実装完了**: `ChartViewState`（center+scale）、`visibleWindowFromViewState`、ホイール `k=1.1` カーソル中心ズーム、2D パン、ダブルクリックリセット、`useChartViewInteraction`、全軸 domain 配線、`expandSkillRows` ON 時 legacy 無効 | 設計承認どおり domain 駆動。`npm run build` 通過。実機検証はステップ 4 |
 
 ---
 
