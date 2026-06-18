@@ -143,3 +143,4 @@
 | 2026-06-18 18:15 | COMPACT_GAP=2px（16px/段）。同時刻判定は sameLevelOnly 基準（startTime 完全一致不要） | 被りなし最小。フレーム境界ずれも compact 対象 |
 | 2026-06-18 18:15 | 全体表示の軽い縦ずらし（2〜3 段）は R3 以降。`computeSkillBandHeight` は R1b では触らない | 本 REQ は detail ON のみ |
 | 2026-06-18 18:23 | 実装完了。`assignStackLevels` に yStackOffset 累積、`layoutSkillMarkers` で赤線アンカー + ラベル上配置 | build 通過。実機検証はユーザー |
+| 2026-06-18 18:55 | 実機指摘対応: ラベル描画を `SKILL_LINE_GAP + FONT_SIZE`、速度スナップを linear 補間 + Recharts `type="linear"` | 力業等の赤線ずれ・ラベル隙間 |

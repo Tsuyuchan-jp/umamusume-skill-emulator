@@ -213,11 +213,17 @@ export function speedToOverlayY(speed: number, plotHeight: number): number {
   return (1 - norm) * plotHeight;
 }
 
-/** startTime に対応する current 速度（graphPoints.points） */
+/** startTime に対応する current 速度（graphPoints.points）。Recharts type="linear" と同一の線形補間 */
 function getSpeedAtTime(points: GraphPoint[], startTime: number): number {
   if (!points.length) return SPEED_MIN;
-  const idx = Math.min(Math.round(startTime * FRAME_PER_SECOND), points.length - 1);
-  return points[idx]?.speed ?? SPEED_MIN;
+  const exactIndex = startTime * FRAME_PER_SECOND;
+  const i0 = Math.min(Math.max(Math.floor(exactIndex), 0), points.length - 1);
+  const i1 = Math.min(i0 + 1, points.length - 1);
+  if (i0 === i1) return points[i0]?.speed ?? SPEED_MIN;
+  const t = exactIndex - i0;
+  const s0 = points[i0]?.speed ?? SPEED_MIN;
+  const s1 = points[i1]?.speed ?? SPEED_MIN;
+  return s0 * (1 - t) + s1 * t;
 }
 
 /** 速度 plot 下のスキル band 高さ（px）— legacy seed 用 */
@@ -315,7 +321,7 @@ function markerLineY_px(
   return speedY + yStackOffset + markerKindOffsetY(kind);
 }
 
-/** detail: ラベル上端 Y（赤線の上） */
+/** detail: ラベル hit box 上端 Y（衝突判定用・赤線の上） */
 function markerDetailLabelTopY_px(
   points: GraphPoint[],
   startTime: number,
@@ -326,6 +332,11 @@ function markerDetailLabelTopY_px(
 ): number {
   const lineY = markerLineY_px(points, startTime, kind, speedPlotHeight, yStackOffset);
   return lineY - lineOffsetPx - SKILL_HIT_HEIGHT;
+}
+
+/** detail: ラベル描画上端 Y（フォント基準・赤線の上） */
+function markerDetailLabelVisualTopY_px(lineY: number): number {
+  return lineY - SKILL_LINE_GAP - SKILL_FONT_SIZE;
 }
 
 /** overview / legacy: ラベル上端 Y（速度スナップ + stack stagger） */
@@ -621,7 +632,7 @@ export function layoutSkillMarkers(
         speedPlotHeight,
         yStackOffset,
       );
-      labelTopPx = lineTopPx - lineOffsetPx - SKILL_HIT_HEIGHT;
+      labelTopPx = markerDetailLabelVisualTopY_px(lineTopPx);
     } else {
       const baseY = markerBaseLabelY(points, marker.startTime, marker.kind, speedPlotHeight);
       labelTopPx = baseY + stackLevel * STAGGER_ROW * yZoomFactor;

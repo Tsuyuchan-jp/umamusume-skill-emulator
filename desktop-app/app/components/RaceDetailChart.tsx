@@ -588,7 +588,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
               />
               <Line
                 yAxisId="speed"
-                type="monotone"
+                type="linear"
                 dataKey="speed"
                 stroke={SPEED_LINE_COLOR}
                 strokeWidth={2}
@@ -599,7 +599,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
               {showBaselineOverlay && (
                 <Line
                   yAxisId="speed"
-                  type="monotone"
+                  type="linear"
                   dataKey="baselineSpeed"
                   stroke={SPEED_LINE_COLOR}
                   strokeWidth={2}
