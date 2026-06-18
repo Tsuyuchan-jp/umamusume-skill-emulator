@@ -217,6 +217,7 @@ function svgToSpeed(y: number, m: ChartPlotMetrics): number;
 | 2026-06-18 21:01 | スキル layout は **scale によらず同一ロジック**（赤線アンカー + 同時刻 compact） | ON/OFF 二重パスがズレの温床。5-R1b 知見は統合して流用 |
 | 2026-06-18 21:01 | `expandSkillRows` / `DETAIL_ZOOM_FIXED` / Y 単独クローズアップを廃止 | 暫定 UI。最終操作はホイール+ドラッグのみ |
 | 2026-06-18 21:22 | **ステップ 1 完了**: ChartPlotMetrics + Recharts Customized 実測、統合 layout（赤線アンカー + 同時刻 compact + 案3）、scale=1 固定 | 固定 LEGEND/XAXIS reserve を OFF 経路から除去。ステップ 2 で viewState 配線 |
+| 2026-06-18 21:49 | **ステップ 1 フォローアップ**: `Customized` offset 廃止 → `usePlotArea` + `useYAxisScale('speed')` + `useXAxisScale` を正本に | Recharts 3 で offset 未注入。速度依存 Y ずれ（序盤大・終盤小）を scale 一本化で解消 |
 
 ---
 

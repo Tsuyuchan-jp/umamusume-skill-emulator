@@ -13,7 +13,9 @@ import {
   ReferenceLine,
   ReferenceArea,
   Legend,
-  Customized,
+  usePlotArea,
+  useXAxisScale,
+  useYAxisScale,
 } from "recharts";
 import { RaceDetailDump } from "../lib/types";
 import {
@@ -24,6 +26,7 @@ import {
   computeZoomedChartHeight,
   createChartPlotMetrics,
   DEFAULT_GRAPH_DISPLAY_STATE,
+  INITIAL_CHART_VIEW_STATE,
   GraphDisplayState,
   GraphPoint,
   layoutSkillMarkers,
@@ -202,33 +205,53 @@ const SyncedChartLegend: React.FC<{
   </ul>
 );
 
-type RechartsCartesianOffset = {
-  top: number;
-  left: number;
+type RechartsPlotArea = {
+  x: number;
+  y: number;
   width: number;
   height: number;
 };
 
-/** Recharts Customized から cartesian 実測を親へ渡す */
-const ChartMetricsProbe: React.FC<{
-  offset?: RechartsCartesianOffset;
+/** LineChart 内: usePlotArea + axis scale を ChartPlotMetrics へ橋渡し */
+const ChartMetricsBridge: React.FC<{
   maxTime: number;
   onMetrics: (metrics: ChartPlotMetrics) => void;
-}> = ({ offset, maxTime, onMetrics }) => {
+}> = ({ maxTime, onMetrics }) => {
+  const plotArea = usePlotArea() as RechartsPlotArea | undefined;
+  const timeToX = useXAxisScale(0);
+  const speedToY = useYAxisScale("speed");
+
   useLayoutEffect(() => {
-    if (!offset || offset.width <= 0 || offset.height <= 0 || maxTime <= 0) return;
+    if (!plotArea || plotArea.width <= 0 || plotArea.height <= 0 || maxTime <= 0) return;
+    if (!timeToX || !speedToY) return;
+
     onMetrics(
       createChartPlotMetrics(
         {
-          left: offset.left,
-          top: offset.top,
-          width: offset.width,
-          height: offset.height,
+          left: plotArea.x,
+          top: plotArea.y,
+          width: plotArea.width,
+          height: plotArea.height,
         },
         maxTime,
+        INITIAL_CHART_VIEW_STATE,
+        0,
+        SPEED_MIN,
+        SPEED_MAX,
+        {
+          timeToX: (time) => {
+            const x = timeToX(time);
+            return x == null || !Number.isFinite(x) ? undefined : x;
+          },
+          speedToY: (speed) => {
+            const y = speedToY(speed);
+            return y == null || !Number.isFinite(y) ? undefined : y;
+          },
+        },
       ),
     );
-  }, [offset, maxTime, onMetrics]);
+  }, [plotArea, timeToX, speedToY, maxTime, onMetrics]);
+
   return null;
 };
 
@@ -348,7 +371,8 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
         prev.cartesian.top === metrics.cartesian.top &&
         prev.cartesian.width === metrics.cartesian.width &&
         prev.cartesian.height === metrics.cartesian.height &&
-        prev.timeMax === metrics.timeMax
+        prev.timeMax === metrics.timeMax &&
+        Boolean(prev.scales) === Boolean(metrics.scales)
       ) {
         return prev;
       }
@@ -356,7 +380,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
     });
   }, []);
 
-  /** Customized 実測前のフォールバック（固定 LEGEND/XAXIS reserve は使わない） */
+  /** scales 未取得時の暫定（初回フレームのみ。誤った Y は描画しない） */
   const estimatedPlotMetrics = useMemo(
     () =>
       createChartPlotMetrics(
@@ -372,6 +396,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
   );
 
   const plotMetrics = measuredPlotMetrics ?? estimatedPlotMetrics;
+  const plotMetricsReady = measuredPlotMetrics?.scales != null;
 
   const skillMarkers = useMemo(
     () =>
@@ -392,9 +417,11 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
     ],
   );
 
-  /** overlay 用ピクセル座標。スキル表示 OFF または markers なしのときは空配列 */
+  /** overlay 用ピクセル座標。scales 未取得時は描画しない（Y ずれ防止） */
   const showSkillOverlay =
-    (displayState.showSkills || displayState.showDebuffs) && skillMarkers.length > 0;
+    plotMetricsReady &&
+    (displayState.showSkills || displayState.showDebuffs) &&
+    skillMarkers.length > 0;
   const skillMarkersPx = useMemo(
     () => (showSkillOverlay ? skillMarkersToPx(skillMarkers, plotMetrics) : []),
     [showSkillOverlay, skillMarkers, plotMetrics],
@@ -730,15 +757,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
                   legendType="none"
                 />
               )}
-              <Customized
-                component={(props: { offset?: RechartsCartesianOffset }) => (
-                  <ChartMetricsProbe
-                    offset={props.offset}
-                    maxTime={maxTime}
-                    onMetrics={handlePlotMetrics}
-                  />
-                )}
-              />
+              <ChartMetricsBridge maxTime={maxTime} onMetrics={handlePlotMetrics} />
             </LineChart>
           </ResponsiveContainer>
 

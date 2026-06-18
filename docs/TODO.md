@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-18 21:22
+最終更新: 2026-06-18 21:51
 
 ---
 
@@ -99,6 +99,7 @@ Backlog — P0 トースト改善 / P1 Google Map 型グラフ UI（ステップ
 
 ## 完了済み
 
+- [x] Google Map 型グラフ UI — ステップ 1 フォローアップ（Recharts scale hook で赤線 Y ずれ修正）（`COMMIT_HASH` / [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)）
 - [x] Google Map 型グラフ UI — map-view ステップ 1（ChartPlotMetrics + cartesian 実測 + 俯瞰統合 layout）（`aca5f6f` / [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)）
 - [x] Phase 5-R1b ポリッシュ: XAxis reserve + overlay domain を speedPlotHeight に統一（`a8744ef` / 実機確認待ち）
 - [x] Phase 5-R1b ポリッシュ: speedPlotHeight に Legend 分を反映（`ba4e172` — XAxis 未考慮で stack 16px 低下）

@@ -40,7 +40,13 @@ export interface CartesianRect {
   height: number;
 }
 
-/** 座標変換の正本。cartesian は Recharts Customized offset 等で実測 */
+/** Recharts axis scale（Line と同一の pixel 変換） */
+export interface ChartPlotScales {
+  timeToX: (time: number) => number | undefined;
+  speedToY: (speed: number) => number | undefined;
+}
+
+/** 座標変換の正本。cartesian は usePlotArea、scales は useXAxisScale / useYAxisScale */
 export interface ChartPlotMetrics {
   cartesian: CartesianRect;
   view: ChartViewState;
@@ -48,6 +54,8 @@ export interface ChartPlotMetrics {
   timeMax: number;
   speedMin: number;
   speedMax: number;
+  /** あるとき speedToSvgY / timeToSvgX の正本（Recharts と同一） */
+  scales?: ChartPlotScales;
 }
 
 export function createChartPlotMetrics(
@@ -57,8 +65,9 @@ export function createChartPlotMetrics(
   timeMin = 0,
   speedMin = SPEED_MIN,
   speedMax = SPEED_MAX,
+  scales?: ChartPlotScales,
 ): ChartPlotMetrics {
-  return { cartesian, view, timeMin, timeMax, speedMin, speedMax };
+  return { cartesian, view, timeMin, timeMax, speedMin, speedMax, scales };
 }
 
 function timeSpan(metrics: ChartPlotMetrics): number {
@@ -69,15 +78,19 @@ function speedSpan(metrics: ChartPlotMetrics): number {
   return Math.max(metrics.speedMax - metrics.speedMin, 1e-9);
 }
 
-/** 経過秒 → overlay SVG x（ステップ 1: scale=1, pan=0） */
+/** 経過秒 → overlay SVG x（scales 優先、なければ線形フォールバック） */
 export function timeToSvgX(time: number, metrics: ChartPlotMetrics): number {
+  const scaled = metrics.scales?.timeToX(time);
+  if (scaled != null && Number.isFinite(scaled)) return scaled;
   const t = Math.min(metrics.timeMax, Math.max(metrics.timeMin, time));
   const normalized = (t - metrics.timeMin) / timeSpan(metrics);
   return metrics.cartesian.left + normalized * metrics.cartesian.width;
 }
 
-/** 速度 m/s → overlay SVG y（ステップ 1: scale=1, pan=0） */
+/** 速度 m/s → overlay SVG y（scales 優先、なければ線形フォールバック） */
 export function speedToSvgY(speed: number, metrics: ChartPlotMetrics): number {
+  const scaled = metrics.scales?.speedToY(speed);
+  if (scaled != null && Number.isFinite(scaled)) return scaled;
   const s = Math.min(metrics.speedMax, Math.max(metrics.speedMin, speed));
   const normalized = (s - metrics.speedMin) / speedSpan(metrics);
   return metrics.cartesian.top + (1 - normalized) * metrics.cartesian.height;
@@ -260,9 +273,8 @@ export function computeDetailYZoomFactor(_params: DetailYZoomParams): DetailYZoo
 interface StackAssignOptions {
   expanded: boolean;
   maxTime: number;
-  plotWidth: number;
+  metrics: ChartPlotMetrics;
   points: GraphPoint[];
-  speedPlotHeight: number;
   yZoomFactor: number;
   /** X 重なり時は同一 stackLevel に置かない（案3）。同時刻以外の X 被りは許容 */
   xStaggerOnly?: boolean;
@@ -392,16 +404,16 @@ function alignOverlayStrokeY(y: number): number {
   return Math.round(y * 2) / 2;
 }
 
-/** detail: 赤線 Y。stack 0 は速度線上、下段は yStackOffset でラベルと一体で下げる（赤線重なり禁止） */
+/** detail: 赤線 Y（plot 相対 px）。stack 0 は速度折れ線上 */
 function markerLineY_px(
   points: GraphPoint[],
   startTime: number,
   kind: SkillEventKind,
-  speedPlotHeight: number,
+  metrics: ChartPlotMetrics,
   yStackOffset: number,
 ): number {
   const speed = getSpeedAtTime(points, startTime);
-  const speedY = speedToOverlayY(speed, speedPlotHeight);
+  const speedY = speedToPlotY(speed, metrics);
   let lineY = speedY + yStackOffset + markerKindOffsetY(kind);
   if (yStackOffset === 0 && kind !== "debuff") {
     lineY += SKILL_LINE_SPEED_ANCHOR_NUDGE;
@@ -414,11 +426,11 @@ function markerDetailLabelTopY_px(
   points: GraphPoint[],
   startTime: number,
   kind: SkillEventKind,
-  speedPlotHeight: number,
+  metrics: ChartPlotMetrics,
   yStackOffset: number,
   lineOffsetPx: number,
 ): number {
-  const lineY = markerLineY_px(points, startTime, kind, speedPlotHeight, yStackOffset);
+  const lineY = markerLineY_px(points, startTime, kind, metrics, yStackOffset);
   return lineY - lineOffsetPx - SKILL_HIT_HEIGHT;
 }
 
@@ -442,7 +454,7 @@ function stackStepAboveBlocker(
   },
   item: StackLayoutInput,
   points: GraphPoint[],
-  speedPlotHeight: number,
+  metrics: ChartPlotMetrics,
   yZoomFactor: number,
   lineOffsetPx: number,
 ): number {
@@ -452,7 +464,7 @@ function stackStepAboveBlocker(
     points,
     blocker.startTime,
     blocker.kind,
-    speedPlotHeight,
+    metrics,
     blocker.yStackOffset,
     lineOffsetPx,
   );
@@ -462,7 +474,7 @@ function stackStepAboveBlocker(
     points,
     item.startTime,
     item.kind,
-    speedPlotHeight,
+    metrics,
     candidateOffset,
     lineOffsetPx,
   );
@@ -482,17 +494,18 @@ function assignStackLevels(
   const {
     expanded,
     maxTime,
-    plotWidth,
+    metrics,
     points,
-    speedPlotHeight,
     yZoomFactor,
     xStaggerOnly = false,
   } = options;
+  const plotWidth = metrics.cartesian.width;
+  const plotHeight = metrics.cartesian.height;
   const stackLevels = new Map<string, number>();
   const yStackOffsets = new Map<string, number>();
   let maxStack = 0;
 
-  if (!items.length || maxTime <= 0 || plotWidth <= 0 || speedPlotHeight <= 0) {
+  if (!items.length || maxTime <= 0 || plotWidth <= 0 || plotHeight <= 0) {
     return { stackLevels, yStackOffsets, maxStack };
   }
 
@@ -538,7 +551,7 @@ function assignStackLevels(
           p,
           item,
           points,
-          speedPlotHeight,
+          metrics,
           yZoomFactor,
           lineOffsetPx,
         );
@@ -549,7 +562,7 @@ function assignStackLevels(
         points,
         item.startTime,
         item.kind,
-        speedPlotHeight,
+        metrics,
         yStackOffset,
         lineOffsetPx,
       );
@@ -566,7 +579,7 @@ function assignStackLevels(
           points,
           p.startTime,
           p.kind,
-          speedPlotHeight,
+          metrics,
           p.yStackOffset,
           lineOffsetPx,
         );
@@ -656,9 +669,8 @@ export function layoutSkillMarkers(
     {
       expanded,
       maxTime: effectiveMaxTime,
-      plotWidth,
+      metrics,
       points,
-      speedPlotHeight,
       yZoomFactor,
       xStaggerOnly,
     },
@@ -672,7 +684,7 @@ export function layoutSkillMarkers(
       points,
       marker.startTime,
       marker.kind,
-      speedPlotHeight,
+      metrics,
       yStackOffset,
     );
     const labelTopPx = markerDetailLabelVisualTopY_px(lineTopPx);
@@ -696,6 +708,15 @@ export function computeSkillMaxStack(
   speedPlotHeight = SPEED_PLOT_HEIGHT,
   yZoomFactor = 1,
 ): number {
+  const metrics = createChartPlotMetrics(
+    {
+      left: OVERLAY_MARGIN_LEFT,
+      top: SKILL_CHART_MARGIN_TOP,
+      width: plotWidth,
+      height: speedPlotHeight,
+    },
+    maxTime,
+  );
   return assignStackLevels(
     markers.map((m) => ({
       tooltipKey: m.tooltipKey,
@@ -706,9 +727,8 @@ export function computeSkillMaxStack(
     {
       expanded: true,
       maxTime,
-      plotWidth,
+      metrics,
       points,
-      speedPlotHeight,
       yZoomFactor,
       xStaggerOnly: true,
     },
