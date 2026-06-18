@@ -144,3 +144,4 @@
 | 2026-06-18 18:15 | 全体表示の軽い縦ずらし（2〜3 段）は R3 以降。`computeSkillBandHeight` は R1b では触らない | 本 REQ は detail ON のみ |
 | 2026-06-18 18:23 | 実装完了。`assignStackLevels` に yStackOffset 累積、`layoutSkillMarkers` で赤線アンカー + ラベル上配置 | build 通過。実機検証はユーザー |
 | 2026-06-18 18:55 | 実機指摘対応: ラベル描画を `SKILL_LINE_GAP + FONT_SIZE`、速度スナップを linear 補間 + Recharts `type="linear"` | 力業等の赤線ずれ・ラベル隙間 |
+| 2026-06-18 19:11 | 赤線は常に speedY（yStackOffset はラベルのみ）。スタックは 1 フレーム以内の同時刻のみ | 長ラベル誤スタックで速度線から離れすぎる問題 |

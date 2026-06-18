@@ -304,24 +304,30 @@ function markerBaseLabelY(
   return speedY + SKILL_SPEED_LABEL_OFFSET + kindOffset;
 }
 
+/** 同時刻スタック判定: 1 フレーム以内（ラベル幅による誤スタックを防ぐ） */
+const SAME_TIME_STACK_EPSILON = 1 / FRAME_PER_SECOND;
+
+function isSameTimeStack(a: number, b: number): boolean {
+  return Math.abs(a - b) <= SAME_TIME_STACK_EPSILON;
+}
+
 function markerKindOffsetY(kind: SkillEventKind): number {
   return kind === "debuff" ? DEBUFF_Y_OFFSET : 0;
 }
 
-/** detail: 赤線 Y（px・plot 上端 0） */
+/** detail: 赤線 Y（px・plot 上端 0）。常に発動時刻の速度線上（yStackOffset はラベルのみ） */
 function markerLineY_px(
   points: GraphPoint[],
   startTime: number,
   kind: SkillEventKind,
   speedPlotHeight: number,
-  yStackOffset: number,
 ): number {
   const speed = getSpeedAtTime(points, startTime);
   const speedY = speedToOverlayY(speed, speedPlotHeight);
-  return speedY + yStackOffset + markerKindOffsetY(kind);
+  return speedY + markerKindOffsetY(kind);
 }
 
-/** detail: ラベル hit box 上端 Y（衝突判定用・赤線の上） */
+/** detail: ラベル hit box 上端 Y（衝突判定用・赤線の上 + yStackOffset） */
 function markerDetailLabelTopY_px(
   points: GraphPoint[],
   startTime: number,
@@ -330,13 +336,13 @@ function markerDetailLabelTopY_px(
   yStackOffset: number,
   lineOffsetPx: number,
 ): number {
-  const lineY = markerLineY_px(points, startTime, kind, speedPlotHeight, yStackOffset);
-  return lineY - lineOffsetPx - SKILL_HIT_HEIGHT;
+  const lineY = markerLineY_px(points, startTime, kind, speedPlotHeight);
+  return lineY - lineOffsetPx - SKILL_HIT_HEIGHT - yStackOffset;
 }
 
-/** detail: ラベル描画上端 Y（フォント基準・赤線の上） */
-function markerDetailLabelVisualTopY_px(lineY: number): number {
-  return lineY - SKILL_LINE_GAP - SKILL_FONT_SIZE;
+/** detail: ラベル描画上端 Y（フォント基準・赤線の上 + yStackOffset） */
+function markerDetailLabelVisualTopY_px(lineY: number, yStackOffset: number): number {
+  return lineY - SKILL_LINE_GAP - SKILL_FONT_SIZE - yStackOffset;
 }
 
 /** overview / legacy: ラベル上端 Y（速度スナップ + stack stagger） */
@@ -470,12 +476,7 @@ function assignStackLevels(
 
       const yStackOffset = useDetailAnchorLayout
         ? placed.reduce((maxOffset, p) => {
-            const pStart = p.startTime;
-            const pEnd = p.startTime + p.hitWidthTime;
-            const startX = item.startTime;
-            const endX = startX + hitWidthTime;
-            const xOverlap = startX < pEnd && endX > pStart;
-            if (!xOverlap) return maxOffset;
+            if (!isSameTimeStack(item.startTime, p.startTime)) return maxOffset;
             const step = stackStepAboveBlocker(
               capped,
               p,
@@ -511,6 +512,10 @@ function assignStackLevels(
       const endX = startX + hitWidthTime;
 
       const overlaps = placed.some((p) => {
+        if (useDetailAnchorLayout && !isSameTimeStack(item.startTime, p.startTime)) {
+          return false;
+        }
+
         const pYTop = useDetailAnchorLayout
           ? markerDetailLabelTopY_px(
               points,
@@ -531,7 +536,9 @@ function assignStackLevels(
         const pYBottom = pYTop + hitHeight;
         const pStart = p.startTime;
         const pEnd = p.startTime + p.hitWidthTime;
-        const xOverlap = startX < pEnd && endX > pStart;
+        const xOverlap = useDetailAnchorLayout
+          ? isSameTimeStack(item.startTime, p.startTime)
+          : startX < pEnd && endX > pStart;
         const yOverlap = yTop < pYBottom && yBottom > pYTop;
         if (expanded && xStaggerOnly) {
           if (!xOverlap) return false;
@@ -625,14 +632,8 @@ export function layoutSkillMarkers(
     let lineTopPx: number;
 
     if (useDetailAnchorLayout) {
-      lineTopPx = markerLineY_px(
-        points,
-        marker.startTime,
-        marker.kind,
-        speedPlotHeight,
-        yStackOffset,
-      );
-      labelTopPx = markerDetailLabelVisualTopY_px(lineTopPx);
+      lineTopPx = markerLineY_px(points, marker.startTime, marker.kind, speedPlotHeight);
+      labelTopPx = markerDetailLabelVisualTopY_px(lineTopPx, yStackOffset);
     } else {
       const baseY = markerBaseLabelY(points, marker.startTime, marker.kind, speedPlotHeight);
       labelTopPx = baseY + stackLevel * STAGGER_ROW * yZoomFactor;
