@@ -4,19 +4,21 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-18 22:49
+最終更新: 2026-06-18 22:54
 
 ---
 
 ## 現在のフォーカス
 
-Backlog — P0 トースト改善 / P1 Google Map 型グラフ UI（ステップ 2〜4）
+Google Map 型グラフ UI — ステップ 2 実装（ホイール等倍ズーム + 2D パン）
 
 ---
 
 ## 進行中
 
-（なし）
+- [ ] **Google Map 型グラフ UI — ステップ 2**（ホイール等倍ズーム + 2D パン + ダブルクリックリセット）
+  - REQ: [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)
+  - 触る想定: `RaceDetailChart.tsx`, `raceGraphBuilder.ts`, `useChartViewInteraction.ts`
 
 ## 次にやること（Backlog）
 
@@ -37,12 +39,10 @@ Backlog — P0 トースト改善 / P1 Google Map 型グラフ UI（ステップ
 
 ### P1 — 重要
 
-- [ ] **Google Map 型グラフ UI（Phase 5 最終）— ステップ 2〜4**
-  - ステップ 1 完了: ChartPlotMetrics 実測 + 俯瞰（scale=1）統合 layout
-  - **ステップ 2 設計承認済み**（2026-06-18 22:49）: domain 駆動 center+scale、全軸連動（パターン B）、将来トグルで percent 0–100% 固定可
-  - 残: ステップ 2 実装（ホイール等倍ズーム + 2D パン）→ 暫定 UI 削除 → 実機検証クローズ
+- [ ] **Google Map 型グラフ UI（Phase 5 最終）— ステップ 3〜4**
+  - ステップ 2 実装中（進行中参照）
+  - 残: 暫定 UI 削除 → 実機検証クローズ
   - REQ: [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)
-  - 触る想定: `RaceDetailChart.tsx`, `raceGraphBuilder.ts`
 
 ### P2 — 改善・アイデア
 

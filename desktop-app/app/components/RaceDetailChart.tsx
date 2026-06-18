@@ -22,14 +22,16 @@ import {
   buildRaceGraphPoints,
   buildSkillMarkers,
   ChartPlotMetrics,
+  ChartViewState,
   computeDetailYZoomFactor,
   computeZoomedChartHeight,
   createChartPlotMetrics,
+  createInitialChartViewState,
   DEFAULT_GRAPH_DISPLAY_STATE,
-  INITIAL_CHART_VIEW_STATE,
   GraphDisplayState,
   GraphPoint,
   layoutSkillMarkers,
+  legacyFullVisibleWindow,
   mergeBaselineGraphPoints,
   skillMarkersToPx,
   SkillMarkerPx,
@@ -39,10 +41,11 @@ import {
   SKILL_FONT_SIZE,
   OVERLAY_MARGIN_LEFT,
   OVERLAY_MARGIN_RIGHT,
-  SPEED_MIN,
-  SPEED_MAX,
   STAMINA_PLOT_FLOOR,
+  visibleWindowFromViewState,
+  VisibleWindow,
 } from "../lib/raceGraphBuilder";
+import { useChartViewInteraction, useClampChartViewOnResize } from "../hooks/useChartViewInteraction";
 
 interface RaceDetailChartProps {
   detail: RaceDetailDump;
@@ -214,16 +217,18 @@ type RechartsPlotArea = {
 
 /** LineChart 内: usePlotArea + axis scale を ChartPlotMetrics へ橋渡し */
 const ChartMetricsBridge: React.FC<{
-  maxTime: number;
+  visibleWindow: VisibleWindow;
+  viewState: ChartViewState;
   onMetrics: (metrics: ChartPlotMetrics) => void;
-}> = ({ maxTime, onMetrics }) => {
+}> = ({ visibleWindow, viewState, onMetrics }) => {
   const plotArea = usePlotArea() as RechartsPlotArea | undefined;
   const timeToX = useXAxisScale(0);
   const speedToY = useYAxisScale("speed");
 
   useLayoutEffect(() => {
-    if (!plotArea || plotArea.width <= 0 || plotArea.height <= 0 || maxTime <= 0) return;
+    if (!plotArea || plotArea.width <= 0 || plotArea.height <= 0) return;
     if (!timeToX || !speedToY) return;
+    if (visibleWindow.timeMax <= visibleWindow.timeMin) return;
 
     onMetrics(
       createChartPlotMetrics(
@@ -233,11 +238,8 @@ const ChartMetricsBridge: React.FC<{
           width: plotArea.width,
           height: plotArea.height,
         },
-        maxTime,
-        INITIAL_CHART_VIEW_STATE,
-        0,
-        SPEED_MIN,
-        SPEED_MAX,
+        visibleWindow,
+        viewState,
         {
           timeToX: (time) => {
             const x = timeToX(time);
@@ -250,7 +252,7 @@ const ChartMetricsBridge: React.FC<{
         },
       ),
     );
-  }, [plotArea, timeToX, speedToY, maxTime, onMetrics]);
+  }, [plotArea, timeToX, speedToY, visibleWindow, viewState, onMetrics]);
 
   return null;
 };
@@ -283,6 +285,9 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
   const [displayState, setDisplayState] = useState<GraphDisplayState>(DEFAULT_GRAPH_DISPLAY_STATE);
   const [hoveredSkillKey, setHoveredSkillKey] = useState<string | null>(null);
   const [skillTooltipPos, setSkillTooltipPos] = useState({ clientX: 0, clientY: 0 });
+  const [chartViewState, setChartViewState] = useState<ChartViewState>(() =>
+    createInitialChartViewState(0),
+  );
 
   const showBaselineOverlay =
     compareActive && baselineDetail != null && baselineDetail !== detail;
@@ -322,6 +327,33 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
   const isExpanded = displayState.expandSkillRows && skillData.skillMarkers.length > 0;
   const maxTime =
     graphPoints.points.length > 0 ? graphPoints.points[graphPoints.points.length - 1].time : 0;
+
+  useEffect(() => {
+    if (maxTime > 0) {
+      setChartViewState(createInitialChartViewState(maxTime));
+    }
+  }, [detail, maxTime]);
+
+  const visibleWindow = useMemo(
+    () =>
+      isExpanded || maxTime <= 0
+        ? legacyFullVisibleWindow(maxTime)
+        : visibleWindowFromViewState(chartViewState, maxTime),
+    [isExpanded, maxTime, chartViewState],
+  );
+
+  const percentAxisTicks = useMemo(() => {
+    if (isExpanded) return PERCENT_AXIS_TICKS;
+    return PERCENT_AXIS_TICKS.filter(
+      (tick) => tick >= visibleWindow.percentMin - 1e-6 && tick <= visibleWindow.percentMax + 1e-6,
+    );
+  }, [isExpanded, visibleWindow.percentMin, visibleWindow.percentMax]);
+
+  const metricsViewState = useMemo(
+    () => (isExpanded ? createInitialChartViewState(maxTime) : chartViewState),
+    [isExpanded, maxTime, chartViewState],
+  );
+  const mapInteractionEnabled = !isExpanded && maxTime > 0;
   const overlayPlotWidth = Math.max(measuredWidth - OVERLAY_MARGIN_LEFT - OVERLAY_MARGIN_RIGHT, 1);
   const hasDebuffMarkers = skillData.skillMarkers.some((m) => m.kind === "debuff");
   const viewportChartHeight = Math.max(viewportHeight, 1);
@@ -361,7 +393,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
 
   useEffect(() => {
     setMeasuredPlotMetrics(null);
-  }, [isExpanded, contentChartHeight, measuredWidth]);
+  }, [isExpanded, contentChartHeight, measuredWidth, visibleWindow, chartViewState]);
 
   const handlePlotMetrics = useCallback((metrics: ChartPlotMetrics) => {
     setMeasuredPlotMetrics((prev) => {
@@ -371,7 +403,15 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
         prev.cartesian.top === metrics.cartesian.top &&
         prev.cartesian.width === metrics.cartesian.width &&
         prev.cartesian.height === metrics.cartesian.height &&
+        prev.timeMin === metrics.timeMin &&
         prev.timeMax === metrics.timeMax &&
+        prev.speedMin === metrics.speedMin &&
+        prev.speedMax === metrics.speedMax &&
+        prev.percentMin === metrics.percentMin &&
+        prev.percentMax === metrics.percentMax &&
+        prev.view.scale === metrics.view.scale &&
+        prev.view.centerTime === metrics.view.centerTime &&
+        prev.view.centerSpeed === metrics.view.centerSpeed &&
         Boolean(prev.scales) === Boolean(metrics.scales)
       ) {
         return prev;
@@ -390,13 +430,36 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
           width: overlayPlotWidth,
           height: Math.max(isExpanded ? contentPlotHeight : viewportPlotHeight, 1),
         },
-        maxTime,
+        visibleWindow,
+        metricsViewState,
       ),
-    [isExpanded, contentPlotHeight, viewportPlotHeight, overlayPlotWidth, maxTime],
+    [
+      isExpanded,
+      contentPlotHeight,
+      viewportPlotHeight,
+      overlayPlotWidth,
+      visibleWindow,
+      metricsViewState,
+    ],
   );
 
   const plotMetrics = measuredPlotMetrics ?? estimatedPlotMetrics;
   const plotMetricsReady = measuredPlotMetrics?.scales != null;
+
+  useChartViewInteraction({
+    enabled: mapInteractionEnabled,
+    raceEnd: maxTime,
+    chartAreaRef,
+    plotMetrics,
+    plotMetricsReady,
+    viewState: chartViewState,
+    setViewState: setChartViewState,
+  });
+
+  useClampChartViewOnResize(mapInteractionEnabled, maxTime, setChartViewState, [
+    measuredWidth,
+    viewportHeight,
+  ]);
 
   const skillMarkers = useMemo(
     () =>
@@ -526,7 +589,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
       >
         <div
           ref={chartAreaRef}
-          className="relative w-full overflow-hidden"
+          className={`relative w-full overflow-hidden ${mapInteractionEnabled ? "cursor-grab active:cursor-grabbing" : ""}`}
           style={{ height: isExpanded ? contentChartHeight : "100%" }}
         >
           <ResponsiveContainer
@@ -573,7 +636,8 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
               <XAxis
                 dataKey="time"
                 type="number"
-                domain={[0, "dataMax"]}
+                domain={[visibleWindow.timeMin, visibleWindow.timeMax]}
+                allowDataOverflow
                 tickFormatter={formatTime}
                 stroke="#71717a"
                 fontSize={11}
@@ -582,7 +646,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
               <YAxis
                 yAxisId="speed"
                 orientation="left"
-                domain={[SPEED_MIN, SPEED_MAX]}
+                domain={[visibleWindow.speedMin, visibleWindow.speedMax]}
                 allowDataOverflow
                 tickFormatter={(v) => v.toFixed(1)}
                 stroke="#3b82f6"
@@ -593,8 +657,9 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
               <YAxis
                 yAxisId="percent"
                 orientation="right"
-                domain={[0, 1]}
-                ticks={PERCENT_AXIS_TICKS}
+                domain={[visibleWindow.percentMin, visibleWindow.percentMax]}
+                allowDataOverflow
+                ticks={percentAxisTicks.length > 0 ? percentAxisTicks : undefined}
                 tick={renderPercentAxisTick}
                 stroke="#71717a"
                 fontSize={11}
@@ -757,7 +822,11 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
                   legendType="none"
                 />
               )}
-              <ChartMetricsBridge maxTime={maxTime} onMetrics={handlePlotMetrics} />
+              <ChartMetricsBridge
+                visibleWindow={visibleWindow}
+                viewState={metricsViewState}
+                onMetrics={handlePlotMetrics}
+              />
             </LineChart>
           </ResponsiveContainer>
 

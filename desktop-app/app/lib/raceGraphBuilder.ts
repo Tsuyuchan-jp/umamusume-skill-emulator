@@ -19,18 +19,154 @@ export function hasSkillDurationLine(
 export const SPEED_MIN = 13;
 export const SPEED_MAX = 30;
 
-/** グラフの表示変換。scale=1, pan=0 がレース全体の初期俯瞰（ステップ 2 で配線） */
+/** 等倍ズーム上限（1 = 俯瞰） */
+export const CHART_VIEW_SCALE_MAX = 24;
+
+/** ホイール 1 ノッチの倍率 */
+export const CHART_VIEW_WHEEL_ZOOM_FACTOR = 1.1;
+
+/** グラフの表示変換。内部正本は center + scale */
 export interface ChartViewState {
+  /** 等倍ズーム倍率。1 = 俯瞰 */
   scale: number;
-  panX: number;
-  panY: number;
+  /** 可視窓中心（秒） */
+  centerTime: number;
+  /** 可視窓中心（m/s） */
+  centerSpeed: number;
+  /** 可視窓中心（percent 軸 0〜1） */
+  centerPercent: number;
 }
 
-export const INITIAL_CHART_VIEW_STATE: ChartViewState = {
-  scale: 1,
-  panX: 0,
-  panY: 0,
-};
+export interface VisibleWindow {
+  timeMin: number;
+  timeMax: number;
+  speedMin: number;
+  speedMax: number;
+  percentMin: number;
+  percentMax: number;
+}
+
+export interface VisibleWindowOptions {
+  /** true: percent を常に [0, 1]（パターン A・将来トグル用） */
+  lockPercentFullRange?: boolean;
+}
+
+/** scale=1 かつレース全体が viewport に収まる初期値 */
+export function createInitialChartViewState(raceEnd: number): ChartViewState {
+  return {
+    scale: 1,
+    centerTime: raceEnd / 2,
+    centerSpeed: (SPEED_MIN + SPEED_MAX) / 2,
+    centerPercent: 0.5,
+  };
+}
+
+/** viewState から可視窓 domain を算出（パターン B: 全軸連動） */
+export function visibleWindowFromViewState(
+  view: ChartViewState,
+  raceEnd: number,
+  options: VisibleWindowOptions = {},
+): VisibleWindow {
+  const { scale, centerTime, centerSpeed, centerPercent } = view;
+  const halfT = raceEnd / (2 * scale);
+  const halfS = (SPEED_MAX - SPEED_MIN) / (2 * scale);
+  const halfP = 0.5 / scale;
+  const lockPercent = options.lockPercentFullRange ?? false;
+
+  return {
+    timeMin: centerTime - halfT,
+    timeMax: centerTime + halfT,
+    speedMin: centerSpeed - halfS,
+    speedMax: centerSpeed + halfS,
+    percentMin: lockPercent ? 0 : centerPercent - halfP,
+    percentMax: lockPercent ? 1 : centerPercent + halfP,
+  };
+}
+
+/** center を各軸の可視窓半分内に収め、scale を [1, CHART_VIEW_SCALE_MAX] に制限 */
+export function clampChartViewState(view: ChartViewState, raceEnd: number): ChartViewState {
+  const scale = Math.min(CHART_VIEW_SCALE_MAX, Math.max(1, view.scale));
+  const halfT = raceEnd / (2 * scale);
+  const halfS = (SPEED_MAX - SPEED_MIN) / (2 * scale);
+  const halfP = 0.5 / scale;
+
+  return {
+    scale,
+    centerTime: Math.min(raceEnd - halfT, Math.max(halfT, view.centerTime)),
+    centerSpeed: Math.min(SPEED_MAX - halfS, Math.max(SPEED_MIN + halfS, view.centerSpeed)),
+    centerPercent: Math.min(1 - halfP, Math.max(halfP, view.centerPercent)),
+  };
+}
+
+/** カーソル下データ点を固定して scale / center を更新（percent 中心は維持） */
+export function applyWheelZoom(
+  view: ChartViewState,
+  raceEnd: number,
+  cursorTime: number,
+  cursorSpeed: number,
+  zoomIn: boolean,
+  zoomFactor = CHART_VIEW_WHEEL_ZOOM_FACTOR,
+): ChartViewState {
+  const k = zoomIn ? zoomFactor : 1 / zoomFactor;
+  const newScale = Math.min(CHART_VIEW_SCALE_MAX, Math.max(1, view.scale * k));
+  if (Math.abs(newScale - view.scale) < 1e-12) {
+    return clampChartViewState(view, raceEnd);
+  }
+
+  const halfT = raceEnd / (2 * view.scale);
+  const halfS = (SPEED_MAX - SPEED_MIN) / (2 * view.scale);
+  const newHalfT = raceEnd / (2 * newScale);
+  const newHalfS = (SPEED_MAX - SPEED_MIN) / (2 * newScale);
+  const ratioT = newHalfT / halfT;
+  const ratioS = newHalfS / halfS;
+
+  return clampChartViewState(
+    {
+      scale: newScale,
+      centerTime: view.centerTime + (cursorTime - view.centerTime) * ratioT,
+      centerSpeed: view.centerSpeed + (cursorSpeed - view.centerSpeed) * ratioS,
+      centerPercent: view.centerPercent,
+    },
+    raceEnd,
+  );
+}
+
+/** px 差分を現行可視窓に応じて centerTime / centerSpeed へ反映 */
+export function applyPanDrag(
+  view: ChartViewState,
+  raceEnd: number,
+  dx: number,
+  dy: number,
+  plotWidth: number,
+  plotHeight: number,
+): ChartViewState {
+  const window = visibleWindowFromViewState(view, raceEnd);
+  const timeSpan = window.timeMax - window.timeMin;
+  const speedSpan = window.speedMax - window.speedMin;
+  const deltaTime = (-dx * timeSpan) / Math.max(plotWidth, 1);
+  const deltaSpeed = (dy * speedSpan) / Math.max(plotHeight, 1);
+
+  return clampChartViewState(
+    {
+      ...view,
+      centerTime: view.centerTime + deltaTime,
+      centerSpeed: view.centerSpeed + deltaSpeed,
+    },
+    raceEnd,
+  );
+}
+
+/** legacy 俯瞰 domain（縦拡大 ON 時） */
+export function legacyFullVisibleWindow(raceEnd: number): VisibleWindow {
+  return {
+    timeMin: 0,
+    timeMax: raceEnd,
+    speedMin: SPEED_MIN,
+    speedMax: SPEED_MAX,
+    percentMin: 0,
+    percentMax: 1,
+  };
+}
 
 /** Recharts cartesian 矩形（overlay SVG 座標系・px） */
 export interface CartesianRect {
@@ -54,20 +190,29 @@ export interface ChartPlotMetrics {
   timeMax: number;
   speedMin: number;
   speedMax: number;
+  percentMin: number;
+  percentMax: number;
   /** あるとき speedToSvgY / timeToSvgX の正本（Recharts と同一） */
   scales?: ChartPlotScales;
 }
 
 export function createChartPlotMetrics(
   cartesian: CartesianRect,
-  timeMax: number,
-  view: ChartViewState = INITIAL_CHART_VIEW_STATE,
-  timeMin = 0,
-  speedMin = SPEED_MIN,
-  speedMax = SPEED_MAX,
+  window: VisibleWindow,
+  view: ChartViewState,
   scales?: ChartPlotScales,
 ): ChartPlotMetrics {
-  return { cartesian, view, timeMin, timeMax, speedMin, speedMax, scales };
+  return {
+    cartesian,
+    view,
+    timeMin: window.timeMin,
+    timeMax: window.timeMax,
+    speedMin: window.speedMin,
+    speedMax: window.speedMax,
+    percentMin: window.percentMin,
+    percentMax: window.percentMax,
+    scales,
+  };
 }
 
 function timeSpan(metrics: ChartPlotMetrics): number {
@@ -715,7 +860,8 @@ export function computeSkillMaxStack(
       width: plotWidth,
       height: speedPlotHeight,
     },
-    maxTime,
+    legacyFullVisibleWindow(maxTime),
+    createInitialChartViewState(maxTime),
   );
   return assignStackLevels(
     markers.map((m) => ({
