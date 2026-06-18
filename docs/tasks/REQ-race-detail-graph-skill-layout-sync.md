@@ -3,7 +3,7 @@
 > **レース詳細グラフ実装シリーズ** Phase 5（スキル Y 配置・速度線との視覚連動）。
 > ロードマップ: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md)
 
-- **ステータス**: in-progress（Phase 5-R1〜R3 に作業分割。本 REQ はシリーズ文脈・決定ログの正本）
+- **ステータス**: superseded（実装正本は [`REQ-race-detail-graph-map-view.md`](REQ-race-detail-graph-map-view.md)。本 REQ は Phase 5 文脈・決定ログの参照用）
 - **作成日**: 2026-06-12 18:10
 - **関連コミット**: `6816447`（初版）〜 `b7f3838`（Y クローズアップ）→ `12af1e1`（反復 zoom）→ `af78fe8`（ラベル px 固定）
 
@@ -137,3 +137,4 @@
 | 2026-06-14 10:58 | **Phase 5-R1 実装**: 赤線／ラベル一体 revert、`DETAIL_ZOOM_FIXED=4.0`、案3 維持。探索・赤線分離ヘルパー削除 | 引継ぎどおり。実機確認はユーザー |
 | 2026-06-14 11:04 | **Phase 5-R1 実機検証クローズ** — 縦拡大 ON/OFF・baseline compare・Tooltip OK（[`REQ-race-detail-graph-analysis-revert.md`](REQ-race-detail-graph-analysis-revert.md)） | ユーザー確認 |
 | 2026-06-18 18:15 | **5-R1b 設計承認**（[`REQ-race-detail-graph-same-time-stack-compact.md`](REQ-race-detail-graph-same-time-stack-compact.md)）: detail で赤線左端を速度線上に、ラベルは赤線上、同時刻 compact yStackOffset | R1 一体レイアウトからの見直し。全体表示の軽いずらしは R3 |
+| 2026-06-18 21:01 | **実装正本を map-view へ移管**（[`REQ-race-detail-graph-map-view.md`](REQ-race-detail-graph-map-view.md)）。本 REQ は superseded | Google Map 型が Phase 5 最終ゴールに確定。旧 R2/R3 段階分割を廃止 |

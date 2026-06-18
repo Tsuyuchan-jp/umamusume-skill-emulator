@@ -3,8 +3,10 @@
 > **レース詳細グラフ実装シリーズ** Phase 5-R3。
 > ロードマップ: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md)
 > 前提: [`REQ-race-detail-graph-time-window.md`](REQ-race-detail-graph-time-window.md) 完了後（または並行検討可）
+>
+> **⚠ superseded** — 2026-06-18: 「時間窓 + Y/K 連動」「縦スクロール」等の仕様が Google Map 型（**等倍 XY ズーム + 2D パン**）とずれた。**実装正本は [`REQ-race-detail-graph-map-view.md`](REQ-race-detail-graph-map-view.md)**。本ファイルは決定ログ・経緯の参照用に残す。
 
-- **ステータス**: draft
+- **ステータス**: superseded
 - **作成日**: 2026-06-14 10:54
 - **関連コミット**: （完了後に記入）
 
@@ -102,3 +104,4 @@
 |------|---------|------|
 | 2026-06-14 10:54 | draft 起票。ホイール=拡大・ドラッグ=移動・縦拡大 checkbox 削除 | ユーザー方針: 俯瞰からシームレスに分析。K 探索はパン世界では不要 |
 | 2026-06-18 18:15 | パン設計メモ: ホイール=カーソル中心・K 連続。overview 軽い縦ずらし（2〜3 段）は R3 で実装。checkbox 廃止は R1b 実機後に判断 | 設計レビュー合意（5-R1b 承認チャット） |
+| 2026-06-18 21:01 | **superseded** → [`REQ-race-detail-graph-map-view.md`](REQ-race-detail-graph-map-view.md) | 等倍 XY ズーム + 2D パンを正本に再統合。K しきい値 layout 切替・Y 単独スクロールは採用しない |

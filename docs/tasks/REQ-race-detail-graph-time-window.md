@@ -3,8 +3,10 @@
 > **レース詳細グラフ実装シリーズ** Phase 5-R2。
 > ロードマップ: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md)
 > 前提: [`REQ-race-detail-graph-analysis-revert.md`](REQ-race-detail-graph-analysis-revert.md) 完了後
+>
+> **⚠ superseded** — 2026-06-18: X だけ時間窓 + Y 固定の段階実装はユーザー意図（Google Map 型・等倍 XY ズーム + 2D パン）とずれた。**実装正本は [`REQ-race-detail-graph-map-view.md`](REQ-race-detail-graph-map-view.md)**。本ファイルは決定ログ・経緯の参照用に残す。
 
-- **ステータス**: draft
+- **ステータス**: superseded
 - **作成日**: 2026-06-14 10:54
 - **関連コミット**: （完了後に記入）
 
@@ -106,3 +108,4 @@ viewState: {
 |------|---------|------|
 | 2026-06-14 10:54 | draft 起票。窓幅 30%・ドラッグ plot 全域 | フル Google Map パンより実装軽量。X 被りの主因は秒あたり px 不足 |
 | 2026-06-18 18:15 | R1b 完了後に着手。layout は visibleTimeSpan / timeOffset を渡す方針（Y は R1b yStackOffset を維持） | 設計レビュー合意 |
+| 2026-06-18 21:01 | **superseded** → [`REQ-race-detail-graph-map-view.md`](REQ-race-detail-graph-map-view.md) | Google Map 型（等倍 XY + 2D パン）を最終ゴールに統合。X 単独窓は採用しない |

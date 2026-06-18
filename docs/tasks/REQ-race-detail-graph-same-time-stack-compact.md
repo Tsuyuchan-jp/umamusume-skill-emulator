@@ -3,9 +3,9 @@
 > **レース詳細グラフ実装シリーズ** Phase 5-R1b（skill layout sync の続き）。
 > ロードマップ: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md)
 > 前提: [`REQ-race-detail-graph-analysis-revert.md`](REQ-race-detail-graph-analysis-revert.md) 完了後
-> 関連: Phase 5-R2 着手前の実施を推奨（layout / hit 判定と絡む）
+> 関連: 後続実装は [`REQ-race-detail-graph-map-view.md`](REQ-race-detail-graph-map-view.md)（Phase 5 最終ゴール）へ統合
 
-- **ステータス**: done（実機検証待ち）
+- **ステータス**: done（知見は map-view REQ へ移管。detail ON 専用コードは将来統合 layout で置換）
 - **作成日**: 2026-06-14 11:15
 - **関連コミット**: `782dabe`
 
@@ -146,3 +146,4 @@
 | 2026-06-18 18:55 | 実機指摘対応: ラベル描画を `SKILL_LINE_GAP + FONT_SIZE`、速度スナップを linear 補間 + Recharts `type="linear"` | 力業等の赤線ずれ・ラベル隙間 |
 | 2026-06-18 19:11 | 赤線は常に speedY（yStackOffset はラベルのみ）。スタックは 1 フレーム以内の同時刻のみ | 長ラベル誤スタックで速度線から離れすぎる問題 |
 | 2026-06-18 19:25 | **案1撤回**。同時刻 stack 0 のみ速度線＝赤線。下段は X 揃え・ラベル＋赤線 compact 一体ずらし。赤線重なり禁止 | 分析上、同時刻の赤線完全重なりは不可 |
+| 2026-06-18 21:01 | 後続は [`REQ-race-detail-graph-map-view.md`](REQ-race-detail-graph-map-view.md) へ。detail ON 専用分岐は統合 layout で置換予定 | Google Map 型が Phase 5 最終ゴールに確定 |
