@@ -4,13 +4,13 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-19 17:28
+最終更新: 2026-06-19 17:36
 
 ---
 
 ## 現在のフォーカス
 
-Interaction Canvas Engine **Phase 4 設計レビュー** — ハンドオフ品質・200ms SLA（Phase 3 + 追記は実機検証クローズ済み）
+Interaction Canvas Engine **Phase 4 実装** — 設計レビュー承認済み（2026-06-19 17:36）。ChartMetricsBridge probe リトライ + dev 計測
 
 ---
 
@@ -24,11 +24,10 @@ Interaction Canvas Engine **Phase 4 設計レビュー** — ハンドオフ品�
 
 ### P0 — 次に着手
 
-- [ ] **Google Map 型グラフ — Interaction Canvas Engine Phase 4 設計レビュー**
-  - Phase 3 + 追記（選択防止・非操作時小丸・ホイール窓中心）実機検証クローズ 2026-06-19
-  - 次: Ask mode 設計レビュー → ハンドオフ品質・200ms SLA・settling lag
-  - 起票プロンプト: [`REQ-race-detail-graph-interaction-engine.md`](tasks/REQ-race-detail-graph-interaction-engine.md)「Phase 4 — ハンドオフ品質・Settling」
-  - 既知所見: 停止後 overlay まで短い lag（probe 同期待ち・Phase 4 で検討）
+- [ ] **Google Map 型グラフ — Interaction Canvas Engine Phase 4 実装**
+  - 設計レビュー承認 2026-06-19 17:36: 案 A 維持 + probe 多フレーム rAF リトライ + dev 計測
+  - 起票: REQ「Phase 4 実装仕様」+ 設計チャット完成プロンプト
+  - REQ: [`REQ-race-detail-graph-interaction-engine.md`](tasks/REQ-race-detail-graph-interaction-engine.md)
 
 - [ ] **シミュレーション失敗トーストの文言改善（`null` 非表示・再試行案内）**
   - 経緯: WASM Worker 異常終了時に `シミュレーションエラー: null` がユーザー向けトーストに表示された。フルリロードで復旧した事例あり
@@ -42,10 +41,6 @@ Interaction Canvas Engine **Phase 4 設計レビュー** — ハンドオフ品�
   - REQ: 不要（数行〜小タスク）
 
 ### P1 — 重要
-
-- [ ] **Google Map 型グラフ — Interaction Canvas Engine Phase 4 実装**
-  - 設計レビュー承認後: ハンドオフ品質・200ms SLA 厳密検証・本 REQ 実機検証クローズ
-  - REQ: [`REQ-race-detail-graph-interaction-engine.md`](tasks/REQ-race-detail-graph-interaction-engine.md)
 
 - [ ] **Google Map 型グラフ UI（Phase 5 最終）— ステップ 3〜4**
   - ステップ 2 + percent 軸追従は実装済み（percent 実機検証クローズ 2026-06-18 23:30）
@@ -125,6 +120,7 @@ Interaction Canvas Engine **Phase 4 設計レビュー** — ハンドオフ品�
 
 ## 完了済み
 
+- [x] Google Map 型グラフ — Interaction Canvas Engine **Phase 4 設計レビュー**（案 A 維持 + probe 多フレーム rAF + dev 計測・200ms SLA 定義）（2026-06-19 17:36 / [`REQ-race-detail-graph-interaction-engine.md`](tasks/REQ-race-detail-graph-interaction-engine.md)）
 - [x] ホイールズーム中心を可視窓 center（画面中心拡大）に変更 — **採用・実機検証クローズ** 2026-06-19（`6ac05a9` / [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)）
 - [x] 非操作時もスキル発動点小丸を常時表示（半径 2.5px・overlay SVG + Canvas）（`c6db25c` / `d22db24` / Phase 3 拡張）
 - [x] グラフパン時の Y 軸目盛りテキスト選択による再ドラッグ不能 — select-none + pointerdown preventDefault（`9a3b8ca` / Phase 3 実機指摘）
@@ -204,6 +200,7 @@ Interaction Canvas Engine **Phase 4 設計レビュー** — ハンドオフ品�
 - 現代ウマ娘: 所持 50〜70+ スキル。グラフ `skillEvents` は発動イベント数（20〜40+ あり得る）
 - **別作業で発見（2026-06-11）**: サイドバー折りたたみボタンのスクロール追従、ステータス条件ボタンのテキスト化、グラフ/スキル表記以降のレスポンス低下 — いずれも Backlog 登録済み
 - **REQ 運用**: 着手候補の正本は **本 TODO**。`draft` REQ 起票時は Backlog へ必ず1行追加（`.cursor/rules/docs-management.mdc`）
+- **Interaction Canvas Engine Phase 4 — 後続要検証**: `MAP_INTERACTION_WHEEL_IDLE_MS=150` は Phase 4 で **値変更しない**。実機で「最終 wheel → commit（+150ms idle）→ overlay 復帰」の体感を確認（目安上限 350ms = idle 150 + probe SLA 200）。短縮の要否は Phase 5 以降。詳細: [`REQ-race-detail-graph-interaction-engine.md`](tasks/REQ-race-detail-graph-interaction-engine.md)「後続要検証」
 - 因子管理 DB・Tesseract OCR・Supabase 連携は **開発予定なし**（`.cursor/rules/development.mdc`）
 
 ---

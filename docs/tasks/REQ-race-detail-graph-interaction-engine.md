@@ -5,7 +5,7 @@
 > 文脈: [`REQ-race-detail-graph-performance.md`](REQ-race-detail-graph-performance.md)、[`REQ-race-detail-graph-map-view-perf-fallback.md`](REQ-race-detail-graph-map-view-perf-fallback.md)（30fps cap は移行期フォールバック）
 > ロードマップ: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md)
 
-- **ステータス**: in-progress（Phase 3 **実機検証クローズ** / Phase 4 設計レビュー待ち）
+- **ステータス**: in-progress（Phase 4 **設計レビュー承認** / 実装待ち）
 - **作成日**: 2026-06-19 01:19
 - **関連コミット**: `5693968`（Phase 1）、`8767b1a`（Phase 2）、`8ab7c60`（Phase 3）、`9a3b8ca`（パン選択防止）、`c6db25c`〜`d22db24`（非操作時小丸）、`6ac05a9`（ホイール窓中心）
 
@@ -425,15 +425,64 @@ Phase 3 本体（`8ab7c60`）のあと、同一セッション〜続チャット
 - live + committed 即時リセット（現状どおり）
 - Canvas クリア + `setMeasuredPlotMetrics(null)` + Recharts 俯瞰
 
+### Phase 4 実装仕様（設計レビュー承認 2026-06-19 17:36）
+
+**方針**: 案 A 維持 + ChartMetricsBridge 多フレーム rAF probe リトライ + dev 計測
+
+| 項目 | 仕様 |
+|------|------|
+| 案 A | `canvasVisible` / `rechartsLinesVisible` 式は **変更なし**。`isSettling` フラグ追加なし |
+| probe リトライ | 不合格時 rAF ループ。上限 `METRICS_PROBE_MAX_FRAMES=12` **または** `METRICS_PROBE_MAX_MS=200`（先着） |
+| probe ゲート | `plotMetricsScalesMatchWindow`（tolerance 1.5px）**変更なし** |
+| 200ms SLA 起点 T0 | `commitLiveView` 実行 tick（= `isMapInteracting=false`。wheel は idle 150ms **後**） |
+| 200ms SLA 終点 T1 | `overlayLayoutReady=true` 最初の render |
+| dev 計測 | `NODE_ENV=development` のみ。`handoff:commit` → `handoff:overlay-ready` → measure `handoff:commit-to-overlay`。>200ms で `console.warn` |
+| flushSync | Phase 4 では **入れない**（A1 未達時のみ follow-up 検討） |
+| 線切替微差 | Canvas/Recharts ≤1px 差は主観 OK で許容 |
+
+### 後続要検証（Phase 4 スコープ外・値変更しない）
+
+| 項目 | 内容 |
+|------|------|
+| **`MAP_INTERACTION_WHEEL_IDLE_MS=150`** | Phase 4 では **変更しない**（scope 外）。実機で「最終 wheel 入力 → commit needs commit → overlay 復帰」の体感（目安上限 **350ms** = 150ms idle + probe 200ms）を Phase 4 実機チェックで確認。短縮の要否は **Phase 5 以降** に判断 |
+| 関連定数 | `useChartViewInteraction.ts` の `MAP_INTERACTION_WHEEL_IDLE_MS` |
+
 ### Phase 4 完了条件（本 REQ 全体完了）
 
-- [ ] 操作中 Recharts `Line` commit **ゼロ**
-- [ ] 停止後 **200ms 以内** overlay probe 合格・赤線↔速度線 OK
+- [ ] ChartMetricsBridge: probe 多フレーム rAF リトライ（max 12 frames or 200ms）
+- [ ] dev 計測: `handoff:commit-to-overlay` が development で計測可能
+- [ ] 操作中 Recharts `Line` commit **ゼロ**（Phase 3 資産・退行なし）
+- [ ] 停止後 **200ms 以内**（T0=commit 後）overlay probe 合格・赤線↔速度線 OK
 - [ ] commit 瞬間のフラッシュ・線ジャンプなし（主観）
-- [ ] ダブルクリックリセット・compare・percent 3 系列・リサイズで退行なし
+- [ ] wheel idle 150ms: **値変更なし**。体感要検証項目を実機で確認（上記「後続要検証」）
+- [ ] ダブルクリックリセット・compare・percent 3 系列・リサイズ・ホイール窓中心で退行なし
 - [ ] `expandSkillRows` ON 時 map 操作無効のまま
 - [ ] `npm run build` 通過
 - [ ] **実機検証クローズ**
+
+### Phase 4 実機チェックリスト
+
+**A. 200ms SLA（dev Console）**
+
+1. `npm run tauri dev`、DevTools Console 開く
+2. 50+ スキル終盤: 2D ドラッグ 2 秒→離す / ホイール連打 2 秒→停止（各 3 回）
+3. `handoff:commit-to-overlay` ≤200ms（warn なし）
+4. ホイール: 最終入力→赤線表示が主観 OK（目安 ≤350ms = idle 150 + probe）
+
+**B. フラッシュ・連続性**
+
+5. ドラッグ離し: 折れ線空白・白 flash なし
+6. 速度線ジャンプなし（≤1px 許容）
+7. スキル ON: Canvas 小丸→overlay 小丸+赤線 位置連続
+8. compare ON: baseline 破線切替 OK
+
+**C. 退行**
+
+9. percent 3 系列 checkbox / ダブルクリック / リサイズ / expandSkillRows 無効
+10. ReferenceArea・phaseLines・Tooltip defer 復帰
+11. ホイール窓中心（6ac05a9）/ Y 軸選択防止（9a3b8ca）
+
+**D.** `npm run build` 通過
 
 ---
 
@@ -517,6 +566,8 @@ Phase 3 本体（`8ab7c60`）のあと、同一セッション〜続チャット
 | 2026-06-19 16:21 | **Phase 3 実装完了（実機検証待ち）**: useInteractionCanvasLoop + RaceDetailChart canvas 配線、Line strokeOpacity defer、ReferenceArea/phaseLines/Tooltip defer | build 通過。実機チェックはユーザー別途 |
 | 2026-06-19 17:09 | **Phase 3 実機検証クローズ** + 追記 A/B/C（選択防止・非操作時小丸 2.5px・ホイール窓中心採用） | ユーザー全項目 OK。停止後 overlay まで短い lag は probe 同期待ち（Phase 4 で検討） |
 | 2026-06-19 17:28 | **Phase 4 設計レビュー着手待ち**: ハンドオフ品質・200ms SLA・settling 体感 lag | Phase 3 + 追記を前提。probe ゲート維持が前提 |
+| 2026-06-19 17:36 | **Phase 4 設計レビュー承認**: 案 A 維持 + ChartMetricsBridge 多フレーム rAF probe リトライ + dev 計測。200ms SLA は T0=commit 後 | Ask mode 設計レビュー合意。未決事項すべて OK |
+| 2026-06-19 17:36 | **`MAP_INTERACTION_WHEEL_IDLE_MS=150` は Phase 4 で変更しない**。体感要検証は実機チェックに記載、短縮判断は Phase 5 以降 | scope 外。ユーザー要望: docs に後続検証として控え |
 
 ---
 
