@@ -4,18 +4,18 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-19 18:12
+最終更新: 2026-06-19 18:15
 
 ---
 
 ## 現在のフォーカス
 
-**次の着手候補（P0）**: シミュレーション失敗トーストの文言改善
+**グラフ本線（P1）**: Google Map 型 Phase 5 — ステップ 3 暫定 UI 削除 → 全体実機検証。直近: ホイール 1 ノッチ倍率 1.1→1.2
 
 **おすすめの進め方**:
-1. **P0** — シミュレーション失敗トースト（`null` 非表示・再試行案内）。小タスク・`umaemuAdapter.ts` + `SimulationLauncher.tsx` のみ
-2. **P1** — Google Map 型グラフ Phase 5 最終（ステップ 3 暫定 UI 削除 → ステップ 4 全体実機検証クローズ）。グラフ系の本線
-3. **P2（任意・後回し可）** — 操作中 overlay 中間レベル（赤線のみ）。連続ズーム改善後も overlay 復帰 ~500ms は許容済み。体感をさらに詰めるなら別 follow-up
+1. **P1** — Phase 5 ステップ 3 暫定 UI 削除 → ステップ 4 全体実機検証クローズ（本線）
+2. **P0** — シミュレーション失敗トースト（小タスク・グラフと独立）
+3. **P2（任意）** — 操作中 overlay 中間レベル（赤線のみ）
 
 ---
 
@@ -120,6 +120,7 @@
 
 ## 完了済み
 
+- [x] ホイール 1 ノッチ拡大率調整 — `CHART_VIEW_WHEEL_ZOOM_FACTOR` 1.1→1.2（実機確認待ち / [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)）
 - [x] **連続ホイールズームの途中 commit 除去** — `MAP_INTERACTION_WHEEL_IDLE_MS` 150→300ms（案 A。**実機検証クローズ** 2026-06-19 18:12 / `8227f93`〜`1902c42` / [`REQ-race-detail-graph-wheel-continuous-zoom.md`](tasks/REQ-race-detail-graph-wheel-continuous-zoom.md)）
 - [x] Google Map 型グラフ — Interaction Canvas Engine **Phase 1〜4**（Dual-Viewport・handoff 200ms SLA。**実機検証クローズ** 2026-06-19 / `9042aa9` / `96e40d5` / [`REQ-race-detail-graph-interaction-engine.md`](tasks/REQ-race-detail-graph-interaction-engine.md)）
 - [x] Google Map 型グラフ — Interaction Canvas Engine **Phase 4 設計レビュー**（案 A 維持 + probe 多フレーム rAF + dev 計測・200ms SLA 定義）（2026-06-19 17:36 / [`REQ-race-detail-graph-interaction-engine.md`](tasks/REQ-race-detail-graph-interaction-engine.md)）

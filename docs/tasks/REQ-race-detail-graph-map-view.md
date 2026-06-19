@@ -76,7 +76,7 @@ function createInitialChartViewState(raceEnd: number): ChartViewState;
 
 - 内部正本は **center + scale**（旧 `panX` / `panY` は採用しない）
 - `scale` は **連続値**（固定 K=4 やしきい値での ON/OFF 切替はしない）
-- ホイールは **カーソル位置中心** で `scale` を増減（`k=1.1` / `k≈0.9`）
+- ホイールは **可視窓 center** で `scale` を増減（`k=1.2` / `k≈0.833`）
 - ドラッグは `centerTime` / `centerSpeed` を更新（2D パン）
 - ダブルクリックで **リセット**（`scale=1`、全体表示）。ステップ 2 必須
 - 任意: **「終盤へ」** ショートカット（ステップ 2 スコープ外）
@@ -253,6 +253,7 @@ function svgToSpeed(y: number, m: ChartPlotMetrics): number;
 | 2026-06-19 17:28 | **ホイール窓中心を採用確定**（実機検証クローズ）。視認性・操作性が大幅改善 | map-view 正本を窓中心に更新 |
 | 2026-06-19 01:12 | **perf fallback 実機検証クローズ**（30fps cap。体感改善・overlay 復帰・退行なし） | `5053012`〜`cba1f4c`。次はステップ 3 暫定 UI 削除 |
 | 2026-06-19 01:19 | **Interaction Canvas Engine を sibling REQ に起票**（[`REQ-race-detail-graph-interaction-engine.md`](REQ-race-detail-graph-interaction-engine.md)）: Dual-Viewport Phase 1〜4 | Maps 級を目指す構造変更。設計レビュー待ち |
+| 2026-06-19 18:15 | **ホイール 1 ノッチ倍率を 1.1 → 1.2 に引き上げ**（`CHART_VIEW_WHEEL_ZOOM_FACTOR`） | 実機所感: 1 ノッチあたりの拡大縮小が弱い。連続ホイール改善後の UX 調整 |
 
 ---
 
