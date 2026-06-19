@@ -115,7 +115,7 @@
 
 ## 完了済み
 
-- [x] **Google Map 型グラフ — ホイール停止後 overlay 復帰 latency 短縮** — 合成 metrics 即時 handoff（A）+ adaptive idle（B）（コミット後にハッシュ追記 / [`REQ-race-detail-graph-overlay-handoff-latency.md`](tasks/REQ-race-detail-graph-overlay-handoff-latency.md)）
+- [x] **Google Map 型グラフ — ホイール停止後 overlay 復帰 latency 短縮** — 合成 metrics 即時 handoff（A）+ adaptive idle（B）（`ed67df3` / [`REQ-race-detail-graph-overlay-handoff-latency.md`](tasks/REQ-race-detail-graph-overlay-handoff-latency.md) **done**）
 - [x] **Google Map 型グラフ UI Phase 5 完了** — ステップ 3 暫定 UI 削除 + ステップ 4 全体実機検証クローズ（検証手順 1〜7 すべて OK / `249c4b2` / [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md) **done**）
 - [x] Google Map 型グラフ UI Phase 5 — **ステップ 3 暫定 UI 削除**（`expandSkillRows` / K=4 legacy 経路除去・map-view 単一路線・操作ヒント追加）（`ee6d460` / [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)）
 - [x] ホイール 1 ノッチ拡大率調整 — `CHART_VIEW_WHEEL_ZOOM_FACTOR` 1.1→1.2（**実機検証クローズ** 2026-06-19 18:18 / `bec0d2a` / [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)）
