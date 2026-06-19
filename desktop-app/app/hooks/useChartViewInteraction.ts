@@ -267,6 +267,7 @@ export function useChartViewInteraction({
 
     const handlePointerDown = (event: PointerEvent) => {
       if (event.button !== 0) return;
+      event.preventDefault();
       const defer = deferActiveRef.current;
       if (!defer && !plotMetricsRef.current.scales) return;
       if (defer && plotMetricsRef.current.cartesian.width <= 0) return;
@@ -317,6 +318,7 @@ export function useChartViewInteraction({
       commitLiveView();
       isDraggingRef.current = false;
       syncInteracting();
+      window.getSelection()?.removeAllRanges();
       if (el.hasPointerCapture(event.pointerId)) {
         el.releasePointerCapture(event.pointerId);
       }

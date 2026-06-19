@@ -45,3 +45,10 @@ body {
   outline: none;
 }
 
+/* レース詳細グラフ: パン操作中の軸ラベル等のテキスト選択を防止 */
+.race-detail-chart .recharts-wrapper,
+.race-detail-chart .recharts-wrapper * {
+  user-select: none;
+  -webkit-user-select: none;
+}
+

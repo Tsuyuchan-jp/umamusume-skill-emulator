@@ -647,7 +647,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
       >
         <div
           ref={chartAreaRef}
-          className={`relative w-full overflow-hidden ${mapInteractionEnabled ? "cursor-grab active:cursor-grabbing" : ""}`}
+          className={`relative w-full overflow-hidden ${mapInteractionEnabled ? "cursor-grab select-none active:cursor-grabbing" : ""}`}
           style={{ height: isExpanded ? contentChartHeight : "100%" }}
         >
           <ResponsiveContainer
