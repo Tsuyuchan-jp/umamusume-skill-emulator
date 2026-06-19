@@ -4,22 +4,19 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-19 18:02
+最終更新: 2026-06-19 18:05
 
 ---
 
 ## 現在のフォーカス
 
-**進行中**: 連続ホイールズームの途中 commit 除去 — `MAP_INTERACTION_WHEEL_IDLE_MS` 150→300ms（案 A）
+**次の着手候補（P0）**: シミュレーション失敗トーストの文言改善
 
 ---
 
 ## 進行中
 
-- [ ] **連続ホイールズームの途中 commit 除去**（ホイール連打時のひっかかり）
-  - 方針: 案 A — idle 300ms まで commit 遅延。`scheduleWheelIdleEnd` ロジックは維持
-  - 触る: `useChartViewInteraction.ts`
-  - REQ: [`REQ-race-detail-graph-wheel-continuous-zoom.md`](tasks/REQ-race-detail-graph-wheel-continuous-zoom.md)
+（なし）
 
 ## 次にやること（Backlog）
 
@@ -118,6 +115,7 @@
 
 ## 完了済み
 
+- [x] **連続ホイールズームの途中 commit 除去** — `MAP_INTERACTION_WHEEL_IDLE_MS` 150→300ms（案 A・build 通過。**実機検証は別チャット**）（`8227f93` / [`REQ-race-detail-graph-wheel-continuous-zoom.md`](tasks/REQ-race-detail-graph-wheel-continuous-zoom.md)）
 - [x] Google Map 型グラフ — Interaction Canvas Engine **Phase 1〜4**（Dual-Viewport・handoff 200ms SLA。**実機検証クローズ** 2026-06-19 / `9042aa9` / `96e40d5` / [`REQ-race-detail-graph-interaction-engine.md`](tasks/REQ-race-detail-graph-interaction-engine.md)）
 - [x] Google Map 型グラフ — Interaction Canvas Engine **Phase 4 設計レビュー**（案 A 維持 + probe 多フレーム rAF + dev 計測・200ms SLA 定義）（2026-06-19 17:36 / [`REQ-race-detail-graph-interaction-engine.md`](tasks/REQ-race-detail-graph-interaction-engine.md)）
 - [x] ホイールズーム中心を可視窓 center（画面中心拡大）に変更 — **採用・実機検証クローズ** 2026-06-19（`6ac05a9` / [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)）
@@ -199,7 +197,7 @@
 - 現代ウマ娘: 所持 50〜70+ スキル。グラフ `skillEvents` は発動イベント数（20〜40+ あり得る）
 - **別作業で発見（2026-06-11）**: サイドバー折りたたみボタンのスクロール追従、ステータス条件ボタンのテキスト化、グラフ/スキル表記以降のレスポンス低下 — いずれも Backlog 登録済み
 - **REQ 運用**: 着手候補の正本は **本 TODO**。`draft` REQ 起票時は Backlog へ必ず1行追加（`.cursor/rules/docs-management.mdc`）
-- **連続ホイールひっかかり**: Phase 4 スコープ外（idle 150ms 途中 commit）。P0 Backlog + [`REQ-race-detail-graph-wheel-continuous-zoom.md`](tasks/REQ-race-detail-graph-wheel-continuous-zoom.md)
+- **連続ホイールひっかかり**: 案 A 実装済み（idle 300ms / `8227f93`）。実機検証は別チャット
 - 因子管理 DB・Tesseract OCR・Supabase 連携は **開発予定なし**（`.cursor/rules/development.mdc`）
 
 ---

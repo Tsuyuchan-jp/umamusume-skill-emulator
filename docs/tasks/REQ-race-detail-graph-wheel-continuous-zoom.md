@@ -4,9 +4,9 @@
 > 文脈: [`REQ-race-detail-graph-interaction-engine.md`](REQ-race-detail-graph-interaction-engine.md)（Phase 4 完了後の UX ポリッシュ）
 > ロードマップ: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md)
 
-- **ステータス**: in-progress
+- **ステータス**: done
 - **作成日**: 2026-06-19 17:53
-- **関連コミット**: （完了後に記入）
+- **関連コミット**: `8227f93`
 
 ---
 
@@ -85,11 +85,12 @@ idle で `isMapInteracting` を下ろすが `commitLiveView` は別の長い閾�
 
 ## 完了条件
 
-- [ ] 連続ホイール（マウス段・トラックパッド）で途中停止・ひっかかりなし
-- [ ] 停止後 overlay 復帰・Phase 4 handoff 退行なし
-- [ ] `npm run build` 通過
-- [ ] 実機検証クローズ
-- [ ] `docs/TODO.md` 完了済み
+- [x] `MAP_INTERACTION_WHEEL_IDLE_MS = 300` に変更、コメント更新（`8227f93`）
+- [ ] 連続ホイール（マウス段・トラックパッド）で途中停止・ひっかかりなし（**実機検証・別チャット**）
+- [ ] 停止後 overlay 復帰・Phase 4 handoff 退行なし（**実機検証・別チャット**）
+- [x] `npm run build` 通過
+- [ ] 実機検証クローズ（別チャット）
+- [x] `docs/TODO.md` 完了済み
 
 ---
 
@@ -108,3 +109,5 @@ idle で `isMapInteracting` を下ろすが `commitLiveView` は別の長い閾�
 |------|---------|------|
 | 2026-06-19 17:53 | 本 REQ 起票。原因は 150ms wheel idle による途中 `commitLiveView` | Phase 4 実機 OK 後のユーザー提起。Ask mode 調査済み |
 | 2026-06-19 17:53 | 推奨は案 A（ホイール中 commit しない）。idle 閾値 250〜350ms を実装時決定 | ドラッグと同型。probe / 案 A handoff は維持 |
+| 2026-06-19 18:05 | **案 A 採用確定**: idle 300ms。定数分離・案 B は不採用。`scheduleWheelIdleEnd` ロジックは維持 | 150ms だとマウス段（100〜200ms 間隔）で息継ぎ commit。案 B は isMapInteracting=false かつ未 commit で Canvas 乖離リスク |
+| 2026-06-19 18:05 | 実装完了（build 通過）。実機検証は別チャット | `8227f93` |
