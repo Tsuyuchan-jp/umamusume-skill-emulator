@@ -379,18 +379,18 @@ export default function Home() {
         className={`flex-shrink-0 h-full overflow-hidden bg-zinc-950/40 ${isResizing ? 'select-none pointer-events-none' : ''}`}
       >
         {sidebarCollapsed ? (
-          /* 折りたたみ時: アイコン rail + 展開トグル */
-          <div className="flex flex-col items-center h-full py-4 gap-4 w-full min-w-0">
-            {/* アイコン非表示・展開ボタン Y 座標維持用スペーサー */}
-            <div className="w-9 h-9 shrink-0 invisible pointer-events-none" aria-hidden="true" />
-            <button
-              type="button"
-              onClick={() => setSidebarCollapsed(false)}
-              className="flex items-center justify-center w-9 h-9 rounded-lg text-zinc-400 hover:text-emerald-400 hover:bg-zinc-800/80 transition-colors shrink-0"
-              title="サイドバーを展開"
-            >
-              <PanelLeftOpen className="w-5 h-5" />
-            </button>
+          /* 折りたたみ時: 展開トグル（Y 座標は展開時ヘッダーの折りたたみボタンと揃える） */
+          <div className="flex flex-col items-center h-full w-full min-w-0">
+            <div className="shrink-0 pt-4 w-full flex items-center justify-center h-10">
+              <button
+                type="button"
+                onClick={() => setSidebarCollapsed(false)}
+                className="flex items-center justify-center w-9 h-9 rounded-lg text-zinc-400 hover:text-emerald-400 hover:bg-zinc-800/80 transition-colors shrink-0"
+                title="サイドバーを展開"
+              >
+                <PanelLeftOpen className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         ) : (
           <div className="flex flex-col h-full min-w-0 overflow-hidden">
