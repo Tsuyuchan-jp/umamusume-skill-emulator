@@ -254,6 +254,7 @@ function svgToSpeed(y: number, m: ChartPlotMetrics): number;
 | 2026-06-19 01:12 | **perf fallback 実機検証クローズ**（30fps cap。体感改善・overlay 復帰・退行なし） | `5053012`〜`cba1f4c`。次はステップ 3 暫定 UI 削除 |
 | 2026-06-19 01:19 | **Interaction Canvas Engine を sibling REQ に起票**（[`REQ-race-detail-graph-interaction-engine.md`](REQ-race-detail-graph-interaction-engine.md)）: Dual-Viewport Phase 1〜4 | Maps 級を目指す構造変更。設計レビュー待ち |
 | 2026-06-19 18:15 | **ホイール 1 ノッチ倍率を 1.1 → 1.2 に引き上げ**（`CHART_VIEW_WHEEL_ZOOM_FACTOR`） | 実機所感: 1 ノッチあたりの拡大縮小が弱い。連続ホイール改善後の UX 調整 |
+| 2026-06-19 18:18 | **ホイール 1.2 倍率の実機検証クローズ** | ユーザー OK。次はステップ 3 暫定 UI 削除 |
 
 ---
 
@@ -298,6 +299,79 @@ Google Map 型グラフ UI ステップ 2 + percent 軸追従（`f8a62f0`）は�
 - 推奨実装方針（1案に絞る。代替案は簡潔に）
 - 変更ファイル一覧
 - 実装チャット用の承認済み方針ドラフト
+```
+
+## 設計レビュー起票プロンプト（ステップ 3 暫定 UI 削除）
+
+```
+@docs/PROJECT.md
+@docs/TODO.md
+@docs/tasks/REQ-race-detail-graph-map-view.md
+@docs/tasks/REQ-race-detail-graph-interaction-engine.md
+@desktop-app/app/components/RaceDetailChart.tsx
+@desktop-app/app/lib/raceGraphBuilder.ts
+@desktop-app/app/hooks/useChartViewInteraction.ts
+
+## チャット種別
+設計レビュー（Ask mode）
+
+## 進め方（重要）
+- このチャットでは **コード変更・ファイル編集・コミットを一切しない**
+- 現状整理 → 削除対象の洗い出し → 方針提案 → 変更範囲 → リスク → 検証手順 まで提示する
+- 私が「承認」「修正」「見送り」のいずれかを返すまで、実装に進まない
+- 承認後は CHAT_TEMPLATE.md「承認後・実装チャット用」の完成プロンプトを1ブロックで出力する
+
+## 背景
+Google Map 型グラフ UI（[`REQ-race-detail-graph-map-view.md`](REQ-race-detail-graph-map-view.md)）の Phase 5 本線。
+ステップ 1（ChartPlotMetrics + scale=1 俯瞰）・ステップ 2（等倍 XY ズーム + 2D パン）・percent 軸追従・ズームレスポンス改善・Interaction Canvas Phase 1〜4・連続ホイール idle 300ms・ホイール倍率 1.2 は **すべて実機検証クローズ**。
+**次はステップ 3**: 旧「縦拡大」暫定 UI と legacy 経路の削除。操作はホイール+ドラッグ+ダブルクリックリセットのみに一本化する。
+
+## 今回決めたいこと
+1. **削除スコープの確定** — 何を消し、何を残すか（下記「暫定 UI 候補」の取捨選択）
+2. **layout 統合方針** — `layoutSkillMarkers({ expanded, yZoomFactor })` の expanded 分岐を map-view 単一路線に統合する方法
+3. **chart 高さ・scroll コンテナ** — `isExpanded` 廃止後の `contentChartHeight` / 縦スクロール / viewport 固定の扱い
+4. **dead code 削除範囲** — `DETAIL_ZOOM_FIXED` / `computeDetailYZoomFactor` / `computeExpandedChartHeight` / `legacyFullVisibleWindow` 等
+5. **退行防止境界** — Interaction Canvas（Dual-Viewport）・overlay handoff 200ms SLA・compare・Tooltip・表示 checkbox との整合
+6. **任意 UI** — 「ドラッグで移動・ホイールで拡大」ヒントを入れるか
+
+## 暫定 UI 候補（REQ 5. UI 変更より）
+| 対象 | 現状 |
+|------|------|
+| `GraphDisplayState.expandSkillRows` | checkbox「縦拡大」。ON 時 map 操作無効 |
+| `isExpanded` 分岐（RaceDetailChart） | visibleWindow / metricsViewState / mapInteractionEnabled / chart 高さ / scroll / layout 等 |
+| `DETAIL_ZOOM_FIXED=4` / `computeDetailYZoomFactor` | Y だけ 4 倍固定 |
+| dev `Y zoom: 4.00` 表示 | `process.env.NODE_ENV === "development"` のみ |
+| `layoutSkillMarkers({ expanded: true })` | 旧 detail 専用 stack 段 |
+| `buildSkillMarkers` の `expandedChartHeight` | 旧縦拡大用高さ算出（利用箇所要確認） |
+
+## 確認してほしいファイル
+- `desktop-app/app/components/RaceDetailChart.tsx` — `isExpanded` 分岐の全箇所（約 20+ 参照）
+- `desktop-app/app/lib/raceGraphBuilder.ts` — `GraphDisplayState`, layout, DETAIL_ZOOM 系
+- `desktop-app/app/hooks/useChartViewInteraction.ts` — `mapInteractionEnabled` 連動
+- `desktop-app/app/hooks/useInteractionCanvasLoop.ts` — canvas 高さ連動
+- `desktop-app/app/lib/chartLineRenderer.ts` — displayState 参照
+
+## 触らないこと（設計上も変更提案に含めない）
+- `applyWheelZoom` / `applyPanDrag` / `visibleWindowFromViewState` の数学
+- Interaction Canvas Engine の canvasVisible / handoff probe / 200ms SLA
+- probe ゲート（`plotMetricsScalesMatchWindow`）
+- 30fps cap（別 follow-up）
+- WASM / OCR / `src-tauri`
+- ステップ 4 全体実機検証の実行（実装後別チャット）
+
+## 報告形式（この順で）
+1. **現状整理** — expanded ON/OFF で何が分岐しているか（表形式推奨）
+2. **削除方針** — 推奨案 1 つ + 代替案（簡潔）
+3. **変更ファイル一覧** — ファイル × 変更概要
+4. **リスク・未決事項** — 実装前にユーザー判断が必要な点
+5. **検証手順** — ステップ 3 単体 + ステップ 4 への接続
+6. **承認後・実装チャット用完成プロンプト** — CHAT_TEMPLATE 外枠込みで1ブロック（▼ここからコピー〜▲ここまで）
+
+## 完了条件（設計レビュー）
+- [ ] 削除対象と残す API が明確
+- [ ] map-view 単一路線で赤線↔速度線整合が維持できる根拠
+- [ ] Interaction Canvas / overlay handoff 退行リスクが評価済み
+- [ ] 実装チャット用完成プロンプトが出力可能
 ```
 
 ## 設計レビュー起票プロンプト（Agent 着手時・初回）
