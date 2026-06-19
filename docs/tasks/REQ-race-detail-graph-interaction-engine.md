@@ -5,7 +5,7 @@
 > 文脈: [`REQ-race-detail-graph-performance.md`](REQ-race-detail-graph-performance.md)、[`REQ-race-detail-graph-map-view-perf-fallback.md`](REQ-race-detail-graph-map-view-perf-fallback.md)（30fps cap は移行期フォールバック）
 > ロードマップ: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md)
 
-- **ステータス**: in-progress（Phase 4 **実装完了** / 実機検証クローズ待ち）
+- **ステータス**: done（Phase 1〜4 **実機検証クローズ** 2026-06-19）
 - **作成日**: 2026-06-19 01:19
 - **関連コミット**: `5693968`（Phase 1）、`8767b1a`（Phase 2）、`8ab7c60`（Phase 3）、`9a3b8ca`（パン選択防止）、`c6db25c`〜`d22db24`（非操作時小丸）、`6ac05a9`（ホイール窓中心）
 
@@ -452,13 +452,13 @@ Phase 3 本体（`8ab7c60`）のあと、同一セッション〜続チャット
 - [x] ChartMetricsBridge: probe 多フレーム rAF リトライ（max 12 frames or 200ms）
 - [x] dev 計測: `handoff:commit-to-overlay` が development で計測可能
 - [x] 操作中 Recharts `Line` commit **ゼロ**（Phase 3 資産・退行なし）
-- [ ] 停止後 **200ms 以内**（T0=commit 後）overlay probe 合格・赤線↔速度線 OK
-- [ ] commit 瞬間のフラッシュ・線ジャンプなし（主観）
-- [ ] wheel idle 150ms: **値変更なし**。体感要検証項目を実機で確認（上記「後続要検証」）
-- [ ] ダブルクリックリセット・compare・percent 3 系列・リサイズ・ホイール窓中心で退行なし
-- [ ] `expandSkillRows` ON 時 map 操作無効のまま
+- [x] 停止後 **200ms 以内**（T0=commit 後）overlay probe 合格・赤線↔速度線 OK
+- [x] commit 瞬間のフラッシュ・線ジャンプなし（主観）
+- [x] wheel idle 150ms: **値変更なし**。体感要検証項目を実機で確認（上記「後続要検証」）
+- [x] ダブルクリックリセット・compare・percent 3 系列・リサイズ・ホイール窓中心で退行なし
+- [x] `expandSkillRows` ON 時 map 操作無効のまま
 - [x] `npm run build` 通過
-- [ ] **実機検証クローズ**
+- [x] **実機検証クローズ**（2026-06-19。連続ホイールひっかかりは別 REQ）
 
 ### Phase 4 実機チェックリスト
 
@@ -538,9 +538,11 @@ Phase 3 本体（`8ab7c60`）のあと、同一セッション〜続チャット
 
 ## 完了条件（REQ 全体）
 
-- [ ] Phase 1〜4 すべて完了
-- [ ] 上記検証手順 **実機検証クローズ**
-- [ ] `docs/TODO.md` 完了済み・本 REQ `done`
+- [x] Phase 1〜4 すべて完了
+- [x] 上記検証手順 **実機検証クローズ**（2026-06-19）
+- [x] `docs/TODO.md` 完了済み・本 REQ `done`
+
+**follow-up（本 REQ 外）**: Phase 5（30fps cap 削除等）・連続ホイール途中 commit 除去 → [`REQ-race-detail-graph-wheel-continuous-zoom.md`](REQ-race-detail-graph-wheel-continuous-zoom.md)
 
 ---
 
@@ -569,6 +571,7 @@ Phase 3 本体（`8ab7c60`）のあと、同一セッション〜続チャット
 | 2026-06-19 17:36 | **Phase 4 設計レビュー承認**: 案 A 維持 + ChartMetricsBridge 多フレーム rAF probe リトライ + dev 計測。200ms SLA は T0=commit 後 | Ask mode 設計レビュー合意。未決事項すべて OK |
 | 2026-06-19 17:36 | **`MAP_INTERACTION_WHEEL_IDLE_MS=150` は Phase 4 で変更しない**。体感要検証は実機チェックに記載、短縮判断は Phase 5 以降 | scope 外。ユーザー要望: docs に後続検証として控え |
 | 2026-06-19 17:39 | **Phase 4 実装完了**: ChartMetricsBridge 多フレーム rAF probe リトライ（max 12 frames / 200ms）+ dev 計測 `handoff:commit-to-overlay`（`9042aa9`） | 設計レビュー承認どおり。実機検証クローズはユーザー別途 |
+| 2026-06-19 17:53 | **Phase 4 実機検証クローズ** + **REQ Phase 1〜4 done** | ユーザー全項目 OK。連続ホイールひっかかりは Phase 4 スコープ外・別 REQ 起票 |
 
 ---
 
