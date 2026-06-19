@@ -21,6 +21,7 @@ import { RaceDetailDump } from "../lib/types";
 import {
   buildRaceGraphPoints,
   buildSkillMarkers,
+  buildInteractionPlotMetrics,
   ChartPlotMetrics,
   ChartViewState,
   chartViewStatesEqual,
@@ -33,6 +34,7 @@ import {
   layoutSkillMarkers,
   mergeBaselineGraphPoints,
   plotMetricsEquivalent,
+  plotMetricsHandoffCompatible,
   plotMetricsScalesMatchWindow,
   skillMarkersToPx,
   SkillMarkerPx,
@@ -48,7 +50,7 @@ import {
   VisibleWindow,
 } from "../lib/raceGraphBuilder";
 import { SKILL_ACTIVATION_DOT_RADIUS } from "../lib/chartLineRenderer";
-import { useChartViewInteraction, useClampChartViewOnResize } from "../hooks/useChartViewInteraction";
+import { useChartViewInteraction, useClampChartViewOnResize, ViewCommitPayload } from "../hooks/useChartViewInteraction";
 import { useInteractionCanvasLoop } from "../hooks/useInteractionCanvasLoop";
 
 interface RaceDetailChartProps {
@@ -359,6 +361,8 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
   const [viewportHeight, setViewportHeight] = useState(SKILL_CHART_BASE_HEIGHT);
   const [measuredWidth, setMeasuredWidth] = useState(800);
   const [measuredPlotMetrics, setMeasuredPlotMetrics] = useState<ChartPlotMetrics | null>(null);
+  const [handoffPlotMetrics, setHandoffPlotMetrics] = useState<ChartPlotMetrics | null>(null);
+  const prevIsMapInteractingRef = useRef(false);
 
   useEffect(() => {
     const el = scrollContainerRef.current;
@@ -405,6 +409,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
   // リサイズ時のみ metrics をリセット（domain 変更では ChartMetricsBridge が再計測）
   useEffect(() => {
     setMeasuredPlotMetrics(null);
+    setHandoffPlotMetrics(null);
   }, [measuredWidth, viewportHeight]);
 
   const handlePlotMetrics = useCallback((metrics: ChartPlotMetrics) => {
@@ -417,7 +422,15 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
 
   const handleViewReset = useCallback(() => {
     setMeasuredPlotMetrics(null);
+    setHandoffPlotMetrics(null);
   }, []);
+
+  const handleViewCommit = useCallback(
+    ({ view, cartesian }: ViewCommitPayload) => {
+      setHandoffPlotMetrics(buildInteractionPlotMetrics(cartesian, view, maxTime));
+    },
+    [maxTime],
+  );
 
   /** scales 未取得時の暫定（初回フレームのみ。誤った Y は描画しない） */
   const estimatedPlotMetrics = useMemo(
@@ -435,7 +448,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
     [viewportPlotHeight, overlayPlotWidth, visibleWindow, chartViewState],
   );
 
-  const plotMetrics = measuredPlotMetrics ?? estimatedPlotMetrics;
+  const plotMetrics = measuredPlotMetrics ?? handoffPlotMetrics ?? estimatedPlotMetrics;
   const plotMetricsReady = measuredPlotMetrics?.scales != null;
 
   const { isMapInteracting, liveViewRef, interactionCartesianRef } = useChartViewInteraction({
@@ -447,16 +460,53 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
     viewState: chartViewState,
     setViewState: setChartViewState,
     onViewReset: handleViewReset,
+    onViewCommit: handleViewCommit,
     deferDomainCommit: true,
   });
 
-  /** measured scales が view/domain と実効一致するまで overlay を defer */
-  const overlayLayoutReady =
+  // 新操作セッション開始時に前回 handoff を破棄
+  useEffect(() => {
+    if (isMapInteracting && !prevIsMapInteractingRef.current) {
+      setHandoffPlotMetrics(null);
+    }
+    prevIsMapInteractingRef.current = isMapInteracting;
+  }, [isMapInteracting]);
+
+  const handoffReady =
+    !isMapInteracting &&
+    handoffPlotMetrics != null &&
+    chartViewStatesEqual(handoffPlotMetrics.view, chartViewState) &&
+    visibleWindowsEqual(handoffPlotMetrics, visibleWindow);
+
+  const measuredReady =
     !isMapInteracting &&
     measuredPlotMetrics != null &&
     plotMetricsScalesMatchWindow(measuredPlotMetrics) &&
     chartViewStatesEqual(measuredPlotMetrics.view, chartViewState) &&
     visibleWindowsEqual(measuredPlotMetrics, visibleWindow);
+
+  const handoffMeasuredMismatch =
+    handoffReady &&
+    measuredPlotMetrics != null &&
+    plotMetricsScalesMatchWindow(measuredPlotMetrics) &&
+    chartViewStatesEqual(measuredPlotMetrics.view, chartViewState) &&
+    visibleWindowsEqual(measuredPlotMetrics, visibleWindow) &&
+    !plotMetricsHandoffCompatible(handoffPlotMetrics, measuredPlotMetrics);
+
+  /** Phase A: handoff 即時 / Phase B 後: measured 正本。座標不一致時のみ defer */
+  const overlayLayoutReady =
+    (handoffReady && !handoffMeasuredMismatch) ||
+    (measuredReady && handoffPlotMetrics == null);
+
+  // measured 到着 + probe OK + 座標一致 → handoff を measured へ引き渡し
+  useEffect(() => {
+    if (!handoffPlotMetrics || !measuredPlotMetrics) return;
+    if (!plotMetricsScalesMatchWindow(measuredPlotMetrics)) return;
+    if (!chartViewStatesEqual(measuredPlotMetrics.view, chartViewState)) return;
+    if (!visibleWindowsEqual(measuredPlotMetrics, visibleWindow)) return;
+    if (!plotMetricsHandoffCompatible(handoffPlotMetrics, measuredPlotMetrics)) return;
+    setHandoffPlotMetrics(null);
+  }, [handoffPlotMetrics, measuredPlotMetrics, chartViewState, visibleWindow]);
 
   const canvasVisible = mapInteractionEnabled && (isMapInteracting || !overlayLayoutReady);
   const rechartsLinesVisible = overlayLayoutReady && !isMapInteracting;
@@ -478,7 +528,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
         const last = entries[entries.length - 1];
         if (last && last.duration > 200) {
           console.warn(
-            `[handoff] commit-to-overlay ${last.duration.toFixed(1)}ms exceeds 200ms SLA`,
+            `[handoff] commit-to-overlay ${last.duration.toFixed(1)}ms exceeds 200ms SLA (Phase A 即時表示)`,
           );
         }
         performance.clearMeasures("handoff:commit-to-overlay");

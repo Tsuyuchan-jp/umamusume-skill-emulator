@@ -9,8 +9,25 @@ import {
   clampChartViewState,
 } from "../lib/raceGraphBuilder";
 
-/** ホイール完全停止とみなす無入力時間（ms）。この間隔を超えて初めて commitLiveView を実行する */
-export const MAP_INTERACTION_WHEEL_IDLE_MS = 300;
+/** 連続バースト判定: 直前 wheel との gap がこれ以下なら settle LONG */
+export const MAP_WHEEL_BURST_GAP_MS = 180;
+/** 単発 notch / バースト終了後の settle（gap > BURST_GAP） */
+export const MAP_WHEEL_SETTLE_MS_SHORT = 100;
+/** 連続バースト中の settle（gap <= BURST_GAP）。初回 wheel も LONG */
+export const MAP_WHEEL_SETTLE_MS_LONG = 280;
+
+/** 直前 wheel イベント間隔から settle ms を決定（テスト用 export） */
+export function wheelSettleMsForGap(previousGapMs: number | null): number {
+  if (previousGapMs == null) return MAP_WHEEL_SETTLE_MS_LONG;
+  return previousGapMs > MAP_WHEEL_BURST_GAP_MS
+    ? MAP_WHEEL_SETTLE_MS_SHORT
+    : MAP_WHEEL_SETTLE_MS_LONG;
+}
+
+export interface ViewCommitPayload {
+  view: ChartViewState;
+  cartesian: CartesianRect;
+}
 
 /** 操作中の chartViewState → Recharts domain 反映の上限 fps */
 export const MAP_CHART_DOMAIN_COMMIT_FPS = 30;
@@ -26,6 +43,8 @@ interface UseChartViewInteractionOptions {
   setViewState: Dispatch<SetStateAction<ChartViewState>>;
   /** ダブルクリックリセット直前（measured metrics 無効化用） */
   onViewReset?: () => void;
+  /** wheel idle / pointerup で commit した直後（合成 metrics handoff 用） */
+  onViewCommit?: (payload: ViewCommitPayload) => void;
   /** true: 操作中は setViewState を呼ばず liveViewRef のみ更新（デフォルト true） */
   deferDomainCommit?: boolean;
 }
@@ -58,6 +77,7 @@ export function useChartViewInteraction({
   viewState,
   setViewState,
   onViewReset,
+  onViewCommit,
   deferDomainCommit = true,
 }: UseChartViewInteractionOptions): UseChartViewInteractionResult {
   const viewStateRef = useRef(viewState);
@@ -70,8 +90,14 @@ export function useChartViewInteraction({
   const domainCommitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastDomainCommitTimeRef = useRef(0);
   const wheelIdleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastWheelEventTimeRef = useRef<number | null>(null);
   const isDraggingRef = useRef(false);
   const wheelActiveRef = useRef(false);
+  const onViewCommitRef = useRef(onViewCommit);
+
+  useEffect(() => {
+    onViewCommitRef.current = onViewCommit;
+  }, [onViewCommit]);
 
   const deferActive = enabled && (deferDomainCommit ?? true);
   const deferActiveRef = useRef(deferActive);
@@ -178,25 +204,43 @@ export function useChartViewInteraction({
     cancelDomainCommitTimer();
     pendingViewStateRef.current = null;
 
+    const cartesianSnapshot =
+      interactionCartesianRef.current != null
+        ? { ...interactionCartesianRef.current }
+        : null;
+    const committedView = liveViewRef.current;
+
     if (deferActiveRef.current) {
-      setViewState(liveViewRef.current);
+      setViewState(committedView);
       interactionCartesianRef.current = null;
     } else {
       commitPendingViewStateNow();
       interactionCartesianRef.current = null;
     }
+
+    if (cartesianSnapshot != null) {
+      onViewCommitRef.current?.({ view: committedView, cartesian: cartesianSnapshot });
+    }
+
+    lastWheelEventTimeRef.current = null;
   }, [cancelDomainCommitTimer, commitPendingViewStateNow, setViewState]);
 
   const scheduleWheelIdleEnd = useCallback(() => {
     if (wheelIdleTimerRef.current != null) {
       clearTimeout(wheelIdleTimerRef.current);
     }
+    const now = performance.now();
+    const previousGap =
+      lastWheelEventTimeRef.current != null ? now - lastWheelEventTimeRef.current : null;
+    lastWheelEventTimeRef.current = now;
+    const settleMs = wheelSettleMsForGap(previousGap);
+
     wheelIdleTimerRef.current = setTimeout(() => {
       wheelIdleTimerRef.current = null;
       commitLiveView();
       wheelActiveRef.current = false;
       syncInteracting();
-    }, MAP_INTERACTION_WHEEL_IDLE_MS);
+    }, settleMs);
   }, [commitLiveView, syncInteracting]);
 
   const resetView = useCallback(() => {
@@ -212,6 +256,7 @@ export function useChartViewInteraction({
       clearTimeout(wheelIdleTimerRef.current);
       wheelIdleTimerRef.current = null;
     }
+    lastWheelEventTimeRef.current = null;
     isDraggingRef.current = false;
     syncInteracting();
     onViewReset?.();

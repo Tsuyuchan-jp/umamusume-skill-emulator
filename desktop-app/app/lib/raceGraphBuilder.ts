@@ -143,6 +143,28 @@ export function plotMetricsEquivalent(a: ChartPlotMetrics, b: ChartPlotMetrics):
   return true;
 }
 
+/** handoff（線形 fallback）と measured（Recharts scales）の座標が許容内か */
+export function plotMetricsHandoffCompatible(
+  handoff: ChartPlotMetrics,
+  measured: ChartPlotMetrics,
+): boolean {
+  const tol = METRICS_SCALE_PROBE_TOLERANCE_PX;
+  const samples: [number, number][] = [
+    [handoff.timeMin, handoff.speedMin],
+    [handoff.timeMax, handoff.speedMax],
+    [handoff.timeMin, handoff.speedMax],
+    [(handoff.timeMin + handoff.timeMax) / 2, (handoff.speedMin + handoff.speedMax) / 2],
+  ];
+  for (const [time, speed] of samples) {
+    const hx = timeToSvgX(time, handoff);
+    const hy = speedToSvgY(speed, handoff);
+    const mx = timeToSvgX(time, measured);
+    const my = speedToSvgY(speed, measured);
+    if (Math.abs(hx - mx) > tol || Math.abs(hy - my) > tol) return false;
+  }
+  return true;
+}
+
 /** viewState から可視窓 domain を算出（パターン B: 全軸連動） */
 export function visibleWindowFromViewState(
   view: ChartViewState,

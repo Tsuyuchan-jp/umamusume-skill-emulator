@@ -4,18 +4,17 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-19 18:55
+最終更新: 2026-06-19 19:02
 
 ---
 
 ## 現在のフォーカス
 
-**グラフ本線（P1）**: Google Map 型 Phase 5 **完了** — 次は P0 トースト改善 or P2 overlay 復帰 latency
+**グラフ本線（P1）**: Google Map 型 Phase 5 **完了** — 次は P0 トースト改善 or P2 overlay 中間レベル（任意）
 
 **おすすめの進め方**:
 1. **P0** — シミュレーション失敗トースト（小タスク・グラフと独立）
-2. **P2** — ホイール停止後 overlay 復帰 latency 短縮（合成 metrics 即時 handoff）
-3. **P2（任意）** — 操作中 overlay 中間レベル（赤線のみ）
+2. **P2（任意）** — 操作中 overlay 中間レベル（赤線のみ）
 
 ---
 
@@ -45,13 +44,6 @@
 （Phase 5 完了。次の P1 候補は Backlog 追加時にここへ）
 
 ### P2 — 改善・アイデア
-
-- [ ] **Google Map 型グラフ — ホイール停止後 overlay 復帰 latency 短縮**
-  - 現状: `MAP_INTERACTION_WHEEL_IDLE_MS=300` 待機 + Recharts metrics probe（最大 ~200ms）で停止〜スキル overlay 表示まで長い
-  - 目標: 連続ホイールの途中 commit なしは維持しつつ、**停止後の overlay 表示を ~100ms 台**へ
-  - 施策: 合成 metrics 即時 handoff（A）+ adaptive idle（B）
-  - 触る想定: `useChartViewInteraction.ts`, `RaceDetailChart.tsx`
-  - REQ: [`REQ-race-detail-graph-overlay-handoff-latency.md`](tasks/REQ-race-detail-graph-overlay-handoff-latency.md)
 
 - [ ] **Google Map 型グラフ — 操作中 overlay 中間レベル**（赤線のみ表示。ラベル・layout・getBBox は defer 維持）
   - 前提: 現状は最小レベル（操作中 overlay 全非表示）でパフォーマンス優先
@@ -123,6 +115,7 @@
 
 ## 完了済み
 
+- [x] **Google Map 型グラフ — ホイール停止後 overlay 復帰 latency 短縮** — 合成 metrics 即時 handoff（A）+ adaptive idle（B）（コミット後にハッシュ追記 / [`REQ-race-detail-graph-overlay-handoff-latency.md`](tasks/REQ-race-detail-graph-overlay-handoff-latency.md)）
 - [x] **Google Map 型グラフ UI Phase 5 完了** — ステップ 3 暫定 UI 削除 + ステップ 4 全体実機検証クローズ（検証手順 1〜7 すべて OK / `249c4b2` / [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md) **done**）
 - [x] Google Map 型グラフ UI Phase 5 — **ステップ 3 暫定 UI 削除**（`expandSkillRows` / K=4 legacy 経路除去・map-view 単一路線・操作ヒント追加）（`ee6d460` / [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)）
 - [x] ホイール 1 ノッチ拡大率調整 — `CHART_VIEW_WHEEL_ZOOM_FACTOR` 1.1→1.2（**実機検証クローズ** 2026-06-19 18:18 / `bec0d2a` / [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)）
@@ -208,7 +201,7 @@
 - 現代ウマ娘: 所持 50〜70+ スキル。グラフ `skillEvents` は発動イベント数（20〜40+ あり得る）
 - **別作業で発見（2026-06-11）**: サイドバー折りたたみボタンのスクロール追従、ステータス条件ボタンのテキスト化、グラフ/スキル表記以降のレスポンス低下 — いずれも Backlog 登録済み
 - **REQ 運用**: 着手候補の正本は **本 TODO**。`draft` REQ 起票時は Backlog へ必ず1行追加（`.cursor/rules/docs-management.mdc`）
-- **連続ホイールひっかかり**: **解消・実機検証クローズ**（idle 300ms / `8227f93`）。overlay 復帰 ~500ms は連続ズーム改善とのトレードオフとして許容。**Phase 5 実機検証（2026-06-19）**: 停止後 overlay 表示が長く感じる → P2「合成 metrics 即時 handoff」Backlog 登録
+- **連続ホイールひっかかり**: **解消・実機検証クローズ**（idle 300ms / `8227f93`）。**overlay 復帰 latency**: 合成 metrics handoff + adaptive idle で短縮実装済み（実機検証は別チャット / [`REQ-race-detail-graph-overlay-handoff-latency.md`](tasks/REQ-race-detail-graph-overlay-handoff-latency.md)）
 - 因子管理 DB・Tesseract OCR・Supabase 連携は **開発予定なし**（`.cursor/rules/development.mdc`）
 
 ---

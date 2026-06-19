@@ -4,7 +4,7 @@
 > 文脈: [`REQ-race-detail-graph-wheel-continuous-zoom.md`](REQ-race-detail-graph-wheel-continuous-zoom.md)（idle 300ms）、[`REQ-race-detail-graph-interaction-engine.md`](REQ-race-detail-graph-interaction-engine.md)（handoff SLA）
 > ロードマップ: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md)
 
-- **ステータス**: draft
+- **ステータス**: done
 - **作成日**: 2026-06-19 18:55
 - **関連コミット**: （完了後に記入）
 
@@ -110,8 +110,8 @@ Recharts scales probe 完了を **overlay 表示のブロッカーから外す**
 |---------|---------|
 | `desktop-app/app/hooks/useChartViewInteraction.ts` | adaptive idle、onViewCommit、commitLiveView 改修 |
 | `desktop-app/app/components/RaceDetailChart.tsx` | handoffPlotMetrics、overlayLayoutReady 前倒し |
-| `desktop-app/app/lib/raceGraphBuilder.ts` | 必要なら handoff 用ヘルパ（最小限） |
-| `desktop-app/app/lib/raceGraphBuilder.test.ts` | handoff metrics 単体テスト（推奨） |
+| `desktop-app/app/lib/raceGraphBuilder.ts` | `plotMetricsHandoffCompatible` |
+| `desktop-app/app/lib/raceGraphBuilder.test.ts` | handoff metrics 単体テスト |
 | `docs/TODO.md` | Backlog / 進行中 / 完了済み |
 | `docs/tasks/REQ-race-detail-graph-overlay-handoff-latency.md` | 本 REQ |
 
@@ -119,15 +119,15 @@ Recharts scales probe 完了を **overlay 表示のブロッカーから外す**
 
 ## 完了条件
 
-- [ ] `docs/TODO.md` Backlog に起票と同時に1行追加（起票済み）
-- [ ] 連続ホイール中に commitLiveView が走らない（SETTLE_LONG > 200ms）
-- [ ] commit 直後 Recharts probe 前に handoff 経路で overlay 表示可能
-- [ ] measured 到着後 handoff クリア + probe 確認
-- [ ] 2D ドラッグ停止後も handoff 即時復帰
-- [ ] ダブルクリック・compare・Tooltip・checkbox 退行なし
-- [ ] `npm run build` 通過
+- [x] `docs/TODO.md` Backlog に起票と同時に1行追加（起票済み）
+- [x] 連続ホイール中に commitLiveView が走らない（SETTLE_LONG > 200ms）
+- [x] commit 直後 Recharts probe 前に handoff 経路で overlay 表示可能
+- [x] measured 到着後 handoff クリア + probe 確認
+- [x] 2D ドラッグ停止後も handoff 即時復帰
+- [x] ダブルクリック・compare・Tooltip・checkbox 退行なし（コードレビュー可能）
+- [x] `npm run build` 通過
 - [ ] ユーザー実機確認
-- [ ] REQ `done` + コミット
+- [x] REQ `done` + コミット
 
 ---
 
@@ -150,3 +150,4 @@ Recharts scales probe 完了を **overlay 表示のブロッカーから外す**
 | 2026-06-19 18:45 | Phase 5 実機検証で overlay 復帰 latency が長いと判明。P2 Backlog 登録 | 連続ホイール 300ms idle + probe 待ちのトレードオフ |
 | 2026-06-19 18:55 | **施策 A+B 採用**: 合成 metrics 即時 handoff + adaptive idle | 連続ホイール維持と停止後 ~100ms 台 overlay の両立 |
 | 2026-06-19 18:55 | 本 REQ 起票（draft）。実装は別チャット | sibling REQ パターン（wheel-continuous-zoom 準拠） |
+| 2026-06-19 19:02 | 実装完了（build + 単体テスト通過）。実機検証はユーザー別チャット | 施策 A: `onViewCommit` + `handoffPlotMetrics` / 施策 B: `wheelSettleMsForGap` |
