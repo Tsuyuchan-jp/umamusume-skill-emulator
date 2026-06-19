@@ -5,7 +5,7 @@
 > 文脈: [`REQ-race-detail-graph-performance.md`](REQ-race-detail-graph-performance.md)、[`REQ-race-detail-graph-map-view-perf-fallback.md`](REQ-race-detail-graph-map-view-perf-fallback.md)（30fps cap は移行期フォールバック）
 > ロードマップ: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md)
 
-- **ステータス**: draft（設計レビュー待ち）
+- **ステータス**: draft（設計レビュー承認済み — Phase 1 実装待ち）
 - **作成日**: 2026-06-19 01:19
 - **関連コミット**: （完了後に記入）
 
@@ -36,8 +36,9 @@
 │  Interacting（操作中）                                   │
 │  liveViewRef（毎入力更新、React setViewState なし）      │
 │  Canvas 折れ線レイヤー（rAF 60fps、domain 再計算描画）   │
+│  + スキル発動点の小丸（速度線上・layout 不要）           │
 │  Recharts: domain 固定・Line 非表示（cartesian 実測維持）│
-│  ReferenceArea / phaseLines / overlay: defer             │
+│  ReferenceArea / phaseLines / overlay（赤線・ラベル）: defer │
 │  Tooltip: defer                                          │
 └─────────────────────────────────────────────────────────┘
                           │
@@ -47,8 +48,9 @@
 │  Settling（停止直後）                                    │
 │  liveView → committed viewState（setState 1 回）         │
 │  Recharts domain 更新 → ChartMetricsBridge → probe       │
-│  Canvas 最終フレーム維持 → probe 合格後に Canvas 非表示  │
-│  overlay 復帰（既存 overlayLayoutReady フロー）        │
+│  Canvas 最終フレーム維持（折れ線 + 小丸）                │
+│  → overlayLayoutReady まで Canvas 表示（案 A）          │
+│  → probe 合格後 Canvas 非表示 + overlay 復帰             │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -84,7 +86,7 @@ Phase 5〜6 は follow-up（本 REQ 完了後に別起票可）。
 |-------|------|-----------|
 | **1** | 描画コア抽出 `chartLineRenderer.ts` | Canvas 描画が idle Recharts と視覚一致（許容差あり） |
 | **2** | Interaction View 分離（`liveViewRef`、操作中 `setViewState` 停止） | 操作中 Recharts Line commit ゼロ |
-| **3** | Canvas レイヤー配線 + rAF ループ | 60fps 近傍の主観 OK |
+| **3** | Canvas レイヤー配線 + rAF ループ + **スキル発動点小丸** | 60fps 近傍の主観 OK。操作中発動位置が視認できる |
 | **4** | ハンドオフ品質（フラッシュ防止・probe 連携） | 停止後 200ms overlay 復帰・退行なし |
 | 5（follow-up） | ReferenceArea defer 正式化、30fps cap 削除 | 別タスク可 |
 | 6（follow-up） | Recharts Line 廃止（軸・Tooltip のみ） | 別タスク可 |
@@ -171,6 +173,21 @@ export function drawChartLines(
   options: DrawChartLinesOptions,
 ): void;
 
+export interface DrawSkillActivationDotsOptions {
+  displayState: GraphDisplayState;
+  /** buildSkillMarkers 出力（layoutSkillMarkers 前） */
+  markers: Pick<SkillMarker, "startTime" | "labelColor" | "kind">[];
+  /** 丸の半径（CSS px。DPR スケール済み ctx 上） */
+  radius?: number;
+}
+
+/** 速度折れ線上にスキル発動点の小丸を描画（Phase 3 で Canvas rAF から呼ぶ） */
+export function drawSkillActivationDots(
+  renderCtx: ChartLineRenderContext,
+  points: GraphPoint[],
+  options: DrawSkillActivationDotsOptions,
+): void;
+
 /** Canvas の bitmap サイズを DPR に合わせる（width/height は CSS px） */
 export function resizeCanvasToDisplaySize(
   canvas: HTMLCanvasElement,
@@ -187,9 +204,16 @@ export function resizeCanvasToDisplaySize(
 | stamina / lane | `type="monotone"` | `monotone`（Phase 1 で Recharts 出力と diff 検証。差が大きければ設計レビューで決定） |
 | baseline 3 系列 | 破線 `strokeDasharray="6 4"` | 同一 |
 
+### `getSpeedAtTime` の export（Phase 1）
+
+- `raceGraphBuilder.ts` の非公開 `getSpeedAtTime` を **export** する（pan/zoom ロジックは不変。折れ線 linear 補間と同一）
+- `drawSkillActivationDots` の Y 座標は `getSpeedAtTime` + `speedToCanvasY` で算出（停止後 overlay の stack 0 赤線アンカーと同一データ点）
+
 ### Phase 1 完了条件
 
 - [ ] `drawChartLines` が compare OFF/ON・checkbox 表示切替に対応
+- [ ] `drawSkillActivationDots` が `buildSkillMarkers` 出力 + displayState フィルタに対応（単体座標検証。Phase 3 まで UI 未配線可）
+- [ ] `getSpeedAtTime` export（`raceGraphBuilder.ts`）
 - [ ] `resizeCanvasToDisplaySize` で Retina 対応
 - [ ] cartesian クリップ矩形内のみ描画
 - [ ] **Recharts はまだ変更しない**（単体検証: 同一 window + cartesian でスクリーンショット or 座標サンプル比較）
@@ -211,8 +235,10 @@ export function resizeCanvasToDisplaySize(
 
 export interface UseChartViewInteractionResult {
   isMapInteracting: boolean;
-  /** 操作中の最新 view（Canvas rAF 用）。停止後は committed と一致 */
-  liveView: ChartViewState;
+  /** 操作中の最新 view（Canvas rAF 用）。ref のみ — React state で返さない */
+  liveViewRef: RefObject<ChartViewState>;
+  /** 操作開始時に固定する cartesian（synthetic metrics / Canvas 描画用） */
+  interactionCartesianRef: RefObject<CartesianRect | null>;
 }
 
 export interface UseChartViewInteractionOptions {
@@ -262,11 +288,15 @@ export interface UseInteractionCanvasLoopOptions {
   enabled: boolean;
   canvasRef: RefObject<HTMLCanvasElement | null>;
   isMapInteracting: boolean;
-  /** idle 時に実測された cartesian（操作中固定） */
+  /** overlayLayoutReady 後は Canvas 非表示（settling 中は true のまま維持） */
+  canvasVisible: boolean;
+  /** 操作開始時に固定した cartesian */
   cartesian: CartesianRect;
-  liveView: ChartViewState;
+  liveViewRef: RefObject<ChartViewState>;
   raceEnd: number;
   points: GraphPoint[];
+  /** buildSkillMarkers 出力（layout 前） */
+  skillMarkers: SkillMarker[];
   displayState: GraphDisplayState;
   showBaseline: boolean;
   chartAreaHeight: number;
@@ -284,20 +314,41 @@ export function useInteractionCanvasLoop(
 `desktop-app/app/components/RaceDetailChart.tsx`
 
 - `<canvas>` を `chartAreaRef` 内・plot area 上に `absolute` 配置
+- `canvasVisible = isMapInteracting || !overlayLayoutReady`（案 A: settling 中も Canvas 維持）
 - `isMapInteracting` 中:
-  - Canvas `visible` + `drawChartLines`
-  - Recharts `Line` 6 本は `hide={true}` または wrapper `opacity:0`（**ChartMetricsBridge は動かすな** — domain 固定のため Bridge は idle domain のまま）
-- `isMapInteracting` 外: Canvas 非表示、Recharts 表示
+  - Canvas `drawChartLines` + **`drawSkillActivationDots`**（下記）
+  - Recharts `Line` 6 本は `strokeOpacity:0`（**ChartMetricsBridge は動かすな** — domain 固定のため Bridge は idle domain のまま）
+- `overlayLayoutReady` 後: Canvas 非表示、Recharts Line 表示
 
 ### ReferenceArea / phaseLines（Phase 3）
 
 - 操作中は **非表示**（`isMapInteracting && null` または `hide`）
-- Phase 5 で正式化してもよいが、Phase 3 で入れてよい（コスト低）
+- 左下凡例ピル（「直線/コーナー」等の Recharts 外 `div`）は **操作中も表示**（defer 対象外）
+
+### スキル発動点の小丸（Phase 3 拡張・設計承認済み）
+
+操作中の **最低要件は速度・体力・レーン 3 折れ線**。スキル名・赤線・ラベルは非表示のまま、発動位置の視認性を補う **軽量 overlay 代替**。
+
+| 項目 | 仕様 |
+|------|------|
+| 描画タイミング | `canvasVisible && (displayState.showSkills \|\| displayState.showDebuffs)` |
+| 非表示 | `overlayLayoutReady` 後（フル overlay に任せる。二重表示しない） |
+| データ | `buildSkillMarkers` 出力（**`layoutSkillMarkers` は呼ばない**） |
+| 座標 | `timeToCanvasX(startTime)` + `speedToCanvasY(getSpeedAtTime(startTime))` — stack 0 赤線アンカーと同一 |
+| 見た目 | 半径 **3〜4px**（CSS px）。色は `SkillMarker.labelColor`（レアリティ色） |
+| 同時刻複数 | 速度線上同一点に重なる — 操作中は許容。停止後 overlay が縦展開 |
+| 性能 | Canvas `arc` × N（20〜40+）。layout / getBBox 不要 |
+| やらない | 丸の hover / Tooltip / 赤線 / スキル名 |
+
+**Settling**: 案 A に従い `overlayLayoutReady` まで小丸も Canvas に残す。overlay 復帰時に同座標から赤線・ラベルが現れる UX を狙う。
 
 ### Phase 3 完了条件
 
 - [ ] 50+ スキル終盤でホイール連打・2D ドラッグ 2〜3 秒が **30fps cap 時より明確に軽い**（主観 60fps 近傍）
 - [ ] compare ON（6 系列）・percent 3 系列 checkbox 切替が Canvas に反映
+- [ ] スキル/デバフ ON 時、操作中に速度線上の **発動点小丸** が live window に追従
+- [ ] `overlayLayoutReady` 後に小丸が消え、赤線↔速度線整合した overlay が復帰
+- [ ] ReferenceArea / phaseLines 操作中非表示 → 停止後復帰
 - [ ] 操作中 Tooltip 非表示（defer）
 - [ ] `npm run build` 通過
 
@@ -318,13 +369,12 @@ export function useInteractionCanvasLoop(
 8. Canvas 非表示 + Recharts Line 表示 + overlay 復帰
 ```
 
-### フラッシュ防止策（設計レビューで1案に絞る）
+### フラッシュ防止策（**案 A 採用**）
 
-| 案 | 内容 | リスク |
-|----|------|--------|
-| **A（推奨）** | Canvas を `overlayLayoutReady` まで表示。Recharts Line は `opacity:0` → probe 合格後に Line 表示・Canvas 非表示 | 実装が明確 |
-| B | commit フレームで Canvas と Recharts を 1 フレーム同時表示（opacity クロスフェード） | 二重描画のチラつき |
-| C | settling 中 `isSettling` フラグで overlay も 1 フレーム遅延 | 状態が増える |
+- `canvasVisible = isMapInteracting || !overlayLayoutReady`
+- `rechartsLinesVisible = overlayLayoutReady && !isMapInteracting`
+- Canvas（折れ線 + 小丸）を `overlayLayoutReady` まで表示。Recharts Line は `strokeOpacity:0` → probe 合格後に Line 表示・Canvas 非表示
+- `isSettling` フラグは追加しない
 
 ### `onViewReset`（ダブルクリック）
 
@@ -347,12 +397,11 @@ export function useInteractionCanvasLoop(
 
 | ファイル | Phase | 責務 |
 |---------|-------|------|
-| `app/lib/chartLineRenderer.ts` | 1 | データ→Canvas 折れ線描画。座標変換 pure functions |
+| `app/lib/chartLineRenderer.ts` | 1 | 折れ線 + スキル発動点小丸描画。座標変換 pure functions |
+| `app/lib/raceGraphBuilder.ts` | 1 | `getSpeedAtTime` export のみ（ロジック不変） |
 | `app/hooks/useChartViewInteraction.ts` | 2 | liveView / committed 分離、入力イベント、commit |
 | `app/hooks/useInteractionCanvasLoop.ts` | 3 | rAF ループ、DPR、drawChartLines 呼び出し |
 | `app/components/RaceDetailChart.tsx` | 3–4 | canvas 要素、表示切替、settling 連携 |
-| `app/lib/raceGraphBuilder.ts` | — | **触らない**（既存 export を import のみ） |
-
 ### 触らないもの
 
 - `applyWheelZoom` / `applyPanDrag` / `visibleWindowFromViewState` / probe 関数群の **ロジック**
@@ -373,7 +422,9 @@ export function useInteractionCanvasLoop(
 
 ## やらないこと（本 REQ）
 
-- 操作中 overlay 中間レベル（赤線のみ）— P2 Backlog・Phase 6 以降
+- 操作中 overlay フル（赤線 + スキル名ラベル + layoutSkillMarkers）— 停止後のみ
+- 操作中 overlay 中間レベル（赤線のみ・P2 Backlog）— 小丸で代替。Phase 6 以降に再検討可
+- 操作中スキル発動丸の hover / Tooltip
 - WebGL 描画（Canvas 2D で十分な見込み）
 - Recharts 完全除去（Phase 4 時点では軸・Tooltip・Legend・ReferenceArea は Recharts 維持）
 
@@ -382,11 +433,13 @@ export function useInteractionCanvasLoop(
 ## 検証手順（実機・全 Phase 共通）
 
 1. 50+ スキル終盤 — ホイール連打・2D ドラッグ 2〜3 秒（体感・任意 Profiler）
-2. 停止後 200ms 以内 overlay 復帰（赤線↔速度線）
-3. percent 3 系列・compare ON・ダブルクリックリセット
-4. ウィンドウリサイズ後の整合
-5. `expandSkillRows` ON 時 map 操作無効
-6. （任意）React Profiler: 操作中 `RaceDetailChart` の commit 回数・時間
+2. 停止後 200ms 以内 overlay 復帰（赤線↔速度線）。小丸→赤線の位置連続性
+3. スキル ON 時: 操作中は小丸のみ、停止後 overlay 復帰
+4. percent 3 系列・compare ON・ダブルクリックリセット
+5. ウィンドウリサイズ後の整合
+6. `expandSkillRows` ON 時 map 操作無効
+7. ReferenceArea / phaseLines: 操作中非表示・停止後復帰
+8. （任意）React Profiler: 操作中 `RaceDetailChart` の commit 回数・時間
 
 ---
 
@@ -405,6 +458,11 @@ export function useInteractionCanvasLoop(
 | 2026-06-19 01:19 | **Interaction Canvas Engine を sibling REQ に起票**。Dual-Viewport（操作中 Canvas / idle Recharts） | 30fps cap 後も Maps 級を目指す。ユーザー合意: 工数可・妥協しない |
 | 2026-06-19 01:19 | Phase 1〜4 を本 REQ スコープ。Phase 5〜6 は follow-up | 段階的に退行リスクを抑えつつ効果を早期検証 |
 | 2026-06-19 01:19 | pan/zoom 数学・probe ゲート・overlayLayoutReady は不変 | 実機検証済み資産の維持 |
+| 2026-06-19 14:22 | **設計レビュー承認**: Dual-Viewport Phase 1〜4。ハンドオフ **案 A**（`canvasVisible` / `overlayLayoutReady` 連動） | Ask mode 設計レビュー合意 |
+| 2026-06-19 14:22 | ReferenceArea / phaseLines **操作中非表示**（停止後復帰）。左下凡例ピルは残す | 操作中最低要件は 3 折れ線。domain stale との位置ズレ回避 |
+| 2026-06-19 14:22 | **スキル発動点小丸**を Phase 3 拡張として追加（Canvas・layout 不要・`overlayLayoutReady` まで表示） | 操作中視認性。停止後赤線アンカーと同一 `(startTime, speed)` |
+| 2026-06-19 14:22 | monotone は **d3-shape `curveMonotoneX`**。`liveViewRef` は React state で返さない | 既存依存流用。60fps 親 re-render 防止 |
+| 2026-06-19 14:22 | 30fps cap: Phase 3 で `deferDomainCommit=true` 常時化、**コード削除は Phase 5 follow-up** | 安全弁として Phase 2〜3 は cap 残存 |
 
 ---
 
