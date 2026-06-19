@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-19 19:19
+最終更新: 2026-06-19 19:33
 
 ---
 
@@ -75,11 +75,6 @@
   - 触る想定: 検証手順のみ（必要なら `SkillVerifier` / パレット方針は別判断）
   - 関連: [`REQ-race-detail-graph-phase3.md`](tasks/REQ-race-detail-graph-phase3.md) B-3
 
-- [ ] **サイドバー折りたたみボタンをスクロール位置に依存させない**
-  - 現状: 折りたたみボタンが左カラムの `overflow-y-auto` 内（タイトル行）にあり、下へスクロールすると押せない
-  - 目標: 左カラムをスクロール中でも常に折りたたみ操作可能（sticky ヘッダー or ボタンをスクロール外へ分離）
-  - 触る想定: `desktop-app/app/(main)/page.tsx`（サイドバー展開時レイアウト）
-
 - [ ] **左カラム設定項目の折りたたみ**
   - 現状: `SettingsPanel` の項目（API キー・保存先・ホットキー等）が常時展開。項目数は多くないが左カラムがやや冗長
   - 目標: 設定ブロックを折りたたみ可能にし、すっきりした見た目にする（デフォルト展開/折りたたみは実装時に決定）
@@ -115,6 +110,7 @@
 
 ## 完了済み
 
+- [x] **サイドバー折りたたみボタンをスクロール位置に依存させない** — 展開時を固定ヘッダー + スクロールボディ（案 B）（2026-06-19 19:33 / コミット後にハッシュ追記）
 - [x] **Google Map 型グラフ — ホイール停止後 overlay 復帰 latency 短縮** — 合成 metrics 即時 handoff（A）+ adaptive idle（B）（**実機検証クローズ** 2026-06-19 / `ed67df3` / [`REQ-race-detail-graph-overlay-handoff-latency.md`](tasks/REQ-race-detail-graph-overlay-handoff-latency.md) **done**）
 - [x] ホイール 1 ノッチ拡大率調整 — `CHART_VIEW_WHEEL_ZOOM_FACTOR` 1.2→1.3（**実機検証クローズ** 2026-06-19 19:19 / `7e6af0d` / [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)）
 - [x] **Google Map 型グラフ UI Phase 5 完了** — ステップ 3 暫定 UI 削除 + ステップ 4 全体実機検証クローズ（検証手順 1〜7 すべて OK / `249c4b2` / [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md) **done**）

@@ -396,28 +396,32 @@ export default function Home() {
             </button>
           </div>
         ) : (
-          <div className="h-full overflow-y-auto p-4 flex flex-col gap-6 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent min-w-0">
-            {/* Title */}
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="flex items-center justify-center w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.15)] transition-all duration-300 hover:bg-emerald-500/20 shrink-0">
-                <svg className="w-5 h-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M4 10a8 8 0 0 1 16 0v4a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-4a2 2 0 0 0-4 0v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4z"></path>
-                </svg>
+          <div className="flex flex-col h-full min-w-0 overflow-hidden">
+            {/* 固定ヘッダー: タイトル行 */}
+            <div className="shrink-0 px-4 pt-4 pb-0">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="flex items-center justify-center w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.15)] transition-all duration-300 hover:bg-emerald-500/20 shrink-0">
+                  <svg className="w-5 h-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M4 10a8 8 0 0 1 16 0v4a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-4a2 2 0 0 0-4 0v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4z"></path>
+                  </svg>
+                </div>
+                <h1 className="text-base font-extrabold leading-tight tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-100 to-zinc-400 shrink min-w-0 flex items-baseline">
+                  ウマ娘 レースアナライザー
+                  <span className="text-[10px] text-zinc-500 font-medium ml-2">v1.0.7</span>
+                </h1>
+                <button
+                  type="button"
+                  onClick={() => setSidebarCollapsed(true)}
+                  className="ml-auto flex items-center justify-center w-9 h-9 rounded-lg text-zinc-400 hover:text-emerald-400 hover:bg-zinc-800/80 transition-colors shrink-0"
+                  title="サイドバーを折りたたむ"
+                >
+                  <PanelLeftClose className="w-5 h-5" />
+                </button>
               </div>
-              <h1 className="text-base font-extrabold leading-tight tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-100 to-zinc-400 shrink min-w-0 flex items-baseline">
-                ウマ娘 レースアナライザー
-                <span className="text-[10px] text-zinc-500 font-medium ml-2">v1.0.7</span>
-              </h1>
-              <button
-                type="button"
-                onClick={() => setSidebarCollapsed(true)}
-                className="ml-auto flex items-center justify-center w-9 h-9 rounded-lg text-zinc-400 hover:text-emerald-400 hover:bg-zinc-800/80 transition-colors shrink-0"
-                title="サイドバーを折りたたむ"
-              >
-                <PanelLeftClose className="w-5 h-5" />
-              </button>
             </div>
 
+            {/* スクロールボディ */}
+            <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-4 pt-6 flex flex-col gap-6 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent min-w-0">
             {/* オートキャプチャ & 自動結合 */}
             <CapturePanel
           statusCfg={statusCfg}
@@ -505,6 +509,7 @@ export default function Home() {
             />
           </div>
         )}
+            </div>
           </div>
         )}
       </div>
