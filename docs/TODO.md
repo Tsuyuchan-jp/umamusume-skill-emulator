@@ -4,17 +4,15 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-19 20:45
+最終更新: 2026-06-19 23:16
 
 ---
 
 ## 現在のフォーカス
 
-**グラフ本線（P1）**: Google Map 型 Phase 5 + overlay handoff + ホイール 1.3 **実機検証クローズ** — 次は **P0 トースト改善**（グラフと独立・小タスク）
+**v1.1.0 リリース** — Phase R1（バグ Fix）から着手。[`REQ-release-v1.1.0.md`](tasks/REQ-release-v1.1.0.md) が作業正本。
 
-**おすすめの進め方**:
-1. **P0** — シミュレーション失敗トースト（`null` 非表示・再試行案内）
-2. **P2（任意）** — 操作中 overlay 中間レベル（赤線のみ）。現状 UX で足りなければ
+**Phase 順**: R1 Fix → R2.5 スキル extract → R3 バージョン/CHANGELOG/本番ビルド（R2 Medium は任意）
 
 ---
 
@@ -26,18 +24,23 @@
 
 優先度順。作業チャット起票時は **P0 から1件** 取る。
 
-### P0 — 次に着手
+### P0 — v1.1.0 リリース
 
-- [ ] **シミュレーション失敗トーストの文言改善（`null` 非表示・再試行案内）**
-  - 経緯: WASM Worker 異常終了時に `シミュレーションエラー: null` がユーザー向けトーストに表示された。フルリロードで復旧した事例あり
-  - 現状: `SimulationLauncher.tsx` が `e.message` をそのまま表示。`umaemuAdapter.ts` が Worker の `error: null` / `"null"` を `new Error(error)` で渡す
-  - 目標: 無意味なメッセージ（`null`・空・`Worker terminated` 等）は **日本語の案内文** に置換。「もう一度実行」「解消しない場合は再読み込み」を含める
-  - 実装方針（2段）:
-    1. `umaemuAdapter.ts` — reject 時に `toSimulationError()` で正規化（内部コード `SIMULATION_ENGINE_UNAVAILABLE` 等）
-    2. `SimulationLauncher.tsx` — `formatSimulationErrorMessage()` でトースト文言確定。`console.error` は詳細ログ用に維持
-  - 文案例: 「シミュレーションを完了できませんでした。一時的な不具合の可能性があります。もう一度実行してみてください。繰り返す場合はアプリの再読み込みをお試しください。」
-  - 触る想定: `umaemuAdapter.ts`, `SimulationLauncher.tsx`
-  - REQ: 不要（数行〜小タスク）
+- [ ] **v1.1.0 リリース — Phase R1: バグ Fix（R-001 / R-006 / 任意 R-008）**
+  - REQ: [`REQ-release-v1.1.0.md`](tasks/REQ-release-v1.1.0.md)（Phase 表・検証チェックリスト）
+  - R-001: シミュ失敗トースト `null` 非表示・日本語案内（`umaemuAdapter.ts`, `SimulationLauncher.tsx`, `SimTabPanel.tsx`）
+  - R-006: raceDetail 取得失敗時「sim 成功・グラフ不可」トースト
+  - R-008（任意）: `simulationCount` localStorage NaN ガード
+  - 触らない: geminiOcr, fuzzyMatcher, src-tauri, race.js
+
+- [ ] **v1.1.0 リリース — Phase R2.5: スキルデータ extract**
+  - `npm run extract-umasim-skills` のみ（race.js 更新なし）
+  - REQ: 同上 Phase R2.5
+
+- [ ] **v1.1.0 リリース — Phase R3: バージョン bump + CHANGELOG + 本番ビルド**
+  - package.json / tauri.conf.json / PROJECT.md / page.tsx UI 表示 → 1.1.0
+  - CHANGELOG v1.1.0 追記、実機チェックリスト（REQ 参照）
+  - REQ: 同上 → 完了時 `done`
 
 ### P1 — 重要
 
@@ -50,6 +53,12 @@
 （Phase 5 完了。上記ほか P1 候補は Backlog 追加時にここへ）
 
 ### P2 — 改善・アイデア
+
+- [ ] **keep-alive タブのメモリ/描画負荷軽減**（将来 Fix）
+  - 現状: sim 済みタブは unmount せず Recharts 等がタブ数分残る。1〜3 タブ運用では問題になりにくい
+  - 目標: 非アクティブタブのグラフ/Recharts をアンマウントまたは lazy 化（5 タブ以上を想定した場合）
+  - 触る想定: `page.tsx` keep-alive 構造、`RaceDetailChart.tsx`
+  - v1.1.0 スコープ外（[`REQ-release-v1.1.0.md`](tasks/REQ-release-v1.1.0.md) 決定ログ参照）
 
 - [ ] **Google Map 型グラフ — 操作中 overlay 中間レベル**（赤線のみ表示。ラベル・layout・getBBox は defer 維持）
   - 前提: 現状は最小レベル（操作中 overlay 全非表示）でパフォーマンス優先
@@ -204,6 +213,7 @@
 - **別作業で発見（2026-06-11）**: サイドバー折りたたみボタンのスクロール追従、ステータス条件ボタンのテキスト化、グラフ/スキル表記以降のレスポンス低下 — いずれも Backlog 登録済み
 - **REQ 運用**: 着手候補の正本は **本 TODO**。`draft` REQ 起票時は Backlog へ必ず1行追加（`.cursor/rules/docs-management.mdc`）
 - **連続ホイール・overlay 復帰**: **実機検証クローズ**（2026-06-19）。handoff + adaptive idle（`ed67df3`）+ ホイール 1.3（`7e6af0d`）で停止後 latency・2 ノッチ目ひっかかりともに改善。詳細: [`REQ-race-detail-graph-overlay-handoff-latency.md`](tasks/REQ-race-detail-graph-overlay-handoff-latency.md)
+- **v1.1.0 リリース**: 作業正本 [`REQ-release-v1.1.0.md`](tasks/REQ-release-v1.1.0.md)。Phase R1→R2.5→R3。keep-alive 最適化・HotKey dev 警告・OCR 中止は v1.1.0 外
 - 因子管理 DB・Tesseract OCR・Supabase 連携は **開発予定なし**（`.cursor/rules/development.mdc`）
 
 ---
