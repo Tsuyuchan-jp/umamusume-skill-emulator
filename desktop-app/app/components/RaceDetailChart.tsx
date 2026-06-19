@@ -29,6 +29,7 @@ import {
   createChartPlotMetrics,
   createInitialChartViewState,
   DEFAULT_GRAPH_DISPLAY_STATE,
+  getSpeedAtTime,
   GraphDisplayState,
   GraphPoint,
   layoutSkillMarkers,
@@ -49,6 +50,7 @@ import {
   visibleWindowsEqual,
   VisibleWindow,
 } from "../lib/raceGraphBuilder";
+import { SKILL_ACTIVATION_DOT_RADIUS } from "../lib/chartLineRenderer";
 import { useChartViewInteraction, useClampChartViewOnResize } from "../hooks/useChartViewInteraction";
 import { useInteractionCanvasLoop } from "../hooks/useInteractionCanvasLoop";
 
@@ -123,6 +125,16 @@ function getSkillPillLayout(
   const pillY = marker.labelY - 2;
   const pillRx = pillHeight / 2;
   return { pillWidth, pillHeight, pillY, pillRx };
+}
+
+function getSkillActivationDotY(
+  startTime: number,
+  points: GraphPoint[],
+  metrics: ChartPlotMetrics,
+  fallbackY: number,
+): number {
+  const y = metrics.scales?.speedToY(getSpeedAtTime(points, startTime));
+  return y ?? fallbackY;
 }
 
 const SkillTooltipPortal: React.FC<{
@@ -940,6 +952,14 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
 
                 return (
                 <g key={`skill-overlay-${m.tooltipKey}-${i}`}>
+                  {/* 発動点（速度折れ線上・非操作時も表示） */}
+                  <circle
+                    cx={m.startX}
+                    cy={getSkillActivationDotY(m.startTime, graphPoints.points, plotMetrics, m.lineY)}
+                    r={SKILL_ACTIVATION_DOT_RADIUS}
+                    fill={m.labelColor}
+                    pointerEvents="none"
+                  />
                   {/* 発動区間水平線（endedSkills 検出スキルのみ。回復のみ・デバフはラベルのみ） */}
                   {m.hasDurationLine && (
                     <line

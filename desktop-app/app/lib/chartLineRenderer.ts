@@ -51,7 +51,7 @@ export interface DrawSkillActivationDotsOptions {
   radius?: number;
 }
 
-const DEFAULT_SKILL_DOT_RADIUS = 3.5;
+export const SKILL_ACTIVATION_DOT_RADIUS = 3;
 
 function timeSpan(window: VisibleWindow): number {
   return Math.max(window.timeMax - window.timeMin, 1e-9);
@@ -308,7 +308,7 @@ export function drawSkillActivationDots(
   points: GraphPoint[],
   options: DrawSkillActivationDotsOptions,
 ): void {
-  const { displayState, markers, radius = DEFAULT_SKILL_DOT_RADIUS } = options;
+  const { displayState, markers, radius = SKILL_ACTIVATION_DOT_RADIUS } = options;
   if (!markers.length || points.length === 0) return;
   if (!displayState.showSkills && !displayState.showDebuffs) return;
 
