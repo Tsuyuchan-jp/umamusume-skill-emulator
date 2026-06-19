@@ -110,7 +110,7 @@
 
 ## 完了済み
 
-- [x] **サイドバー折りたたみボタンをスクロール位置に依存させない** — 展開時を固定ヘッダー + スクロールボディ（案 B）（2026-06-19 19:33 / コミット後にハッシュ追記）
+- [x] **サイドバー折りたたみボタンをスクロール位置に依存させない** — 展開時を固定ヘッダー + スクロールボディ（案 B）（2026-06-19 19:33 / `74aebc6`）
 - [x] **Google Map 型グラフ — ホイール停止後 overlay 復帰 latency 短縮** — 合成 metrics 即時 handoff（A）+ adaptive idle（B）（**実機検証クローズ** 2026-06-19 / `ed67df3` / [`REQ-race-detail-graph-overlay-handoff-latency.md`](tasks/REQ-race-detail-graph-overlay-handoff-latency.md) **done**）
 - [x] ホイール 1 ノッチ拡大率調整 — `CHART_VIEW_WHEEL_ZOOM_FACTOR` 1.2→1.3（**実機検証クローズ** 2026-06-19 19:19 / `7e6af0d` / [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)）
 - [x] **Google Map 型グラフ UI Phase 5 完了** — ステップ 3 暫定 UI 削除 + ステップ 4 全体実機検証クローズ（検証手順 1〜7 すべて OK / `249c4b2` / [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md) **done**）
