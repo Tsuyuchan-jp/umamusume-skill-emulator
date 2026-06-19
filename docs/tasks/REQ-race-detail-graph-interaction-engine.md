@@ -5,9 +5,9 @@
 > 文脈: [`REQ-race-detail-graph-performance.md`](REQ-race-detail-graph-performance.md)、[`REQ-race-detail-graph-map-view-perf-fallback.md`](REQ-race-detail-graph-map-view-perf-fallback.md)（30fps cap は移行期フォールバック）
 > ロードマップ: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md)
 
-- **ステータス**: in-progress（Phase 3 実装完了・実機検証待ち / Phase 4 残）
+- **ステータス**: in-progress（Phase 3 **実機検証クローズ** / Phase 4 設計レビュー待ち）
 - **作成日**: 2026-06-19 01:19
-- **関連コミット**: `5693968`（Phase 1）、`8767b1a`（Phase 2）、`8ab7c60`（Phase 3 実装）
+- **関連コミット**: `5693968`（Phase 1）、`8767b1a`（Phase 2）、`8ab7c60`（Phase 3）、`9a3b8ca`（パン選択防止）、`c6db25c`〜`d22db24`（非操作時小丸）、`6ac05a9`（ホイール窓中心）
 
 ---
 
@@ -331,11 +331,11 @@ export function useInteractionCanvasLoop(
 
 | 項目 | 仕様 |
 |------|------|
-| 描画タイミング | `canvasVisible && (displayState.showSkills \|\| displayState.showDebuffs)` |
-| 非表示 | `overlayLayoutReady` 後（フル overlay に任せる。二重表示しない） |
+| 描画タイミング | 操作中: Canvas rAF。非操作時: overlay SVG `<circle>`（`showSkillOverlay` 時） |
+| 非表示 | スキル/デバフ checkbox OFF |
 | データ | `buildSkillMarkers` 出力（**`layoutSkillMarkers` は呼ばない**） |
-| 座標 | `timeToCanvasX(startTime)` + `speedToCanvasY(getSpeedAtTime(startTime))` — stack 0 赤線アンカーと同一 |
-| 見た目 | 半径 **3〜4px**（CSS px）。色は `SkillMarker.labelColor`（レアリティ色） |
+| 座標 | `getSpeedAtTime` + `speedToCanvasY` / `plotMetrics.scales.speedToY` — stack 0 赤線アンカーと同一 |
+| 見た目 | 半径 **2.5px**（`SKILL_ACTIVATION_DOT_RADIUS`）。色は `SkillMarker.labelColor` |
 | 同時刻複数 | 速度線上同一点に重なる — 操作中は許容。停止後 overlay が縦展開 |
 | 性能 | Canvas `arc` × N（20〜40+）。layout / getBBox 不要 |
 | やらない | 丸の hover / Tooltip / 赤線 / スキル名 |
@@ -349,12 +349,52 @@ export function useInteractionCanvasLoop(
 - [x] ReferenceArea / phaseLines / Tooltip 操作中 defer（左下凡例ピル・STAMINA_PLOT_FLOOR は維持）
 - [x] settling 配線（`canvasVisible = isMapInteracting || !overlayLayoutReady`、idleCartesian で committed 描画）
 - [x] `npm run build` 通過
-- [ ] 50+ スキル終盤でホイール連打・2D ドラッグ 2〜3 秒が **30fps cap 時より明確に軽い**（主観 60fps 近傍）— **実機検証待ち**
-- [ ] compare ON（6 系列）・percent 3 系列 checkbox 切替が Canvas に反映 — **実機検証待ち**
-- [ ] スキル/デバフ ON 時、操作中に速度線上の **発動点小丸** が live window に追従 — **実機検証待ち**
-- [ ] `overlayLayoutReady` 後に小丸が消え、赤線↔速度線整合した overlay が復帰 — **実機検証待ち**
-- [ ] ReferenceArea / phaseLines 操作中非表示 → 停止後復帰 — **実機検証待ち**
-- [ ] 操作中 Tooltip 非表示（defer）— **実機検証待ち**
+- [x] 50+ スキル終盤でホイール/2D ドラッグ 2〜3 秒が **30fps cap 時より明確に軽い**（**実機検証クローズ** 2026-06-19）
+- [x] compare ON（6 系列）・percent 3 系列 checkbox 切替が Canvas に反映（**実機検証クローズ**）
+- [x] スキル/デバフ ON 時、操作中に速度線上の **発動点小丸** が live window に追従（**実機検証クローズ**）
+- [x] 停止後 overlay 復帰・赤線↔速度線整合（**実機検証クローズ**。小丸は非操作時も overlay SVG で常時表示に拡張 — 下記）
+- [x] ReferenceArea / phaseLines 操作中非表示 → 停止後復帰（**実機検証クローズ**）
+- [x] 操作中 Tooltip 非表示（defer）（**実機検証クローズ**）
+
+---
+
+## Phase 3 以降の追記（実装・実機クローズ 2026-06-19）
+
+Phase 3 本体（`8ab7c60`）のあと、同一セッション〜続チャットで以下を追加。**Phase 4 設計レビューの前提**。
+
+### 実機検証クローズ（Phase 3 本体）
+
+ユーザー実機確認: Canvas 追従・compare 6 系列・checkbox 切替・小丸追従・overlay 復帰・ReferenceArea/phaseLines/Tooltip defer・dblclick・expandSkillRows 無効 — **すべて OK**。Maps 級体感の改善を確認。
+
+### 追記 A — パン時 Y 軸テキスト選択防止（`9a3b8ca`）
+
+| 項目 | 内容 |
+|------|------|
+| 症状 | 1 回目ドラッグ後、Y 軸目盛り（`23.0` 等）が選択状態だと再ドラッグ不能 |
+| 対策 | `chartAreaRef` に `select-none`、`globals.css` で recharts 配下 `user-select: none`、`pointerdown` で `preventDefault()`、pointerup で `getSelection()?.removeAllRanges()` |
+| 実機 | **OK** |
+
+### 追記 B — 非操作時も発動点小丸を常時表示（`c6db25c` / `d22db24`）
+
+| 項目 | 内容 |
+|------|------|
+| 変更 | overlay SVG に `<circle>` を追加（`showSkillOverlay` 時）。操作中は Canvas のみ |
+| 半径 | `SKILL_ACTIVATION_DOT_RADIUS = 2.5`（Canvas / SVG 共通） |
+| 実機 | **OK** |
+
+### 追記 C — ホイールズーム中心を可視窓 center に変更（`6ac05a9`・map-view 採用）
+
+| 項目 | 内容 |
+|------|------|
+| 変更 | `useChartViewInteraction` の `handleWheel` が `wheelZoomAnchor(view)` → `centerTime/Speed/Percent` を `applyWheelZoom` に渡す（**画面中心拡大**） |
+| 数学 | `applyWheelZoom` 本体は不変。アンカー = center のとき scale のみ変化 |
+| 実機 | **採用確定**。視認性・操作性が大幅改善 |
+| 関連 | [`REQ-race-detail-graph-map-view.md`](REQ-race-detail-graph-map-view.md) 決定ログ 2026-06-19 17:09 |
+
+### Phase 4 着手前の既知所見（設計レビューで扱う）
+
+- **停止後 overlay 表示までの短い lag**: probe ゲート（Recharts scales が committed domain に追いつくまで `overlayLayoutReady=false`）による **意図的同期待ち**。固定 ms タイマーではない。Phase 4 でフラッシュ防止・体感改善を検討
+- **settling 中の見え方**: Canvas（折れ線+小丸）→ probe 合格後 Recharts Line + overlay（赤線+ラベル+小丸）。案 A どおり
 
 ---
 
@@ -475,6 +515,93 @@ export function useInteractionCanvasLoop(
 | 2026-06-19 16:13 | **Phase 3 設計レビュー着手待ち**: useInteractionCanvasLoop 新規、RaceDetailChart canvas 配線、Line strokeOpacity、発動点小丸 | Phase 1〜2 資産（chartLineRenderer・liveViewRef）を接続 |
 | 2026-06-19 16:21 | **Phase 3 設計レビュー承認**: 連続 rAF、Tooltip conditional unmount、settling idleCartesian、checkbox 即 Canvas 反映、小丸 3.5px | Ask mode 設計レビュー合意 |
 | 2026-06-19 16:21 | **Phase 3 実装完了（実機検証待ち）**: useInteractionCanvasLoop + RaceDetailChart canvas 配線、Line strokeOpacity defer、ReferenceArea/phaseLines/Tooltip defer | build 通過。実機チェックはユーザー別途 |
+| 2026-06-19 17:09 | **Phase 3 実機検証クローズ** + 追記 A/B/C（選択防止・非操作時小丸 2.5px・ホイール窓中心採用） | ユーザー全項目 OK。停止後 overlay まで短い lag は probe 同期待ち（Phase 4 で検討） |
+| 2026-06-19 17:28 | **Phase 4 設計レビュー着手待ち**: ハンドオフ品質・200ms SLA・settling 体感 lag | Phase 3 + 追記を前提。probe ゲート維持が前提 |
+
+---
+
+## 設計レビュー起票プロンプト（Phase 4 — ハンドオフ品質・Settling）
+
+```
+@docs/PROJECT.md
+@docs/TODO.md
+@docs/tasks/REQ-race-detail-graph.md
+@docs/tasks/REQ-race-detail-graph-map-view.md
+@docs/tasks/REQ-race-detail-graph-interaction-engine.md
+@desktop-app/app/components/RaceDetailChart.tsx
+@desktop-app/app/hooks/useChartViewInteraction.ts
+@desktop-app/app/hooks/useInteractionCanvasLoop.ts
+@desktop-app/app/lib/chartLineRenderer.ts
+@desktop-app/app/lib/raceGraphBuilder.ts
+
+## チャット種別
+設計レビュー（Ask mode）
+
+## 進め方（重要）
+- このチャットでは **コード変更・ファイル編集・コミットを一切しない**
+- 現状整理 → 方針提案 → 変更範囲 → リスク → 検証手順 まで提示する
+- 私が「承認」「修正」「見送り」のいずれかを返すまで、実装に進まない
+
+## 背景
+Interaction Canvas Engine Phase 1（`5693968`）〜 Phase 3（`8ab7c60`）+ 追記（`9a3b8ca` 選択防止、`c6db25c`/`d22db24` 非操作時小丸 2.5px、`6ac05a9` ホイール窓中心採用）まで **実機検証クローズ**。
+Phase 3: Canvas rAF 追従・Maps 級体感 OK。操作中 commit ゼロ（deferDomainCommit）。
+**既知所見**: 操作停止後、赤線 overlay 表示までほんの短い lag あり — probe ゲート（Recharts scales ↔ committed domain 一致待ち）が主因。固定 ms マージンではない。
+Phase 4 で **ハンドオフ品質**（フラッシュ防止・settling 体感・200ms SLA 厳密検証）を設計し、本 REQ 全体の実機検証クローズまで持っていく。
+
+## 今回決めたいこと
+本 REQ の **Phase 4 のみ** について設計レビューし、実装チャット用の承認済み完成プロンプトを出力する。
+Phase 5（30fps cap 削除等）は follow-up として概要確認のみ。
+
+### レビュー観点（必須）
+1. **settling シーケンス** — commit → domain 更新 → ChartMetricsBridge → probe 合格 → Canvas 非表示 + Line + overlay の現状 gap と改善余地
+2. **案 A 維持 vs 拡張** — `canvasVisible = isMapInteracting || !overlayLayoutReady` を維持したままフラッシュ/ lag をどう詰めるか
+3. **200ms SLA** — 計測方法（Performance API / 主観 / 自動テストの可否）、合格基準、ホイール idle 150ms との関係
+4. **Canvas ↔ Recharts Line 切替** — strokeOpacity 0→1 と canvas visibility のタイミング。二重描画・線ジャンプ防止
+5. **小丸の連続性** — 操作中 Canvas 小丸 → settling → overlay SVG 小丸（2.5px 常時）。赤線・ラベル復帰との視覚連続性
+6. **probe ゲート** — 緩和せずに lag を短くできるか（rAF リトライ最適化、commit タイミング等）。**撤廃は不可** が前提
+7. **ホイール窓中心**（`6ac05a9`）— Phase 4 検証項目への影響（退行なし確認）
+8. **Phase 4 / Phase 5 境界** — 30fps cap 削除・ReferenceArea 操作中 defer 正式化は Phase 5 に残すか
+9. **未決事項** — 判断が必要な点を質問形式で列挙
+
+## 確認してほしいファイル
+- desktop-app/app/components/RaceDetailChart.tsx（overlayLayoutReady・canvasVisible・rechartsLinesVisible・ChartMetricsBridge）
+- desktop-app/app/hooks/useChartViewInteraction.ts（commitLiveView・MAP_INTERACTION_WHEEL_IDLE_MS・wheelZoomAnchor）
+- desktop-app/app/hooks/useInteractionCanvasLoop.ts（settling 中 idleCartesian + committedViewState 描画）
+- desktop-app/app/lib/raceGraphBuilder.ts（plotMetricsScalesMatchWindow・probe  tolerance）
+
+## 触らないこと（設計上も変更提案に含めない）
+- applyWheelZoom / applyPanDrag / visibleWindowFromViewState の **数学ロジック**変更
+- probe ゲートの **撤廃**
+- Recharts Line 完全廃止（Phase 6 follow-up）
+- 操作中 overlay 赤線・ラベル（P2 Backlog）
+- 30fps cap コード削除（Phase 5 follow-up）
+- WASM / OCR / src-tauri
+- expandSkillRows checkbox 削除（map-view ステップ 3）
+
+## 報告形式（CHAT_TEMPLATE.md に準拠）
+1. 現状整理 — Phase 3 完了状態と settling の gap（lag の正体）
+2. 選択肢比較 — フラッシュ/lag 対策案（簡潔。案 A 維持前提）
+3. 推奨案（1つ）— Phase 4 確定仕様
+4. 変更計画 — ファイル / 責務 / 触る・触らない
+5. **Phase 4 / Phase 5 境界**
+6. リスク・未決事項 — 質問形式
+7. 検証手順 — Phase 4 実機チェックリスト（200ms SLA・フラッシュ・退行）
+8. 実装チャット用完成プロンプト — CHAT_TEMPLATE パターン A（▼ここからコピー / ▲ここまで）
+
+## スコープ（REQ Phase 4 要約）
+### やること
+- settling ハンドオフ品質（案 A ベースのチューニング）
+- 停止後 200ms 以内 overlay probe 合格・赤線↔速度線 OK（厳密検証）
+- commit 瞬間のフラッシュ・線ジャンプ抑制（主観 OK）
+- 本 REQ 全体の実機検証クローズ
+- npm run build 通過
+
+### やらないこと
+- probe 撤廃
+- 30fps cap 削除
+- Recharts Line 廃止
+- 操作中 overlay フル表示
+```
 
 ---
 

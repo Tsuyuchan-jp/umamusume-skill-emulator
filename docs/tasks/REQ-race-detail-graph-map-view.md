@@ -17,7 +17,7 @@
 レース詳細グラフを **Google Map 型の操作感** に統一する。
 
 - **起動時**: レース全体を俯瞰（速度・体力・スキル発動の流れを一望）
-- **ホイール**: カーソル中心で **XY 等倍ズーム**（画面上の形の比率は不変）
+- **ホイール**: 可視窓 center（画面中心）で **XY 等倍ズーム**（2026-06-19 採用。旧: カーソル中心）
 - **ドラッグ**: **2D パン**（時間軸・速度軸方向をまとめて移動）
 - **分析**: ズームインした視野で、赤線左端＝速度折れ線上の発動地点を読み取れる
 
@@ -250,6 +250,7 @@ function svgToSpeed(y: number, m: ChartPlotMetrics): number;
 | 2026-06-19 00:46 | **ズーム操作レスポンス + overlay 同期の実機検証クローズ**（俯瞰・拡大→ダブルクリック俯瞰・パン停止後・単独 stack0 各拡大率で赤線↔速度線 OK） | `98c0cea`〜`a1dd542`。次はステップ 3 暫定 UI 削除 |
 | 2026-06-19 01:03 | **perf fallback を sibling REQ へ分離**（[`REQ-race-detail-graph-map-view-perf-fallback.md`](REQ-race-detail-graph-map-view-perf-fallback.md)）: 操作中 domain commit 30fps cap | Step A+B 後もホイール/2D ドラッグのもたつき残存。設計レビュー承認済み |
 | 2026-06-19 17:09 | **ホイールズーム中心を可視窓 center に変更**（カーソル位置 → `centerTime/Speed/Percent`）。`applyWheelZoom` 数学は不変 | Phase 3 実機後・Phase 4 前の UX 試行。画面中心で XY 等倍拡大 |
+| 2026-06-19 17:28 | **ホイール窓中心を採用確定**（実機検証クローズ）。視認性・操作性が大幅改善 | map-view 正本を窓中心に更新 |
 | 2026-06-19 01:12 | **perf fallback 実機検証クローズ**（30fps cap。体感改善・overlay 復帰・退行なし） | `5053012`〜`cba1f4c`。次はステップ 3 暫定 UI 削除 |
 | 2026-06-19 01:19 | **Interaction Canvas Engine を sibling REQ に起票**（[`REQ-race-detail-graph-interaction-engine.md`](REQ-race-detail-graph-interaction-engine.md)）: Dual-Viewport Phase 1〜4 | Maps 級を目指す構造変更。設計レビュー待ち |
 

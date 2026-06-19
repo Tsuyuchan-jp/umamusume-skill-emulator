@@ -4,13 +4,13 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-19 17:09
+最終更新: 2026-06-19 17:28
 
 ---
 
 ## 現在のフォーカス
 
-Interaction Canvas Engine **Phase 4** — ハンドオフ品質・200ms SLA（Phase 3 実装完了・実機検証はユーザー別途）
+Interaction Canvas Engine **Phase 4 設計レビュー** — ハンドオフ品質・200ms SLA（Phase 3 + 追記は実機検証クローズ済み）
 
 ---
 
@@ -23,6 +23,12 @@ Interaction Canvas Engine **Phase 4** — ハンドオフ品質・200ms SLA（Ph
 優先度順。作業チャット起票時は **P0 から1件** 取る。
 
 ### P0 — 次に着手
+
+- [ ] **Google Map 型グラフ — Interaction Canvas Engine Phase 4 設計レビュー**
+  - Phase 3 + 追記（選択防止・非操作時小丸・ホイール窓中心）実機検証クローズ 2026-06-19
+  - 次: Ask mode 設計レビュー → ハンドオフ品質・200ms SLA・settling lag
+  - 起票プロンプト: [`REQ-race-detail-graph-interaction-engine.md`](tasks/REQ-race-detail-graph-interaction-engine.md)「Phase 4 — ハンドオフ品質・Settling」
+  - 既知所見: 停止後 overlay まで短い lag（probe 同期待ち・Phase 4 で検討）
 
 - [ ] **シミュレーション失敗トーストの文言改善（`null` 非表示・再試行案内）**
   - 経緯: WASM Worker 異常終了時に `シミュレーションエラー: null` がユーザー向けトーストに表示された。フルリロードで復旧した事例あり
@@ -37,8 +43,8 @@ Interaction Canvas Engine **Phase 4** — ハンドオフ品質・200ms SLA（Ph
 
 ### P1 — 重要
 
-- [ ] **Google Map 型グラフ — Interaction Canvas Engine Phase 4**
-  - Phase 3 完了後: ハンドオフ品質・200ms SLA 厳密検証・本 REQ 実機検証クローズ
+- [ ] **Google Map 型グラフ — Interaction Canvas Engine Phase 4 実装**
+  - 設計レビュー承認後: ハンドオフ品質・200ms SLA 厳密検証・本 REQ 実機検証クローズ
   - REQ: [`REQ-race-detail-graph-interaction-engine.md`](tasks/REQ-race-detail-graph-interaction-engine.md)
 
 - [ ] **Google Map 型グラフ UI（Phase 5 最終）— ステップ 3〜4**
@@ -119,9 +125,10 @@ Interaction Canvas Engine **Phase 4** — ハンドオフ品質・200ms SLA（Ph
 
 ## 完了済み
 
-- [x] ホイールズーム中心をカーソル位置 → **可視窓 center（画面中心拡大）** に変更（`6ac05a9` / Phase 4 前スパイク・実機確認待ち）
+- [x] ホイールズーム中心を可視窓 center（画面中心拡大）に変更 — **採用・実機検証クローズ** 2026-06-19（`6ac05a9` / [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)）
+- [x] 非操作時もスキル発動点小丸を常時表示（半径 2.5px・overlay SVG + Canvas）（`c6db25c` / `d22db24` / Phase 3 拡張）
 - [x] グラフパン時の Y 軸目盛りテキスト選択による再ドラッグ不能 — select-none + pointerdown preventDefault（`9a3b8ca` / Phase 3 実機指摘）
-- [x] Google Map 型グラフ — Interaction Canvas Engine **Phase 3**（Canvas rAF 配線・発動点小丸・Line strokeOpacity defer）（**実機検証待ち** / `8ab7c60` / [`REQ-race-detail-graph-interaction-engine.md`](tasks/REQ-race-detail-graph-interaction-engine.md)）
+- [x] Google Map 型グラフ — Interaction Canvas Engine **Phase 3**（Canvas rAF 配線・発動点小丸・Line strokeOpacity defer）（**実機検証クローズ** 2026-06-19 / `8ab7c60` / [`REQ-race-detail-graph-interaction-engine.md`](tasks/REQ-race-detail-graph-interaction-engine.md)）
 - [x] Google Map 型グラフ — Interaction Canvas Engine **Phase 2**（liveViewRef 分離・deferDomainCommit・buildInteractionPlotMetrics）（**実機検証クローズ・軽量** 2026-06-19 16:13 / `8767b1a` / [`REQ-race-detail-graph-interaction-engine.md`](tasks/REQ-race-detail-graph-interaction-engine.md)）
 - [x] Google Map 型グラフ — Interaction Canvas Engine **Phase 1**（chartLineRenderer.ts・getSpeedAtTime export・座標検証）（`5693968` / [`REQ-race-detail-graph-interaction-engine.md`](tasks/REQ-race-detail-graph-interaction-engine.md)）
 - [x] Google Map 型グラフ — domain 更新 30fps cap（perf fallback）（**実機検証クローズ** 2026-06-19 01:12 / `5053012`〜`cba1f4c` / [`REQ-race-detail-graph-map-view-perf-fallback.md`](tasks/REQ-race-detail-graph-map-view-perf-fallback.md)）
