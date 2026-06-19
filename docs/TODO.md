@@ -112,7 +112,7 @@
 
 ## 完了済み
 
-- [x] **v1.1.0 リリース — Phase R1: バグ Fix（R-001 / R-006 / R-008）** — シミュ失敗トースト正規化・raceDetail 失敗通知・simulationCount NaN ガード（`simulationErrors.ts` 新設）（コミット後にハッシュ追記）
+- [x] **v1.1.0 リリース — Phase R1: バグ Fix（R-001 / R-006 / R-008）** — シミュ失敗トースト正規化・raceDetail 失敗通知・simulationCount NaN ガード（`simulationErrors.ts` 新設）（2026-06-19 23:26 / `c12e628`）
 - [x] **左カラム設定項目の折りたたみ** — 3項目を1トグルで折りたたみ、自動コピーはヘッダー常時表示、localStorage `settingsPanelExpanded`（**実機検証クローズ** 2026-06-19 20:45 / `05fd9a6`）
 - [x] **サイドバー折りたたみ時アイコンフラッシュ修正** — invisible+transition 廃止、条件レンダリング+装飾なしゴースト行（2026-06-19 20:02 / `36cbc07`）
 - [x] **サイドバー折りたたみ rail 展開ボタン Y 揃え（再修正）** — 共通ヘッダー化 + 折りたたみ時 invisible 行で行高維持・absolute 中央配置（2026-06-19 19:56 / `ccbcf73`）
