@@ -4,13 +4,13 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-19 15:19
+最終更新: 2026-06-19 16:01
 
 ---
 
 ## 現在のフォーカス
 
-Interaction Canvas Engine Phase 2 待ち — liveViewRef 分離 / P1 map-view ステップ 3〜4
+Interaction Canvas Engine **Phase 3** 待ち — Canvas 配線 + 発動点小丸
 
 ---
 
@@ -37,9 +37,10 @@ Interaction Canvas Engine Phase 2 待ち — liveViewRef 分離 / P1 map-view �
 
 ### P1 — 重要
 
-- [ ] **Google Map 型グラフ — Interaction Canvas Engine Phase 2〜4**
+- [ ] **Google Map 型グラフ — Interaction Canvas Engine Phase 3〜4**
   - Phase 1 完了: `chartLineRenderer.ts`、getSpeedAtTime export、vitest 座標検証 ≤1px
-  - 残: Phase 2 liveViewRef、Phase 3 Canvas 配線 + 発動点小丸、Phase 4 ハンドオフ
+  - Phase 2 着手: liveViewRef 分離・deferDomainCommit
+  - 残: Phase 3 Canvas 配線 + 発動点小丸、Phase 4 ハンドオフ
   - REQ: [`REQ-race-detail-graph-interaction-engine.md`](tasks/REQ-race-detail-graph-interaction-engine.md)
 
 - [ ] **Google Map 型グラフ UI（Phase 5 最終）— ステップ 3〜4**
@@ -114,6 +115,7 @@ Interaction Canvas Engine Phase 2 待ち — liveViewRef 分離 / P1 map-view �
 
 ## 完了済み
 
+- [x] Google Map 型グラフ — Interaction Canvas Engine **Phase 2**（liveViewRef 分離・deferDomainCommit・buildInteractionPlotMetrics）（`COMMIT_HASH` / [`REQ-race-detail-graph-interaction-engine.md`](tasks/REQ-race-detail-graph-interaction-engine.md)）
 - [x] Google Map 型グラフ — Interaction Canvas Engine **Phase 1**（chartLineRenderer.ts・getSpeedAtTime export・座標検証）（`5693968` / [`REQ-race-detail-graph-interaction-engine.md`](tasks/REQ-race-detail-graph-interaction-engine.md)）
 - [x] Google Map 型グラフ — domain 更新 30fps cap（perf fallback）（**実機検証クローズ** 2026-06-19 01:12 / `5053012`〜`cba1f4c` / [`REQ-race-detail-graph-map-view-perf-fallback.md`](tasks/REQ-race-detail-graph-map-view-perf-fallback.md)）
 - [x] Google Map 型グラフ — overlay scales 同期 + ズーム操作一連（レスポンス・復帰ずれ・scales probe）（**実機検証クローズ** 2026-06-19 00:46 / `98c0cea`〜`a1dd542` / [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)）

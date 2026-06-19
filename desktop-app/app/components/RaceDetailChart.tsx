@@ -463,6 +463,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
     viewState: chartViewState,
     setViewState: setChartViewState,
     onViewReset: handleViewReset,
+    deferDomainCommit: true,
   });
 
   /** measured scales が view/domain と実効一致するまで overlay を defer */

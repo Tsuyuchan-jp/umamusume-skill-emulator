@@ -304,6 +304,16 @@ export function createChartPlotMetrics(
   };
 }
 
+/** 操作中の synthetic metrics（固定 cartesian + liveView window。scales なし） */
+export function buildInteractionPlotMetrics(
+  cartesian: CartesianRect,
+  liveView: ChartViewState,
+  raceEnd: number,
+): ChartPlotMetrics {
+  const window = visibleWindowFromViewState(liveView, raceEnd);
+  return createChartPlotMetrics(cartesian, window, liveView);
+}
+
 function timeSpan(metrics: ChartPlotMetrics): number {
   return Math.max(metrics.timeMax - metrics.timeMin, 1e-9);
 }

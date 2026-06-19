@@ -2,6 +2,8 @@ import { Dispatch, RefObject, SetStateAction, useCallback, useEffect, useRef, us
 import {
   applyPanDrag,
   applyWheelZoom,
+  buildInteractionPlotMetrics,
+  CartesianRect,
   ChartPlotMetrics,
   ChartViewState,
   createInitialChartViewState,
@@ -28,11 +30,17 @@ interface UseChartViewInteractionOptions {
   setViewState: Dispatch<SetStateAction<ChartViewState>>;
   /** ダブルクリックリセット直前（measured metrics 無効化用） */
   onViewReset?: () => void;
+  /** true: 操作中は setViewState を呼ばず liveViewRef のみ更新（デフォルト true） */
+  deferDomainCommit?: boolean;
 }
 
 interface UseChartViewInteractionResult {
   /** ホイール・ドラッグ操作中（overlay 再配置を defer するフラグ） */
   isMapInteracting: boolean;
+  /** 操作中の最新 view（Canvas rAF 用）。ref のみ — React state で返さない */
+  liveViewRef: RefObject<ChartViewState>;
+  /** 操作開始時に固定する cartesian（synthetic metrics / Canvas 描画用） */
+  interactionCartesianRef: RefObject<CartesianRect | null>;
 }
 
 /** chartAreaRef へホイールズーム・2D パン・ダブルクリックリセットを付与 */
@@ -45,9 +53,12 @@ export function useChartViewInteraction({
   viewState,
   setViewState,
   onViewReset,
+  deferDomainCommit = true,
 }: UseChartViewInteractionOptions): UseChartViewInteractionResult {
   const viewStateRef = useRef(viewState);
   const plotMetricsRef = useRef(plotMetrics);
+  const liveViewRef = useRef(viewState);
+  const interactionCartesianRef = useRef<CartesianRect | null>(null);
   const dragRef = useRef<{ startX: number; startY: number; view: ChartViewState } | null>(null);
   const pendingViewStateRef = useRef<ChartViewState | null>(null);
   const rafIdRef = useRef<number | null>(null);
@@ -57,10 +68,20 @@ export function useChartViewInteraction({
   const isDraggingRef = useRef(false);
   const wheelActiveRef = useRef(false);
 
+  const deferActive = enabled && (deferDomainCommit ?? true);
+  const deferActiveRef = useRef(deferActive);
+
   const [isMapInteracting, setIsMapInteracting] = useState(false);
 
   useEffect(() => {
+    deferActiveRef.current = deferActive;
+  }, [deferActive]);
+
+  useEffect(() => {
     viewStateRef.current = viewState;
+    if (interactionCartesianRef.current == null) {
+      liveViewRef.current = viewState;
+    }
   }, [viewState]);
 
   useEffect(() => {
@@ -134,17 +155,40 @@ export function useChartViewInteraction({
     [flushPendingViewState],
   );
 
+  const ensureInteractionSession = useCallback(() => {
+    if (interactionCartesianRef.current != null) return;
+    interactionCartesianRef.current = { ...plotMetricsRef.current.cartesian };
+    liveViewRef.current = viewStateRef.current;
+  }, []);
+
+  const commitLiveView = useCallback(() => {
+    if (rafIdRef.current != null) {
+      cancelAnimationFrame(rafIdRef.current);
+      rafIdRef.current = null;
+    }
+    cancelDomainCommitTimer();
+    pendingViewStateRef.current = null;
+
+    if (deferActiveRef.current) {
+      setViewState(liveViewRef.current);
+      interactionCartesianRef.current = null;
+    } else {
+      commitPendingViewStateNow();
+      interactionCartesianRef.current = null;
+    }
+  }, [cancelDomainCommitTimer, commitPendingViewStateNow, setViewState]);
+
   const scheduleWheelIdleEnd = useCallback(() => {
     if (wheelIdleTimerRef.current != null) {
       clearTimeout(wheelIdleTimerRef.current);
     }
     wheelIdleTimerRef.current = setTimeout(() => {
       wheelIdleTimerRef.current = null;
-      commitPendingViewStateNow();
+      commitLiveView();
       wheelActiveRef.current = false;
       syncInteracting();
     }, MAP_INTERACTION_WHEEL_IDLE_MS);
-  }, [commitPendingViewStateNow, syncInteracting]);
+  }, [commitLiveView, syncInteracting]);
 
   const resetView = useCallback(() => {
     if (raceEnd <= 0) return;
@@ -162,8 +206,11 @@ export function useChartViewInteraction({
     isDraggingRef.current = false;
     syncInteracting();
     onViewReset?.();
+    const initial = createInitialChartViewState(raceEnd);
+    liveViewRef.current = initial;
+    interactionCartesianRef.current = null;
     lastDomainCommitTimeRef.current = performance.now();
-    setViewState(createInitialChartViewState(raceEnd));
+    setViewState(initial);
   }, [raceEnd, onViewReset, setViewState, syncInteracting, cancelDomainCommitTimer]);
 
   useEffect(() => {
@@ -171,22 +218,42 @@ export function useChartViewInteraction({
     if (!el || !enabled || raceEnd <= 0) return;
 
     const handleWheel = (event: WheelEvent) => {
-      if (!plotMetricsRef.current.scales) return;
+      const defer = deferActiveRef.current;
+      if (!defer && !plotMetricsRef.current.scales) return;
+      if (defer && plotMetricsRef.current.cartesian.width <= 0) return;
       event.preventDefault();
 
       const rect = el.getBoundingClientRect();
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
-      const metrics = plotMetricsRef.current;
-      const cursorTime = svgToTime(x, metrics);
-      const cursorSpeed = svgToSpeed(y, metrics);
-      const cursorPercent = svgToPercent(y, metrics);
       const zoomIn = event.deltaY < 0;
 
-      const prev = pendingViewStateRef.current ?? viewStateRef.current;
-      scheduleViewStateCommit(
-        applyWheelZoom(prev, raceEnd, cursorTime, cursorSpeed, cursorPercent, zoomIn),
-      );
+      if (defer) {
+        ensureInteractionSession();
+        const cartesian = interactionCartesianRef.current;
+        if (!cartesian) return;
+        const inputMetrics = buildInteractionPlotMetrics(cartesian, liveViewRef.current, raceEnd);
+        const cursorTime = svgToTime(x, inputMetrics);
+        const cursorSpeed = svgToSpeed(y, inputMetrics);
+        const cursorPercent = svgToPercent(y, inputMetrics);
+        liveViewRef.current = applyWheelZoom(
+          liveViewRef.current,
+          raceEnd,
+          cursorTime,
+          cursorSpeed,
+          cursorPercent,
+          zoomIn,
+        );
+      } else {
+        const metrics = plotMetricsRef.current;
+        const cursorTime = svgToTime(x, metrics);
+        const cursorSpeed = svgToSpeed(y, metrics);
+        const cursorPercent = svgToPercent(y, metrics);
+        const prev = pendingViewStateRef.current ?? viewStateRef.current;
+        scheduleViewStateCommit(
+          applyWheelZoom(prev, raceEnd, cursorTime, cursorSpeed, cursorPercent, zoomIn),
+        );
+      }
 
       wheelActiveRef.current = true;
       syncInteracting();
@@ -200,11 +267,18 @@ export function useChartViewInteraction({
 
     const handlePointerDown = (event: PointerEvent) => {
       if (event.button !== 0) return;
-      if (!plotMetricsRef.current.scales) return;
+      const defer = deferActiveRef.current;
+      if (!defer && !plotMetricsRef.current.scales) return;
+      if (defer && plotMetricsRef.current.cartesian.width <= 0) return;
+
+      if (defer) {
+        ensureInteractionSession();
+      }
+
       dragRef.current = {
         startX: event.clientX,
         startY: event.clientY,
-        view: viewStateRef.current,
+        view: defer ? liveViewRef.current : viewStateRef.current,
       };
       isDraggingRef.current = true;
       syncInteracting();
@@ -217,24 +291,30 @@ export function useChartViewInteraction({
 
       const dx = event.clientX - drag.startX;
       const dy = event.clientY - drag.startY;
-      const { cartesian } = plotMetricsRef.current;
 
-      scheduleViewStateCommit(
-        applyPanDrag(
+      if (deferActiveRef.current) {
+        const cartesian = interactionCartesianRef.current;
+        if (!cartesian) return;
+        liveViewRef.current = applyPanDrag(
           drag.view,
           raceEnd,
           dx,
           dy,
           cartesian.width,
           cartesian.height,
-        ),
-      );
+        );
+      } else {
+        const { cartesian } = plotMetricsRef.current;
+        scheduleViewStateCommit(
+          applyPanDrag(drag.view, raceEnd, dx, dy, cartesian.width, cartesian.height),
+        );
+      }
     };
 
     const handlePointerUp = (event: PointerEvent) => {
       if (!dragRef.current) return;
       dragRef.current = null;
-      commitPendingViewStateNow();
+      commitLiveView();
       isDraggingRef.current = false;
       syncInteracting();
       if (el.hasPointerCapture(event.pointerId)) {
@@ -278,11 +358,12 @@ export function useChartViewInteraction({
     scheduleViewStateCommit,
     scheduleWheelIdleEnd,
     syncInteracting,
-    commitPendingViewStateNow,
+    commitLiveView,
     cancelDomainCommitTimer,
+    ensureInteractionSession,
   ]);
 
-  return { isMapInteracting };
+  return { isMapInteracting, liveViewRef, interactionCartesianRef };
 }
 
 /** リサイズ時に center / scale を維持したまま clamp を再実行 */
