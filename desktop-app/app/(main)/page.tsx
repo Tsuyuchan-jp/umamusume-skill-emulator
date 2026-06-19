@@ -381,11 +381,8 @@ export default function Home() {
         {sidebarCollapsed ? (
           /* 折りたたみ時: アイコン rail + 展開トグル */
           <div className="flex flex-col items-center h-full py-4 gap-4 w-full min-w-0">
-            <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.15)] shrink-0">
-              <svg className="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4 10a8 8 0 0 1 16 0v4a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-4a2 2 0 0 0-4 0v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4z"></path>
-              </svg>
-            </div>
+            {/* アイコン非表示・展開ボタン Y 座標維持用スペーサー */}
+            <div className="w-9 h-9 shrink-0 invisible pointer-events-none" aria-hidden="true" />
             <button
               type="button"
               onClick={() => setSidebarCollapsed(false)}
@@ -405,9 +402,9 @@ export default function Home() {
                     <path d="M4 10a8 8 0 0 1 16 0v4a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-4a2 2 0 0 0-4 0v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4z"></path>
                   </svg>
                 </div>
-                <h1 className="text-base font-extrabold leading-tight tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-100 to-zinc-400 shrink min-w-0 flex items-baseline">
-                  ウマ娘 レースアナライザー
-                  <span className="text-[10px] text-zinc-500 font-medium ml-2">v1.0.7</span>
+                <h1 className="text-base font-extrabold leading-tight tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-100 to-zinc-400 min-w-0 flex-1 flex items-baseline truncate whitespace-nowrap">
+                  <span className="truncate">ウマ娘 レースアナライザー</span>
+                  <span className="text-[10px] text-zinc-500 font-medium ml-2 shrink-0">v1.0.7</span>
                 </h1>
                 <button
                   type="button"
