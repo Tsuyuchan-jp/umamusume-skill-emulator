@@ -189,7 +189,10 @@ export default function Home() {
 
     const savedSimCount = localStorage.getItem("simulationCount");
     if (savedSimCount) {
-      setSimulationCount(parseInt(savedSimCount, 10));
+      const parsed = parseInt(savedSimCount, 10);
+      if (!Number.isNaN(parsed) && parsed >= 1) {
+        setSimulationCount(parsed);
+      }
     }
   }, []);
 

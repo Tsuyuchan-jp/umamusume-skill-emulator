@@ -1,6 +1,10 @@
 import React from 'react';
 import { UmaStatusData, SimTab, RaceCondition } from "../lib/types";
 import { isUniqueSkillId } from "../lib/umasimSkillData";
+import {
+  formatSimulationErrorMessage,
+  RACE_DETAIL_FETCH_FAILED_MESSAGE,
+} from "../lib/engine/simulationErrors";
 
 interface SimulationLauncherProps {
   simulationCount: number;
@@ -82,10 +86,12 @@ export function SimulationLauncher(props: SimulationLauncherProps) {
       }
       
       showToastMessage(`${simulationCount.toLocaleString()}回のシミュレーションが完了しました！`, 'success', 5000);
-    } catch (e: any) {
+      if (simResult.raceDetailFetchFailed) {
+        showToastMessage(RACE_DETAIL_FETCH_FAILED_MESSAGE, 'error', 5000);
+      }
+    } catch (e: unknown) {
       console.error("Simulation error:", e);
-      const msg = e && e.message ? e.message : String(e);
-      showToastMessage(`シミュレーションエラー: ${msg}`, 'error', 5000);
+      showToastMessage(formatSimulationErrorMessage(e), 'error', 5000);
     } finally {
       setIsSimulating(false);
       setSimulationProgress(null);

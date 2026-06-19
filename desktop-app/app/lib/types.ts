@@ -88,6 +88,8 @@ export interface SimResultDump {
   };
   rawSample: any;
   raceDetail?: RaceDetailDump | null;
+  /** sim 集計は成功したが詳細グラフ用 raceDetail の取得のみ失敗 */
+  raceDetailFetchFailed?: boolean;
 }
 
 export interface UmaStatusData {

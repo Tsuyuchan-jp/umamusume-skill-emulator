@@ -1,5 +1,6 @@
 import { UmaStatusData, RawSkillData, RaceCondition, RaceDetailDump } from "../types";
 import { getCourseById, getSurfaceKey, getDistanceKey, getStyleKey } from "../aptitudeHelper";
+import { toSimulationError } from "./simulationErrors";
 
 let cachedSkillsJson: string | null = null;
 
@@ -48,12 +49,12 @@ function getWorker(): Worker {
       // Crash or error in worker
       worker?.terminate();
       worker = null;
-      req.reject(new Error(error));
+      req.reject(toSimulationError(error));
     }
   };
   worker.onerror = (err) => {
     // If worker crashes fundamentally (e.g., OOM)
-    pendingRequests.forEach(req => req.reject(new Error(err.message || String(err))));
+    pendingRequests.forEach(req => req.reject(toSimulationError(err.message || err)));
     pendingRequests.clear();
     worker?.terminate();
     worker = null;
@@ -85,7 +86,7 @@ export function terminateWorker() {
     worker.terminate();
     worker = null;
   }
-  pendingRequests.forEach(req => req.reject(new Error("Worker terminated")));
+  pendingRequests.forEach(req => req.reject(toSimulationError("Worker terminated")));
   pendingRequests.clear();
 }
 
@@ -215,12 +216,14 @@ export async function runMultipleSimulations(
 
   // 詳細1走を自動取得（グラフ表示用）
   let raceDetail: RaceDetailDump | null = null;
+  let raceDetailFetchFailed = false;
   try {
     console.time('Fetching race detail via Worker');
     raceDetail = await fetchRaceDetail(jsonInput);
     console.timeEnd('Fetching race detail via Worker');
   } catch (error) {
     console.warn("Race detail fetch failed (graph will be unavailable):", error);
+    raceDetailFetchFailed = true;
   }
 
   return {
@@ -232,6 +235,7 @@ export async function runMultipleSimulations(
     },
     rawSample: results[0],
     raceDetail,
+    raceDetailFetchFailed,
   };
 }
 

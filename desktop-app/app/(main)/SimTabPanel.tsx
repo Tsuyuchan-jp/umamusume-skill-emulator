@@ -3,6 +3,10 @@
 import React from "react";
 import { SimTab } from "../lib/types";
 import { canPlaceSkillAtIndex } from "../lib/umasimSkillData";
+import {
+  formatSimulationErrorMessage,
+  RACE_DETAIL_FETCH_FAILED_MESSAGE,
+} from "../lib/engine/simulationErrors";
 import { ResultCard } from "../components/ResultCard";
 import { SkillVerifier } from "../components/SkillVerifier";
 
@@ -243,10 +247,12 @@ export const SimTabPanel: React.FC<SimTabPanelProps> = ({
                 );
 
                 showToastMessage("比較検証が完了しました！", "success", 5000);
+                if (simResult.raceDetailFetchFailed) {
+                  showToastMessage(RACE_DETAIL_FETCH_FAILED_MESSAGE, "error", 5000);
+                }
               } catch (e: unknown) {
                 console.error("Verification error:", e);
-                const msg = e instanceof Error ? e.message : String(e);
-                showToastMessage(`検証エラー: ${msg}`, "error", 5000);
+                showToastMessage(formatSimulationErrorMessage(e), "error", 5000);
               } finally {
                 setIsSimulating(false);
                 setSimulationProgress(null);

@@ -4,13 +4,13 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-19 23:16
+最終更新: 2026-06-19 23:26
 
 ---
 
 ## 現在のフォーカス
 
-**v1.1.0 リリース** — Phase R1（バグ Fix）から着手。[`REQ-release-v1.1.0.md`](tasks/REQ-release-v1.1.0.md) が作業正本。
+**v1.1.0 リリース** — Phase R2.5（スキル extract）が次。[`REQ-release-v1.1.0.md`](tasks/REQ-release-v1.1.0.md) が作業正本。
 
 **Phase 順**: R1 Fix → R2.5 スキル extract → R3 バージョン/CHANGELOG/本番ビルド（R2 Medium は任意）
 
@@ -25,13 +25,6 @@
 優先度順。作業チャット起票時は **P0 から1件** 取る。
 
 ### P0 — v1.1.0 リリース
-
-- [ ] **v1.1.0 リリース — Phase R1: バグ Fix（R-001 / R-006 / 任意 R-008）**
-  - REQ: [`REQ-release-v1.1.0.md`](tasks/REQ-release-v1.1.0.md)（Phase 表・検証チェックリスト）
-  - R-001: シミュ失敗トースト `null` 非表示・日本語案内（`umaemuAdapter.ts`, `SimulationLauncher.tsx`, `SimTabPanel.tsx`）
-  - R-006: raceDetail 取得失敗時「sim 成功・グラフ不可」トースト
-  - R-008（任意）: `simulationCount` localStorage NaN ガード
-  - 触らない: geminiOcr, fuzzyMatcher, src-tauri, race.js
 
 - [ ] **v1.1.0 リリース — Phase R2.5: スキルデータ extract**
   - `npm run extract-umasim-skills` のみ（race.js 更新なし）
@@ -119,6 +112,7 @@
 
 ## 完了済み
 
+- [x] **v1.1.0 リリース — Phase R1: バグ Fix（R-001 / R-006 / R-008）** — シミュ失敗トースト正規化・raceDetail 失敗通知・simulationCount NaN ガード（`simulationErrors.ts` 新設）（コミット後にハッシュ追記）
 - [x] **左カラム設定項目の折りたたみ** — 3項目を1トグルで折りたたみ、自動コピーはヘッダー常時表示、localStorage `settingsPanelExpanded`（**実機検証クローズ** 2026-06-19 20:45 / `05fd9a6`）
 - [x] **サイドバー折りたたみ時アイコンフラッシュ修正** — invisible+transition 廃止、条件レンダリング+装飾なしゴースト行（2026-06-19 20:02 / `36cbc07`）
 - [x] **サイドバー折りたたみ rail 展開ボタン Y 揃え（再修正）** — 共通ヘッダー化 + 折りたたみ時 invisible 行で行高維持・absolute 中央配置（2026-06-19 19:56 / `ccbcf73`）
