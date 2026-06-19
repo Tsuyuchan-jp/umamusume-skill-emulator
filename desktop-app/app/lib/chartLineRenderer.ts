@@ -51,7 +51,7 @@ export interface DrawSkillActivationDotsOptions {
   radius?: number;
 }
 
-export const SKILL_ACTIVATION_DOT_RADIUS = 3;
+export const SKILL_ACTIVATION_DOT_RADIUS = 2.5;
 
 function timeSpan(window: VisibleWindow): number {
   return Math.max(window.timeMax - window.timeMin, 1e-9);
