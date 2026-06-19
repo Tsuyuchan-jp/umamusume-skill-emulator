@@ -23,7 +23,7 @@ export const SPEED_MAX = 30;
 export const CHART_VIEW_SCALE_MAX = 24;
 
 /** ホイール 1 ノッチの倍率（拡大: ×k、縮小: ×1/k） */
-export const CHART_VIEW_WHEEL_ZOOM_FACTOR = 1.2;
+export const CHART_VIEW_WHEEL_ZOOM_FACTOR = 1.3;
 
 /** グラフの表示変換。内部正本は center + scale */
 export interface ChartViewState {
