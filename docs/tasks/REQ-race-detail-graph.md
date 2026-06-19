@@ -3,9 +3,9 @@
 > **レース詳細グラフ実装シリーズ**の索引。各 Phase の詳細・完了条件は **Phase 別 REQ** を正本とする。
 > 参考 UI: [umasim レースエミュレータ](https://mee1080.github.io/umasim/race/)「直近レース詳細」相当。
 
-- **ステータス**: Phase 1 完了（シリーズ継続中 — **Phase 5 実装正本**: [`REQ-race-detail-graph-map-view.md`](REQ-race-detail-graph-map-view.md)）
+- **ステータス**: done（Phase 5 完了 — 本線。**実装正本**: [`REQ-race-detail-graph-map-view.md`](REQ-race-detail-graph-map-view.md) + [`REQ-race-detail-graph-interaction-engine.md`](REQ-race-detail-graph-interaction-engine.md)。Backlog に overlay 改善候補あり）
 - **作成日**: 2026-06-10 15:55
-- **最終更新**: 2026-06-19 14:22
+- **最終更新**: 2026-06-20 00:39
 
 ---
 
@@ -30,9 +30,11 @@
 | 5 | スキル帯×速度線連動 | [`REQ-race-detail-graph-skill-layout-sync.md`](REQ-race-detail-graph-skill-layout-sync.md) | **superseded**（決定ログ参照） | → map-view |
 | 5-R1 | 分析モード revert + K 固定 | [`REQ-race-detail-graph-analysis-revert.md`](REQ-race-detail-graph-analysis-revert.md) | **done**（`dd414ea` 実機検証クローズ） | 知見利用 |
 | 5-R1b | 赤線アンカー + 同時刻スタック圧縮 | [`REQ-race-detail-graph-same-time-stack-compact.md`](REQ-race-detail-graph-same-time-stack-compact.md) | **done**（知見利用） | → map-view |
-| **5 最終** | **Google Map 型グラフ UI** | [**`REQ-race-detail-graph-map-view.md`**](REQ-race-detail-graph-map-view.md) | **in-progress**（ステップ 3〜4 残） | Interaction Engine |
-| **5-P2** | **Interaction Canvas Engine** | [**`REQ-race-detail-graph-interaction-engine.md`**](REQ-race-detail-graph-interaction-engine.md) | **draft**（設計レビュー承認・Phase 1 待ち） | Engine Phase 1 |
+| **5 最終** | **Google Map 型グラフ UI** | [**`REQ-race-detail-graph-map-view.md`**](REQ-race-detail-graph-map-view.md) | **done**（`249c4b2` 実機検証クローズ） | Engine |
+| **5-P2** | **Interaction Canvas Engine** | [**`REQ-race-detail-graph-interaction-engine.md`**](REQ-race-detail-graph-interaction-engine.md) | **done**（Phase 1〜4 実機検証クローズ 2026-06-19） | ポリッシュ |
 | **5-P1** | **domain 30fps cap（fallback）** | [`REQ-race-detail-graph-map-view-perf-fallback.md`](REQ-race-detail-graph-map-view-perf-fallback.md) | **done**（`5053012`） | Engine へ移行 |
+| **5-P3** | **連続ホイール idle 調整** | [`REQ-race-detail-graph-wheel-continuous-zoom.md`](REQ-race-detail-graph-wheel-continuous-zoom.md) | **done**（`1902c42` 実機検証クローズ） | overlay handoff |
+| **5-P4** | **overlay 復帰 latency 短縮** | [`REQ-race-detail-graph-overlay-handoff-latency.md`](REQ-race-detail-graph-overlay-handoff-latency.md) | **done**（`ed67df3` 実機検証クローズ） | — |
 | ~~5-R2~~ | ~~X 時間窓 + ドラッグ~~ | [`REQ-race-detail-graph-time-window.md`](REQ-race-detail-graph-time-window.md) | **superseded** | map-view へ統合 |
 | ~~5-R3~~ | ~~ホイール + パン + 縦拡大削除~~ | [`REQ-race-detail-graph-pan-zoom.md`](REQ-race-detail-graph-pan-zoom.md) | **superseded** | map-view へ統合 |
 
@@ -80,6 +82,7 @@
 | 2026-06-14 11:15 | **5-R1b** 起票: 同時刻スキル縦スタック圧縮（案3 維持・hit box 段間隔） | 実機: 同時発動が 56px/段で過剰スライド。R2 前の実施推奨 |
 | 2026-06-18 18:15 | **5-R1b 設計承認**: 赤線左端を速度線上にアンカー、ラベルは赤線上、同時刻のみ compact yStackOffset | ユーザー要件: 詳細表示で発動地点の正確な把握。全体表示の軽いずらしは R3 へ |
 | 2026-06-18 21:01 | **Phase 5 最終ゴール確定**: [`REQ-race-detail-graph-map-view.md`](REQ-race-detail-graph-map-view.md) — 等倍 XY ズーム + 2D パン。旧 R2/R3 **superseded** | 段階分割が Google Map 型意図から逸脱。実装正本を一本化 |
+| 2026-06-20 00:39 | **Phase 5 本線完了**: map-view・interaction-engine・wheel-continuous-zoom・overlay-handoff-latency すべて **done**。親 REQ を `done（Phase 5 完了）` に同期 | TODO 完了済み・子 REQ ステータスとロードマップ表の矛盾解消。[`INDEX.md`](INDEX.md) 新設 |
 
 ---
 

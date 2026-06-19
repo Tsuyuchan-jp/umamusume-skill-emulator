@@ -68,8 +68,8 @@ umamusume-skill-emulator/
 **必須**: REQ を `draft` で起票したら **同時に TODO Backlog へ1行追加**（詳細は `.cursor/rules/docs-management.mdc`）。
 
 - チャット起票時: まず `@docs/TODO.md` → 着手 REQ を `@` 参照
-- `docs/tasks/` に REQ が増えても、**探す起点は TODO**（エクスプローラーでファイル名を目視する必要はない）
-- REQ が20件超: `docs/tasks/INDEX.md` で一覧管理（未到達。現状は TODO + ロードマップ REQ で運用）
+- 全 REQ の一覧・ステータス: [`docs/tasks/INDEX.md`](tasks/INDEX.md)（TODO の代替ではない）
+- REQ が20件超: [`docs/tasks/INDEX.md`](tasks/INDEX.md) で一覧管理（**2026-06-20 新設**）
 
 ### コメント・応答言語
 
@@ -137,6 +137,7 @@ npm run build:release-exe
 ## 関連ドキュメント
 
 - 進捗・Todo: `docs/TODO.md`
+- **REQ 索引（全件カタログ）**: `docs/tasks/INDEX.md`
 - 更新履歴: `docs/CHANGELOG.md`
 - **リリースビルド（app.exe）**: `docs/RELEASE_BUILD.md`
 - 個別要件: `docs/tasks/REQ-*.md`

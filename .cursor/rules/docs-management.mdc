@@ -104,5 +104,6 @@ Get-Date -Format "yyyy-MM-dd HH:mm"
 `docs/tasks/REQ-*.md`（テンプレ除く）が **20件を超えたら** `docs/tasks/INDEX.md` を作成・維持する。
 
 - TODO = 「次に何をするか」、INDEX = 「全 REQ の一覧とステータス」
-- INDEX 列例: REQ 名 | ステータス | TODO 掲載 | 優先度 | 備考
+- INDEX 列例: REQ 名 | ステータス | TODO 掲載 | 備考
+- **INDEX 更新**: REQ を `draft` 起票または `done` にした **同一コミット内** で [`docs/tasks/INDEX.md`](../../docs/tasks/INDEX.md) の該当行を追加・更新する
 - 20件以下の間は TODO + 各ロードマップ REQ で足りる。索引は早めに作らない。
