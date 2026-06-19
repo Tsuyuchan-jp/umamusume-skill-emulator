@@ -4,32 +4,28 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-19 17:53
+最終更新: 2026-06-19 18:02
 
 ---
 
 ## 現在のフォーカス
 
-**次の着手候補（P0）**: 連続ホイールズームの途中 commit 除去 — Interaction Canvas Engine Phase 4 は実機検証クローズ済み
+**進行中**: 連続ホイールズームの途中 commit 除去 — `MAP_INTERACTION_WHEEL_IDLE_MS` 150→300ms（案 A）
 
 ---
 
 ## 進行中
 
-（なし）
+- [ ] **連続ホイールズームの途中 commit 除去**（ホイール連打時のひっかかり）
+  - 方針: 案 A — idle 300ms まで commit 遅延。`scheduleWheelIdleEnd` ロジックは維持
+  - 触る: `useChartViewInteraction.ts`
+  - REQ: [`REQ-race-detail-graph-wheel-continuous-zoom.md`](tasks/REQ-race-detail-graph-wheel-continuous-zoom.md)
 
 ## 次にやること（Backlog）
 
 優先度順。作業チャット起票時は **P0 から1件** 取る。
 
 ### P0 — 次に着手
-
-- [ ] **連続ホイールズームの途中 commit 除去**（ホイール連打時のひっかかり）
-  - 経緯: Phase 4 実機検証 OK 後のユーザー提起。Phase 4 以前から存在。overlay 問題ではない
-  - 原因: `MAP_INTERACTION_WHEEL_IDLE_MS=150` でスクロール息継ぎごとに `commitLiveView` → Recharts 再描画 + Canvas セッション切断
-  - 方針: ホイール中はドラッグ同型で `liveViewRef` のみ更新。完全停止後に 1 回 commit。idle 閾値 250〜350ms は実装時決定
-  - 触る想定: `useChartViewInteraction.ts`
-  - REQ: [`REQ-race-detail-graph-wheel-continuous-zoom.md`](tasks/REQ-race-detail-graph-wheel-continuous-zoom.md)
 
 - [ ] **シミュレーション失敗トーストの文言改善（`null` 非表示・再試行案内）**
   - 経緯: WASM Worker 異常終了時に `シミュレーションエラー: null` がユーザー向けトーストに表示された。フルリロードで復旧した事例あり

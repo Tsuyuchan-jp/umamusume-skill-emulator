@@ -4,7 +4,7 @@
 > 文脈: [`REQ-race-detail-graph-interaction-engine.md`](REQ-race-detail-graph-interaction-engine.md)（Phase 4 完了後の UX ポリッシュ）
 > ロードマップ: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md)
 
-- **ステータス**: draft
+- **ステータス**: in-progress
 - **作成日**: 2026-06-19 17:53
 - **関連コミット**: （完了後に記入）
 

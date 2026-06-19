@@ -9,8 +9,8 @@ import {
   clampChartViewState,
 } from "../lib/raceGraphBuilder";
 
-/** ホイール停止後、isMapInteracting を false にするまでの待機（ms） */
-export const MAP_INTERACTION_WHEEL_IDLE_MS = 150;
+/** ホイール完全停止とみなす無入力時間（ms）。この間隔を超えて初めて commitLiveView を実行する */
+export const MAP_INTERACTION_WHEEL_IDLE_MS = 300;
 
 /** 操作中の chartViewState → Recharts domain 反映の上限 fps */
 export const MAP_CHART_DOMAIN_COMMIT_FPS = 30;
