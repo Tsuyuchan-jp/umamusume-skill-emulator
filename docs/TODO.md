@@ -113,7 +113,7 @@ Interaction Canvas Engine **Phase 4** — ハンドオフ品質・200ms SLA（Ph
 
 ## 完了済み
 
-- [x] グラフパン時の Y 軸目盛りテキスト選択による再ドラッグ不能 — select-none + pointerdown preventDefault（Phase 3 実機指摘）
+- [x] グラフパン時の Y 軸目盛りテキスト選択による再ドラッグ不能 — select-none + pointerdown preventDefault（`9a3b8ca` / Phase 3 実機指摘）
 - [x] Google Map 型グラフ — Interaction Canvas Engine **Phase 3**（Canvas rAF 配線・発動点小丸・Line strokeOpacity defer）（**実機検証待ち** / `8ab7c60` / [`REQ-race-detail-graph-interaction-engine.md`](tasks/REQ-race-detail-graph-interaction-engine.md)）
 - [x] Google Map 型グラフ — Interaction Canvas Engine **Phase 2**（liveViewRef 分離・deferDomainCommit・buildInteractionPlotMetrics）（**実機検証クローズ・軽量** 2026-06-19 16:13 / `8767b1a` / [`REQ-race-detail-graph-interaction-engine.md`](tasks/REQ-race-detail-graph-interaction-engine.md)）
 - [x] Google Map 型グラフ — Interaction Canvas Engine **Phase 1**（chartLineRenderer.ts・getSpeedAtTime export・座標検証）（`5693968` / [`REQ-race-detail-graph-interaction-engine.md`](tasks/REQ-race-detail-graph-interaction-engine.md)）
