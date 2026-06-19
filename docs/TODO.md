@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-19 18:45
+最終更新: 2026-06-19 18:55
 
 ---
 
@@ -49,9 +49,9 @@
 - [ ] **Google Map 型グラフ — ホイール停止後 overlay 復帰 latency 短縮**
   - 現状: `MAP_INTERACTION_WHEEL_IDLE_MS=300` 待機 + Recharts metrics probe（最大 ~200ms）で停止〜スキル overlay 表示まで長い
   - 目標: 連続ホイールの途中 commit なしは維持しつつ、**停止後の overlay 表示を ~100ms 台**へ
-  - 推奨: 合成 metrics 即時 handoff（`buildInteractionPlotMetrics` + 凍結 cartesian）+ adaptive idle（単発 notch は短 settle）
+  - 施策: 合成 metrics 即時 handoff（A）+ adaptive idle（B）
   - 触る想定: `useChartViewInteraction.ts`, `RaceDetailChart.tsx`
-  - 関連: [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)
+  - REQ: [`REQ-race-detail-graph-overlay-handoff-latency.md`](tasks/REQ-race-detail-graph-overlay-handoff-latency.md)
 
 - [ ] **Google Map 型グラフ — 操作中 overlay 中間レベル**（赤線のみ表示。ラベル・layout・getBBox は defer 維持）
   - 前提: 現状は最小レベル（操作中 overlay 全非表示）でパフォーマンス優先
