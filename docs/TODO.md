@@ -110,7 +110,7 @@
 
 ## 完了済み
 
-- [x] **サイドバー折りたたみ rail 展開ボタン Y 揃え** — 展開時ヘッダーと同じ `pt-4` + `h-10` 行に配置（2026-06-19 19:51 / コミット後にハッシュ追記）
+- [x] **サイドバー折りたたみ rail 展開ボタン Y 揃え** — 展開時ヘッダーと同じ `pt-4` + `h-10` 行に配置（2026-06-19 19:51 / `ab93563`）
 - [x] **サイドバー UI ポリッシュ（実機指摘）** — 最小幅タイトル1行 truncate + 折りたたみ rail アイコン除去（スペーサーで展開ボタン Y 維持）（2026-06-19 19:45 / `6bb53b9`）
 - [x] **サイドバー折りたたみボタンをスクロール位置に依存させない** — 展開時を固定ヘッダー + スクロールボディ（案 B）（2026-06-19 19:33 / `74aebc6`）
 - [x] **Google Map 型グラフ — ホイール停止後 overlay 復帰 latency 短縮** — 合成 metrics 即時 handoff（A）+ adaptive idle（B）（**実機検証クローズ** 2026-06-19 / `ed67df3` / [`REQ-race-detail-graph-overlay-handoff-latency.md`](tasks/REQ-race-detail-graph-overlay-handoff-latency.md) **done**）
