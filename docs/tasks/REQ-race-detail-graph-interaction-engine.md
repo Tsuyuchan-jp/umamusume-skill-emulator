@@ -5,7 +5,7 @@
 > 文脈: [`REQ-race-detail-graph-performance.md`](REQ-race-detail-graph-performance.md)、[`REQ-race-detail-graph-map-view-perf-fallback.md`](REQ-race-detail-graph-map-view-perf-fallback.md)（30fps cap は移行期フォールバック）
 > ロードマップ: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md)
 
-- **ステータス**: in-progress（Phase 3 設計レビュー待ち）
+- **ステータス**: in-progress（Phase 3 実装完了・実機検証待ち / Phase 4 残）
 - **作成日**: 2026-06-19 01:19
 - **関連コミット**: `5693968`（Phase 1）、`8767b1a`（Phase 2）
 
@@ -344,13 +344,17 @@ export function useInteractionCanvasLoop(
 
 ### Phase 3 完了条件
 
-- [ ] 50+ スキル終盤でホイール連打・2D ドラッグ 2〜3 秒が **30fps cap 時より明確に軽い**（主観 60fps 近傍）
-- [ ] compare ON（6 系列）・percent 3 系列 checkbox 切替が Canvas に反映
-- [ ] スキル/デバフ ON 時、操作中に速度線上の **発動点小丸** が live window に追従
-- [ ] `overlayLayoutReady` 後に小丸が消え、赤線↔速度線整合した overlay が復帰
-- [ ] ReferenceArea / phaseLines 操作中非表示 → 停止後復帰
-- [ ] 操作中 Tooltip 非表示（defer）
-- [ ] `npm run build` 通過
+- [x] `useInteractionCanvasLoop` 連続 rAF + DPR + drawChartLines + drawSkillActivationDots 配線
+- [x] RaceDetailChart: canvas 要素、canvasVisible / rechartsLinesVisible、Line strokeOpacity defer
+- [x] ReferenceArea / phaseLines / Tooltip 操作中 defer（左下凡例ピル・STAMINA_PLOT_FLOOR は維持）
+- [x] settling 配線（`canvasVisible = isMapInteracting || !overlayLayoutReady`、idleCartesian で committed 描画）
+- [x] `npm run build` 通過
+- [ ] 50+ スキル終盤でホイール連打・2D ドラッグ 2〜3 秒が **30fps cap 時より明確に軽い**（主観 60fps 近傍）— **実機検証待ち**
+- [ ] compare ON（6 系列）・percent 3 系列 checkbox 切替が Canvas に反映 — **実機検証待ち**
+- [ ] スキル/デバフ ON 時、操作中に速度線上の **発動点小丸** が live window に追従 — **実機検証待ち**
+- [ ] `overlayLayoutReady` 後に小丸が消え、赤線↔速度線整合した overlay が復帰 — **実機検証待ち**
+- [ ] ReferenceArea / phaseLines 操作中非表示 → 停止後復帰 — **実機検証待ち**
+- [ ] 操作中 Tooltip 非表示（defer）— **実機検証待ち**
 
 ---
 
@@ -469,6 +473,8 @@ export function useInteractionCanvasLoop(
 | 2026-06-19 15:58 | **Phase 2 完了**: useChartViewInteraction defer パス、commitLiveView、RaceDetailChart deferDomainCommit: true、vitest 2 件追加 | 30fps cap は defer=false フォールバック用に残置。REQ は Phase 3 まで in-progress 維持 |
 | 2026-06-19 16:13 | **Phase 2 実機検証クローズ（軽量）**: ドラッグ離し commit・ホイール停止後ズーム・dblclick 俯瞰 OK。操作中折れ線固定は期待どおり | Profiler は Tauri DevTools 非対応・Chrome 確認面倒のため省略。liveView 整合は Phase 3 Canvas で統合検証 |
 | 2026-06-19 16:13 | **Phase 3 設計レビュー着手待ち**: useInteractionCanvasLoop 新規、RaceDetailChart canvas 配線、Line strokeOpacity、発動点小丸 | Phase 1〜2 資産（chartLineRenderer・liveViewRef）を接続 |
+| 2026-06-19 16:21 | **Phase 3 設計レビュー承認**: 連続 rAF、Tooltip conditional unmount、settling idleCartesian、checkbox 即 Canvas 反映、小丸 3.5px | Ask mode 設計レビュー合意 |
+| 2026-06-19 16:21 | **Phase 3 実装完了（実機検証待ち）**: useInteractionCanvasLoop + RaceDetailChart canvas 配線、Line strokeOpacity defer、ReferenceArea/phaseLines/Tooltip defer | build 通過。実機チェックはユーザー別途 |
 
 ---
 

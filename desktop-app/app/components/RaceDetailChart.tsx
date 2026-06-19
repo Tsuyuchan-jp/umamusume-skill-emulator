@@ -50,6 +50,7 @@ import {
   VisibleWindow,
 } from "../lib/raceGraphBuilder";
 import { useChartViewInteraction, useClampChartViewOnResize } from "../hooks/useChartViewInteraction";
+import { useInteractionCanvasLoop } from "../hooks/useInteractionCanvasLoop";
 
 interface RaceDetailChartProps {
   detail: RaceDetailDump;
@@ -327,6 +328,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const chartAreaRef = useRef<HTMLDivElement>(null);
+  const interactionCanvasRef = useRef<HTMLCanvasElement>(null);
   /** scroll コンテナの可視高さ — LineChart は ON/OFF 共通でこれに合わせる */
   const [viewportHeight, setViewportHeight] = useState(SKILL_CHART_BASE_HEIGHT);
   const [measuredWidth, setMeasuredWidth] = useState(800);
@@ -454,7 +456,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
   const plotMetrics = measuredPlotMetrics ?? estimatedPlotMetrics;
   const plotMetricsReady = measuredPlotMetrics?.scales != null;
 
-  const { isMapInteracting } = useChartViewInteraction({
+  const { isMapInteracting, liveViewRef, interactionCartesianRef } = useChartViewInteraction({
     enabled: mapInteractionEnabled,
     raceEnd: maxTime,
     chartAreaRef,
@@ -473,6 +475,37 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
     plotMetricsScalesMatchWindow(measuredPlotMetrics) &&
     chartViewStatesEqual(measuredPlotMetrics.view, metricsViewState) &&
     visibleWindowsEqual(measuredPlotMetrics, visibleWindow);
+
+  const canvasVisible = mapInteractionEnabled && (isMapInteracting || !overlayLayoutReady);
+  const rechartsLinesVisible = overlayLayoutReady && !isMapInteracting;
+  const lineStrokeOpacity = rechartsLinesVisible ? 1 : 0;
+  const baselineLineStrokeOpacity = rechartsLinesVisible ? BASELINE_LINE_OPACITY : 0;
+  const idleCartesian = measuredPlotMetrics?.cartesian ?? estimatedPlotMetrics.cartesian;
+  const canvasCssHeight = isExpanded ? contentChartHeight : viewportChartHeight;
+
+  useInteractionCanvasLoop({
+    enabled: mapInteractionEnabled,
+    canvasRef: interactionCanvasRef,
+    canvasVisible,
+    isMapInteracting,
+    liveViewRef,
+    committedViewState: chartViewState,
+    interactionCartesianRef,
+    idleCartesian,
+    raceEnd: maxTime,
+    points: graphPoints.points,
+    skillMarkers: skillData.skillMarkers,
+    displayState,
+    showBaseline: showBaselineOverlay,
+    cssWidth: measuredWidth,
+    cssHeight: canvasCssHeight,
+    colors: {
+      speed: SPEED_LINE_COLOR,
+      stamina: STAMINA_LINE_COLOR,
+      lane: LANE_LINE_COLOR,
+      baselineOpacity: BASELINE_LINE_OPACITY,
+    },
+  });
 
   useEffect(() => {
     if (isMapInteracting) {
@@ -628,6 +661,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
           >
             <LineChart data={graphPoints.points} margin={{ top: 24, right: 48, left: 4, bottom: 4 }}>
               {displayState.showAreas &&
+                !isMapInteracting &&
                 graphPoints.areaBands.map((band, index) => (
                   <React.Fragment key={`area-${index}`}>
                     <ReferenceArea
@@ -690,6 +724,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
                 fontSize={11}
                 width={40}
               />
+              {!isMapInteracting && (
               <Tooltip
                 position={getTooltipPosition as never}
                 allowEscapeViewBox={{ x: false, y: false }}
@@ -741,6 +776,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
                   return [String(num), label];
                 }}
               />
+              )}
               <Legend
                 verticalAlign="bottom"
                 align="center"
@@ -752,7 +788,8 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
                   />
                 }
               />
-              {graphPoints.phaseLines.map((phase) => (
+              {!isMapInteracting &&
+                graphPoints.phaseLines.map((phase) => (
                 <ReferenceLine
                   key={phase.label}
                   x={phase.time}
@@ -778,6 +815,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
                 dataKey="speed"
                 stroke={SPEED_LINE_COLOR}
                 strokeWidth={2}
+                strokeOpacity={lineStrokeOpacity}
                 dot={false}
                 isAnimationActive={false}
                 hide={!displayState.showSpeed}
@@ -790,7 +828,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
                   stroke={SPEED_LINE_COLOR}
                   strokeWidth={2}
                   strokeDasharray="6 4"
-                  strokeOpacity={BASELINE_LINE_OPACITY}
+                  strokeOpacity={baselineLineStrokeOpacity}
                   dot={false}
                   isAnimationActive={false}
                   hide={!displayState.showSpeed}
@@ -803,6 +841,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
                 dataKey="stamina"
                 stroke={STAMINA_LINE_COLOR}
                 strokeWidth={2}
+                strokeOpacity={lineStrokeOpacity}
                 dot={false}
                 isAnimationActive={false}
                 hide={!displayState.showStamina}
@@ -815,7 +854,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
                   stroke={STAMINA_LINE_COLOR}
                   strokeWidth={2}
                   strokeDasharray="6 4"
-                  strokeOpacity={BASELINE_LINE_OPACITY}
+                  strokeOpacity={baselineLineStrokeOpacity}
                   dot={false}
                   isAnimationActive={false}
                   hide={!displayState.showStamina}
@@ -828,6 +867,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
                 dataKey="lane"
                 stroke={LANE_LINE_COLOR}
                 strokeWidth={2}
+                strokeOpacity={lineStrokeOpacity}
                 dot={false}
                 isAnimationActive={false}
                 hide={!displayState.showLane}
@@ -840,7 +880,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
                   stroke={LANE_LINE_COLOR}
                   strokeWidth={2}
                   strokeDasharray="6 4"
-                  strokeOpacity={BASELINE_LINE_OPACITY}
+                  strokeOpacity={baselineLineStrokeOpacity}
                   dot={false}
                   isAnimationActive={false}
                   hide={!displayState.showLane}
@@ -854,6 +894,15 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
               />
             </LineChart>
           </ResponsiveContainer>
+
+          {mapInteractionEnabled && (
+            <canvas
+              ref={interactionCanvasRef}
+              className="pointer-events-none absolute inset-0"
+              aria-hidden="true"
+              style={{ visibility: canvasVisible ? "visible" : "hidden", zIndex: 1 }}
+            />
+          )}
 
           {/* スキル発動 overlay SVG — Recharts 外の absolute レイヤー（ラベルのみ pointer-events） */}
           {showSkillOverlay && skillMarkersPx.length > 0 && (

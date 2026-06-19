@@ -4,13 +4,13 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-19 16:13
+最終更新: 2026-06-19 16:23
 
 ---
 
 ## 現在のフォーカス
 
-Interaction Canvas Engine **Phase 3 設計レビュー待ち** — Canvas 配線 + rAF + 発動点小丸
+Interaction Canvas Engine **Phase 4** — ハンドオフ品質・200ms SLA（Phase 3 実装完了・実機検証はユーザー別途）
 
 ---
 
@@ -37,11 +37,8 @@ Interaction Canvas Engine **Phase 3 設計レビュー待ち** — Canvas 配線
 
 ### P1 — 重要
 
-- [ ] **Google Map 型グラフ — Interaction Canvas Engine Phase 3〜4**
-  - Phase 1 完了: `chartLineRenderer.ts`、getSpeedAtTime export、vitest 座標検証 ≤1px（`5693968`）
-  - Phase 2 完了 + **実機検証クローズ（軽量）** 2026-06-19 16:13: liveViewRef 分離・deferDomainCommit（`8767b1a`）。Profiler は省略
-  - **次**: Phase 3 設計レビュー → Canvas 配線 + 発動点小丸 + Recharts Line 非表示
-  - 残: Phase 4 ハンドオフ・本 REQ 実機検証クローズ
+- [ ] **Google Map 型グラフ — Interaction Canvas Engine Phase 4**
+  - Phase 3 完了後: ハンドオフ品質・200ms SLA 厳密検証・本 REQ 実機検証クローズ
   - REQ: [`REQ-race-detail-graph-interaction-engine.md`](tasks/REQ-race-detail-graph-interaction-engine.md)
 
 - [ ] **Google Map 型グラフ UI（Phase 5 最終）— ステップ 3〜4**
@@ -116,6 +113,7 @@ Interaction Canvas Engine **Phase 3 設計レビュー待ち** — Canvas 配線
 
 ## 完了済み
 
+- [x] Google Map 型グラフ — Interaction Canvas Engine **Phase 3**（Canvas rAF 配線・発動点小丸・Line strokeOpacity defer）（**実機検証待ち** / [`REQ-race-detail-graph-interaction-engine.md`](tasks/REQ-race-detail-graph-interaction-engine.md)）
 - [x] Google Map 型グラフ — Interaction Canvas Engine **Phase 2**（liveViewRef 分離・deferDomainCommit・buildInteractionPlotMetrics）（**実機検証クローズ・軽量** 2026-06-19 16:13 / `8767b1a` / [`REQ-race-detail-graph-interaction-engine.md`](tasks/REQ-race-detail-graph-interaction-engine.md)）
 - [x] Google Map 型グラフ — Interaction Canvas Engine **Phase 1**（chartLineRenderer.ts・getSpeedAtTime export・座標検証）（`5693968` / [`REQ-race-detail-graph-interaction-engine.md`](tasks/REQ-race-detail-graph-interaction-engine.md)）
 - [x] Google Map 型グラフ — domain 更新 30fps cap（perf fallback）（**実機検証クローズ** 2026-06-19 01:12 / `5053012`〜`cba1f4c` / [`REQ-race-detail-graph-map-view-perf-fallback.md`](tasks/REQ-race-detail-graph-map-view-perf-fallback.md)）
