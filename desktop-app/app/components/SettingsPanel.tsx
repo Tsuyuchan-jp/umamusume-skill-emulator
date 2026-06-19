@@ -1,16 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Folder, Keyboard, Settings, Key, ChevronDown, ChevronUp } from "lucide-react";
 
 const SETTINGS_PANEL_EXPANDED_KEY = "settingsPanelExpanded";
-
-function readSettingsPanelExpanded(): boolean {
-  if (typeof window === "undefined") return true;
-  const saved = localStorage.getItem(SETTINGS_PANEL_EXPANDED_KEY);
-  if (saved === null) return true;
-  return saved === "true";
-}
 
 interface SettingsPanelProps {
   autoCopyEnabled: boolean;
@@ -41,7 +34,15 @@ export function SettingsPanel({
   onShowApiKeyModal,
   shortcutInputRef
 }: SettingsPanelProps) {
-  const [isExpanded, setIsExpanded] = useState(readSettingsPanelExpanded);
+  // SSR と初回クライアント描画を一致させるため、localStorage はマウント後に読む
+  const [isExpanded, setIsExpanded] = useState(true);
+
+  useEffect(() => {
+    const saved = localStorage.getItem(SETTINGS_PANEL_EXPANDED_KEY);
+    if (saved !== null) {
+      setIsExpanded(saved === "true");
+    }
+  }, []);
 
   const toggleExpanded = () => {
     setIsExpanded((prev) => {
