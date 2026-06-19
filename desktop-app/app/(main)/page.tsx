@@ -378,46 +378,42 @@ export default function Home() {
         style={{ width: `${effectiveSidebarWidth}px` }}
         className={`flex-shrink-0 h-full overflow-hidden bg-zinc-950/40 ${isResizing ? 'select-none pointer-events-none' : ''}`}
       >
-        {sidebarCollapsed ? (
-          /* 折りたたみ時: 展開トグル（Y 座標は展開時ヘッダーの折りたたみボタンと揃える） */
-          <div className="flex flex-col items-center h-full w-full min-w-0">
-            <div className="shrink-0 pt-4 w-full flex items-center justify-center h-10">
+        <div className="flex flex-col h-full min-w-0 overflow-hidden">
+          {/* 固定ヘッダー（展開/折りたたみ共通・行高を揃える） */}
+          <div className="shrink-0 px-4 pt-4 pb-0 overflow-hidden">
+            <div className="relative flex items-center gap-3 min-w-0">
+              <div
+                className={`flex items-center justify-center w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.15)] transition-all duration-300 hover:bg-emerald-500/20 shrink-0 ${sidebarCollapsed ? "invisible" : ""}`}
+              >
+                <svg className="w-5 h-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 10a8 8 0 0 1 16 0v4a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-4a2 2 0 0 0-4 0v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4z"></path>
+                </svg>
+              </div>
+              <h1
+                className={`text-base font-extrabold leading-tight tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-100 to-zinc-400 min-w-0 flex-1 flex items-baseline truncate whitespace-nowrap ${sidebarCollapsed ? "invisible" : ""}`}
+              >
+                <span className="truncate">ウマ娘 レースアナライザー</span>
+                <span className="text-[10px] text-zinc-500 font-medium ml-2 shrink-0">v1.0.7</span>
+              </h1>
+              {sidebarCollapsed && (
+                <div className="w-9 h-9 shrink-0 invisible pointer-events-none" aria-hidden="true" />
+              )}
               <button
                 type="button"
-                onClick={() => setSidebarCollapsed(false)}
-                className="flex items-center justify-center w-9 h-9 rounded-lg text-zinc-400 hover:text-emerald-400 hover:bg-zinc-800/80 transition-colors shrink-0"
-                title="サイドバーを展開"
+                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                className={`flex items-center justify-center w-9 h-9 rounded-lg text-zinc-400 hover:text-emerald-400 hover:bg-zinc-800/80 transition-colors shrink-0 z-10 ${
+                  sidebarCollapsed
+                    ? "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+                    : "ml-auto"
+                }`}
+                title={sidebarCollapsed ? "サイドバーを展開" : "サイドバーを折りたたむ"}
               >
-                <PanelLeftOpen className="w-5 h-5" />
+                {sidebarCollapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
               </button>
             </div>
           </div>
-        ) : (
-          <div className="flex flex-col h-full min-w-0 overflow-hidden">
-            {/* 固定ヘッダー: タイトル行 */}
-            <div className="shrink-0 px-4 pt-4 pb-0">
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="flex items-center justify-center w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.15)] transition-all duration-300 hover:bg-emerald-500/20 shrink-0">
-                  <svg className="w-5 h-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M4 10a8 8 0 0 1 16 0v4a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-4a2 2 0 0 0-4 0v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4z"></path>
-                  </svg>
-                </div>
-                <h1 className="text-base font-extrabold leading-tight tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-100 to-zinc-400 min-w-0 flex-1 flex items-baseline truncate whitespace-nowrap">
-                  <span className="truncate">ウマ娘 レースアナライザー</span>
-                  <span className="text-[10px] text-zinc-500 font-medium ml-2 shrink-0">v1.0.7</span>
-                </h1>
-                <button
-                  type="button"
-                  onClick={() => setSidebarCollapsed(true)}
-                  className="ml-auto flex items-center justify-center w-9 h-9 rounded-lg text-zinc-400 hover:text-emerald-400 hover:bg-zinc-800/80 transition-colors shrink-0"
-                  title="サイドバーを折りたたむ"
-                >
-                  <PanelLeftClose className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
 
-            {/* スクロールボディ */}
+          {!sidebarCollapsed && (
             <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-4 pt-6 flex flex-col gap-6 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent min-w-0">
             {/* オートキャプチャ & 自動結合 */}
             <CapturePanel
@@ -507,8 +503,8 @@ export default function Home() {
           </div>
         )}
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Resizer（折りたたみ中は非表示） */}
