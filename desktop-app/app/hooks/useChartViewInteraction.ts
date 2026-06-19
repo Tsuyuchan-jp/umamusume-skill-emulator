@@ -2,15 +2,11 @@ import { Dispatch, RefObject, SetStateAction, useCallback, useEffect, useRef, us
 import {
   applyPanDrag,
   applyWheelZoom,
-  buildInteractionPlotMetrics,
   CartesianRect,
   ChartPlotMetrics,
   ChartViewState,
   createInitialChartViewState,
   clampChartViewState,
-  svgToPercent,
-  svgToSpeed,
-  svgToTime,
 } from "../lib/raceGraphBuilder";
 
 /** ホイール停止後、isMapInteracting を false にするまでの待機（ms） */
@@ -41,6 +37,15 @@ interface UseChartViewInteractionResult {
   liveViewRef: RefObject<ChartViewState>;
   /** 操作開始時に固定する cartesian（synthetic metrics / Canvas 描画用） */
   interactionCartesianRef: RefObject<CartesianRect | null>;
+}
+
+/** ホイールズームのアンカー座標（可視窓 center = 画面中心拡大） */
+function wheelZoomAnchor(view: ChartViewState): Pick<ChartViewState, "centerTime" | "centerSpeed" | "centerPercent"> {
+  return {
+    centerTime: view.centerTime,
+    centerSpeed: view.centerSpeed,
+    centerPercent: view.centerPercent,
+  };
 }
 
 /** chartAreaRef へホイールズーム・2D パン・ダブルクリックリセットを付与 */
@@ -223,35 +228,32 @@ export function useChartViewInteraction({
       if (defer && plotMetricsRef.current.cartesian.width <= 0) return;
       event.preventDefault();
 
-      const rect = el.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const y = event.clientY - rect.top;
       const zoomIn = event.deltaY < 0;
 
       if (defer) {
         ensureInteractionSession();
-        const cartesian = interactionCartesianRef.current;
-        if (!cartesian) return;
-        const inputMetrics = buildInteractionPlotMetrics(cartesian, liveViewRef.current, raceEnd);
-        const cursorTime = svgToTime(x, inputMetrics);
-        const cursorSpeed = svgToSpeed(y, inputMetrics);
-        const cursorPercent = svgToPercent(y, inputMetrics);
+        const view = liveViewRef.current;
+        const anchor = wheelZoomAnchor(view);
         liveViewRef.current = applyWheelZoom(
-          liveViewRef.current,
+          view,
           raceEnd,
-          cursorTime,
-          cursorSpeed,
-          cursorPercent,
+          anchor.centerTime,
+          anchor.centerSpeed,
+          anchor.centerPercent,
           zoomIn,
         );
       } else {
-        const metrics = plotMetricsRef.current;
-        const cursorTime = svgToTime(x, metrics);
-        const cursorSpeed = svgToSpeed(y, metrics);
-        const cursorPercent = svgToPercent(y, metrics);
         const prev = pendingViewStateRef.current ?? viewStateRef.current;
+        const anchor = wheelZoomAnchor(prev);
         scheduleViewStateCommit(
-          applyWheelZoom(prev, raceEnd, cursorTime, cursorSpeed, cursorPercent, zoomIn),
+          applyWheelZoom(
+            prev,
+            raceEnd,
+            anchor.centerTime,
+            anchor.centerSpeed,
+            anchor.centerPercent,
+            zoomIn,
+          ),
         );
       }
 
