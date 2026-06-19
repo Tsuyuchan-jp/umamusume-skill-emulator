@@ -4,13 +4,13 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-20 00:39
+最終更新: 2026-06-20 00:41
 
 ---
 
 ## 現在のフォーカス
 
-**REQ 索引 INDEX.md 新設** — 全 REQ カタログ作成とロードマップ同期。
+**v1.1.0 リリース完了** — 次は P1 Backlog（OCR 中止等）または P2 改善。
 
 **Phase 順**: v1.1.0 は R1→R2.5→R3 完了。[`REQ-release-v1.1.0.md`](tasks/REQ-release-v1.1.0.md) **done**
 
@@ -18,7 +18,7 @@
 
 ## 進行中
 
-- [ ] **REQ 索引 INDEX.md 新設とロードマップ同期** — `docs/tasks/INDEX.md` 作成（テンプレ除く全28件）・`REQ-race-detail-graph.md` Phase 表同期・`PROJECT.md` 更新
+（なし）
 
 ## 次にやること（Backlog）
 
@@ -105,6 +105,7 @@
 
 ## 完了済み
 
+- [x] **REQ 索引 INDEX.md 新設とロードマップ同期** — 全28件カタログ・`REQ-race-detail-graph.md` Phase 5 同期・`PROJECT.md` / rules 更新（2026-06-20 00:41 / `5d9dc0c`）
 - [x] **v1.1.0 リリース（Phase R1 + R2.5 + R3）** — バージョン 1.1.0 bump・CHANGELOG・`tauri build` 通過（2026-06-19 23:51 / `5650bb7`）/ [`REQ-release-v1.1.0.md`](tasks/REQ-release-v1.1.0.md) **done**
 - [x] **v1.1.0 リリース — Phase R2.5: スキルデータ extract** — umasim 2021件同期・新規4エントリ（フローラ固有/継承・evo×2）・extract スクリプトにヘルパー保持（2026-06-19 23:36 / `8293001`）
 - [x] **v1.1.0 リリース — Phase R1: バグ Fix（R-001 / R-006 / R-008）** — シミュ失敗トースト正規化・raceDetail 失敗通知・simulationCount NaN ガード（`simulationErrors.ts` 新設）（2026-06-19 23:26 / `c12e628`）
@@ -200,7 +201,7 @@
 - 直近レース詳細グラフ: ロードマップ [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md)。**Phase 5 実装正本**は [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)（Google Map 型・等倍 XY + 2D パン）。旧 R2/R3 は superseded
 - 現代ウマ娘: 所持 50〜70+ スキル。グラフ `skillEvents` は発動イベント数（20〜40+ あり得る）
 - **別作業で発見（2026-06-11）**: サイドバー折りたたみボタンのスクロール追従、ステータス条件ボタンのテキスト化、グラフ/スキル表記以降のレスポンス低下 — いずれも Backlog 登録済み
-- **REQ 運用**: 着手候補の正本は **本 TODO**。`draft` REQ 起票時は Backlog へ必ず1行追加（`.cursor/rules/docs-management.mdc`）
+- **REQ 運用**: 着手候補の正本は **本 TODO**。全 REQ カタログは [`docs/tasks/INDEX.md`](tasks/INDEX.md)。`draft` REQ 起票時は Backlog へ必ず1行追加（`.cursor/rules/docs-management.mdc`）
 - **連続ホイール・overlay 復帰**: **実機検証クローズ**（2026-06-19）。handoff + adaptive idle（`ed67df3`）+ ホイール 1.3（`7e6af0d`）で停止後 latency・2 ノッチ目ひっかかりともに改善。詳細: [`REQ-race-detail-graph-overlay-handoff-latency.md`](tasks/REQ-race-detail-graph-overlay-handoff-latency.md)
 - **v1.1.0 リリース**: 作業正本 [`REQ-release-v1.1.0.md`](tasks/REQ-release-v1.1.0.md) — **2026-06-19 完了（R1/R2.5/R3）**
 - **配布**: インストーラーではなく `desktop-app/src-tauri/target/release/app.exe` を直接配布。リリース時は [`RELEASE_BUILD.md`](RELEASE_BUILD.md) の `npm run build:release-exe` を必須（2026-06-19 手順整備）
