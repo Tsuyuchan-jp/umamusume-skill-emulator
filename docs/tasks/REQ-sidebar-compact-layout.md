@@ -141,6 +141,7 @@
 | 2026-06-10 18:56 | 実機検証で 380px 時の Settings クリップを確認 | ユーザー報告 |
 | 2026-06-10 19:45 | Phase S1 実装: SettingsPanel 行レイアウト常時縦積み・ヘッダー分離・文言短縮 | viewport `sm:` 廃止で 380px カラム内クリップ解消 |
 | 2026-06-10 19:17 | Phase S2 実装: SettingsPanel 外枠カード廃止・CapturePanel フラット統合・padding 圧縮・タイトル行縮小 | 二重カード解消で実効幅 ~316px。S3 コンテナクエリは見送り |
+| 2026-06-19 20:45 | 設定3項目の折りたたみ（案A）**実機検証クローズ** — 1トグル・自動コピーはヘッダー常時表示・`settingsPanelExpanded` 永続化・localStorage はマウント後読み込み（hydration 対策） | TODO Backlog P2。S1 ヘッダー分離を維持。コミット `240f69c`〜`05fd9a6` |
 
 ---
 

@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-19 20:43
+最終更新: 2026-06-19 20:45
 
 ---
 
@@ -110,7 +110,7 @@
 
 ## 完了済み
 
-- [x] **左カラム設定項目の折りたたみ** — 3項目を1トグルで折りたたみ、自動コピーはヘッダー常時表示、localStorage `settingsPanelExpanded`（2026-06-19 20:34 / `240f69c`）
+- [x] **左カラム設定項目の折りたたみ** — 3項目を1トグルで折りたたみ、自動コピーはヘッダー常時表示、localStorage `settingsPanelExpanded`（**実機検証クローズ** 2026-06-19 20:45 / `05fd9a6`）
 - [x] **サイドバー折りたたみ時アイコンフラッシュ修正** — invisible+transition 廃止、条件レンダリング+装飾なしゴースト行（2026-06-19 20:02 / `36cbc07`）
 - [x] **サイドバー折りたたみ rail 展開ボタン Y 揃え（再修正）** — 共通ヘッダー化 + 折りたたみ時 invisible 行で行高維持・absolute 中央配置（2026-06-19 19:56 / `ccbcf73`）
 - [x] **サイドバー折りたたみ rail 展開ボタン Y 揃え** — 展開時ヘッダーと同じ `pt-4` + `h-10` 行に配置（2026-06-19 19:51 / `ab93563`）
@@ -196,7 +196,7 @@
 - **新スキル時の現状**: 同梱 `umasimSkillData.ts` 利用箇所（P1 後のパレット/OCR）は **extract + アプリ再配布** が必要。WASM のみ mee1080/umasim fetch なら sim 定義はオンラインで追従しうるが、パレット/OCR は同梱更新まで新スキル非対応
 - `special`（14件）+ `minus`（1件）が `unique` 直後に並んでいたため、除外前は先頭がすべて白表示だった
 - Gemini API キーは Windows 資格情報マネージャー（`com.umamusume.race-analyzer` / `gemini_api_key`）に保存
-- サイドバー狭幅 UI（380px / min 320px）は Phase S1+S2 で完了（[`REQ-sidebar-compact-layout.md`](tasks/REQ-sidebar-compact-layout.md)）。S3 コンテナクエリは見送り
+- サイドバー狭幅 UI（380px / min 320px）は Phase S1+S2 で完了（[`REQ-sidebar-compact-layout.md`](tasks/REQ-sidebar-compact-layout.md)）。S3 コンテナクエリは見送り。**設定折りたたみ**（3項目1トグル・`settingsPanelExpanded`・hydration 対策済み）は **実機検証クローズ**（2026-06-19 / `05fd9a6`）
 - 全画面 Cockpit UI（Phase 1〜3）は完了（[`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)）
 - グラフ Y軸・m/s は [`REQ-race-detail-graph-axis.md`](tasks/REQ-race-detail-graph-axis.md) で対応済み
 - 直近レース詳細グラフ: ロードマップ [`REQ-race-detail-graph.md`](tasks/REQ-race-detail-graph.md)。**Phase 5 実装正本**は [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)（Google Map 型・等倍 XY + 2D パン）。旧 R2/R3 は superseded
