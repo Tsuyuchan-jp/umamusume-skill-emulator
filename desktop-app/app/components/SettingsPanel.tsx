@@ -1,4 +1,16 @@
-import { Folder, Keyboard, Settings, Key } from "lucide-react";
+"use client";
+
+import { useState } from "react";
+import { Folder, Keyboard, Settings, Key, ChevronDown, ChevronUp } from "lucide-react";
+
+const SETTINGS_PANEL_EXPANDED_KEY = "settingsPanelExpanded";
+
+function readSettingsPanelExpanded(): boolean {
+  if (typeof window === "undefined") return true;
+  const saved = localStorage.getItem(SETTINGS_PANEL_EXPANDED_KEY);
+  if (saved === null) return true;
+  return saved === "true";
+}
 
 interface SettingsPanelProps {
   autoCopyEnabled: boolean;
@@ -29,13 +41,34 @@ export function SettingsPanel({
   onShowApiKeyModal,
   shortcutInputRef
 }: SettingsPanelProps) {
+  const [isExpanded, setIsExpanded] = useState(readSettingsPanelExpanded);
+
+  const toggleExpanded = () => {
+    setIsExpanded((prev) => {
+      const next = !prev;
+      localStorage.setItem(SETTINGS_PANEL_EXPANDED_KEY, String(next));
+      return next;
+    });
+  };
+
   return (
     <div className="w-full min-w-0">
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between gap-2 min-w-0">
-          <h2 className="text-sm font-semibold tracking-wide text-zinc-300 flex items-center gap-2 whitespace-nowrap shrink-0">
-            <Settings className="w-4 h-4 text-emerald-400" /> 設定
-          </h2>
+          <div className="flex items-center gap-1.5 min-w-0">
+            <button
+              type="button"
+              onClick={toggleExpanded}
+              aria-expanded={isExpanded}
+              aria-label={isExpanded ? "設定を折りたたむ" : "設定を展開する"}
+              className="shrink-0 flex items-center justify-center w-6 h-6 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60 transition-colors"
+            >
+              {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </button>
+            <h2 className="text-sm font-semibold tracking-wide text-zinc-300 flex items-center gap-2 whitespace-nowrap shrink-0">
+              <Settings className="w-4 h-4 text-emerald-400" /> 設定
+            </h2>
+          </div>
           <label
             className="flex items-center gap-2 text-xs text-zinc-400 cursor-pointer select-none hover:text-zinc-300 transition-colors group shrink-0"
             title="完了時にクリップボードへ自動コピー"
@@ -54,76 +87,80 @@ export function SettingsPanel({
             <span className="whitespace-nowrap">自動コピー</span>
           </label>
         </div>
-        
-        <div className="h-px w-full bg-white/[0.05]"></div>
-        
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-col gap-0.5 w-full">
-            <span className="text-xs font-medium text-zinc-300">画像の保存先フォルダ</span>
-            <span className="text-[10px] text-zinc-500">未設定時は標準ダウンロードフォルダ</span>
-          </div>
-          <div className="flex w-full min-w-0 items-center bg-zinc-950/50 border border-zinc-800/80 rounded-lg overflow-hidden group focus-within:border-emerald-500/50 transition-colors">
-            <div className="pl-3 pr-2 text-zinc-500 shrink-0">
-              <Folder className="w-3.5 h-3.5 text-zinc-500" />
-            </div>
-            <input 
-              type="text" 
-              readOnly 
-              placeholder="未設定" 
-              className="flex-1 bg-transparent py-2 text-xs text-zinc-300 outline-none truncate min-w-0" 
-              title={saveFolder || "標準のダウンロードフォルダ"} 
-              value={saveFolder}
-            />
-            <button 
-              onClick={onSelectFolder}
-              className="shrink-0 bg-zinc-800 hover:bg-emerald-600 text-zinc-300 hover:text-white text-xs font-semibold px-4 py-2 border-l border-zinc-700/50 transition-all active:bg-emerald-700"
-            >
-              変更
-            </button>
-          </div>
-        </div>
 
-        <div className="flex flex-col gap-2 pt-3 border-t border-white/[0.05]">
-          <div className="flex flex-col gap-0.5 w-full">
-            <span className="text-xs font-medium text-zinc-300">キャプチャ開始/停止キー</span>
-            <span className="text-[10px] text-zinc-500">グローバルでキャプチャをトグル</span>
-          </div>
-          <div className={`flex w-full min-w-0 items-center bg-zinc-950/50 border ${isRecordingShortcut ? "border-emerald-500/50 shadow-[0_0_10px_rgba(16,185,129,0.1)]" : "border-zinc-800/80"} rounded-lg overflow-hidden group focus-within:border-emerald-500/50 transition-colors`}>
-            <div className="pl-3 pr-2 text-zinc-500 shrink-0">
-              <Keyboard className="w-3.5 h-3.5 text-zinc-500" />
-            </div>
-            <input 
-              type="text" 
-              readOnly 
-              ref={shortcutInputRef}
-              value={isRecordingShortcut ? "キーを入力してください..." : shortcutKey}
-              placeholder="未設定" 
-              onKeyDown={onKeyDownForShortcut}
-              onBlur={onRecordingShortcutBlur}
-              className={`flex-1 bg-transparent py-2 text-xs outline-none truncate min-w-0 transition-colors ${isRecordingShortcut ? 'text-emerald-400 font-bold' : 'text-zinc-300'}`} 
-            />
-            <button 
-              onClick={onRecordingShortcutStart}
-              className={`shrink-0 text-xs font-semibold px-4 py-2 border-l border-zinc-700/50 transition-all ${isRecordingShortcut ? 'bg-emerald-600 text-white hover:bg-emerald-500' : 'bg-zinc-800 hover:bg-emerald-600 text-zinc-300 hover:text-white active:bg-emerald-700'}`}
-            >
-              {isRecordingShortcut ? "入力中" : "変更"}
-            </button>
-          </div>
-        </div>
+        {isExpanded && (
+          <>
+            <div className="h-px w-full bg-white/[0.05]"></div>
 
-        <div className="flex items-center justify-between gap-2 min-w-0 pt-3 border-t border-white/[0.05]">
-          <div className="flex flex-col gap-0.5 min-w-0">
-            <span className="text-xs font-medium text-zinc-300">Gemini APIキー</span>
-            <span className="text-[10px] text-zinc-500">OCR解析用</span>
-          </div>
-          <button
-            onClick={onShowApiKeyModal}
-            className="shrink-0 bg-zinc-800 hover:bg-emerald-600 text-zinc-300 hover:text-white text-xs font-semibold px-4 py-2 border border-zinc-700/50 rounded-lg transition-all active:bg-emerald-700 flex items-center gap-2"
-          >
-            <Key className="w-3.5 h-3.5" />
-            {apiKey ? "修正済み" : "未設定"}
-          </button>
-        </div>
+            <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-0.5 w-full">
+                <span className="text-xs font-medium text-zinc-300">画像の保存先フォルダ</span>
+                <span className="text-[10px] text-zinc-500">未設定時は標準ダウンロードフォルダ</span>
+              </div>
+              <div className="flex w-full min-w-0 items-center bg-zinc-950/50 border border-zinc-800/80 rounded-lg overflow-hidden group focus-within:border-emerald-500/50 transition-colors">
+                <div className="pl-3 pr-2 text-zinc-500 shrink-0">
+                  <Folder className="w-3.5 h-3.5 text-zinc-500" />
+                </div>
+                <input
+                  type="text"
+                  readOnly
+                  placeholder="未設定"
+                  className="flex-1 bg-transparent py-2 text-xs text-zinc-300 outline-none truncate min-w-0"
+                  title={saveFolder || "標準のダウンロードフォルダ"}
+                  value={saveFolder}
+                />
+                <button
+                  onClick={onSelectFolder}
+                  className="shrink-0 bg-zinc-800 hover:bg-emerald-600 text-zinc-300 hover:text-white text-xs font-semibold px-4 py-2 border-l border-zinc-700/50 transition-all active:bg-emerald-700"
+                >
+                  変更
+                </button>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2 pt-3 border-t border-white/[0.05]">
+              <div className="flex flex-col gap-0.5 w-full">
+                <span className="text-xs font-medium text-zinc-300">キャプチャ開始/停止キー</span>
+                <span className="text-[10px] text-zinc-500">グローバルでキャプチャをトグル</span>
+              </div>
+              <div className={`flex w-full min-w-0 items-center bg-zinc-950/50 border ${isRecordingShortcut ? "border-emerald-500/50 shadow-[0_0_10px_rgba(16,185,129,0.1)]" : "border-zinc-800/80"} rounded-lg overflow-hidden group focus-within:border-emerald-500/50 transition-colors`}>
+                <div className="pl-3 pr-2 text-zinc-500 shrink-0">
+                  <Keyboard className="w-3.5 h-3.5 text-zinc-500" />
+                </div>
+                <input
+                  type="text"
+                  readOnly
+                  ref={shortcutInputRef}
+                  value={isRecordingShortcut ? "キーを入力してください..." : shortcutKey}
+                  placeholder="未設定"
+                  onKeyDown={onKeyDownForShortcut}
+                  onBlur={onRecordingShortcutBlur}
+                  className={`flex-1 bg-transparent py-2 text-xs outline-none truncate min-w-0 transition-colors ${isRecordingShortcut ? "text-emerald-400 font-bold" : "text-zinc-300"}`}
+                />
+                <button
+                  onClick={onRecordingShortcutStart}
+                  className={`shrink-0 text-xs font-semibold px-4 py-2 border-l border-zinc-700/50 transition-all ${isRecordingShortcut ? "bg-emerald-600 text-white hover:bg-emerald-500" : "bg-zinc-800 hover:bg-emerald-600 text-zinc-300 hover:text-white active:bg-emerald-700"}`}
+                >
+                  {isRecordingShortcut ? "入力中" : "変更"}
+                </button>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between gap-2 min-w-0 pt-3 border-t border-white/[0.05]">
+              <div className="flex flex-col gap-0.5 min-w-0">
+                <span className="text-xs font-medium text-zinc-300">Gemini APIキー</span>
+                <span className="text-[10px] text-zinc-500">OCR解析用</span>
+              </div>
+              <button
+                onClick={onShowApiKeyModal}
+                className="shrink-0 bg-zinc-800 hover:bg-emerald-600 text-zinc-300 hover:text-white text-xs font-semibold px-4 py-2 border border-zinc-700/50 rounded-lg transition-all active:bg-emerald-700 flex items-center gap-2"
+              >
+                <Key className="w-3.5 h-3.5" />
+                {apiKey ? "修正済み" : "未設定"}
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

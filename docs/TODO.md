@@ -4,13 +4,13 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-19 20:02
+最終更新: 2026-06-19 20:31
 
 ---
 
 ## 現在のフォーカス
 
-**グラフ本線（P1）**: Google Map 型 Phase 5 + overlay handoff + ホイール 1.3 **実機検証クローズ** — 次は **P0 トースト改善**（グラフと独立・小タスク）
+**左カラム設定折りたたみ（P2）**: `SettingsPanel` アコーディオン実装中
 
 **おすすめの進め方**:
 1. **P0** — シミュレーション失敗トースト（`null` 非表示・再試行案内）
@@ -20,7 +20,7 @@
 
 ## 進行中
 
-（なし）
+- **左カラム設定項目の折りたたみ** — `SettingsPanel` 3項目を1トグルで折りたたみ、自動コピーはヘッダー常時表示。localStorage `settingsPanelExpanded`
 
 ## 次にやること（Backlog）
 
@@ -74,12 +74,6 @@
   - 目標: SkillVerifier で minus を手動追加する等、検証用データで `kind: debuff` の skillEvents を確認
   - 触る想定: 検証手順のみ（必要なら `SkillVerifier` / パレット方針は別判断）
   - 関連: [`REQ-race-detail-graph-phase3.md`](tasks/REQ-race-detail-graph-phase3.md) B-3
-
-- [ ] **左カラム設定項目の折りたたみ**
-  - 現状: `SettingsPanel` の項目（API キー・保存先・ホットキー等）が常時展開。項目数は多くないが左カラムがやや冗長
-  - 目標: 設定ブロックを折りたたみ可能にし、すっきりした見た目にする（デフォルト展開/折りたたみは実装時に決定）
-  - 触る想定: `SettingsPanel.tsx`, 必要なら `CapturePanel.tsx`
-  - 関連: サイドバー狭幅 UI（[`REQ-sidebar-compact-layout.md`](tasks/REQ-sidebar-compact-layout.md)）
 
 - [ ] **「実行時のステータス条件」ボタンをテキスト付き表記に変更**
   - 現状: `SimulationStatusView` が Activity アイコンのみ（スペース不足時の暫定 UI）
