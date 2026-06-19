@@ -6,9 +6,9 @@
 >
 > **本 REQ は [`REQ-race-detail-graph-time-window.md`](REQ-race-detail-graph-time-window.md)（R2）および [`REQ-race-detail-graph-pan-zoom.md`](REQ-race-detail-graph-pan-zoom.md)（R3）を統合・置換する。**
 
-- **ステータス**: in-progress
+- **ステータス**: done
 - **作成日**: 2026-06-18 21:01
-- **関連コミット**: `aca5f6f`（ステップ 1）、`91e76cb`（ステップ 2）、`f8a62f0`（percent 軸追従）
+- **関連コミット**: `aca5f6f`（ステップ 1）、`91e76cb`（ステップ 2）、`f8a62f0`（percent 軸追従）、`ee6d460`（ステップ 3）、Phase 5 ステップ 4 実機検証クローズ（2026-06-19 18:45）
 
 ---
 
@@ -202,17 +202,17 @@ function svgToSpeed(y: number, m: ChartPlotMetrics): number;
 
 ## 完了条件
 
-- [ ] `docs/TODO.md` Backlog に本 REQ リンク（起票済み）
-- [ ] 起動時にレース全体が俯瞰表示される（`scale=1`）
-- [ ] ホイールでカーソル中心に **XY 等倍** ズームできる
-- [ ] ドラッグで **2D パン** できる
-- [ ] 全ズームレベルで赤線左端が速度折れ線上に乗る
-- [ ] 同時刻スキルが compact 段で読める（俯瞰でも最低限）
-- [ ] 縦拡大 checkbox がなく、操作だけで俯瞰→分析に遷移できる
-- [ ] Phase 4 compare / Tooltip / 表示 checkbox に退行なし
-- [ ] `npm run build` 通過
-- [ ] ユーザー実機確認
-- [ ] REQ `done` + コミット
+- [x] `docs/TODO.md` Backlog に本 REQ リンク（起票済み）
+- [x] 起動時にレース全体が俯瞰表示される（`scale=1`）
+- [x] ホイールで可視窓 center に **XY 等倍** ズームできる
+- [x] ドラッグで **2D パン** できる
+- [x] 全ズームレベルで赤線左端が速度折れ線上に乗る
+- [x] 同時刻スキルが compact 段で読める（俯瞰でも最低限）
+- [x] 縦拡大 checkbox がなく、操作だけで俯瞰→分析に遷移できる
+- [x] Phase 4 compare / Tooltip / 表示 checkbox に退行なし
+- [x] `npm run build` 通過
+- [x] ユーザー実機確認（ステップ 4 検証手順 1〜7 すべて OK / 2026-06-19 18:45）
+- [x] REQ `done` + コミット
 
 ---
 
@@ -256,6 +256,7 @@ function svgToSpeed(y: number, m: ChartPlotMetrics): number;
 | 2026-06-19 18:15 | **ホイール 1 ノッチ倍率を 1.1 → 1.2 に引き上げ**（`CHART_VIEW_WHEEL_ZOOM_FACTOR`） | 実機所感: 1 ノッチあたりの拡大縮小が弱い。連続ホイール改善後の UX 調整 |
 | 2026-06-19 18:18 | **ホイール 1.2 倍率の実機検証クローズ** | ユーザー OK。次はステップ 3 暫定 UI 削除 |
 | 2026-06-19 18:27 | **ステップ 3 完了**: `expandSkillRows` / K=4 legacy 経路 / dev Y zoom 表示を削除。map-view 単一路線（`visibleWindowFromViewState` 常時・viewport 固定高さ・`MAX_STACK_COLLAPSED=4` collapsed layout）。操作ヒント UI 追加。`npm run build` 通過。実機検証はステップ 4 | 設計レビュー承認済み方針どおり。Interaction Canvas / handoff ロジックは不変 |
+| 2026-06-19 18:45 | **Phase 5 ステップ 4 実機検証クローズ**（検証手順 1〜7 すべて OK）。REQ `done` | ユーザー実機確認。停止後 overlay 復帰 latency が長く感じる → P2 Backlog「合成 metrics 即時 handoff」を登録 |
 
 ---
 
