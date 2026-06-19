@@ -4,15 +4,15 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-19 23:36
+最終更新: 2026-06-19 23:51
 
 ---
 
 ## 現在のフォーカス
 
-**v1.1.0 リリース** — Phase R3（バージョン bump + CHANGELOG + 本番ビルド）が次。[`REQ-release-v1.1.0.md`](tasks/REQ-release-v1.1.0.md) が作業正本。
+**v1.1.0 リリース完了** — 次は P1 Backlog（OCR 中止等）または P2 改善。
 
-**Phase 順**: R1 Fix → R2.5 スキル extract → R3 バージョン/CHANGELOG/本番ビルド（R2 Medium は任意）
+**Phase 順**: v1.1.0 は R1→R2.5→R3 完了。[`REQ-release-v1.1.0.md`](tasks/REQ-release-v1.1.0.md) **done**
 
 ---
 
@@ -26,10 +26,7 @@
 
 ### P0 — v1.1.0 リリース
 
-- [ ] **v1.1.0 リリース — Phase R3: バージョン bump + CHANGELOG + 本番ビルド**
-  - package.json / tauri.conf.json / PROJECT.md / page.tsx UI 表示 → 1.1.0
-  - CHANGELOG v1.1.0 追記、実機チェックリスト（REQ 参照）
-  - REQ: 同上 → 完了時 `done`
+（完了 — 下記「完了済み」参照）
 
 ### P1 — 重要
 
@@ -108,6 +105,7 @@
 
 ## 完了済み
 
+- [x] **v1.1.0 リリース（Phase R1 + R2.5 + R3）** — バージョン 1.1.0 bump・CHANGELOG・`tauri build` 通過（コミット後にハッシュ追記）/ [`REQ-release-v1.1.0.md`](tasks/REQ-release-v1.1.0.md) **done**
 - [x] **v1.1.0 リリース — Phase R2.5: スキルデータ extract** — umasim 2021件同期・新規4エントリ（フローラ固有/継承・evo×2）・extract スクリプトにヘルパー保持（2026-06-19 23:36 / `8293001`）
 - [x] **v1.1.0 リリース — Phase R1: バグ Fix（R-001 / R-006 / R-008）** — シミュ失敗トースト正規化・raceDetail 失敗通知・simulationCount NaN ガード（`simulationErrors.ts` 新設）（2026-06-19 23:26 / `c12e628`）
 - [x] **左カラム設定項目の折りたたみ** — 3項目を1トグルで折りたたみ、自動コピーはヘッダー常時表示、localStorage `settingsPanelExpanded`（**実機検証クローズ** 2026-06-19 20:45 / `05fd9a6`）
@@ -204,7 +202,7 @@
 - **別作業で発見（2026-06-11）**: サイドバー折りたたみボタンのスクロール追従、ステータス条件ボタンのテキスト化、グラフ/スキル表記以降のレスポンス低下 — いずれも Backlog 登録済み
 - **REQ 運用**: 着手候補の正本は **本 TODO**。`draft` REQ 起票時は Backlog へ必ず1行追加（`.cursor/rules/docs-management.mdc`）
 - **連続ホイール・overlay 復帰**: **実機検証クローズ**（2026-06-19）。handoff + adaptive idle（`ed67df3`）+ ホイール 1.3（`7e6af0d`）で停止後 latency・2 ノッチ目ひっかかりともに改善。詳細: [`REQ-race-detail-graph-overlay-handoff-latency.md`](tasks/REQ-race-detail-graph-overlay-handoff-latency.md)
-- **v1.1.0 リリース**: 作業正本 [`REQ-release-v1.1.0.md`](tasks/REQ-release-v1.1.0.md)。Phase R1→R2.5→R3。keep-alive 最適化・HotKey dev 警告・OCR 中止は v1.1.0 外
+- **v1.1.0 リリース**: 作業正本 [`REQ-release-v1.1.0.md`](tasks/REQ-release-v1.1.0.md) — **2026-06-19 完了（R1/R2.5/R3）**
 - 因子管理 DB・Tesseract OCR・Supabase 連携は **開発予定なし**（`.cursor/rules/development.mdc`）
 
 ---

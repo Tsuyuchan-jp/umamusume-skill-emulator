@@ -394,7 +394,7 @@ export default function Home() {
                     aria-hidden="true"
                   >
                     <span className="truncate">ウマ娘 レースアナライザー</span>
-                    <span className="text-[10px] ml-2 shrink-0">v1.0.7</span>
+                    <span className="text-[10px] ml-2 shrink-0">v1.1.0</span>
                   </h1>
                   <div className="w-9 h-9 shrink-0" aria-hidden="true" />
                 </>
@@ -407,7 +407,7 @@ export default function Home() {
                   </div>
                   <h1 className="text-base font-extrabold leading-tight tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-100 to-zinc-400 min-w-0 flex-1 flex items-baseline truncate whitespace-nowrap">
                     <span className="truncate">ウマ娘 レースアナライザー</span>
-                    <span className="text-[10px] text-zinc-500 font-medium ml-2 shrink-0">v1.0.7</span>
+                    <span className="text-[10px] text-zinc-500 font-medium ml-2 shrink-0">v1.1.0</span>
                   </h1>
                 </>
               )}

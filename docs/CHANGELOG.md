@@ -4,6 +4,36 @@
 
 ---
 
+## v1.1.0 — 2026-06-19
+
+### 新機能
+
+- **全画面 Cockpit UI** — サイドバー折りたたみ・右カラム全幅・KPI ストリップ・グラフ常時表示
+- **サイドバー狭幅 UI** — 380px 運用向けレイアウト整備・設定パネル折りたたみ
+- **直近レース詳細グラフ** — Google Map 型パン/ズーム、Interaction Canvas、overlay handoff、Phase 4 比較、スキル帯・Tooltip
+- **タブ切り替え keep-alive** — 非アクティブタブの state 保持
+- **パレット** — スキルデータ参照をローカル正本（`umasimSkillData.ts`）に統一
+
+### 修正
+
+- スタミナキープ持続線の異常描画
+- グラフ縦拡大時のスキル帯クリップ
+- シミュレーション失敗時のトースト文言改善（`null` 等の内部エラー非表示）
+- 詳細グラフ（`raceDetail`）取得失敗時のユーザー通知
+- 各種グラフ UX（Y 軸テキスト選択防止、ホイール 1.3、overlay 復帰 latency 短縮 等）
+- `simulationCount` localStorage 破損時の NaN ガード
+
+### データ
+
+- スキルマスタを umasim `skill_data.txt` と同期（2026-06-19 extract / 2021件）
+
+### ビルド
+
+- 本番ビルド（`npm run tauri build`）通過
+- 成果物: `umamusume-race-analyzer_1.1.0_x64-setup.exe` / `.msi`
+
+---
+
 ## v1.0.7 — 2026-06-10
 
 ### 変更
