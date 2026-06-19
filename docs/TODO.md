@@ -115,7 +115,7 @@ Interaction Canvas Engine **Phase 4 実装完了** — 実機検証クローズ�
 
 ## 完了済み
 
-- [x] Google Map 型グラフ — Interaction Canvas Engine **Phase 4 実装**（probe 多フレーム rAF リトライ + dev 計測。実機検証クローズ待ち）（[`REQ-race-detail-graph-interaction-engine.md`](tasks/REQ-race-detail-graph-interaction-engine.md)）
+- [x] Google Map 型グラフ — Interaction Canvas Engine **Phase 4 実装**（probe 多フレーム rAF リトライ + dev 計測。実機検証クローズ待ち）（`9042aa9` / [`REQ-race-detail-graph-interaction-engine.md`](tasks/REQ-race-detail-graph-interaction-engine.md)）
 - [x] Google Map 型グラフ — Interaction Canvas Engine **Phase 4 設計レビュー**（案 A 維持 + probe 多フレーム rAF + dev 計測・200ms SLA 定義）（2026-06-19 17:36 / [`REQ-race-detail-graph-interaction-engine.md`](tasks/REQ-race-detail-graph-interaction-engine.md)）
 - [x] ホイールズーム中心を可視窓 center（画面中心拡大）に変更 — **採用・実機検証クローズ** 2026-06-19（`6ac05a9` / [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)）
 - [x] 非操作時もスキル発動点小丸を常時表示（半径 2.5px・overlay SVG + Canvas）（`c6db25c` / `d22db24` / Phase 3 拡張）
