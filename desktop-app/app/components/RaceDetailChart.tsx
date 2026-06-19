@@ -24,8 +24,6 @@ import {
   ChartPlotMetrics,
   ChartViewState,
   chartViewStatesEqual,
-  computeDetailYZoomFactor,
-  computeZoomedChartHeight,
   createChartPlotMetrics,
   createInitialChartViewState,
   DEFAULT_GRAPH_DISPLAY_STATE,
@@ -33,7 +31,6 @@ import {
   GraphDisplayState,
   GraphPoint,
   layoutSkillMarkers,
-  legacyFullVisibleWindow,
   mergeBaselineGraphPoints,
   plotMetricsEquivalent,
   plotMetricsScalesMatchWindow,
@@ -171,7 +168,6 @@ const DISPLAY_CHECKBOXES: { key: keyof GraphDisplayState; label: string }[] = [
   { key: "showAreas", label: "区間" },
   { key: "showSkills", label: "スキル" },
   { key: "showDebuffs", label: "デバフ" },
-  { key: "expandSkillRows", label: "縦拡大" },
 ];
 
 /** checkbox 状態と同期する系列 Legend（クリック無効・正本は checkbox） */
@@ -352,8 +348,8 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
 
   /** displayState 依存部分（スキル/デバフ表示フィルタ）— checkbox トグル時のみ再計算 */
   const skillData = useMemo(
-    () => buildSkillMarkers(detail.skillEvents, displayState, detail, graphPoints),
-    [detail, displayState, graphPoints],
+    () => buildSkillMarkers(detail.skillEvents, displayState, detail),
+    [detail, displayState],
   );
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -376,7 +372,6 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
     return () => ro.disconnect();
   }, []);
 
-  const isExpanded = displayState.expandSkillRows && skillData.skillMarkers.length > 0;
   const maxTime =
     graphPoints.points.length > 0 ? graphPoints.points[graphPoints.points.length - 1].time : 0;
 
@@ -387,66 +382,30 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
   }, [detail, maxTime]);
 
   const visibleWindow = useMemo(
+    () => visibleWindowFromViewState(chartViewState, maxTime),
+    [maxTime, chartViewState],
+  );
+
+  const percentAxisTicks = useMemo(
     () =>
-      isExpanded || maxTime <= 0
-        ? legacyFullVisibleWindow(maxTime)
-        : visibleWindowFromViewState(chartViewState, maxTime),
-    [isExpanded, maxTime, chartViewState],
+      PERCENT_AXIS_TICKS.filter(
+        (tick) => tick >= visibleWindow.percentMin - 1e-6 && tick <= visibleWindow.percentMax + 1e-6,
+      ),
+    [visibleWindow.percentMin, visibleWindow.percentMax],
   );
 
-  const percentAxisTicks = useMemo(() => {
-    if (isExpanded) return PERCENT_AXIS_TICKS;
-    return PERCENT_AXIS_TICKS.filter(
-      (tick) => tick >= visibleWindow.percentMin - 1e-6 && tick <= visibleWindow.percentMax + 1e-6,
-    );
-  }, [isExpanded, visibleWindow.percentMin, visibleWindow.percentMax]);
-
-  const metricsViewState = useMemo(
-    () => (isExpanded ? createInitialChartViewState(maxTime) : chartViewState),
-    [isExpanded, maxTime, chartViewState],
-  );
-  const mapInteractionEnabled = !isExpanded && maxTime > 0;
+  const mapInteractionEnabled = maxTime > 0;
   const overlayPlotWidth = Math.max(measuredWidth - OVERLAY_MARGIN_LEFT - OVERLAY_MARGIN_RIGHT, 1);
-  const hasDebuffMarkers = skillData.skillMarkers.some((m) => m.kind === "debuff");
   const viewportChartHeight = Math.max(viewportHeight, 1);
   const viewportPlotHeight = Math.max(
     viewportChartHeight - SKILL_CHART_MARGIN_TOP - SKILL_CHART_MARGIN_BOTTOM,
     1,
   );
-  const detailYZoom = useMemo(() => {
-    if (!isExpanded) {
-      return { yZoomFactor: 1 as number, source: null as null };
-    }
-    return computeDetailYZoomFactor({
-      markers: skillData.skillMarkers,
-      viewportPlotHeight,
-      maxTime,
-      plotWidth: overlayPlotWidth,
-      points: graphPoints.points,
-      hasDebuff: hasDebuffMarkers,
-    });
-  }, [
-    isExpanded,
-    skillData.skillMarkers,
-    viewportPlotHeight,
-    maxTime,
-    overlayPlotWidth,
-    graphPoints.points,
-    hasDebuffMarkers,
-  ]);
-  const yZoomFactor = detailYZoom.yZoomFactor;
-  const contentChartHeight = isExpanded
-    ? computeZoomedChartHeight(viewportChartHeight, yZoomFactor)
-    : viewportChartHeight;
-  const contentPlotHeight = Math.max(
-    contentChartHeight - SKILL_CHART_MARGIN_TOP - SKILL_CHART_MARGIN_BOTTOM,
-    1,
-  );
 
-  // リサイズ・縦拡大切替時のみ metrics をリセット（domain 変更では ChartMetricsBridge が再計測）
+  // リサイズ時のみ metrics をリセット（domain 変更では ChartMetricsBridge が再計測）
   useEffect(() => {
     setMeasuredPlotMetrics(null);
-  }, [isExpanded, measuredWidth, contentChartHeight, viewportHeight]);
+  }, [measuredWidth, viewportHeight]);
 
   const handlePlotMetrics = useCallback((metrics: ChartPlotMetrics) => {
     if (!plotMetricsScalesMatchWindow(metrics)) return;
@@ -468,19 +427,12 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
           left: OVERLAY_MARGIN_LEFT,
           top: SKILL_CHART_MARGIN_TOP,
           width: overlayPlotWidth,
-          height: Math.max(isExpanded ? contentPlotHeight : viewportPlotHeight, 1),
+          height: Math.max(viewportPlotHeight, 1),
         },
         visibleWindow,
-        metricsViewState,
+        chartViewState,
       ),
-    [
-      isExpanded,
-      contentPlotHeight,
-      viewportPlotHeight,
-      overlayPlotWidth,
-      visibleWindow,
-      metricsViewState,
-    ],
+    [viewportPlotHeight, overlayPlotWidth, visibleWindow, chartViewState],
   );
 
   const plotMetrics = measuredPlotMetrics ?? estimatedPlotMetrics;
@@ -503,7 +455,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
     !isMapInteracting &&
     measuredPlotMetrics != null &&
     plotMetricsScalesMatchWindow(measuredPlotMetrics) &&
-    chartViewStatesEqual(measuredPlotMetrics.view, metricsViewState) &&
+    chartViewStatesEqual(measuredPlotMetrics.view, chartViewState) &&
     visibleWindowsEqual(measuredPlotMetrics, visibleWindow);
 
   const canvasVisible = mapInteractionEnabled && (isMapInteracting || !overlayLayoutReady);
@@ -511,7 +463,6 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
   const lineStrokeOpacity = rechartsLinesVisible ? 1 : 0;
   const baselineLineStrokeOpacity = rechartsLinesVisible ? BASELINE_LINE_OPACITY : 0;
   const idleCartesian = measuredPlotMetrics?.cartesian ?? estimatedPlotMetrics.cartesian;
-  const canvasCssHeight = isExpanded ? contentChartHeight : viewportChartHeight;
 
   const prevOverlayLayoutReadyRef = useRef(overlayLayoutReady);
   useEffect(() => {
@@ -554,7 +505,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
     displayState,
     showBaseline: showBaselineOverlay,
     cssWidth: measuredWidth,
-    cssHeight: canvasCssHeight,
+    cssHeight: viewportChartHeight,
     colors: {
       speed: SPEED_LINE_COLOR,
       stamina: STAMINA_LINE_COLOR,
@@ -577,21 +528,11 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
   const skillMarkers = useMemo(() => {
     if (!overlayLayoutReady) return [];
     return layoutSkillMarkers(skillData.skillMarkers, plotMetrics, {
-      expanded: isExpanded,
       points: graphPoints.points,
-      yZoomFactor,
       maxTime,
       xStaggerOnly: true,
     });
-  }, [
-    overlayLayoutReady,
-    skillData.skillMarkers,
-    plotMetrics,
-    isExpanded,
-    graphPoints.points,
-    yZoomFactor,
-    maxTime,
-  ]);
+  }, [overlayLayoutReady, skillData.skillMarkers, plotMetrics, graphPoints.points, maxTime]);
 
   /** overlay 用ピクセル座標。同期完了前・操作中は非表示（Y ずれ防止） */
   const showSkillOverlay =
@@ -640,7 +581,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
         keys.length === Object.keys(prev).length && keys.every((k) => prev[k] === next[k]);
       return unchanged ? prev : next;
     });
-  }, [overlayLayoutReady, showSkillOverlay, skillMarkersPx, contentChartHeight, measuredWidth, isExpanded]);
+  }, [overlayLayoutReady, showSkillOverlay, skillMarkersPx, measuredWidth]);
 
   const hoveredSkillMarker = useMemo(
     () => skillMarkersPx.find((m) => m.tooltipKey === hoveredSkillKey) ?? null,
@@ -664,10 +605,9 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
   }, []);
 
   /** 折れ線 Tooltip は LineChart plot 内に収める */
-  const tooltipPlotHeight = isExpanded ? contentPlotHeight : viewportPlotHeight;
   const getTooltipPosition = useCallback(
     ({ x, y }: { x: number; y: number }) => {
-      if (y + TOOLTIP_EDGE_GAP > tooltipPlotHeight - TOOLTIP_APPROX_HEIGHT) {
+      if (y + TOOLTIP_EDGE_GAP > viewportPlotHeight - TOOLTIP_APPROX_HEIGHT) {
         return { x, y: Math.max(TOOLTIP_EDGE_GAP, y - TOOLTIP_APPROX_HEIGHT - TOOLTIP_EDGE_GAP) };
       }
       if (y - TOOLTIP_Y_OFFSET < TOOLTIP_EDGE_GAP) {
@@ -675,7 +615,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
       }
       return { x, y: y - TOOLTIP_Y_OFFSET };
     },
-    [tooltipPlotHeight],
+    [viewportPlotHeight],
   );
 
   const toggleDisplay = (key: keyof GraphDisplayState) => {
@@ -694,25 +634,20 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
     <div className="relative flex h-full min-h-0 w-full min-w-0 flex-col">
       <div
         ref={scrollContainerRef}
-        className={`race-detail-chart relative min-h-0 flex-1 overflow-x-hidden outline-none ${
-          isExpanded
-            ? "overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent"
-            : "overflow-y-hidden"
-        }`}
+        className="race-detail-chart relative min-h-0 flex-1 overflow-x-hidden overflow-y-hidden outline-none"
         tabIndex={-1}
       >
         <div
           ref={chartAreaRef}
-          className={`relative w-full overflow-hidden ${mapInteractionEnabled ? "cursor-grab select-none active:cursor-grabbing" : ""}`}
-          style={{ height: isExpanded ? contentChartHeight : "100%" }}
+          className={`relative h-full w-full overflow-hidden ${mapInteractionEnabled ? "cursor-grab select-none active:cursor-grabbing" : ""}`}
         >
           <ResponsiveContainer
             width="100%"
-            height={isExpanded ? contentChartHeight : "100%"}
+            height="100%"
             minWidth={0}
             initialDimension={{
               width: 800,
-              height: Math.max(contentChartHeight, SKILL_CHART_BASE_HEIGHT),
+              height: Math.max(viewportChartHeight, SKILL_CHART_BASE_HEIGHT),
             }}
           >
             <LineChart data={graphPoints.points} margin={{ top: 24, right: 48, left: 4, bottom: 4 }}>
@@ -945,7 +880,7 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
               )}
               <ChartMetricsBridge
                 visibleWindow={visibleWindow}
-                viewState={metricsViewState}
+                viewState={chartViewState}
                 onMetrics={handlePlotMetrics}
               />
             </LineChart>
@@ -963,9 +898,9 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
           {/* スキル発動 overlay SVG — Recharts 外の absolute レイヤー（ラベルのみ pointer-events） */}
           {showSkillOverlay && skillMarkersPx.length > 0 && (
             <svg
-              className="pointer-events-none absolute inset-0"
+              className="pointer-events-none absolute inset-0 h-full w-full"
               width="100%"
-              height={isExpanded ? contentChartHeight : "100%"}
+              height="100%"
               style={{ overflow: "visible" }}
               aria-hidden="true"
             >
@@ -1111,20 +1046,9 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
             {label}
           </label>
         ))}
-        {/* 検証用: 縦拡大 Y zoom 倍率（development のみ。本番前に削除） */}
-        {process.env.NODE_ENV === "development" && (
-          <span
-            className="ml-auto font-mono text-[10px] text-amber-400/90"
-            title={
-              isExpanded
-                ? "detail 分析モード: Y zoom 固定（DETAIL_ZOOM_FIXED）"
-                : "overview（zoom=1）"
-            }
-          >
-            Y zoom: {yZoomFactor.toFixed(2)}
-            {!isExpanded ? " (OFF)" : " (fixed)"}
-          </span>
-        )}
+        <span className="ml-auto text-[10px] text-zinc-500">
+          ドラッグで移動・ホイールで拡大・ダブルクリックでリセット
+        </span>
       </div>
     </div>
   );

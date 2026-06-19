@@ -137,11 +137,11 @@ function svgToSpeed(y: number, m: ChartPlotMetrics): number;
 
 #### 5. UI 変更
 
-- [ ] `GraphDisplayState` から `expandSkillRows` を削除
-- [ ] checkbox 行の「縦拡大」を削除
-- [ ] dev 用 `Y zoom: 4.00` 表示を削除
-- [ ] `computeDetailYZoomFactor` / `DETAIL_ZOOM_FIXED` / Y だけの `contentChartHeight` 倍率を削除
-- [ ] 必要なら最小ヒント（「ドラッグで移動・ホイールで拡大」）
+- [x] `GraphDisplayState` から `expandSkillRows` を削除
+- [x] checkbox 行の「縦拡大」を削除
+- [x] dev 用 `Y zoom: 4.00` 表示を削除
+- [x] `computeDetailYZoomFactor` / `DETAIL_ZOOM_FIXED` / Y だけの `contentChartHeight` 倍率を削除
+- [x] 操作ヒント（「ドラッグで移動・ホイールで拡大・ダブルクリックでリセット」）
 
 #### 6. 退行防止
 
@@ -255,6 +255,7 @@ function svgToSpeed(y: number, m: ChartPlotMetrics): number;
 | 2026-06-19 01:19 | **Interaction Canvas Engine を sibling REQ に起票**（[`REQ-race-detail-graph-interaction-engine.md`](REQ-race-detail-graph-interaction-engine.md)）: Dual-Viewport Phase 1〜4 | Maps 級を目指す構造変更。設計レビュー待ち |
 | 2026-06-19 18:15 | **ホイール 1 ノッチ倍率を 1.1 → 1.2 に引き上げ**（`CHART_VIEW_WHEEL_ZOOM_FACTOR`） | 実機所感: 1 ノッチあたりの拡大縮小が弱い。連続ホイール改善後の UX 調整 |
 | 2026-06-19 18:18 | **ホイール 1.2 倍率の実機検証クローズ** | ユーザー OK。次はステップ 3 暫定 UI 削除 |
+| 2026-06-19 18:27 | **ステップ 3 完了**: `expandSkillRows` / K=4 legacy 経路 / dev Y zoom 表示を削除。map-view 単一路線（`visibleWindowFromViewState` 常時・viewport 固定高さ・`MAX_STACK_COLLAPSED=4` collapsed layout）。操作ヒント UI 追加。`npm run build` 通過。実機検証はステップ 4 | 設計レビュー承認済み方針どおり。Interaction Canvas / handoff ロジックは不変 |
 
 ---
 

@@ -245,18 +245,6 @@ export function applyPanDrag(
   );
 }
 
-/** legacy 俯瞰 domain（縦拡大 ON 時） */
-export function legacyFullVisibleWindow(raceEnd: number): VisibleWindow {
-  return {
-    timeMin: 0,
-    timeMax: raceEnd,
-    speedMin: SPEED_MIN,
-    speedMax: SPEED_MAX,
-    percentMin: 0,
-    percentMax: 1,
-  };
-}
-
 /** Recharts cartesian 矩形（overlay SVG 座標系・px） */
 export interface CartesianRect {
   left: number;
@@ -433,7 +421,6 @@ export interface GraphDisplayState {
   showAreas: boolean;
   showSkills: boolean;
   showDebuffs: boolean;
-  expandSkillRows: boolean;
 }
 
 export const DEFAULT_GRAPH_DISPLAY_STATE: GraphDisplayState = {
@@ -443,7 +430,6 @@ export const DEFAULT_GRAPH_DISPLAY_STATE: GraphDisplayState = {
   showAreas: true,
   showSkills: true,
   showDebuffs: true,
-  expandSkillRows: false,
 };
 
 /** 本家 GraphOutput.kt 準拠: スキル名ラベル + 赤い発動線 */
@@ -487,49 +473,17 @@ export const SKILL_SPEED_LABEL_OFFSET = 12;
 export const STAGGER_ROW = 14;
 /** 衝突検出: X 方向ビン幅（秒） */
 export const STAGGER_BIN_SECONDS = 0.4;
-/** 縦拡大 OFF 時の最大ストラグger段数（0..3 = 4 段） */
+/** map-view の最大ストラグger段数（0..3 = 4 段） */
 export const MAX_STACK_COLLAPSED = 4;
-/** detail モード Y zoom 固定倍率（分析モード） */
-export const DETAIL_ZOOM_FIXED = 4.0;
-/**
- * detail yZoomFactor のスケール対象:
- * - 速度 plot 高さ（speedPlotHeight）
- * - stagger 段間隔（STAGGER_ROW × K）
- * px 固定（K で拡大しない）: フォント・hit box・ラベル下赤線 gap
- */
 /** assignStackLevels の無限ループ防止 */
 const STACK_ASSIGN_MAX_ITER = 256;
 /** デバフラベル: スキル基準 Y からの追加オフセット（px） */
 export const DEBUFF_Y_OFFSET = 20;
 
-/** detail Y zoom 固定返却の由来（検証用） */
-export type DetailYZoomSource = "fixed";
-
-export interface DetailYZoomResult {
-  yZoomFactor: number;
-  source: DetailYZoomSource;
-}
-
-export type DetailYZoomParams = {
-  markers: Pick<SkillMarker, "tooltipKey" | "label" | "startTime" | "kind">[];
-  viewportPlotHeight: number;
-  maxTime: number;
-  plotWidth: number;
-  points: GraphPoint[];
-  hasDebuff?: boolean;
-};
-
-/** detail: Y zoom を固定倍率で返す（探索廃止） */
-export function computeDetailYZoomFactor(_params: DetailYZoomParams): DetailYZoomResult {
-  return { yZoomFactor: DETAIL_ZOOM_FIXED, source: "fixed" };
-}
-
 interface StackAssignOptions {
-  expanded: boolean;
   maxTime: number;
   metrics: ChartPlotMetrics;
   points: GraphPoint[];
-  yZoomFactor: number;
   /** X 重なり時は同一 stackLevel に置かない（案3）。同時刻以外の X 被りは許容 */
   xStaggerOnly?: boolean;
 }
@@ -540,9 +494,6 @@ export const SKILL_CHART_MARGIN_BOTTOM = 4;
 export const SKILL_CHART_LEGEND_RESERVE = 28;
 /** Recharts XAxis が占有する cartesian 下端の高さ（px）— フォールバック推定のみ */
 export const SKILL_CHART_XAXIS_RESERVE = 16;
-/** 速度折れ線 plot 高さ（px）— 縦拡大 ON でも Recharts はこの高さを維持 */
-export const SPEED_PLOT_HEIGHT =
-  SKILL_CHART_BASE_HEIGHT - SKILL_CHART_MARGIN_TOP - SKILL_CHART_MARGIN_BOTTOM;
 
 /** ラベル hit box 幅（px）— layout / skillMarkersToPx 共通 */
 export function estimateSkillHitWidth(label: string): number {
@@ -580,55 +531,9 @@ export function getSpeedAtTime(points: GraphPoint[], startTime: number): number 
   return s0 * (1 - t) + s1 * t;
 }
 
-/** 速度 plot 下のスキル band 高さ（px）— legacy seed 用 */
-export function computeSkillBandHeight(maxStack: number, hasDebuff = false): number {
-  const lineOffsetPx = SKILL_FONT_SIZE + SKILL_LINE_GAP - SKILL_LINE_Y_NUDGE_UP;
-  return (
-    SKILL_SPEED_LABEL_OFFSET +
-    lineOffsetPx +
-    maxStack * STAGGER_ROW +
-    SKILL_HIT_HEIGHT +
-    (hasDebuff ? DEBUFF_Y_OFFSET : 0)
-  );
-}
-
-/** 密集度から Y クローズアップ倍率を算出（overview=1、detail>=1） */
-export function computeYZoomFactor(
-  viewportPlotHeight: number,
-  maxStack: number,
-  hasDebuff = false,
-): number {
-  if (viewportPlotHeight <= 0) return 1;
-  const extraPx = computeSkillBandHeight(maxStack, hasDebuff);
-  return Math.max(1, (viewportPlotHeight + extraPx) / viewportPlotHeight);
-}
-
-/** detail モードの chart 高さ = viewportChartHeight × yZoomFactor */
-export function computeZoomedChartHeight(viewportChartHeight: number, yZoomFactor: number): number {
-  return Math.max(viewportChartHeight, viewportChartHeight * yZoomFactor);
-}
-
-/** @deprecated computeZoomedChartHeight を使用 */
-export function computeExpandedChartHeight(
-  lineChartHeight: number,
-  maxStack: number,
-  hasDebuff = false,
-): number {
-  const viewportPlotHeight = Math.max(
-    lineChartHeight - SKILL_CHART_MARGIN_TOP - SKILL_CHART_MARGIN_BOTTOM,
-    1,
-  );
-  const yZoomFactor = computeYZoomFactor(viewportPlotHeight, maxStack, hasDebuff);
-  return computeZoomedChartHeight(lineChartHeight, yZoomFactor);
-}
-
 export interface SkillLayoutOptions {
-  /** true: maxStack まで stackLevel 探索。false: 最大4段・超過は重なり許容 */
-  expanded?: boolean;
   /** 速度スナップ用 */
   points?: GraphPoint[];
-  /** Y クローズアップ倍率（overview=1）。近接時刻の full 段間隔に使用 */
-  yZoomFactor?: number;
   /** hit box 衝突判定用 */
   maxTime?: number;
   /** X 重なり時は同一 stackLevel に置かない（案3）。同時刻以外の X 被りは許容 */
@@ -693,10 +598,6 @@ function markerDetailLabelVisualTopY_px(lineY: number): number {
   return lineY - SKILL_LINE_GAP - SKILL_FONT_SIZE;
 }
 
-function fullStackStep(yZoomFactor: number): number {
-  return STAGGER_ROW * yZoomFactor;
-}
-
 /** blocker の直上に置く段ステップ（compact / full） */
 function stackStepAboveBlocker(
   capped: number,
@@ -709,7 +610,6 @@ function stackStepAboveBlocker(
   item: StackLayoutInput,
   points: GraphPoint[],
   metrics: ChartPlotMetrics,
-  yZoomFactor: number,
   lineOffsetPx: number,
 ): number {
   if (capped === blocker.stackLevel) return COMPACT_STACK_STEP;
@@ -736,7 +636,7 @@ function stackStepAboveBlocker(
   const yOverlapWithCompact =
     itemLabelTop < blockerLabelBottom && itemLabelBottom > blockerLabelTop;
 
-  if (yOverlapWithCompact) return fullStackStep(yZoomFactor);
+  if (yOverlapWithCompact) return STAGGER_ROW;
   return COMPACT_STACK_STEP;
 }
 
@@ -746,11 +646,9 @@ function assignStackLevels(
   options: StackAssignOptions,
 ): { stackLevels: Map<string, number>; yStackOffsets: Map<string, number>; maxStack: number } {
   const {
-    expanded,
     maxTime,
     metrics,
     points,
-    yZoomFactor,
     xStaggerOnly = false,
   } = options;
   const plotWidth = metrics.cartesian.width;
@@ -783,7 +681,7 @@ function assignStackLevels(
     let stackLevel = 0;
 
     for (;;) {
-      const capped = expanded ? stackLevel : Math.min(stackLevel, MAX_STACK_COLLAPSED - 1);
+      const capped = Math.min(stackLevel, MAX_STACK_COLLAPSED - 1);
       if (stackLevel >= STACK_ASSIGN_MAX_ITER) {
         stackLevels.set(item.tooltipKey, capped);
         yStackOffsets.set(item.tooltipKey, 0);
@@ -806,7 +704,6 @@ function assignStackLevels(
           item,
           points,
           metrics,
-          yZoomFactor,
           lineOffsetPx,
         );
         return Math.max(maxOffset, p.yStackOffset + step);
@@ -866,7 +763,7 @@ function assignStackLevels(
       }
 
       stackLevel += 1;
-      if (!expanded && stackLevel >= MAX_STACK_COLLAPSED) {
+      if (stackLevel >= MAX_STACK_COLLAPSED) {
         const cappedOverflow = MAX_STACK_COLLAPSED - 1;
         stackLevels.set(item.tooltipKey, cappedOverflow);
         yStackOffsets.set(item.tooltipKey, 0);
@@ -893,9 +790,7 @@ export function layoutSkillMarkers(
   options: SkillLayoutOptions = {},
 ): SkillMarker[] {
   const {
-    expanded = false,
     points = [],
-    yZoomFactor = 1,
     maxTime = 0,
     xStaggerOnly: xStaggerOnlyOpt,
   } = options;
@@ -921,11 +816,9 @@ export function layoutSkillMarkers(
       kind: m.kind,
     })),
     {
-      expanded,
       maxTime: effectiveMaxTime,
       metrics,
       points,
-      yZoomFactor,
       xStaggerOnly,
     },
   );
@@ -951,43 +844,6 @@ export function layoutSkillMarkers(
       lineY: 1 - lineTopPx / domainPlotHeight,
     };
   });
-}
-
-/** layoutSkillMarkers と同一条件で maxStack を算出（expandedChartHeight 用） */
-export function computeSkillMaxStack(
-  markers: Pick<SkillMarker, "tooltipKey" | "label" | "startTime" | "kind">[],
-  maxTime: number,
-  plotWidth = 800 - OVERLAY_MARGIN_LEFT - OVERLAY_MARGIN_RIGHT,
-  points: GraphPoint[] = [],
-  speedPlotHeight = SPEED_PLOT_HEIGHT,
-  yZoomFactor = 1,
-): number {
-  const metrics = createChartPlotMetrics(
-    {
-      left: OVERLAY_MARGIN_LEFT,
-      top: SKILL_CHART_MARGIN_TOP,
-      width: plotWidth,
-      height: speedPlotHeight,
-    },
-    legacyFullVisibleWindow(maxTime),
-    createInitialChartViewState(maxTime),
-  );
-  return assignStackLevels(
-    markers.map((m) => ({
-      tooltipKey: m.tooltipKey,
-      label: m.label,
-      startTime: m.startTime,
-      kind: m.kind,
-    })),
-    {
-      expanded: true,
-      maxTime,
-      metrics,
-      points,
-      yZoomFactor,
-      xStaggerOnly: true,
-    },
-  ).maxStack;
 }
 
 /** overlay SVG 座標変換用: Recharts LineChart の固定マージン＋軸幅 */
@@ -1118,8 +974,6 @@ export interface RaceGraphData {
   staminaMax: number;
   areaBands: AreaBand[];
   skillMarkers: SkillMarker[];
-  /** 縦拡大 ON 時のみ使用: maxStack 基準の chartHeight */
-  expandedChartHeight: number;
 }
 
 /** 距離 m → 経過秒（frameIndex / 15） */
@@ -1191,10 +1045,9 @@ export function buildSkillMarkers(
   skillEvents: SkillEventDump[] | undefined,
   displayState: GraphDisplayState,
   detail?: Pick<RaceDetailDump, "frames" | "courseLength">,
-  graphPoints?: Pick<RaceGraphPoints, "points">,
-): Pick<RaceGraphData, "skillMarkers" | "expandedChartHeight"> {
+): { skillMarkers: SkillMarker[] } {
   if (!skillEvents?.length) {
-    return { skillMarkers: [], expandedChartHeight: SKILL_CHART_BASE_HEIGHT };
+    return { skillMarkers: [] };
   }
 
   const filtered = skillEvents
@@ -1202,16 +1055,13 @@ export function buildSkillMarkers(
     .sort((a, b) => a.startTime - b.startTime || a.endTime - b.endTime);
 
   if (!filtered.length) {
-    return { skillMarkers: [], expandedChartHeight: SKILL_CHART_BASE_HEIGHT };
+    return { skillMarkers: [] };
   }
 
   const frames = detail?.frames ?? [];
   const courseLength = detail?.courseLength ?? 0;
-  const points = graphPoints?.points ?? [];
-  const maxTime = points.length > 0 ? points[points.length - 1].time : 0;
-  const hasDebuff = filtered.some((event) => event.kind === "debuff");
 
-  const baseMarkers: SkillMarker[] = filtered.map((event, index) => {
+  const skillMarkers: SkillMarker[] = filtered.map((event, index) => {
     const marker = {
       skillId: event.skillId,
       label: getSkillNameById(event.skillId),
@@ -1230,10 +1080,7 @@ export function buildSkillMarkers(
     return { ...marker, hasDurationLine: hasSkillDurationLine(marker) };
   });
 
-  const maxStack = computeSkillMaxStack(baseMarkers, maxTime, undefined, points, SPEED_PLOT_HEIGHT, 1);
-  const yZoomFactor = computeYZoomFactor(SPEED_PLOT_HEIGHT, maxStack, hasDebuff);
-  const expandedChartHeight = computeZoomedChartHeight(SKILL_CHART_BASE_HEIGHT, yZoomFactor);
-  return { skillMarkers: baseMarkers, expandedChartHeight };
+  return { skillMarkers };
 }
 
 /** detail 固定部分（frames 依存）のみを計算する — displayState に依存しない */
@@ -1360,18 +1207,11 @@ export function buildRaceGraphData(
       staminaMax: 0,
       areaBands: [],
       skillMarkers: [],
-      expandedChartHeight: SKILL_CHART_BASE_HEIGHT,
     };
   }
 
   const { points, phaseLines, staminaMax, areaBands } = buildRaceGraphPoints(detail);
-  const graphPoints = { points, phaseLines, staminaMax, areaBands };
-  const { skillMarkers, expandedChartHeight } = buildSkillMarkers(
-    detail.skillEvents,
-    displayState,
-    detail,
-    graphPoints,
-  );
+  const { skillMarkers } = buildSkillMarkers(detail.skillEvents, displayState, detail);
 
-  return { points, phaseLines, staminaMax, areaBands, skillMarkers, expandedChartHeight };
+  return { points, phaseLines, staminaMax, areaBands, skillMarkers };
 }

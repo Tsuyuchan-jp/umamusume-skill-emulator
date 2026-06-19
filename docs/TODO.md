@@ -4,16 +4,16 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-19 18:18
+最終更新: 2026-06-19 18:27
 
 ---
 
 ## 現在のフォーカス
 
-**グラフ本線（P1）**: Google Map 型 Phase 5 — **ステップ 3 暫定 UI 削除**（設計レビュー → 実装）
+**グラフ本線（P1）**: Google Map 型 Phase 5 — **ステップ 4 全体実機検証**（別チャット）
 
 **おすすめの進め方**:
-1. **P1** — ステップ 3 設計レビュー（Ask mode）→ 承認後 実装 → ステップ 4 全体実機検証クローズ
+1. **P1** — ステップ 4 全体実機検証クローズ（REQ 検証手順 1〜7）
 2. **P0** — シミュレーション失敗トースト（小タスク・グラフと独立）
 3. **P2（任意）** — 操作中 overlay 中間レベル（赤線のみ）
 
@@ -42,10 +42,10 @@
 
 ### P1 — 重要
 
-- [ ] **Google Map 型グラフ UI（Phase 5 最終）— ステップ 3〜4**
-  - ステップ 2 + percent 軸追従は実装済み（percent 実機検証クローズ 2026-06-18 23:30）
+- [ ] **Google Map 型グラフ UI（Phase 5 最終）— ステップ 4 全体実機検証**
+  - ステップ 3 暫定 UI 削除は実装済み（`expandSkillRows` / K=4 / dev Y zoom 表示を除去、map-view 単一路線）
   - ズーム操作レスポンス + Interaction Canvas Phase 1〜4 + 連続ホイール + 1.2 倍率は実機検証クローズ
-  - **次**: ステップ 3 暫定 UI 削除（`expandSkillRows` / K=4 / dev Y zoom 表示）→ ステップ 4 全体実機検証
+  - **次**: REQ 検証手順 1〜7 で全体実機検証クローズ
   - REQ: [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)
 
 ### P2 — 改善・アイデア
@@ -120,6 +120,7 @@
 
 ## 完了済み
 
+- [x] Google Map 型グラフ UI Phase 5 — **ステップ 3 暫定 UI 削除**（`expandSkillRows` / K=4 legacy 経路除去・map-view 単一路線・操作ヒント追加）（COMMIT_HASH / [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)）
 - [x] ホイール 1 ノッチ拡大率調整 — `CHART_VIEW_WHEEL_ZOOM_FACTOR` 1.1→1.2（**実機検証クローズ** 2026-06-19 18:18 / `bec0d2a` / [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)）
 - [x] **連続ホイールズームの途中 commit 除去** — `MAP_INTERACTION_WHEEL_IDLE_MS` 150→300ms（案 A。**実機検証クローズ** 2026-06-19 18:12 / `8227f93`〜`1902c42` / [`REQ-race-detail-graph-wheel-continuous-zoom.md`](tasks/REQ-race-detail-graph-wheel-continuous-zoom.md)）
 - [x] Google Map 型グラフ — Interaction Canvas Engine **Phase 1〜4**（Dual-Viewport・handoff 200ms SLA。**実機検証クローズ** 2026-06-19 / `9042aa9` / `96e40d5` / [`REQ-race-detail-graph-interaction-engine.md`](tasks/REQ-race-detail-graph-interaction-engine.md)）
