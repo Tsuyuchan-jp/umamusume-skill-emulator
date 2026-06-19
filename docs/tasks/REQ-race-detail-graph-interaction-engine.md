@@ -5,7 +5,7 @@
 > 文脈: [`REQ-race-detail-graph-performance.md`](REQ-race-detail-graph-performance.md)、[`REQ-race-detail-graph-map-view-perf-fallback.md`](REQ-race-detail-graph-map-view-perf-fallback.md)（30fps cap は移行期フォールバック）
 > ロードマップ: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md)
 
-- **ステータス**: in-progress（Phase 2 実装中）
+- **ステータス**: in-progress（Phase 3 設計レビュー待ち）
 - **作成日**: 2026-06-19 01:19
 - **関連コミット**: `5693968`（Phase 1）、`8767b1a`（Phase 2）
 
@@ -270,7 +270,7 @@ export interface UseChartViewInteractionOptions {
 
 ### Phase 2 完了条件
 
-- [x] 操作中 `setViewState` / Recharts domain 変更が **ゼロ**（React Profiler で確認）
+- [x] 操作中 `setViewState` / Recharts domain 変更が **ゼロ**（React Profiler で確認 — **実機は省略**。Phase 3 Canvas 追従で間接検証）
 - [x] 停止時 `commitLiveView` で最新 live が committed に反映
 - [x] `expandSkillRows` ON（map 無効）時は従来どおり cap のみ・live 分離なし
 - [x] `npm run build` 通過
@@ -467,6 +467,89 @@ export function useInteractionCanvasLoop(
 | 2026-06-19 15:19 | **Phase 1 完了**: drawChartLines / drawSkillActivationDots / resizeCanvasToDisplaySize、build 通過 | vitest 5 件 OK。Recharts 未変更 |
 | 2026-06-19 15:58 | **Phase 2 設計承認・着手**: liveViewRef 分離、buildInteractionPlotMetrics、deferDomainCommit デフォルト true | 操作中 Recharts 折れ線固定は Phase 2 単体で受け入れ。視覚追従は Phase 3 |
 | 2026-06-19 15:58 | **Phase 2 完了**: useChartViewInteraction defer パス、commitLiveView、RaceDetailChart deferDomainCommit: true、vitest 2 件追加 | 30fps cap は defer=false フォールバック用に残置。REQ は Phase 3 まで in-progress 維持 |
+| 2026-06-19 16:13 | **Phase 2 実機検証クローズ（軽量）**: ドラッグ離し commit・ホイール停止後ズーム・dblclick 俯瞰 OK。操作中折れ線固定は期待どおり | Profiler は Tauri DevTools 非対応・Chrome 確認面倒のため省略。liveView 整合は Phase 3 Canvas で統合検証 |
+| 2026-06-19 16:13 | **Phase 3 設計レビュー着手待ち**: useInteractionCanvasLoop 新規、RaceDetailChart canvas 配線、Line strokeOpacity、発動点小丸 | Phase 1〜2 資産（chartLineRenderer・liveViewRef）を接続 |
+
+---
+
+## 設計レビュー起票プロンプト（Phase 3 — Canvas レイヤー配線）
+
+```
+@docs/PROJECT.md
+@docs/TODO.md
+@docs/tasks/REQ-race-detail-graph.md
+@docs/tasks/REQ-race-detail-graph-interaction-engine.md
+@desktop-app/app/components/RaceDetailChart.tsx
+@desktop-app/app/hooks/useChartViewInteraction.ts
+@desktop-app/app/lib/chartLineRenderer.ts
+@desktop-app/app/lib/raceGraphBuilder.ts
+
+## チャット種別
+設計レビュー（Ask mode）
+
+## 進め方（重要）
+- このチャットでは **コード変更・ファイル編集・コミットを一切しない**
+- 現状整理 → 方針提案 → 変更範囲 → リスク → 検証手順 まで提示する
+- 私が「承認」「修正」「見送り」のいずれかを返すまで、実装に進まない
+
+## 背景
+Interaction Canvas Engine Phase 1（chartLineRenderer.ts・`8767b1a` 以前 `5693968`）と Phase 2（liveViewRef 分離・deferDomainCommit・`8767b1a`）が完了。
+Phase 2 実機検証（軽量）: ドラッグ離し・ホイール停止・dblclick OK。操作中 Recharts 折れ線固定は期待どおり。Profiler は省略。
+Phase 3 で操作中の視覚追従を Canvas rAF に接続し、Maps 級の体感を実現する。
+
+## 今回決めたいこと
+本 REQ の **Phase 3 のみ** について設計レビューし、実装チャット用の承認済み完成プロンプトを出力する。
+Phase 4（ハンドオフ品質）は概要確認のみ。Phase 3 実装スコープに含めない。
+
+### レビュー観点（必須）
+1. **useInteractionCanvasLoop API** — options 設計、rAF 開始/停止条件、DPR・resize 扱い
+2. **RaceDetailChart 配線** — canvas 要素の DOM 位置・z-index・chartAreaRef との関係
+3. **canvasVisible / rechartsLinesVisible** — 案 A（`isMapInteracting || !overlayLayoutReady`）の Phase 3 適用範囲
+4. **liveViewRef / interactionCartesianRef の取得** — hook から destructuring するタイミングと null ガード
+5. **Recharts Line strokeOpacity:0** — 6 系列・compare baseline。ChartMetricsBridge は触らない方針の維持
+6. **ReferenceArea / phaseLines / Tooltip defer** — Phase 3 で非表示にする条件と既存 overlay defer との整合
+7. **スキル発動点小丸** — drawSkillActivationDots 条件、layoutSkillMarkers 非使用、半径・色
+8. **Phase 3 と Phase 4 の境界** — settling・probe 合格後の Canvas 非表示は Phase 3 でどこまでやるか
+9. **未決事項** — 判断が必要な点を質問形式で列挙
+
+## 確認してほしいファイル
+- desktop-app/app/components/RaceDetailChart.tsx（LineChart・ChartMetricsBridge・overlayLayoutReady・isMapInteracting）
+- desktop-app/app/hooks/useChartViewInteraction.ts（liveViewRef・interactionCartesianRef・commitLiveView）
+- desktop-app/app/lib/chartLineRenderer.ts（drawChartLines・drawSkillActivationDots・resizeCanvasToDisplaySize）
+- desktop-app/app/lib/raceGraphBuilder.ts（visibleWindowFromViewState・buildInteractionPlotMetrics）
+
+## 触らないこと（設計上も変更提案に含めない）
+- applyWheelZoom / applyPanDrag / svgToPercent / probe 関数群のロジック変更
+- overlay probe ゲートの撤廃・緩和
+- Phase 4 ハンドオフの本格実装（Phase 3 では最小限の canvasVisible のみ）
+- 30fps cap コード削除（Phase 5 follow-up）
+- WASM / OCR / src-tauri
+- ステップ 3 暫定 UI 削除（expandSkillRows checkbox）
+
+## 報告形式（CHAT_TEMPLATE.md に準拠）
+1. 現状整理 — Phase 2 完了状態と Phase 3 接続点
+2. 選択肢比較 — rAF ループ・canvas 配置・Line 非表示の案（簡潔）
+3. 推奨案（1つ）— Phase 3 確定仕様
+4. 変更計画 — ファイル / 責務 / API 確定版
+5. **Phase 3 / Phase 4 境界** — settling で Phase 3 が担う範囲
+6. リスク・未決事項 — 質問形式
+7. 検証手順 — Phase 3 実機チェックリスト（視覚追従が確認できる項目中心）
+8. 実装チャット用完成プロンプト — CHAT_TEMPLATE パターン A（▼ここからコピー / ▲ここまで）
+
+## スコープ（REQ Phase 3 要約）
+### やること
+- useInteractionCanvasLoop.ts 新規（rAF・DPR・drawChartLines 呼び出し）
+- RaceDetailChart: canvas 要素、liveViewRef 配線、Line strokeOpacity:0
+- 操作中 ReferenceArea / phaseLines 非表示
+- スキル発動点小丸（drawSkillActivationDots）
+- npm run build 通過
+
+### やらないこと
+- Phase 4 フラッシュ防止の本格チューニング
+- Recharts Line 完全廃止
+- 操作中 overlay 赤線・ラベル
+- probe ゲート変更
+```
 
 ---
 
