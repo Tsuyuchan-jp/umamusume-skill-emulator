@@ -126,7 +126,7 @@ Recharts scales probe 完了を **overlay 表示のブロッカーから外す**
 - [x] 2D ドラッグ停止後も handoff 即時復帰
 - [x] ダブルクリック・compare・Tooltip・checkbox 退行なし（コードレビュー可能）
 - [x] `npm run build` 通過
-- [ ] ユーザー実機確認
+- [x] ユーザー実機確認
 - [x] REQ `done` + コミット
 
 ---
@@ -151,3 +151,4 @@ Recharts scales probe 完了を **overlay 表示のブロッカーから外す**
 | 2026-06-19 18:55 | **施策 A+B 採用**: 合成 metrics 即時 handoff + adaptive idle | 連続ホイール維持と停止後 ~100ms 台 overlay の両立 |
 | 2026-06-19 18:55 | 本 REQ 起票（draft）。実装は別チャット | sibling REQ パターン（wheel-continuous-zoom 準拠） |
 | 2026-06-19 19:02 | 実装完了（build + 単体テスト通過）。実機検証はユーザー別チャット | 施策 A: `onViewCommit` + `handoffPlotMetrics` / 施策 B: `wheelSettleMsForGap` |
+| 2026-06-19 19:19 | **実機検証クローズ**（検証手順 1〜7 すべて OK）。続けてホイール 1.3 で 2 ノッチ目ひっかかりも改善 | ユーザー確認。本 REQ 完了 |

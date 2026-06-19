@@ -256,6 +256,7 @@ function svgToSpeed(y: number, m: ChartPlotMetrics): number;
 | 2026-06-19 18:15 | **ホイール 1 ノッチ倍率を 1.1 → 1.2 に引き上げ**（`CHART_VIEW_WHEEL_ZOOM_FACTOR`） | 実機所感: 1 ノッチあたりの拡大縮小が弱い。連続ホイール改善後の UX 調整 |
 | 2026-06-19 18:18 | **ホイール 1.2 倍率の実機検証クローズ** | ユーザー OK。次はステップ 3 暫定 UI 削除 |
 | 2026-06-19 19:16 | **ホイール 1 ノッチ倍率を 1.2 → 1.3 に引き上げ** | overlay handoff 実機 OK 後: 2 ノッチ目まで指を折り直す間のひっかかり軽減のため |
+| 2026-06-19 19:19 | **ホイール 1.3 倍率の実機検証クローズ** | ユーザー OK。1 ノッチで十分な拡大・ひっかかり改善。グラフ map-view UX 一連クローズ |
 | 2026-06-19 18:27 | **ステップ 3 完了**: `expandSkillRows` / K=4 legacy 経路 / dev Y zoom 表示を削除。map-view 単一路線（`visibleWindowFromViewState` 常時・viewport 固定高さ・`MAX_STACK_COLLAPSED=4` collapsed layout）。操作ヒント UI 追加。`npm run build` 通過。実機検証はステップ 4 | 設計レビュー承認済み方針どおり。Interaction Canvas / handoff ロジックは不変 |
 | 2026-06-19 18:45 | **Phase 5 ステップ 4 実機検証クローズ**（検証手順 1〜7 すべて OK）。REQ `done` | ユーザー実機確認。停止後 overlay 復帰 latency が長く感じる → P2 Backlog「合成 metrics 即時 handoff」を登録 |
 
