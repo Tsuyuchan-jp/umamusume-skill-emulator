@@ -29,8 +29,8 @@
 
 ### ビルド
 
-- 本番ビルド（`npm run tauri build`）通過
-- 成果物: `umamusume-race-analyzer_1.1.0_x64-setup.exe` / `.msi`
+- 配布正本: `desktop-app/src-tauri/target/release/app.exe`（インストーラーは使わない。手順は `docs/RELEASE_BUILD.md`）
+- `npm run build:release-exe`（`tauri build --no-bundle`）で exe 更新
 
 ---
 

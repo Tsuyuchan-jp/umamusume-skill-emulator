@@ -47,6 +47,7 @@
 
 - [ ] `docs/TODO.md` Backlog に起票と同時に1行追加（`draft` 起票時必須）
 - [ ] 実機確認
+- [ ] **リリース（バージョン bump / CHANGELOG）を含む場合**: [`RELEASE_BUILD.md`](../RELEASE_BUILD.md) に従い `npm run build:release-exe` で `app.exe` を更新（配布正本。ユーザー指示なしでもエージェント必須）
 - [ ] REQ 完了時: TODO を完了済みへ移動
 - [ ] コミット
 

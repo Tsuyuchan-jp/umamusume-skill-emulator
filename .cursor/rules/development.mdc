@@ -34,6 +34,12 @@ alwaysApply: true
 - **着手時・完了時** の両方で TODO を更新し、最初/最後のコミットに含める
 - 詳細: `docs/TODO.md`「エージェント必須手順」、`.cursor/rules/docs-management.mdc`
 
+## リリースビルド（app.exe）
+
+- **配布正本**: `desktop-app/src-tauri/target/release/app.exe`（インストーラーは使わない）
+- バージョン bump・CHANGELOG 追記・REQ のリリース Phase 完了時は、**ユーザー指示がなくても** `npm run build:release-exe` を実行して exe を最新化する
+- 手順の正本: `docs/RELEASE_BUILD.md`
+
 ## 廃止済みの機能
 
 因子管理 DB・Tesseract OCR・Supabase 連携（要件 v1.3）は開発予定なし。関連コード・ドキュメントは追加しない。

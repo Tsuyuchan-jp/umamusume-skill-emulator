@@ -10,7 +10,8 @@
     "test": "vitest run",
     "tauri": "tauri",
     "extract-skill-info": "node ../tools/mdb-extractor/extract_rarity_from_mdb.js",
-    "extract-umasim-skills": "node ../tools/mdb-extractor/extract_umasim_skill_data.js"
+    "extract-umasim-skills": "node ../tools/mdb-extractor/extract_umasim_skill_data.js",
+    "build:release-exe": "powershell -ExecutionPolicy Bypass -File scripts/build-release-exe.ps1"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.11.0",

@@ -10,6 +10,12 @@
 - **対象**: Steam版・DMM版「ウマ娘 プリティーダービー」（Windows 10/11）
 - **現在バージョン**: v1.1.0
 
+## 配布・起動（本番）
+
+- **配布形式**: インストーラーは使わず、`desktop-app/src-tauri/target/release/app.exe` を **直接起動・配布**する
+- **リリースビルド**: バージョン bump や CHANGELOG 更新時は、完了前に必ず `npm run build:release-exe` で上記 exe を最新化する（詳細: [`RELEASE_BUILD.md`](RELEASE_BUILD.md)）
+- **git**: `app.exe` はコミットしない（ビルド成果物）
+
 ## 技術スタック
 
 | 領域 | 技術 |
@@ -111,16 +117,28 @@ umamusume-skill-emulator/
 
 ## 起動方法
 
+### 開発
+
 ```powershell
 cd desktop-app
 npm install
 npm run tauri dev
 ```
 
+### 配布用 exe（本番相当）
+
+```powershell
+cd desktop-app
+npm run build:release-exe
+```
+
+成果物: `desktop-app/src-tauri/target/release/app.exe` — 詳細は [`RELEASE_BUILD.md`](RELEASE_BUILD.md)
+
 ## 関連ドキュメント
 
 - 進捗・Todo: `docs/TODO.md`
 - 更新履歴: `docs/CHANGELOG.md`
+- **リリースビルド（app.exe）**: `docs/RELEASE_BUILD.md`
 - 個別要件: `docs/tasks/REQ-*.md`
 - チャット起票手順: `docs/CHAT_TEMPLATE.md`
 - スキルデータ更新: `UPDATE_SKILLS.md`
