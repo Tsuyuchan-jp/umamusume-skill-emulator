@@ -167,6 +167,10 @@ export function useChartViewInteraction({
   }, []);
 
   const commitLiveView = useCallback(() => {
+    if (process.env.NODE_ENV === "development") {
+      performance.mark("handoff:commit");
+    }
+
     if (rafIdRef.current != null) {
       cancelAnimationFrame(rafIdRef.current);
       rafIdRef.current = null;

@@ -5,7 +5,7 @@
 > 文脈: [`REQ-race-detail-graph-performance.md`](REQ-race-detail-graph-performance.md)、[`REQ-race-detail-graph-map-view-perf-fallback.md`](REQ-race-detail-graph-map-view-perf-fallback.md)（30fps cap は移行期フォールバック）
 > ロードマップ: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md)
 
-- **ステータス**: in-progress（Phase 4 **設計レビュー承認** / 実装待ち）
+- **ステータス**: in-progress（Phase 4 **実装完了** / 実機検証クローズ待ち）
 - **作成日**: 2026-06-19 01:19
 - **関連コミット**: `5693968`（Phase 1）、`8767b1a`（Phase 2）、`8ab7c60`（Phase 3）、`9a3b8ca`（パン選択防止）、`c6db25c`〜`d22db24`（非操作時小丸）、`6ac05a9`（ホイール窓中心）
 
@@ -449,15 +449,15 @@ Phase 3 本体（`8ab7c60`）のあと、同一セッション〜続チャット
 
 ### Phase 4 完了条件（本 REQ 全体完了）
 
-- [ ] ChartMetricsBridge: probe 多フレーム rAF リトライ（max 12 frames or 200ms）
-- [ ] dev 計測: `handoff:commit-to-overlay` が development で計測可能
-- [ ] 操作中 Recharts `Line` commit **ゼロ**（Phase 3 資産・退行なし）
+- [x] ChartMetricsBridge: probe 多フレーム rAF リトライ（max 12 frames or 200ms）
+- [x] dev 計測: `handoff:commit-to-overlay` が development で計測可能
+- [x] 操作中 Recharts `Line` commit **ゼロ**（Phase 3 資産・退行なし）
 - [ ] 停止後 **200ms 以内**（T0=commit 後）overlay probe 合格・赤線↔速度線 OK
 - [ ] commit 瞬間のフラッシュ・線ジャンプなし（主観）
 - [ ] wheel idle 150ms: **値変更なし**。体感要検証項目を実機で確認（上記「後続要検証」）
 - [ ] ダブルクリックリセット・compare・percent 3 系列・リサイズ・ホイール窓中心で退行なし
 - [ ] `expandSkillRows` ON 時 map 操作無効のまま
-- [ ] `npm run build` 通過
+- [x] `npm run build` 通過
 - [ ] **実機検証クローズ**
 
 ### Phase 4 実機チェックリスト
@@ -568,6 +568,7 @@ Phase 3 本体（`8ab7c60`）のあと、同一セッション〜続チャット
 | 2026-06-19 17:28 | **Phase 4 設計レビュー着手待ち**: ハンドオフ品質・200ms SLA・settling 体感 lag | Phase 3 + 追記を前提。probe ゲート維持が前提 |
 | 2026-06-19 17:36 | **Phase 4 設計レビュー承認**: 案 A 維持 + ChartMetricsBridge 多フレーム rAF probe リトライ + dev 計測。200ms SLA は T0=commit 後 | Ask mode 設計レビュー合意。未決事項すべて OK |
 | 2026-06-19 17:36 | **`MAP_INTERACTION_WHEEL_IDLE_MS=150` は Phase 4 で変更しない**。体感要検証は実機チェックに記載、短縮判断は Phase 5 以降 | scope 外。ユーザー要望: docs に後続検証として控え |
+| 2026-06-19 17:39 | **Phase 4 実装完了**: ChartMetricsBridge 多フレーム rAF probe リトライ（max 12 frames / 200ms）+ dev 計測 `handoff:commit-to-overlay` | 設計レビュー承認どおり。実機検証クローズはユーザー別途 |
 
 ---
 

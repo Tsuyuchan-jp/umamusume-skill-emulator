@@ -232,6 +232,10 @@ type RechartsPlotArea = {
   height: number;
 };
 
+/** probe リトライ上限: 先着打切（frames or ms） */
+const METRICS_PROBE_MAX_FRAMES = 12;
+const METRICS_PROBE_MAX_MS = 200;
+
 /** LineChart 内: usePlotArea + axis scale を ChartPlotMetrics へ橋渡し */
 const ChartMetricsBridge: React.FC<{
   visibleWindow: VisibleWindow;
@@ -248,8 +252,11 @@ const ChartMetricsBridge: React.FC<{
     if (visibleWindow.timeMax <= visibleWindow.timeMin) return;
 
     let rafId: number | null = null;
+    let frameCount = 0;
+    const startedAt = performance.now();
+    let cancelled = false;
 
-    const tryCommitMetrics = () => {
+    const tryCommitMetrics = (): boolean => {
       const metrics = createChartPlotMetrics(
         {
           left: plotArea.x,
@@ -275,14 +282,25 @@ const ChartMetricsBridge: React.FC<{
       return true;
     };
 
-    if (!tryCommitMetrics()) {
+    const scheduleProbeRetry = () => {
+      if (cancelled) return;
+      const elapsed = performance.now() - startedAt;
+      if (frameCount >= METRICS_PROBE_MAX_FRAMES || elapsed >= METRICS_PROBE_MAX_MS) return;
+
       rafId = requestAnimationFrame(() => {
         rafId = null;
-        tryCommitMetrics();
+        frameCount += 1;
+        if (tryCommitMetrics()) return;
+        scheduleProbeRetry();
       });
+    };
+
+    if (!tryCommitMetrics()) {
+      scheduleProbeRetry();
     }
 
     return () => {
+      cancelled = true;
       if (rafId != null) cancelAnimationFrame(rafId);
     };
   }, [plotArea, timeToX, speedToY, visibleWindow, viewState, onMetrics]);
@@ -494,6 +512,32 @@ const RaceDetailChartInner: React.FC<RaceDetailChartProps> = ({
   const baselineLineStrokeOpacity = rechartsLinesVisible ? BASELINE_LINE_OPACITY : 0;
   const idleCartesian = measuredPlotMetrics?.cartesian ?? estimatedPlotMetrics.cartesian;
   const canvasCssHeight = isExpanded ? contentChartHeight : viewportChartHeight;
+
+  const prevOverlayLayoutReadyRef = useRef(overlayLayoutReady);
+  useEffect(() => {
+    const wasReady = prevOverlayLayoutReadyRef.current;
+    prevOverlayLayoutReadyRef.current = overlayLayoutReady;
+
+    if (process.env.NODE_ENV !== "development") return;
+    if (!wasReady && overlayLayoutReady) {
+      performance.mark("handoff:overlay-ready");
+      try {
+        performance.measure("handoff:commit-to-overlay", "handoff:commit", "handoff:overlay-ready");
+        const entries = performance.getEntriesByName("handoff:commit-to-overlay");
+        const last = entries[entries.length - 1];
+        if (last && last.duration > 200) {
+          console.warn(
+            `[handoff] commit-to-overlay ${last.duration.toFixed(1)}ms exceeds 200ms SLA`,
+          );
+        }
+        performance.clearMeasures("handoff:commit-to-overlay");
+        performance.clearMarks("handoff:commit");
+        performance.clearMarks("handoff:overlay-ready");
+      } catch {
+        // handoff:commit 未設定（初回描画等）は無視
+      }
+    }
+  }, [overlayLayoutReady]);
 
   useInteractionCanvasLoop({
     enabled: mapInteractionEnabled,
