@@ -21,7 +21,7 @@ v1.0.7 以降に積み上がった Cockpit UI・グラフ Phase 5・keep-alive �
 |-------|------|------|
 | **R1** | バグ Fix（R-001 トースト、R-006 raceDetail 失敗トースト、任意 R-008） | 完了 |
 | **R2** | Medium Fix（任意・時間あれば R-003 next/script 等） | 未着手 |
-| **R2.5** | スキルデータ `extract-umasim-skills` のみ | 未着手 |
+| **R2.5** | スキルデータ `extract-umasim-skills` のみ | 完了 |
 | **R3** | version bump、CHANGELOG、本番ビルド・実機検証 | 未着手 |
 
 ---
@@ -160,7 +160,7 @@ npm run extract-umasim-skills
 
 - [x] `docs/TODO.md` Backlog に起票と同時に1行追加
 - [x] **R1** — R-001 / R-006 / R-008 実装・test/build 通過（実機確認は R3 チェックリスト）
-- [ ] **R2.5** — extract 実行・差分確認・sim/OCR スモーク
+- [x] **R2.5** — extract 実行・差分確認・test/build 通過（スキル +4 エントリ / 2021件）
 - [ ] **R3** — バージョン 4 箇所 + CHANGELOG + `npm run tauri build` + 実機チェックリスト主要項目 OK
 - [ ] 本 REQ を `done`、TODO を完了済み（コミットハッシュ）
 - [ ] push はユーザー依頼時のみ
@@ -198,6 +198,7 @@ npm run extract-umasim-skills
 
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
+| 2026-06-19 23:36 | Phase R2.5 完了。umasim 2021件 extract、新規スキル4エントリ。extract スクリプトにパレット等ヘルパー追記で再発防止 | test/build 通過 |
 | 2026-06-19 23:26 | Phase R1 完了。`simulationErrors.ts` で正規化、`raceDetailFetchFailed` フラグでトースト、NaN ガード | R-001/R-006/R-008 実装・test/build 通過 |
 | 2026-06-19 23:16 | REQ 起票。Phase R1〜R3 + R2.5 スキル extract | 設計レビュー Ask mode 承認・ユーザー判断反映 |
 | 2026-06-19 23:16 | OCR 中止（R-004）は v1.1.0 外 | 将来実装 |

@@ -743,6 +743,11 @@ export const umasimSkillDataList = [
     "rarity": "unique"
   },
   {
+    "name": "いずれあなたに咲くフローラ",
+    "id": "101341",
+    "rarity": "unique"
+  },
+  {
     "name": "黄金を訪ねて",
     "id": "101351",
     "rarity": "unique"
@@ -2095,6 +2100,11 @@ export const umasimSkillDataList = [
   {
     "name": "Weaving History",
     "id": "901331",
+    "rarity": "inherit"
+  },
+  {
+    "name": "いずれあなたに咲くフローラ",
+    "id": "901341",
     "rarity": "inherit"
   },
   {
@@ -8553,6 +8563,11 @@ export const umasimSkillDataList = [
     "rarity": "evo"
   },
   {
+    "name": "想い束ね、前へ",
+    "id": "113401211",
+    "rarity": "evo"
+  },
+  {
     "name": "切り返し",
     "id": "203372",
     "rarity": "normal"
@@ -9300,6 +9315,11 @@ export const umasimSkillDataList = [
   {
     "name": "ドーノ・ディ・フローラ！",
     "id": "110202211",
+    "rarity": "evo"
+  },
+  {
+    "name": "舞いひらく花路",
+    "id": "113401111",
     "rarity": "evo"
   },
   {

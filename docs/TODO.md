@@ -4,13 +4,13 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-19 23:26
+最終更新: 2026-06-19 23:36
 
 ---
 
 ## 現在のフォーカス
 
-**v1.1.0 リリース** — Phase R2.5（スキル extract）が次。[`REQ-release-v1.1.0.md`](tasks/REQ-release-v1.1.0.md) が作業正本。
+**v1.1.0 リリース** — Phase R3（バージョン bump + CHANGELOG + 本番ビルド）が次。[`REQ-release-v1.1.0.md`](tasks/REQ-release-v1.1.0.md) が作業正本。
 
 **Phase 順**: R1 Fix → R2.5 スキル extract → R3 バージョン/CHANGELOG/本番ビルド（R2 Medium は任意）
 
@@ -25,10 +25,6 @@
 優先度順。作業チャット起票時は **P0 から1件** 取る。
 
 ### P0 — v1.1.0 リリース
-
-- [ ] **v1.1.0 リリース — Phase R2.5: スキルデータ extract**
-  - `npm run extract-umasim-skills` のみ（race.js 更新なし）
-  - REQ: 同上 Phase R2.5
 
 - [ ] **v1.1.0 リリース — Phase R3: バージョン bump + CHANGELOG + 本番ビルド**
   - package.json / tauri.conf.json / PROJECT.md / page.tsx UI 表示 → 1.1.0
@@ -112,6 +108,7 @@
 
 ## 完了済み
 
+- [x] **v1.1.0 リリース — Phase R2.5: スキルデータ extract** — umasim 2021件同期・新規4エントリ（フローラ固有/継承・evo×2）・extract スクリプトにヘルパー保持（コミット後にハッシュ追記）
 - [x] **v1.1.0 リリース — Phase R1: バグ Fix（R-001 / R-006 / R-008）** — シミュ失敗トースト正規化・raceDetail 失敗通知・simulationCount NaN ガード（`simulationErrors.ts` 新設）（2026-06-19 23:26 / `c12e628`）
 - [x] **左カラム設定項目の折りたたみ** — 3項目を1トグルで折りたたみ、自動コピーはヘッダー常時表示、localStorage `settingsPanelExpanded`（**実機検証クローズ** 2026-06-19 20:45 / `05fd9a6`）
 - [x] **サイドバー折りたたみ時アイコンフラッシュ修正** — invisible+transition 廃止、条件レンダリング+装飾なしゴースト行（2026-06-19 20:02 / `36cbc07`）
