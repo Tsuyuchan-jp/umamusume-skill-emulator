@@ -558,7 +558,7 @@ export function speedToOverlayY(speed: number, plotHeight: number): number {
 }
 
 /** startTime に対応する current 速度（graphPoints.points）。Recharts type="linear" と同一の線形補間 */
-function getSpeedAtTime(points: GraphPoint[], startTime: number): number {
+export function getSpeedAtTime(points: GraphPoint[], startTime: number): number {
   if (!points.length) return SPEED_MIN;
   const exactIndex = startTime * FRAME_PER_SECOND;
   const i0 = Math.min(Math.max(Math.floor(exactIndex), 0), points.length - 1);

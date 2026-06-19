@@ -5,7 +5,7 @@
 > 文脈: [`REQ-race-detail-graph-performance.md`](REQ-race-detail-graph-performance.md)、[`REQ-race-detail-graph-map-view-perf-fallback.md`](REQ-race-detail-graph-map-view-perf-fallback.md)（30fps cap は移行期フォールバック）
 > ロードマップ: [`REQ-race-detail-graph.md`](REQ-race-detail-graph.md)
 
-- **ステータス**: draft（設計レビュー承認済み — Phase 1 実装待ち）
+- **ステータス**: in-progress（Phase 1 実装中）
 - **作成日**: 2026-06-19 01:19
 - **関連コミット**: （完了後に記入）
 
@@ -211,13 +211,13 @@ export function resizeCanvasToDisplaySize(
 
 ### Phase 1 完了条件
 
-- [ ] `drawChartLines` が compare OFF/ON・checkbox 表示切替に対応
-- [ ] `drawSkillActivationDots` が `buildSkillMarkers` 出力 + displayState フィルタに対応（単体座標検証。Phase 3 まで UI 未配線可）
-- [ ] `getSpeedAtTime` export（`raceGraphBuilder.ts`）
-- [ ] `resizeCanvasToDisplaySize` で Retina 対応
-- [ ] cartesian クリップ矩形内のみ描画
-- [ ] **Recharts はまだ変更しない**（単体検証: 同一 window + cartesian でスクリーンショット or 座標サンプル比較）
-- [ ] `npm run build` 通過
+- [x] `drawChartLines` が compare OFF/ON・checkbox 表示切替に対応
+- [x] `drawSkillActivationDots` が `buildSkillMarkers` 出力 + displayState フィルタに対応（単体座標検証。Phase 3 まで UI 未配線可）
+- [x] `getSpeedAtTime` export（`raceGraphBuilder.ts`）
+- [x] `resizeCanvasToDisplaySize` で Retina 対応
+- [x] cartesian クリップ矩形内のみ描画
+- [x] **Recharts はまだ変更しない**（単体検証: 同一 window + cartesian で座標サンプル比較 ≤1px）
+- [x] `npm run build` 通過
 
 ---
 
@@ -463,6 +463,8 @@ export function useInteractionCanvasLoop(
 | 2026-06-19 14:22 | **スキル発動点小丸**を Phase 3 拡張として追加（Canvas・layout 不要・`overlayLayoutReady` まで表示） | 操作中視認性。停止後赤線アンカーと同一 `(startTime, speed)` |
 | 2026-06-19 14:22 | monotone は **d3-shape `curveMonotoneX`**。`liveViewRef` は React state で返さない | 既存依存流用。60fps 親 re-render 防止 |
 | 2026-06-19 14:22 | 30fps cap: Phase 3 で `deferDomainCommit=true` 常時化、**コード削除は Phase 5 follow-up** | 安全弁として Phase 2〜3 は cap 残存 |
+| 2026-06-19 15:11 | **Phase 1 着手**: `chartLineRenderer.ts` 新規、`getSpeedAtTime` export、vitest 座標検証（≤1px） | 設計レビュー承認後の描画コア抽出 |
+| 2026-06-19 15:19 | **Phase 1 完了**: drawChartLines / drawSkillActivationDots / resizeCanvasToDisplaySize、build 通過 | vitest 5 件 OK。Recharts 未変更 |
 
 ---
 

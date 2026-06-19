@@ -4,13 +4,13 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-19 14:22
+最終更新: 2026-06-19 15:19
 
 ---
 
 ## 現在のフォーカス
 
-Phase 1 実装待ち — Interaction Canvas Engine（Dual-Viewport + 発動点小丸）/ P1 map-view ステップ 3〜4
+Interaction Canvas Engine Phase 2 待ち — liveViewRef 分離 / P1 map-view ステップ 3〜4
 
 ---
 
@@ -37,14 +37,10 @@ Phase 1 実装待ち — Interaction Canvas Engine（Dual-Viewport + 発動点�
 
 ### P1 — 重要
 
-- [ ] **Google Map 型グラフ — Interaction Canvas Engine（Dual-Viewport）**
-  - 経緯: 30fps cap 実機クローズ後も Maps 級を目指す。ユーザー合意: 構造変更・工数可・妥協しない
-  - 目標: 操作中 Canvas 60fps 折れ線 + 速度線上スキル発動点小丸、停止後 Recharts + probe overlay。Phase 1〜4
-  - 設計: 2026-06-19 承認 — 案 A ハンドオフ、ReferenceArea 操作中 defer、発動点小丸 Phase 3
-  - 優先: perf fallback 完了後の **次の性能正本**（ステップ 3 暫定 UI 削除と並行可）
-  - 触る想定: `chartLineRenderer.ts`（新）, `useInteractionCanvasLoop.ts`（新）, `useChartViewInteraction.ts`, `RaceDetailChart.tsx`, `getSpeedAtTime` export
-  - 触らない: pan/zoom ロジック、probe ゲート、WASM/OCR
-  - REQ: [`REQ-race-detail-graph-interaction-engine.md`](tasks/REQ-race-detail-graph-interaction-engine.md) — **設計レビュー承認済み・Phase 1 実装待ち**
+- [ ] **Google Map 型グラフ — Interaction Canvas Engine Phase 2〜4**
+  - Phase 1 完了: `chartLineRenderer.ts`、getSpeedAtTime export、vitest 座標検証 ≤1px
+  - 残: Phase 2 liveViewRef、Phase 3 Canvas 配線 + 発動点小丸、Phase 4 ハンドオフ
+  - REQ: [`REQ-race-detail-graph-interaction-engine.md`](tasks/REQ-race-detail-graph-interaction-engine.md)
 
 - [ ] **Google Map 型グラフ UI（Phase 5 最終）— ステップ 3〜4**
   - ステップ 2 + percent 軸追従は実装済み（percent 実機検証クローズ 2026-06-18 23:30）
@@ -118,6 +114,7 @@ Phase 1 実装待ち — Interaction Canvas Engine（Dual-Viewport + 発動点�
 
 ## 完了済み
 
+- [x] Google Map 型グラフ — Interaction Canvas Engine **Phase 1**（chartLineRenderer.ts・getSpeedAtTime export・座標検証）（`COMMIT_HASH` / [`REQ-race-detail-graph-interaction-engine.md`](tasks/REQ-race-detail-graph-interaction-engine.md)）
 - [x] Google Map 型グラフ — domain 更新 30fps cap（perf fallback）（**実機検証クローズ** 2026-06-19 01:12 / `5053012`〜`cba1f4c` / [`REQ-race-detail-graph-map-view-perf-fallback.md`](tasks/REQ-race-detail-graph-map-view-perf-fallback.md)）
 - [x] Google Map 型グラフ — overlay scales 同期 + ズーム操作一連（レスポンス・復帰ずれ・scales probe）（**実機検証クローズ** 2026-06-19 00:46 / `98c0cea`〜`a1dd542` / [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)）
 - [x] Google Map 型グラフ — overlay 復帰位置ずれ修正（metrics 同期ゲート + 操作終了時 pending flush）（`a9125c7` / [`REQ-race-detail-graph-map-view.md`](tasks/REQ-race-detail-graph-map-view.md)）
