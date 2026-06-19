@@ -382,21 +382,31 @@ export default function Home() {
           {/* 固定ヘッダー（展開/折りたたみ共通・行高を揃える） */}
           <div className="shrink-0 px-4 pt-4 pb-0 overflow-hidden">
             <div className="relative flex items-center gap-3 min-w-0">
-              <div
-                className={`flex items-center justify-center w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.15)] transition-all duration-300 hover:bg-emerald-500/20 shrink-0 ${sidebarCollapsed ? "invisible" : ""}`}
-              >
-                <svg className="w-5 h-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M4 10a8 8 0 0 1 16 0v4a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-4a2 2 0 0 0-4 0v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4z"></path>
-                </svg>
-              </div>
-              <h1
-                className={`text-base font-extrabold leading-tight tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-100 to-zinc-400 min-w-0 flex-1 flex items-baseline truncate whitespace-nowrap ${sidebarCollapsed ? "invisible" : ""}`}
-              >
-                <span className="truncate">ウマ娘 レースアナライザー</span>
-                <span className="text-[10px] text-zinc-500 font-medium ml-2 shrink-0">v1.0.7</span>
-              </h1>
-              {sidebarCollapsed && (
-                <div className="w-9 h-9 shrink-0 invisible pointer-events-none" aria-hidden="true" />
+              {sidebarCollapsed ? (
+                <>
+                  {/* 行高維持用ゴースト（装飾なし・即時非表示でフラッシュしない） */}
+                  <div className="w-10 h-10 shrink-0" aria-hidden="true" />
+                  <h1
+                    className="text-base font-extrabold leading-tight tracking-tight min-w-0 flex-1 flex items-baseline truncate whitespace-nowrap opacity-0 pointer-events-none select-none"
+                    aria-hidden="true"
+                  >
+                    <span className="truncate">ウマ娘 レースアナライザー</span>
+                    <span className="text-[10px] ml-2 shrink-0">v1.0.7</span>
+                  </h1>
+                  <div className="w-9 h-9 shrink-0" aria-hidden="true" />
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center justify-center w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.15)] hover:bg-emerald-500/20 shrink-0">
+                    <svg className="w-5 h-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M4 10a8 8 0 0 1 16 0v4a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-4a2 2 0 0 0-4 0v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4z"></path>
+                    </svg>
+                  </div>
+                  <h1 className="text-base font-extrabold leading-tight tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-100 to-zinc-400 min-w-0 flex-1 flex items-baseline truncate whitespace-nowrap">
+                    <span className="truncate">ウマ娘 レースアナライザー</span>
+                    <span className="text-[10px] text-zinc-500 font-medium ml-2 shrink-0">v1.0.7</span>
+                  </h1>
+                </>
               )}
               <button
                 type="button"
