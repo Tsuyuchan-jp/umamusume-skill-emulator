@@ -1,22 +1,125 @@
 import { UmaStatusData, RawSkillData, RaceCondition, RaceDetailDump } from "../types";
 import { getCourseById, getSurfaceKey, getDistanceKey, getStyleKey } from "../aptitudeHelper";
-import { toSimulationError } from "./simulationErrors";
+import {
+  readSkillDataCache,
+  writeSkillDataCache,
+  removeSkillDataCache,
+} from "../skillDataStorage";
+import { SkillDataFetchError, SimulationWorkerError } from "./simulationErrors";
+
+const REMOTE_SKILL_DATA_URL =
+  "https://raw.githubusercontent.com/mee1080/umasim/refs/heads/main/data/skill_data.txt";
+const BUNDLED_SKILL_DATA_PATH = "/skill_data.txt";
+const MIN_SKILL_DATA_LENGTH = 100;
+
+export type SkillDataSource = "remote" | "cache" | "bundled";
+
+export interface SkillDataMeta {
+  source: SkillDataSource;
+  usedFallback: boolean;
+}
 
 let cachedSkillsJson: string | null = null;
+let lastSkillDataMeta: SkillDataMeta | null = null;
 
-/** WASM sim / SIMULATE_DETAIL 専用（mee1080/umasim GitHub fetch）。パレットは umasimSkillDataList を正本とする。 */
-export async function fetchSkillData(): Promise<RawSkillData[]> {
-  if (cachedSkillsJson) return JSON.parse(cachedSkillsJson) as RawSkillData[];
-  
+export function getLastSkillDataMeta(): SkillDataMeta | null {
+  return lastSkillDataMeta;
+}
+
+function validateSkillDataText(text: string): RawSkillData[] {
+  let parsed: unknown;
   try {
-    const res = await fetch("https://raw.githubusercontent.com/mee1080/umasim/refs/heads/main/data/skill_data.txt");
-    if (!res.ok) throw new Error("Failed to fetch skill data");
-    const text = await res.text();
-    cachedSkillsJson = text;
-    return JSON.parse(text) as RawSkillData[];
+    parsed = JSON.parse(text);
   } catch (error) {
-    console.error("Failed to fetch skill data from GitHub:", error);
-    throw error;
+    throw new Error("Invalid skill data JSON", { cause: error });
+  }
+
+  if (!Array.isArray(parsed)) {
+    throw new Error("Skill data is not an array");
+  }
+  if (parsed.length < MIN_SKILL_DATA_LENGTH) {
+    throw new Error(`Skill data array too short (${parsed.length})`);
+  }
+
+  const first = parsed[0];
+  if (
+    first == null ||
+    typeof first !== "object" ||
+    !("id" in first) ||
+    !("name" in first)
+  ) {
+    throw new Error("Skill data missing id/name in first element");
+  }
+
+  return parsed as RawSkillData[];
+}
+
+function applySkillDataSource(text: string, source: SkillDataSource): RawSkillData[] {
+  cachedSkillsJson = text;
+  lastSkillDataMeta = {
+    source,
+    usedFallback: source !== "remote",
+  };
+  return validateSkillDataText(text);
+}
+
+async function fetchRemoteSkillData(): Promise<RawSkillData[]> {
+  const res = await fetch(REMOTE_SKILL_DATA_URL);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch skill data: HTTP ${res.status}`);
+  }
+  const text = await res.text();
+  const data = applySkillDataSource(text, "remote");
+  await writeSkillDataCache(text);
+  return data;
+}
+
+async function loadCachedSkillData(): Promise<RawSkillData[] | null> {
+  const text = await readSkillDataCache();
+  if (text == null) return null;
+
+  try {
+    return applySkillDataSource(text, "cache");
+  } catch (error) {
+    console.warn("Corrupted AppData skill data cache, removing:", error);
+    await removeSkillDataCache();
+    return null;
+  }
+}
+
+async function loadBundledSkillData(): Promise<RawSkillData[]> {
+  const res = await fetch(BUNDLED_SKILL_DATA_PATH);
+  if (!res.ok) {
+    throw new Error(`Failed to load bundled skill data: HTTP ${res.status}`);
+  }
+  const text = await res.text();
+  return applySkillDataSource(text, "bundled");
+}
+
+/** WASM sim / SIMULATE_DETAIL 専用。パレットは umasimSkillDataList を正本とする。 */
+export async function fetchSkillData(): Promise<RawSkillData[]> {
+  if (cachedSkillsJson) {
+    return validateSkillDataText(cachedSkillsJson);
+  }
+
+  try {
+    return await fetchRemoteSkillData();
+  } catch (remoteError) {
+    console.warn("GitHub skill data fetch failed, trying AppData cache:", remoteError);
+  }
+
+  try {
+    const cached = await loadCachedSkillData();
+    if (cached) return cached;
+  } catch (cacheError) {
+    console.warn("AppData skill data cache failed:", cacheError);
+  }
+
+  try {
+    return await loadBundledSkillData();
+  } catch (bundledError) {
+    console.error("All skill data sources failed:", bundledError);
+    throw new SkillDataFetchError();
   }
 }
 
@@ -49,12 +152,14 @@ function getWorker(): Worker {
       // Crash or error in worker
       worker?.terminate();
       worker = null;
-      req.reject(toSimulationError(error));
+      console.error("Worker simulation error:", error);
+      req.reject(new SimulationWorkerError());
     }
   };
   worker.onerror = (err) => {
     // If worker crashes fundamentally (e.g., OOM)
-    pendingRequests.forEach(req => req.reject(toSimulationError(err.message || err)));
+    console.error("Worker crashed:", err);
+    pendingRequests.forEach(req => req.reject(new SimulationWorkerError()));
     pendingRequests.clear();
     worker?.terminate();
     worker = null;
@@ -86,7 +191,7 @@ export function terminateWorker() {
     worker.terminate();
     worker = null;
   }
-  pendingRequests.forEach(req => req.reject(toSimulationError("Worker terminated")));
+  pendingRequests.forEach(req => req.reject(new SimulationWorkerError("Worker terminated")));
   pendingRequests.clear();
 }
 

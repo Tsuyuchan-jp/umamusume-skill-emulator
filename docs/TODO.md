@@ -4,13 +4,13 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-22 16:17
+最終更新: 2026-06-23 03:36
 
 ---
 
 ## 現在のフォーカス
 
-**P1: スキルデータ fetch フォールバック + sim エラー区別** — 設計レビュー（[`REQ-skill-data-fetch-fallback.md`](tasks/REQ-skill-data-fetch-fallback.md)）から着手予定。
+**P1 次候補** — OCR 解析の中止機能、または Worker 大量試行時の断続失敗調査（Backlog 参照）。
 
 **Phase 順**: v1.1.0 は R1→R2.5→R3 完了。[`REQ-release-v1.1.0.md`](tasks/REQ-release-v1.1.0.md) **done**
 
@@ -30,18 +30,21 @@
 
 ### P1 — 重要
 
-- [ ] **スキルデータ fetch フォールバック + シミュレーションエラー区別**
-  - 背景: 3 名が OpenCV CDN 失敗（同梱で対処済み）、1 名が sim 断続失敗。`raw.githubusercontent.com` 等の外部 HTTPS 不安定が疑われる。現状 R-001 で全エラーが同一文言
-  - 目標: fetch 優先 + AppData キャッシュ + 同梱 `skill_data.txt` フォールバック、エラー種別トースト、（余力）接続チェック UI
-  - 触る想定: `umaemuAdapter.ts`, `simulationErrors.ts`, `SimulationLauncher.tsx`, `SimTabPanel.tsx`, `public/skill_data.txt`, `UPDATE_SKILLS.md`
-  - 設計: [`REQ-skill-data-fetch-fallback.md`](tasks/REQ-skill-data-fetch-fallback.md) **draft** → Ask mode 設計レビュー後に実装
-  - スコープ外: MSI 化、コード署名、Rust HTTP、案B 自前ミラー
-
 - [ ] **OCR 解析の中止（停止）機能**
   - 症状: Gemini OCR がエラーを返さず不自然に長時間かかることがある。現状は `page.tsx` で `analyzeStitchedImage` を await するだけで、ユーザーが途中で止められない
   - 目標: 解析中に停止できる UI を追加し、中止後に再度 OCR を実行できるようにする
   - 触る想定: `geminiOcr.ts`（`AbortController` / fetch 中断）、`page.tsx`（解析中 state・停止ボタン・トースト）、必要なら `CapturePanel.tsx`
   - 注意: 停止後は「OCR解析中...」トーストの解除と `isAnalyzing` 相当 state のリセットが必要
+
+- [ ] **Settings スキルデータ接続チェック UI**（任意）
+  - 背景: [`REQ-skill-data-fetch-fallback.md`](tasks/REQ-skill-data-fetch-fallback.md) Phase 3 見送り。フォールバックトーストで代替済み
+  - 目標: 「スキルデータ取得テスト」ボタン → 成功/失敗/使用ソースを日本語表示
+  - 触る想定: `SettingsPanel.tsx`, `umaemuAdapter.ts`
+
+- [ ] **Worker 大量試行時の断続失敗対策**（調査・別タスク）
+  - 背景: ユーザーレポートで 1,000 回 sim の途中失敗など fetch 単独では説明しきれないパターンあり（[`REQ-skill-data-fetch-fallback.md`](tasks/REQ-skill-data-fetch-fallback.md) スコープ外）
+  - 目標: OOM / チャンク化等の恒久対策を検討
+  - 触る想定: `umaemuAdapter.ts`, `worker.js`（要調査）
 
 （Phase 5 完了。上記ほか P1 候補は Backlog 追加時にここへ）
 
@@ -112,6 +115,7 @@
 
 ## 完了済み
 
+- [x] **スキルデータ fetch フォールバック + シミュレーションエラー区別** — GitHub→AppData→同梱チェーン、`SkillDataFetchError`/`SimulationWorkerError` 区別、フォールバックトースト（2026-06-23 03:36 / Phase 4 コミット後にハッシュ追記）/ [`REQ-skill-data-fetch-fallback.md`](tasks/REQ-skill-data-fetch-fallback.md) **done**
 - [x] **REQ 索引 INDEX.md 新設とロードマップ同期** — 全28件カタログ・`REQ-race-detail-graph.md` Phase 5 同期・`PROJECT.md` / rules 更新（2026-06-20 00:41 / `5d9dc0c`）
 - [x] **v1.1.0 リリース（Phase R1 + R2.5 + R3）** — バージョン 1.1.0 bump・CHANGELOG・`tauri build` 通過（2026-06-19 23:51 / `5650bb7`）/ [`REQ-release-v1.1.0.md`](tasks/REQ-release-v1.1.0.md) **done**
 - [x] **v1.1.0 リリース — Phase R2.5: スキルデータ extract** — umasim 2021件同期・新規4エントリ（フローラ固有/継承・evo×2）・extract スクリプトにヘルパー保持（2026-06-19 23:36 / `8293001`）
@@ -197,7 +201,8 @@
 
 ## 既知の問題・メモ
 
-- パレットのスキル一覧は **`umasimSkillDataList`（ローカル）正本** — `buildPaletteSkillOptions`。WASM sim のみ `fetchSkillData()`（GitHub）
+- パレットのスキル一覧は **`umasimSkillDataList`（ローカル）正本** — `buildPaletteSkillOptions`。WASM sim は `fetchSkillData()`（GitHub 優先 → AppData → 同梱 `public/skill_data.txt`）
+- **sim スキルデータ**: オンライン時 GitHub fetch + AppData キャッシュ。オフライン時は同梱/キャッシュで制限付き動作（フォールバック時トースト）
 - **将来（案B・Backlog）**: `skill_data.txt` を自前 GitHub に置き fetch 一本化 → extract→push でユーザー再配布を減らす方針。sim 定義と UI 一覧を同一 JSON に揃える
 - **新スキル時の現状**: 同梱 `umasimSkillData.ts` 利用箇所（P1 後のパレット/OCR）は **extract + アプリ再配布** が必要。WASM のみ mee1080/umasim fetch なら sim 定義はオンラインで追従しうるが、パレット/OCR は同梱更新まで新スキル非対応
 - `special`（14件）+ `minus`（1件）が `unique` 直後に並んでいたため、除外前は先頭がすべて白表示だった

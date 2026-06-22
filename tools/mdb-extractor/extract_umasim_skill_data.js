@@ -16,6 +16,7 @@ const DEFAULT_URL =
 
 const rootDir = path.join(__dirname, '../..');
 const outPath = path.join(rootDir, 'desktop-app/app/lib/umasimSkillData.ts');
+const publicSkillDataPath = path.join(rootDir, 'desktop-app/public/skill_data.txt');
 
 function fetchUrl(url) {
   return new Promise((resolve, reject) => {
@@ -192,8 +193,10 @@ async function main() {
   }));
 
   fs.writeFileSync(outPath, buildTsContent(list), 'utf8');
+  fs.writeFileSync(publicSkillDataPath, raw, 'utf8');
   console.log(`Successfully generated umasimSkillData.ts with ${list.length} skills.`);
   console.log(`Output: ${outPath}`);
+  console.log(`Bundled fallback: ${publicSkillDataPath}`);
 }
 
 main().catch((err) => {

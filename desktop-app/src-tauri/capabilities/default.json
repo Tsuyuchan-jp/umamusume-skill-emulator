@@ -19,6 +19,27 @@
     "core:window:allow-set-position",
     "core:window:allow-show",
     "core:window:allow-hide",
-    "core:event:default"
+    "core:event:default",
+    "path:default",
+    {
+      "identifier": "fs:allow-read-text-file",
+      "allow": [{ "path": "$APPDATA/skill_data/**" }]
+    },
+    {
+      "identifier": "fs:allow-write-text-file",
+      "allow": [{ "path": "$APPDATA/skill_data/**" }]
+    },
+    {
+      "identifier": "fs:allow-mkdir",
+      "allow": [{ "path": "$APPDATA/skill_data/**" }]
+    },
+    {
+      "identifier": "fs:allow-remove",
+      "allow": [{ "path": "$APPDATA/skill_data/**" }]
+    },
+    {
+      "identifier": "fs:allow-exists",
+      "allow": [{ "path": "$APPDATA/skill_data/**" }]
+    }
   ]
 }
