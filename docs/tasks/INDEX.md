@@ -2,7 +2,7 @@
 
 > **TODO の代替ではない。** 次にやることの正本は [`docs/TODO.md`](../TODO.md)。
 > 本ファイルは `docs/tasks/REQ-*.md`（テンプレ除く）の **一覧・ステータス・辿りやすさ** を目的とする。
-> ステータスは各 REQ の `**ステータス**:` 行を正とする。最終更新: 2026-06-20 00:39
+> ステータスは各 REQ の `**ステータス**:` 行を正とする。最終更新: 2026-06-22 16:17
 
 ## 使い方
 
@@ -23,6 +23,7 @@
 |-----|-----------|---------|------|
 | [`REQ-release-v1.1.0.md`](REQ-release-v1.1.0.md) | done | 完了済み | v1.1.0（R1/R2.5/R3）。配布: [`RELEASE_BUILD.md`](../RELEASE_BUILD.md) |
 | [`REQ-secure-api-key.md`](REQ-secure-api-key.md) | done | 完了済み | Gemini API キー → Windows 資格情報マネージャー |
+| [`REQ-skill-data-fetch-fallback.md`](REQ-skill-data-fetch-fallback.md) | draft | Backlog P1 | skill_data fetch フォールバック・sim エラー区別・AppData キャッシュ |
 
 ---
 
@@ -96,7 +97,8 @@
 
 | 項目 | 件数 |
 |------|------|
-| REQ 総数（テンプレ除く） | 28 |
+| REQ 総数（テンプレ除く） | 29 |
 | done | 25 |
+| draft | 1 |
 | superseded | 3 |
 | ロードマップ（親） | 1（`REQ-race-detail-graph.md`） |

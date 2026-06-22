@@ -4,13 +4,13 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-20 00:41
+最終更新: 2026-06-22 16:17
 
 ---
 
 ## 現在のフォーカス
 
-**v1.1.0 リリース完了** — 次は P1 Backlog（OCR 中止等）または P2 改善。
+**P1: スキルデータ fetch フォールバック + sim エラー区別** — 設計レビュー（[`REQ-skill-data-fetch-fallback.md`](tasks/REQ-skill-data-fetch-fallback.md)）から着手予定。
 
 **Phase 順**: v1.1.0 は R1→R2.5→R3 完了。[`REQ-release-v1.1.0.md`](tasks/REQ-release-v1.1.0.md) **done**
 
@@ -29,6 +29,13 @@
 （完了 — 下記「完了済み」参照）
 
 ### P1 — 重要
+
+- [ ] **スキルデータ fetch フォールバック + シミュレーションエラー区別**
+  - 背景: 3 名が OpenCV CDN 失敗（同梱で対処済み）、1 名が sim 断続失敗。`raw.githubusercontent.com` 等の外部 HTTPS 不安定が疑われる。現状 R-001 で全エラーが同一文言
+  - 目標: fetch 優先 + AppData キャッシュ + 同梱 `skill_data.txt` フォールバック、エラー種別トースト、（余力）接続チェック UI
+  - 触る想定: `umaemuAdapter.ts`, `simulationErrors.ts`, `SimulationLauncher.tsx`, `SimTabPanel.tsx`, `public/skill_data.txt`, `UPDATE_SKILLS.md`
+  - 設計: [`REQ-skill-data-fetch-fallback.md`](tasks/REQ-skill-data-fetch-fallback.md) **draft** → Ask mode 設計レビュー後に実装
+  - スコープ外: MSI 化、コード署名、Rust HTTP、案B 自前ミラー
 
 - [ ] **OCR 解析の中止（停止）機能**
   - 症状: Gemini OCR がエラーを返さず不自然に長時間かかることがある。現状は `page.tsx` で `analyzeStitchedImage` を await するだけで、ユーザーが途中で止められない
