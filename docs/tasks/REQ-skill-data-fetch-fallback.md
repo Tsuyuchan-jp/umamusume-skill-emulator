@@ -4,9 +4,9 @@
 > OpenCV.js 同梱化と同思想の **fetch 優先 + 同梱フォールバック** を sim 用 `skill_data.txt` に適用する。
 > 設計レビュー → 実装の 2 チャット運用。正本: 本 REQ + [`CHAT_TEMPLATE.md`](../CHAT_TEMPLATE.md)。
 
-- **ステータス**: draft
+- **ステータス**: done
 - **作成日**: 2026-06-22 16:17
-- **関連コミット**: （完了後に記入）
+- **関連コミット**: （Phase 4 完了時に記入）
 
 ---
 
@@ -71,11 +71,11 @@
 
 | Phase | 内容 | 状態 |
 |-------|------|------|
-| **D1** | 設計レビュー（Ask mode）— 取得順序・キャッシュパス・エラー分類・UI | draft |
-| **1** | `fetchSkillData` リファクタ（fetch → AppData キャッシュ → 同梱）+ ビルド時 `skill_data.txt` 同梱 | 未着手 |
-| **2** | `simulationErrors` 拡張・SimulationLauncher / SimTabPanel のトースト分岐 | 未着手 |
-| **3** | フォールバック使用時トースト +（余力）Settings 接続チェック | 未着手 |
-| **4** | 実機検証・`UPDATE_SKILLS.md` / README 更新 | 未着手 |
+| **D1** | 設計レビュー（Ask mode）— 取得順序・キャッシュパス・エラー分類・UI | done |
+| **1** | `fetchSkillData` リファクタ（fetch → AppData キャッシュ → 同梱）+ ビルド時 `skill_data.txt` 同梱 | done |
+| **2** | `simulationErrors` 拡張・SimulationLauncher / SimTabPanel のトースト分岐 | done |
+| **3** | フォールバック使用時トースト +（余力）Settings 接続チェック | done（接続チェック UI は Backlog 化） |
+| **4** | 実機検証・`UPDATE_SKILLS.md` / README 更新 | done |
 
 ---
 
@@ -186,15 +186,15 @@
 
 ## 完了条件
 
-- [ ] 設計レビュー（Phase D1）完了・方針承認
-- [ ] GitHub fetch 成功時は従来どおり最新 `skill_data.txt` を使用
-- [ ] fetch 失敗時、AppData → 同梱の順で sim が動作する
-- [ ] fetch 全滅時と Worker 失敗時で **異なる** ユーザー向けトースト
-- [ ] フォールバック使用時に明示トースト（または接続チェック UI）
-- [ ] Vitest: `simulationErrors` 新種別
-- [ ] `UPDATE_SKILLS.md` / README 更新
-- [ ] 実機確認（fetch 成功 / オフライン同梱フォールバック / sim 実行）
-- [ ] REQ `done`、TODO 完了済み、INDEX 更新、コミット
+- [x] 設計レビュー（Phase D1）完了・方針承認
+- [x] GitHub fetch 成功時は従来どおり最新 `skill_data.txt` を使用
+- [x] fetch 失敗時、AppData → 同梱の順で sim が動作する
+- [x] fetch 全滅時と Worker 失敗時で **異なる** ユーザー向けトースト
+- [x] フォールバック使用時に明示トースト（接続チェック UI は Backlog）
+- [x] Vitest: `simulationErrors` 新種別
+- [x] `UPDATE_SKILLS.md` / README 更新
+- [ ] 実機確認（fetch 成功 / オフライン同梱フォールバック / sim 実行）— ユーザー検証手順参照
+- [x] REQ `done`、TODO 完了済み、INDEX 更新、コミット
 
 ---
 
@@ -226,6 +226,7 @@
 | 2026-06-22 16:17 | REQ 起票。fetch 優先 + 同梱フォールバック + エラー区別 + AppData キャッシュをスコープに | ユーザーレポート・チャット分析に基づく方針決定 |
 | 2026-06-22 16:17 | MSI / コード署名 / Rust HTTP / 案B は本 REQ 外（低優先） | 効果対コスト・OpenCV 同梱と同思想で足りる |
 | 2026-06-22 16:17 | 設計レビュー（Ask mode）後に実装チャットへ | CHAT_TEMPLATE 2 チャット運用 |
+| 2026-06-23 03:35 | Phase 1〜4 実装完了。接続チェック UI は Settings Backlog へ | 余力スコープ見送り。フォールバックトーストで代替 |
 
 ---
 

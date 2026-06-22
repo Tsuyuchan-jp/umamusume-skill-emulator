@@ -52,10 +52,9 @@ umamusume-skill-emulator/
 
 ### ネットワーク
 
-以下へのアクセスが必要です（オフラインでは利用不可）。
-
-- **Google Gemini API** — OCR 画像解析
-- **GitHub** — umasim の `skill_data.txt` 取得（`mee1080/umasim`）
+- **オンライン推奨** — 初回起動時やゲームアップデート直後は、umasim の最新 `skill_data.txt` を GitHub から取得するためインターネット接続があると確実です
+- **オフライン時** — 以前オンラインで成功したキャッシュ（AppData）またはアプリ同梱の `skill_data.txt` でシミュレーションを継続できます（最新版ではない可能性あり。フォールバック使用時はトーストで通知）
+- **Google Gemini API** — OCR 画像解析に必須（オフラインでは OCR 不可）
 
 ## 開発環境セットアップ
 

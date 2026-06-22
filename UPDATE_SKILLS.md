@@ -10,7 +10,8 @@
 |--------|--------|----------|-------------|
 | `skillRarityData.ts` | `desktop-app/app/lib/` | `master.mdb` → `extract_rarity_from_mdb.js` | スキル一覧の色分け（金・緑など） |
 | `umasimSkillData.ts` | `desktop-app/app/lib/` | `extract_umasim_skill_data.js` | **OCR 後のスキル名→ID 変換**（`fuzzyMatcher.ts`） |
-| `skill_data.txt` | （GitHub・実行時取得） | 自動（ネットワーク） | **WASM エンジン初期化**（`umaemuAdapter.ts`） |
+| `skill_data.txt` | `desktop-app/public/` | `extract_umasim_skill_data.js`（`umasimSkillData.ts` と同時生成） | **WASM 同梱フォールバック**（オフライン・fetch 失敗時） |
+| `skill_data.txt` | GitHub + AppData キャッシュ | 実行時 fetch（`umaemuAdapter.ts`） | **WASM エンジン初期化**（オンライン時は最新優先） |
 | `race.js` / `*.wasm` | `desktop-app/public/umaemu/` | umasim `:race` ビルド → 手動コピー（[手順 7](#7-racejs--wasm-エンジンの更新)） | **レースシミュレーション本体**（`worker.js` 経由） |
 | `trackData.ts` | `desktop-app/app/lib/` | **手動編集** | コース選択 UI・レース条件の ID 変換 |
 | `race_presets.json` | `desktop-app/public/` | **手動編集** | レース条件プリセット |
@@ -18,9 +19,10 @@
 ### 重要: 二重管理になっている部分
 
 - **OCR マッチング** → ローカルの `umasimSkillData.ts`
-- **シミュレーション本体** → 実行時に GitHub から取得する `skill_data.txt`
+- **シミュレーション本体（オンライン）** → 実行時に GitHub から取得する `skill_data.txt`（成功時 AppData にキャッシュ）
+- **シミュレーション本体（オフライン）** → 同梱 `desktop-app/public/skill_data.txt` または AppData キャッシュ
 
-ゲーム更新後は **`extract-umasim-skills` を必ず実行**し、ネットワーク接続時は umasim 側の最新 `skill_data.txt` も自動反映されます。オフライン環境では、取得した `skill_data.txt` をローカル引数で渡して更新してください。
+ゲーム更新後は **`extract-umasim-skills` を必ず実行**し、`umasimSkillData.ts` と `public/skill_data.txt` を同時更新してください。ネットワーク接続時は実行時 fetch でも umasim 側の最新が反映されます。オフライン環境では、取得した `skill_data.txt` をローカル引数で渡して更新してください。
 
 ---
 
@@ -97,8 +99,10 @@ npm run extract-umasim-skills
 
 - スクリプト: `tools/mdb-extractor/extract_umasim_skill_data.js`
 - デフォルト: [umasim の skill_data.txt](https://github.com/mee1080/umasim/blob/main/data/skill_data.txt) をネットワークから取得
-- 出力: `desktop-app/app/lib/umasimSkillData.ts`
-- 用途: `fuzzyMatcher.ts` が OCR 結果のスキル名を ID に変換
+- 出力:
+  - `desktop-app/app/lib/umasimSkillData.ts`（OCR 用簡略化 TS）
+  - `desktop-app/public/skill_data.txt`（WASM 同梱フォールバック用の生 JSON）
+- 用途: `fuzzyMatcher.ts` が OCR 結果のスキル名を ID に変換。`public/skill_data.txt` は fetch 失敗時の sim フォールバック
 
 ローカルファイルから生成する場合:
 
@@ -106,14 +110,18 @@ npm run extract-umasim-skills
 node tools/mdb-extractor/extract_umasim_skill_data.js path/to/skill_data.txt
 ```
 
-### 4. WASM エンジンの `skill_data.txt`（実行時・自動）
+### 4. WASM エンジンの `skill_data.txt`（実行時取得 + フォールバック）
 
-本番アプリはシミュレーション開始時に GitHub から最新データを fetch します。
+本番アプリはシミュレーション開始時に次の優先順位でスキルデータを取得します。
 
-- 取得元: `https://raw.githubusercontent.com/mee1080/umasim/refs/heads/main/data/skill_data.txt`
-- コード: `desktop-app/app/lib/engine/umaemuAdapter.ts`
+1. **GitHub fetch**（最新優先）— 成功時 AppData にキャッシュ
+2. **AppData キャッシュ** — `%APPDATA%\com.umamusume.race-analyzer\skill_data\skill_data.txt`
+3. **同梱フォールバック** — `desktop-app/public/skill_data.txt`（`extract-umasim-skills` で生成）
 
-通常は **手動更新不要** ですが、オフライン時や umasim のフォークを使う場合は取得 URL の変更が必要です。
+- 取得元 URL: `https://raw.githubusercontent.com/mee1080/umasim/refs/heads/main/data/skill_data.txt`
+- コード: `desktop-app/app/lib/engine/umaemuAdapter.ts`, `desktop-app/app/lib/skillDataStorage.ts`
+
+通常は **手動更新不要** ですが、オフライン初回起動や umasim のフォークを使う場合は同梱 `skill_data.txt` の更新または取得 URL の変更が必要です。
 
 ### 5. `trackData.ts` の更新（手動）
 
