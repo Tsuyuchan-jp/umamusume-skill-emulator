@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-23 03:36
+最終更新: 2026-06-23 04:36
 
 ---
 
@@ -49,6 +49,12 @@
 （Phase 5 完了。上記ほか P1 候補は Backlog 追加時にここへ）
 
 ### P2 — 改善・アイデア
+
+- [ ] **エラートーストの全文表示**（truncate 解除）
+  - 症状: `ToastNotification` の message に `truncate` があり、長文が途中で切れる（実機: スキルデータフォールバック警告が「最新版…」までしか見えない）
+  - 目標: `type: error` のトーストは全文が読めるようにする（折り返し・複数行。`max-w` は維持可）
+  - 触る想定: `ToastNotification.tsx`（success は1行 truncate 維持でも可）
+  - 経緯: [`REQ-skill-data-fetch-fallback.md`](tasks/REQ-skill-data-fetch-fallback.md) 実機検証手順 2
 
 - [ ] **keep-alive タブのメモリ/描画負荷軽減**（将来 Fix）
   - 現状: sim 済みタブは unmount せず Recharts 等がタブ数分残る。1〜3 タブ運用では問題になりにくい
