@@ -191,7 +191,7 @@ export function terminateWorker() {
     worker.terminate();
     worker = null;
   }
-  pendingRequests.forEach(req => req.reject(new SimulationWorkerError("Worker terminated")));
+  pendingRequests.forEach(req => req.reject(new SimulationWorkerError()));
   pendingRequests.clear();
 }
 
