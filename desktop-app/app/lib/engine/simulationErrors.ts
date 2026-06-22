@@ -1,6 +1,14 @@
-/** シミュレーション失敗時のユーザー向け既定メッセージ */
-const DEFAULT_SIMULATION_ERROR_MESSAGE =
-  "シミュレーションを完了できませんでした。一時的な不具合の可能性があります。もう一度実行してみてください。繰り返す場合はアプリの再読み込みをお試しください。";
+/** スキルデータ取得全滅時のユーザー向け文言 */
+export const SKILL_DATA_FETCH_ERROR_MESSAGE =
+  "スキルデータの取得に失敗しました。インターネット接続をご確認のうえ、もう一度お試しください。";
+
+/** Worker / WASM 失敗時のユーザー向け文言 */
+export const SIMULATION_WORKER_ERROR_MESSAGE =
+  "シミュレーション処理中にエラーが発生しました。試行回数を減らすか、アプリを再起動してお試しください。";
+
+/** フォールバック使用時のトースト文言（sim 自体は成功） */
+export const SKILL_DATA_FALLBACK_TOAST_MESSAGE =
+  "オンライン取得に失敗したため、保存済み／同梱のスキルデータで続行しました（最新版ではない可能性があります）。";
 
 /** raceDetail 取得失敗時（sim 集計は成功）のトースト文言 */
 export const RACE_DETAIL_FETCH_FAILED_MESSAGE =
@@ -12,6 +20,26 @@ const INTERNAL_ERROR_PATTERNS = [
   /^worker terminated$/i,
   /^\s*$/,
 ];
+
+/** fetch 全滅（remote + cache + bundled 不可） */
+export class SkillDataFetchError extends Error {
+  readonly kind = "SKILL_DATA_FETCH" as const;
+
+  constructor(message: string = SKILL_DATA_FETCH_ERROR_MESSAGE) {
+    super(message);
+    this.name = "SkillDataFetchError";
+  }
+}
+
+/** Worker / WASM 実行失敗 */
+export class SimulationWorkerError extends Error {
+  readonly kind = "SIMULATION_WORKER" as const;
+
+  constructor(message: string = SIMULATION_WORKER_ERROR_MESSAGE) {
+    super(message);
+    this.name = "SimulationWorkerError";
+  }
+}
 
 function extractErrorMessage(error: unknown): string {
   if (error == null) return "";
@@ -29,16 +57,27 @@ export function isInternalSimulationErrorMessage(message: string): boolean {
   return !hasJapanese;
 }
 
-/** reject / throw 用にエラーを正規化する */
-export function toSimulationError(error: unknown): Error {
+/** reject / throw 用に Worker エラーを正規化する */
+export function toSimulationError(error: unknown): SimulationWorkerError {
   const message = extractErrorMessage(error);
   if (message && !isInternalSimulationErrorMessage(message)) {
-    return error instanceof Error ? error : new Error(message);
+    return new SimulationWorkerError(message);
   }
-  return new Error(DEFAULT_SIMULATION_ERROR_MESSAGE);
+  return new SimulationWorkerError();
 }
 
 /** トースト表示用の最終文言（プレフィックスなし） */
 export function formatSimulationErrorMessage(error: unknown): string {
-  return toSimulationError(error).message;
+  if (error instanceof SkillDataFetchError) {
+    return error.message;
+  }
+  if (error instanceof SimulationWorkerError) {
+    return error.message;
+  }
+
+  const message = extractErrorMessage(error);
+  if (message && !isInternalSimulationErrorMessage(message)) {
+    return message;
+  }
+  return SIMULATION_WORKER_ERROR_MESSAGE;
 }
