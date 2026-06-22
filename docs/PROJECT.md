@@ -8,7 +8,7 @@
 - **名称**: ウマ娘 レースアナライザー（Umamusume Skill Emulator）
 - **目的**: ゲーム内ステータス画面をキャプチャ → OCR → umasim WASM でレースシミュレーション
 - **対象**: Steam版・DMM版「ウマ娘 プリティーダービー」（Windows 10/11）
-- **現在バージョン**: `desktop-app/package.json` の `version` が正本（UI・Tauri・Cargo は自動同期）
+- **現在バージョン**: [`desktop-app/package.json`](../desktop-app/package.json) の `version` が正本（詳細: [バージョン管理](#バージョン管理)）
 
 ## 配布・起動（本番）
 
@@ -133,6 +133,43 @@ npm run build:release-exe
 ```
 
 成果物: `desktop-app/src-tauri/target/release/app.exe` — 詳細は [`RELEASE_BUILD.md`](RELEASE_BUILD.md)
+
+## バージョン管理
+
+> リリース手順の正本: [`RELEASE_BUILD.md`](RELEASE_BUILD.md)（ビルド・bump チェックリスト含む）
+
+### 正本と反映先（2026-06-23 一元化）
+
+| 役割 | ファイル | 更新方法 |
+|------|---------|---------|
+| **正本** | `desktop-app/package.json` → `version` | **手動のみ**（semver bump） |
+| UI 表示 | `desktop-app/app/lib/version.ts` | 正本を import（`APP_VERSION` / `APP_VERSION_LABEL`） |
+| Tauri | `desktop-app/src-tauri/tauri.conf.json` | `"version": "../package.json"` でビルド時に解決 |
+| Rust crate | `desktop-app/src-tauri/Cargo.toml` | `npm run sync-version` で `package.json` に合わせる |
+| 整合性テスト | `desktop-app/app/lib/version.test.ts` | Vitest（`npm test` に含む） |
+
+### 自動同期コマンド
+
+| コマンド | 内容 |
+|---------|------|
+| `npm run sync-version` | `Cargo.toml` の `version` を `package.json` に同期 |
+| `npm run build` | 先頭で `sync-version` を実行してから `next build` |
+| `npm run tauri` | 先頭で `sync-version` を実行してから Tauri CLI |
+| `npm run build:release-exe` | `build-release-exe.ps1` 内でも `sync-version` を実行 |
+
+### リリース時に手動で触るもの
+
+1. `desktop-app/package.json` の `version`
+2. `docs/CHANGELOG.md`（当該バージョン節の追記）
+3. （任意）`docs/TODO.md` / REQ の完了記録
+
+`Cargo.toml` は `sync-version` 実行後に差分が出たら **同一コミットに含める**（正本とのミラー）。
+
+### 廃止した手順（v1.1.0 リリース時まで）
+
+- `tauri.conf.json` への version 直書き（例: `"1.1.0"`）
+- `app/(main)/page.tsx` ヘッダーへの `vX.Y.Z` 直書き
+- `docs/PROJECT.md` / README への固定バージョン番号の手動メンテ（正本リンクに置換）
 
 ## 関連ドキュメント
 

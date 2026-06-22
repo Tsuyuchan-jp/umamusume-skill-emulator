@@ -100,12 +100,14 @@ npm run extract-umasim-skills
 
 ## バージョン bump 箇所（R3）
 
-| ファイル | フィールド |
-|---------|-----------|
-| `desktop-app/package.json` | `"version": "1.1.0"` |
-| `desktop-app/src-tauri/tauri.conf.json` | `"version": "1.1.0"` |
-| `docs/PROJECT.md` | `現在バージョン: v1.1.0` |
-| `desktop-app/app/(main)/page.tsx` | ヘッダー `v1.0.7` ×2 → `v1.1.0` |
+> **2026-06-23 以降は superseded。** 正本は `package.json` のみ。現行運用: [`RELEASE_BUILD.md`](../RELEASE_BUILD.md#バージョン管理)
+
+| ファイル | R3 時点（v1.1.0 リリース） |
+|---------|---------------------------|
+| `desktop-app/package.json` | `"version": "1.1.0"`（**現行も正本**） |
+| `desktop-app/src-tauri/tauri.conf.json` | `"version": "1.1.0"` → 現行は `"../package.json"` |
+| `docs/PROJECT.md` | `現在バージョン: v1.1.0` → 現行は正本リンク |
+| `desktop-app/app/(main)/page.tsx` | ヘッダー直書き → 現行は `APP_VERSION_LABEL` |
 
 ---
 
@@ -203,6 +205,7 @@ npm run extract-umasim-skills
 | 2026-06-19 23:26 | Phase R1 完了。`simulationErrors.ts` で正規化、`raceDetailFetchFailed` フラグでトースト、NaN ガード | R-001/R-006/R-008 実装・test/build 通過 |
 | 2026-06-19 23:16 | REQ 起票。Phase R1〜R3 + R2.5 スキル extract | 設計レビュー Ask mode 承認・ユーザー判断反映 |
 | 2026-06-19 23:16 | OCR 中止（R-004）は v1.1.0 外 | 将来実装 |
+| 2026-06-23 03:54 | バージョン bump 箇所（上表）は superseded。正本 `package.json` 一元化 | `89434db` / [`RELEASE_BUILD.md`](../RELEASE_BUILD.md#バージョン管理) |
 | 2026-06-19 23:16 | HotKey 警告（R-002）は Defer | 本番 exe 未再現 |
 | 2026-06-19 23:16 | raceDetail 失敗トースト（R-006）は Fix | ユーザー承認 |
 | 2026-06-19 23:16 | keep-alive（R-009）は Defer | 1〜3 タブ運用想定 |

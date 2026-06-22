@@ -4,6 +4,14 @@
 
 ---
 
+## Unreleased
+
+### 開発者向け
+
+- **バージョン管理の一元化** — 正本を `desktop-app/package.json` に集約。UI（`app/lib/version.ts`）、Tauri（`tauri.conf.json` → `../package.json`）、`Cargo.toml`（`npm run sync-version`）は自動同期。運用: [`RELEASE_BUILD.md`](RELEASE_BUILD.md#バージョン管理)
+
+---
+
 ## v1.1.0 — 2026-06-19
 
 ### 新機能

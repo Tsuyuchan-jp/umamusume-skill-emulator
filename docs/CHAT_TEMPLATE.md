@@ -58,7 +58,7 @@
 
 ## リリースビルド（バージョン bump / CHANGELOG 時）
 
-リリース作業では **必ず** 配布用 exe を更新する。正本: `@docs/RELEASE_BUILD.md`
+リリース作業では **必ず** 配布用 exe を更新する。正本: `@docs/RELEASE_BUILD.md`（**バージョン正本は `desktop-app/package.json` のみ** — `page.tsx` / `tauri.conf.json` 直書きは不要）
 
 ```
 @docs/PROJECT.md
@@ -69,12 +69,16 @@
 実装（Agent mode）
 
 ## 今回やること
-- バージョン bump / CHANGELOG（該当時）
+- `desktop-app/package.json` の version bump（正本のみ手動）
+- `docs/CHANGELOG.md` 追記
 - npm test → npm run build → npm run build:release-exe
 - 成果物: desktop-app/src-tauri/target/release/app.exe（直接配布・インストーラーは使わない）
 
 ## 完了条件
+- [ ] `version.test.ts` を含む `npm test` 通過
+- [ ] `sync-version` 後の `Cargo.toml` 差分があればコミットに含める
 - [ ] app.exe が target/release に出力されている（all 権限でビルドしサンドボックス外の target を更新）
+- [ ] アプリ UI ヘッダーの `v*` が bump 後の値と一致
 - [ ] コミット（exe 本体は git に含めない）
 ```
 

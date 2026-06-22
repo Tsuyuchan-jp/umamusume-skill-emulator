@@ -2,9 +2,10 @@
 
 Steam版・DMM版「ウマ娘 プリティーダービー」向けのレースアナライザーです。ゲーム内の詳細ステータス画面をキャプチャし、OCR でデータを抽出、umasim WASM エンジンでレースをシミュレーションします。
 
-**現在のバージョン**: `desktop-app/package.json` の `version` を正本とする（UI は `app/lib/version.ts`、Tauri は `tauri.conf.json` → `../package.json`、Cargo は `npm run sync-version` で同期）
+**現在のバージョン**: [`desktop-app/package.json`](./desktop-app/package.json) の `version`（表示例: アプリヘッダー左下の `v*`）
 
-更新履歴: [docs/CHANGELOG.md](./docs/CHANGELOG.md)
+更新履歴: [docs/CHANGELOG.md](./docs/CHANGELOG.md)  
+バージョン bump・リリース手順: [docs/RELEASE_BUILD.md](./docs/RELEASE_BUILD.md#バージョン管理)
 
 ## プロジェクト構成
 
@@ -104,6 +105,30 @@ npm run extract-umasim-skills   # ネットワーク必須
 ```
 
 手動更新: `trackData.ts`（コース）、`race_presets.json`（プリセット）、`race.js` / WASM エンジン（[手順 7](UPDATE_SKILLS.md#7-racejs--wasm-エンジンの更新)）
+
+## バージョン管理（開発者向け）
+
+アプリの semver **正本は `desktop-app/package.json` の `version` のみ**。UI・Tauri・Rust はここから自動参照・同期する（2026-06-23 以降）。
+
+| 反映先 | 仕組み | 手動更新 |
+|--------|--------|----------|
+| アプリ UI（ヘッダー） | `app/lib/version.ts` が `package.json` を import | 不要 |
+| Tauri バンドル | `src-tauri/tauri.conf.json` の `"version": "../package.json"` | 不要 |
+| `Cargo.toml` | `npm run sync-version`（`scripts/sync-cargo-version.js`） | 不要（同期コマンドで更新） |
+
+### リリース時（バージョン bump）
+
+```powershell
+cd desktop-app
+# 1. package.json の version を semver で更新
+# 2. docs/CHANGELOG.md に当該バージョンを追記
+npm test                    # version.test.ts で整合性も検証
+npm run build:release-exe   # sync-version → build → tauri build
+```
+
+詳細・エージェント向けチェックリスト: [docs/RELEASE_BUILD.md](./docs/RELEASE_BUILD.md)
+
+**やらないこと（旧運用）**: `page.tsx` への `vX.Y.Z` 直書き、`tauri.conf.json` への version 直書き、`docs/PROJECT.md` への固定バージョン番号の手動更新。
 
 ## 動作確認済み（P0）
 

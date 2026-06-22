@@ -3,7 +3,7 @@
 > 別 AI によるプロジェクト評価用の技術概要ドキュメント。  
 > 正本の進捗・要件は [`TODO.md`](./TODO.md)・[`PROJECT.md`](./PROJECT.md)・[`tasks/INDEX.md`](./tasks/INDEX.md) を参照。
 
-**バージョン**: `desktop-app/package.json` の `version` が正本（`app/lib/version.ts` 経由で UI 表示。Tauri / Cargo はビルド時に同期）  
+**バージョン**: [`desktop-app/package.json`](../desktop-app/package.json) の `version` が正本（`app/lib/version.ts` → UI、`tauri.conf.json` → Tauri、`sync-version` → Cargo）。運用: [`RELEASE_BUILD.md`](RELEASE_BUILD.md#バージョン管理)  
 **最終更新**: 2026-06-22
 
 ---
@@ -334,7 +334,7 @@ umamusume-skill-emulator/
 ├── desktop-app/                 ★ 本番アプリ（Next.js + Tauri）
 │   ├── app/                     フロントエンド（App Router）
 │   ├── public/                  静的アセット（WASM, presets, opencv.js 参照）
-│   ├── scripts/                 リリースビルドスクリプト
+│   ├── scripts/                 リリースビルド・sync-cargo-version.js
 │   ├── src-tauri/               Rust バックエンド
 │   ├── package.json
 │   └── next.config.ts
@@ -396,6 +396,7 @@ app/
 │   ├── raceGraphBuilder.ts      グラフデータ構築
 │   ├── chartLineRenderer.ts     Canvas 線描画
 │   ├── apiKeyStorage.ts         Tauri 経由 API キー操作
+│   ├── version.ts               アプリ semver（正本: package.json）
 │   └── engine/
 │       ├── umaemuAdapter.ts     ★ WASM Worker ラッパ
 │       └── simulationErrors.ts  エラー正規化
