@@ -20,7 +20,7 @@
     "core:window:allow-show",
     "core:window:allow-hide",
     "core:event:default",
-    "path:default",
+    "core:path:default",
     {
       "identifier": "fs:allow-read-text-file",
       "allow": [{ "path": "$APPDATA/skill_data/**" }]
