@@ -42,10 +42,17 @@ npm run build:release-exe
 
 次のいずれかに該当する作業を **完了報告・コミットの前** に行う。
 
-- `package.json` / `tauri.conf.json` の **version bump**
+- `desktop-app/package.json` の **version bump**（正本。`tauri.conf.json` / `Cargo.toml` / UI は自動同期）
 - `docs/CHANGELOG.md` の **新バージョン追記**
 - REQ の **R3 相当**（リリースビルド Phase）
 - ユーザーが「リリース」「配布用 exe 更新」と言ったとき
+
+### バージョン bump 時
+
+1. **`desktop-app/package.json` の `version` のみ** を更新する（正本）
+2. `npm run sync-version` で `Cargo.toml` を同期（`npm run build` / `npm run tauri` / `build:release-exe` でも自動実行）
+3. `tauri.conf.json` は `"version": "../package.json"` 参照のため手動変更不要
+4. UI ヘッダーは `app/lib/version.ts` が `package.json` を読むため手動変更不要
 
 ### 手順
 

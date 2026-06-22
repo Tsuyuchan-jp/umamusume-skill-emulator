@@ -8,7 +8,7 @@
 - **名称**: ウマ娘 レースアナライザー（Umamusume Skill Emulator）
 - **目的**: ゲーム内ステータス画面をキャプチャ → OCR → umasim WASM でレースシミュレーション
 - **対象**: Steam版・DMM版「ウマ娘 プリティーダービー」（Windows 10/11）
-- **現在バージョン**: v1.1.0
+- **現在バージョン**: `desktop-app/package.json` の `version` が正本（UI・Tauri・Cargo は自動同期）
 
 ## 配布・起動（本番）
 

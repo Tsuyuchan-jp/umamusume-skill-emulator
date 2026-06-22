@@ -2,6 +2,8 @@
 # CARGO_TARGET_DIR を明示し、Cursor サンドボックスの一時 target を避ける。
 $ErrorActionPreference = "Stop"
 $desktopAppRoot = Split-Path $PSScriptRoot -Parent
+Set-Location $desktopAppRoot
+npm run sync-version
 $skillDataPath = Join-Path $desktopAppRoot "public\skill_data.txt"
 if (-not (Test-Path $skillDataPath)) {
   throw "public/skill_data.txt not found. Run: npm run extract-umasim-skills"

@@ -3,7 +3,7 @@
 > 別 AI によるプロジェクト評価用の技術概要ドキュメント。  
 > 正本の進捗・要件は [`TODO.md`](./TODO.md)・[`PROJECT.md`](./PROJECT.md)・[`tasks/INDEX.md`](./tasks/INDEX.md) を参照。
 
-**バージョン**: v1.1.0（`desktop-app/package.json` / `src-tauri/Cargo.toml`）  
+**バージョン**: `desktop-app/package.json` の `version` が正本（`app/lib/version.ts` 経由で UI 表示。Tauri / Cargo はビルド時に同期）  
 **最終更新**: 2026-06-22
 
 ---

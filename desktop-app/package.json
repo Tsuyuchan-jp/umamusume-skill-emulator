@@ -4,11 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm run sync-version && next build",
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "tauri": "tauri",
+    "sync-version": "node scripts/sync-cargo-version.js",
+    "tauri": "npm run sync-version && tauri",
     "extract-skill-info": "node ../tools/mdb-extractor/extract_rarity_from_mdb.js",
     "extract-umasim-skills": "node ../tools/mdb-extractor/extract_umasim_skill_data.js",
     "build:release-exe": "powershell -ExecutionPolicy Bypass -File scripts/build-release-exe.ps1"
