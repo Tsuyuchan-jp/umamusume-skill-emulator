@@ -6,6 +6,7 @@ import { canPlaceSkillAtIndex } from "../lib/umasimSkillData";
 import {
   formatSimulationErrorMessage,
   RACE_DETAIL_FETCH_FAILED_MESSAGE,
+  SKILL_DATA_FALLBACK_TOAST_MESSAGE,
 } from "../lib/engine/simulationErrors";
 import { ResultCard } from "../components/ResultCard";
 import { SkillVerifier } from "../components/SkillVerifier";
@@ -247,6 +248,10 @@ export const SimTabPanel: React.FC<SimTabPanelProps> = ({
                 );
 
                 showToastMessage("比較検証が完了しました！", "success", 5000);
+                const { getLastSkillDataMeta } = await import("../lib/engine/umaemuAdapter");
+                if (getLastSkillDataMeta()?.usedFallback) {
+                  showToastMessage(SKILL_DATA_FALLBACK_TOAST_MESSAGE, "error", 5000);
+                }
                 if (simResult.raceDetailFetchFailed) {
                   showToastMessage(RACE_DETAIL_FETCH_FAILED_MESSAGE, "error", 5000);
                 }
