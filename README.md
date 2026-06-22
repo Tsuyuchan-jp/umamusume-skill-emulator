@@ -2,7 +2,7 @@
 
 Steam版・DMM版「ウマ娘 プリティーダービー」向けのレースアナライザーです。ゲーム内の詳細ステータス画面をキャプチャし、OCR でデータを抽出、umasim WASM エンジンでレースをシミュレーションします。
 
-**現在のバージョン**: v1.0.7
+**現在のバージョン**: v1.1.0（正本: `desktop-app/package.json` / `desktop-app/src-tauri/tauri.conf.json`）
 
 更新履歴: [docs/CHANGELOG.md](./docs/CHANGELOG.md)
 
