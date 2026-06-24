@@ -193,18 +193,61 @@
 - [x] フォールバック使用時に明示トースト（接続チェック UI は Backlog）
 - [x] Vitest: `simulationErrors` 新種別
 - [x] `UPDATE_SKILLS.md` / README 更新
-- [ ] 実機確認（fetch 成功 / オフライン同梱フォールバック / sim 実行）— ユーザー検証手順参照
+- [ ] 実機確認 — **手順 1〜2 OK**（2026-06-25）。**手順 3〜7 は TODO Backlog へ延期**（後日クローズ）
 - [x] REQ `done`、TODO 完了済み、INDEX 更新、コミット
 
 ---
 
-## 検証手順（案）
+## 検証手順（改訂版）
 
-1. **通常**: オンラインで sim 実行 → GitHub から取得（コンソールまたは接続チェックで `remote`）
-2. **オフライン**: ネットワーク切断 → 同梱または AppData キャッシュで sim 成功、フォールバックトースト表示
-3. **エラー区別**: fetch 全滅を意図的に再現（不正 URL 一時設定等・dev のみ）→ SKILL_DATA 系メッセージ。Worker 失敗は別メッセージ
-4. **回帰**: `SimulationLauncher` 初回 sim、`SimTabPanel` 検証 sim 両方
-5. **既存**: `raceDetailFetchFailed` トーストは維持
+> `skill_data.txt` の取得は **sim 実行直前のみ**（起動時・OCR 時は取得しない）。
+> 同一セッション内の 2 回目以降の sim はメモリキャッシュを再利用するため、手順 2/3/4 では **必ずアプリ終了**すること。
+
+| 手順 | 内容 | 状態 |
+|------|------|------|
+| 1 | オンライン sim → フォールバックトーストなし | OK |
+| 2 | オンライン sim 成功 → アプリ終了 → オフライン → sim（AppData キャッシュ経路） | OK |
+| 3 | キャッシュなし・オフライン・同梱フォールバック | **未実施**（Backlog） |
+| 4 | fetch 全滅（dev: `public/skill_data.txt` 削除/破損） | 未実施 |
+| 5 | Worker 失敗時のエラー文言区別 | 未実施 |
+| 6 | SimulationLauncher / SimTabPanel 回帰 | 未実施 |
+| 7 | raceDetail 失敗トースト維持 | 未実施 |
+
+### 手順 3 — 同梱フォールバック（キャッシュなし・オフライン）
+
+1. `tauri dev` を **停止**
+2. AppData キャッシュを削除:
+   ```powershell
+   Remove-Item -Recurse -Force "$env:APPDATA\com.umamusume.race-analyzer\skill_data" -ErrorAction SilentlyContinue
+   ```
+3. インターネット OFF → `npm run tauri dev` で起動 → sim 実行（OCR 不要）
+4. **期待**: sim 成功 ＋ 警告トースト「オンライン取得に失敗したため、保存済み／同梱の…」（`type: error`）
+
+### 手順 4 — fetch 全滅（dev のみ）
+
+1. `desktop-app/public/skill_data.txt` を一時リネームまたは破損
+2. 手順 3 と同様（キャッシュ削除・オフライン）→ sim
+3. **期待**: sim 失敗 ＋「スキルデータの取得に失敗しました。インターネット接続を…」（`SkillDataFetchError` 文言）
+4. 検証後 `skill_data.txt` を復元
+
+### 手順 5 — Worker 失敗時のエラー区別
+
+- **期待**: 「シミュレーション処理中にエラーが…」（手順 4 の文言と異なる）
+- 再現例: dev で `worker.js` の `SIMULATE` 先頭に一時 throw、または極端な試行回数。無理なら「未検証」と記録可
+
+### 手順 6 — 回帰
+
+- `SimulationLauncher` 初回 sim、`SimTabPanel` 比較検証 sim
+
+### 手順 7 — raceDetail 失敗トースト
+
+- sim 成功 + `raceDetailFetchFailed` 時に既存文言トースト（回帰なし）
+
+### 切り分けヒント
+
+- DevTools に `GitHub skill data fetch failed, trying AppData cache:` が出ればオフライン経路
+- 警告トーストが出ない場合: OS オフラインでも `raw.githubusercontent.com` が通っている可能性
+- 手順 2 と 3 は似ているが、手順 3 だけは **事前 AppData 削除が必須**
 
 ---
 
@@ -227,6 +270,7 @@
 | 2026-06-22 16:17 | MSI / コード署名 / Rust HTTP / 案B は本 REQ 外（低優先） | 効果対コスト・OpenCV 同梱と同思想で足りる |
 | 2026-06-22 16:17 | 設計レビュー（Ask mode）後に実装チャットへ | CHAT_TEMPLATE 2 チャット運用 |
 | 2026-06-23 03:35 | Phase 1〜4 実装完了。接続チェック UI は Settings Backlog へ | 余力スコープ見送り。フォールバックトーストで代替 |
+| 2026-06-25 07:18 | 実機検証手順 1〜2 OK。手順 3〜7 は TODO P1 Backlog へ延期 | ユーザー判断で後日実施。検証手順を改訂版に更新 |
 
 ---
 
