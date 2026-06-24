@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-25 07:25
+最終更新: 2026-06-25 07:29
 
 ---
 
@@ -68,6 +68,12 @@
 （Phase 5 完了。上記ほか P1 候補は Backlog 追加時にここへ）
 
 ### P2 — 改善・アイデア
+
+- [ ] **オートキャプチャ結合画像のディスク非保存オプション**
+  - 現状: オートキャプチャ完了後 `useCapture` が OpenCV で結合し、`saveFolder` 指定時は Rust `save_stitched_image`、未指定時はブラウザダウンロードへ保存。Rust 側 `capture.rs` もフレーム PNG を一時ディレクトリに書き込み
+  - 目標: 設定で「結合画像を PC ディスクに保存しない」を選べるようにする（OCR 用のメモリ上 `resultImage` / dataUrl は維持）
+  - 触る想定: `SettingsPanel.tsx`, `useCapture.ts`, `page.tsx`（localStorage 設定）、必要なら `stitch.rs` / `capture.rs`（一時フレームの扱い・削除タイミング）
+  - 注意: 保存先フォルダ設定との関係（非保存 ON 時は saveFolder を無視等）を UI で明示。実機検証必須
 
 - [ ] **エラートーストの全文表示**（truncate 解除）
   - 症状: `ToastNotification` の message に `truncate` があり、長文が途中で切れる（実機: スキルデータフォールバック警告が「最新版…」までしか見えない）
