@@ -210,4 +210,4 @@
 
 ## 実装チャット用プロンプト
 
-**Agent mode 新チャット** に貼る完成形: [`IMPLEMENTATION_PROMPT-auto-capture-phase1.md`](IMPLEMENTATION_PROMPT-auto-capture-phase1.md)
+Phase 1 用の完成プロンプトは **設計レビューチャット（D1 承認時）** に出力済み。Agent mode 新チャット先頭に貼って着手する。

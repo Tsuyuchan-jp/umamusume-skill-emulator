@@ -4,13 +4,13 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-26 06:03
+最終更新: 2026-06-26 06:08
 
 ---
 
 ## 現在のフォーカス
 
-**P1 次候補** — オートキャプチャ Phase 1（結合修正・[`IMPLEMENTATION_PROMPT-auto-capture-phase1.md`](tasks/IMPLEMENTATION_PROMPT-auto-capture-phase1.md)）。D1 設計完了済み。
+**P1 次候補** — オートキャプチャ Phase 1（結合修正・[`REQ-auto-capture-multi-screen.md`](tasks/REQ-auto-capture-multi-screen.md)）。D1 設計完了済み。実装プロンプトは設計レビューチャット参照。
 
 **Phase 順**: v1.1.0 は R1→R2.5→R3 完了。[`REQ-release-v1.1.0.md`](tasks/REQ-release-v1.1.0.md) **done**
 
@@ -34,7 +34,7 @@
   - D1 完了（2026-06-26）: キャプチャは Generic で全経路末端到達済み（`auto-capture-design-pack/`）。**不具合は結合（`opencvStitcher.ts`）**
   - Phase 1: StitchLayout/StitchTab + S-1〜S-5。`capture.rs` は触らない
   - 目標: TRN/FRD 結合 NG 解消、HOF/CMP 回帰、スキル・継承タブ（F-2）
-  - 実装プロンプト: [`IMPLEMENTATION_PROMPT-auto-capture-phase1.md`](tasks/IMPLEMENTATION_PROMPT-auto-capture-phase1.md)
+  - 実装: REQ Phase 1・設計レビューチャット内の完成プロンプトを Agent mode 新チャットへ貼る
   - REQ: [`REQ-auto-capture-multi-screen.md`](tasks/REQ-auto-capture-multi-screen.md) **draft**（D1 done）
   - 触らない: `geminiOcr.ts`, `fuzzyMatcher.ts`, sim/WASM。Phase 1 で `capture.rs` 変更禁止
 
