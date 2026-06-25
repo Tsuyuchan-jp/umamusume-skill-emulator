@@ -54,22 +54,20 @@
       "label": "フレンド・スキルタブ",
       "layout": "L3+Btn",
       "framePaths": ["golden/FRD/skill/frame_000.png"],
-      "preCropped": true,
-      "scrollStartRatio": { "min": 0.22, "max": 0.30 },
-      "tabRowRatio": { "min": 0.19, "max": 0.27 },
+      "scrollStartRatio": { "min": 0.46, "max": 0.52 },
+      "tabRowRatio": { "min": 0.39, "max": 0.47 },
       "legacyHeaderRatio": 0.16,
-      "notes": "旧ログ Header 144px は誤り。L3+Btn 下段タブ"
+      "notes": "R2 ゲート。広帯タブ（旧 22–30% 期待は誤り）"
     },
     {
       "id": "G-FRD-F",
       "label": "フレンド・継承タブ",
       "layout": "L3+Btn",
       "framePaths": ["golden/FRD/factor/frame_000.png"],
-      "preCropped": true,
-      "scrollStartRatio": { "min": 0.22, "max": 0.30 },
-      "tabRowRatio": { "min": 0.19, "max": 0.27 },
+      "scrollStartRatio": { "min": 0.46, "max": 0.52 },
+      "tabRowRatio": { "min": 0.39, "max": 0.47 },
       "legacyHeaderRatio": 0.16,
-      "notes": "練習パートナー解除帯あり"
+      "notes": "練習パートナー解除帯あり。R2 ゲート"
     }
   ]
 }

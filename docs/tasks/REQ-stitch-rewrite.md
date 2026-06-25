@@ -4,7 +4,7 @@
 > 親 REQ: [`REQ-auto-capture-multi-screen.md`](REQ-auto-capture-multi-screen.md)（Phase 1 パッチ完了・本 REQ で根本修正）。
 > 設計パック: [`auto-capture-design-pack/`](../../auto-capture-design-pack/)（golden / screenshots / logs）。
 
-- **ステータス**: draft（R0 着手）
+- **ステータス**: in-progress（R1 done・R2 待ち）
 - **作成日**: 2026-06-26 08:13
 - **関連コミット**: （完了後に記入）
 
@@ -95,7 +95,7 @@ interface StitchReport {
 | Phase | 内容 | 状態 |
 |-------|------|------|
 | **R0** | REQ・golden 期待値・計測 CLI（`tools/stitch-golden/`） | **done** |
-| **R1** | `regions.ts`（absdiff 主経路）+ 旧 API 内部差替 | draft |
+| **R1** | `regions.ts`（absdiff 主経路）+ 旧 API 内部差替 | **done** |
 | **R2** | layout / tabDetect 整理・走査帯魔術削除 | draft |
 | **R3** | compose 簡素化・旧 scrollMats 全貼り廃止 | draft |
 | **R4** | postProcess 分離・TrainingInfo 別パス（旧 S-6） | draft |
@@ -113,8 +113,8 @@ interface StitchReport {
 | G-HOF-F | HOF factor S0 | L3 | 0.36–0.51 | 計測 **0.495**（継承タブやや下） |
 | G-TRN | golden/TRN 4枚 | L2 | 0.48–0.54 | 計測 **0.515**（877 crop）。実機 464/900≈0.516 と整合 |
 | G-CMP-S | CMP skill S0 | L3 | 0.36–0.44 | |
-| G-FRD-S | FRD skill golden | L3+Btn | 0.22–0.30 | 下段タブ |
-| G-FRD-F | FRD factor golden | L3+Btn | 0.22–0.30 | 練習パートナー解除帯 |
+| G-FRD-S | FRD skill golden | L3+Btn | 0.46–0.52 | 下段タブ（R2 ゲート） |
+| G-FRD-F | FRD factor golden | L3+Btn | 0.46–0.52 | 練習パートナー解除帯 |
 
 正本 JSON: [`tools/stitch-golden/expectations.json`](../../tools/stitch-golden/expectations.json)
 
@@ -150,7 +150,7 @@ interface StitchReport {
 ## 完了条件
 
 - [x] R0: golden 期待値 JSON + 計測 CLI + Vitest スモーク
-- [ ] R1: G-TRN + G-HOF-S golden 合格（scrollStartRatio が期待帯内）
+- [x] R1: G-TRN + G-HOF-S golden 合格（scrollStartRatio が期待帯内）
 - [ ] R2: G-CMP + G-FRD-S golden 合格
 - [ ] R3: stitched-OK 退行なし（目視 + SSIM 任意）
 - [ ] R4: TrainingInfo 別パス（G-FRD-I）
@@ -194,6 +194,7 @@ npm run stitch:golden
 |------|---------|------|
 | 2026-06-26 08:13 | **REQ 起票・R0 着手** | 監査で 16%≠目視境界を確認。パッチ積み上げ限界 |
 | 2026-06-26 08:13 | **scrollStartY を absdiff 主経路に** | レイアウト非依存・HOF/TRN 共通 |
+| 2026-06-26 08:41 | **R1 完了** | scrollStartY absdiff 正本・`USE_STITCH_V2` フラグ・G-TRN/G-HOF-S golden PASS。G-FRD 期待値修正（R2 ゲート） |
 | 2026-06-26 08:13 | **R0 完了** | golden 6件 PASS。HOF scrollStart≈0.44–0.50、legacy 16% delta +257〜302px |
 
 ---

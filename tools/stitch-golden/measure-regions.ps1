@@ -90,7 +90,7 @@ function Measure-TabRowBest(
     # レイアウト別走査帯（R0 計測用。R1 以降 TS 側は absdiff 正本）
     switch ($Layout) {
         "L2" { $scanStart = 0.38; $scanEnd = 0.54; $mode = "l2" }
-        "L3+Btn" { $scanStart = 0.17; $scanEnd = 0.28; $mode = "l3" }
+        "L3+Btn" { $scanStart = 0.28; $scanEnd = 0.52; $mode = "l3" }
         default { $scanStart = 0.28; $scanEnd = 0.48; $mode = "l3" }
     }
 
@@ -161,7 +161,7 @@ function Test-GoldenCase($Case) {
     Write-Output "=== $($Case.id): $($Case.label) ==="
     Write-Output "  file: $frameRel ($($bmp.Width)x$($bmp.Height))"
 
-    if ($Case.preCropped) {
+    if ($Case.preCropped -eq $true) {
         $crop = @{ X = 0; Y = 0; Width = $bmp.Width; Height = $bmp.Height }
     }
     else {

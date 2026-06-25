@@ -89,7 +89,7 @@
 | REQ | ステータス | TODO掲載 | 備考 |
 |-----|-----------|---------|------|
 | [`REQ-auto-capture-multi-screen.md`](REQ-auto-capture-multi-screen.md) | draft | Backlog | Phase 1 done・**G-TRN OK**・Phase 3 は R1 後 |
-| [`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md) | draft | Backlog | R0 **done**・R1 待ち。**scrollStartY 正本** |
+| [`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md) | in-progress | Backlog R2 | R0+R1 **done**。**scrollStartY 正本** |
 
 ---
 

@@ -14,7 +14,6 @@ export interface GoldenCase {
   label: string;
   layout: "L2" | "L3" | "L3+Btn";
   framePaths: string[];
-  preCropped?: boolean;
   scrollStartRatio: RatioBand;
   tabRowRatio: RatioBand;
   legacyHeaderRatio: number | null;

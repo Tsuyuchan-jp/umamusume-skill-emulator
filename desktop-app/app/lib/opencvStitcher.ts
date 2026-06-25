@@ -1,5 +1,9 @@
 // @ts-nocheck
 
+import { findCropBounds } from "./stitch/crop";
+import { detectScrollStartY } from "./stitch/regions";
+import { USE_STITCH_V2 } from "./stitch/flags";
+
 // --- 結合定数（Phase 1 正本） ---
 // L2 比率は設計パック TRN 計測（tools/measure-stitch-layout.ps1）: タブ下端≈50.3%。旧 D1 の 22% は誤推定。
 const STITCH_FOOTER_HEIGHT_RATIO = 0.15;
@@ -551,6 +555,14 @@ function trimBottomWhitespace(
 }
 
 export async function stitchWithOpenCV(imageUrls: string[]): Promise<{ cleanDataUrl: string }> {
+  return stitchWithOpenCVInternal(imageUrls, { useScrollStartV2: USE_STITCH_V2 });
+}
+
+export async function stitchWithOpenCVInternal(
+  imageUrls: string[],
+  options: { useScrollStartV2?: boolean } = {}
+): Promise<{ cleanDataUrl: string }> {
+  const useScrollStartV2 = options.useScrollStartV2 ?? false;
   let retries = 15;
   while (!window.cv && retries > 0) {
     await new Promise((resolve) => setTimeout(resolve, 200));
@@ -606,7 +618,16 @@ export async function stitchWithOpenCV(imageUrls: string[]): Promise<{ cleanData
     tab = "Skill";
   }
 
-  const headerHeight = computeHeaderHeight(layout, cropRect.height, tabRow);
+  const headerHeight = useScrollStartV2
+    ? resolveScrollStartHeaderHeight(
+        croppedMats,
+        cv,
+        cropRect.width,
+        cropRect.height,
+        layout,
+        tabRow
+      )
+    : computeHeaderHeight(layout, cropRect.height, tabRow);
   const footerHeight = Math.floor(cropRect.height * STITCH_FOOTER_HEIGHT_RATIO);
   const scrollHeight = cropRect.height - headerHeight - footerHeight;
 
@@ -811,6 +832,34 @@ export async function stitchWithOpenCV(imageUrls: string[]): Promise<{ cleanData
   return { cleanDataUrl };
 }
 
+/** v2: frame0↔1 absdiff で scrollStartY を正本化。単一フレーム時は旧タブ行算出 */
+function resolveScrollStartHeaderHeight(
+  croppedMats: any[],
+  cv: any,
+  cropWidth: number,
+  cropHeight: number,
+  layout: StitchLayout,
+  tabRow: TabRowInfo
+): number {
+  if (croppedMats.length >= 2) {
+    const regions = detectScrollStartY(
+      croppedMats[0],
+      croppedMats[1],
+      cv,
+      cropWidth,
+      cropHeight,
+      layout
+    );
+    console.log(
+      `scrollStartY(v2): y=${regions.scrollStartY}px ratio=${regions.ratio.toFixed(3)} method=${regions.method} confidence=${regions.confidence}`
+    );
+    return regions.scrollStartY;
+  }
+
+  console.warn("scrollStartY(v2): 単一フレームのためタブ行から header を算出");
+  return computeHeaderHeight(layout, cropHeight, tabRow);
+}
+
 function loadMat(url: string, cv: any): Promise<any> {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -822,86 +871,4 @@ function loadMat(url: string, cv: any): Promise<any> {
     img.onerror = reject;
     img.src = url;
   });
-}
-
-function findCropBounds(mat: any, cv: any): any {
-  const hsv = new cv.Mat();
-  cv.cvtColor(mat, hsv, cv.COLOR_RGBA2RGB);
-  cv.cvtColor(hsv, hsv, cv.COLOR_RGB2HSV);
-
-  const lowGreen = new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [20, 150, 0, 0]);
-  const highGreen = new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [60, 255, 255, 0]);
-
-  const mask = new cv.Mat();
-  cv.inRange(hsv, lowGreen, highGreen, mask);
-
-  const searchHeight = Math.floor(mat.rows * 0.3);
-  let maxDetectedWidth = 0;
-  let widestLeftX = -1;
-  let widestRightX = -1;
-
-  for (let y = 0; y < searchHeight; y++) {
-    let firstX = -1;
-    let lastX = -1;
-    const rowPtr = mask.ucharPtr(y);
-    for (let x = 0; x < mask.cols; x++) {
-      if (rowPtr[x] > 0) {
-        if (firstX === -1) firstX = x;
-        lastX = x;
-      }
-    }
-    if (firstX !== -1) {
-      const currentWidth = lastX - firstX + 1;
-      if (currentWidth > maxDetectedWidth) {
-        maxDetectedWidth = currentWidth;
-        widestLeftX = firstX;
-        widestRightX = lastX;
-      }
-    }
-  }
-
-  let headerY = -1;
-
-  for (let y = 0; y < searchHeight; y++) {
-    let firstX = -1;
-    let lastX = -1;
-    const rowPtr = mask.ucharPtr(y);
-    for (let x = 0; x < mask.cols; x++) {
-      if (rowPtr[x] > 0) {
-        if (firstX === -1) firstX = x;
-        lastX = x;
-      }
-    }
-    if (firstX !== -1) {
-      const currentWidth = lastX - firstX + 1;
-      if (currentWidth >= maxDetectedWidth * 0.95) {
-        headerY = y;
-        break;
-      }
-    }
-  }
-
-  hsv.delete();
-  lowGreen.delete();
-  highGreen.delete();
-  mask.delete();
-
-  if (headerY !== -1) {
-    const startY = headerY;
-    const startX = widestLeftX;
-    const uiWidth = widestRightX - widestLeftX + 1;
-    let uiHeight = Math.floor(uiWidth / 0.5625);
-
-    if (startY + uiHeight > mat.rows) {
-      uiHeight = mat.rows - startY;
-    }
-
-    return new cv.Rect(startX, startY, uiWidth, uiHeight);
-  }
-
-  console.warn("緑のヘッダーが見つかりませんでした。フォールバック処理を行います。");
-  const fallbackUiWidth = Math.floor(mat.rows * 0.5625);
-  let fallbackX = Math.floor((mat.cols - fallbackUiWidth) / 2);
-  if (fallbackX < 0) fallbackX = 0;
-  return new cv.Rect(fallbackX, 0, Math.min(fallbackUiWidth, mat.cols), mat.rows);
 }

@@ -3,10 +3,13 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   getDesignPackRoot,
+  getGoldenCase,
   isDesignPackPresent,
   isRatioInBand,
   loadStitchGoldenExpectations,
 } from "./expectations";
+import { measureScrollStartFromFrames } from "./goldenMeasure";
+import { USE_STITCH_V2 } from "./flags";
 
 describe("stitch golden expectations (R0)", () => {
   it("expectations.json が読み込める", () => {
@@ -41,6 +44,10 @@ describe("stitch golden expectations (R0)", () => {
     expect(trn!.layout).toBe("L2");
     expect(trn!.scrollStartRatio.min).toBeGreaterThan(0.45);
   });
+
+  it("USE_STITCH_V2 はデフォルト false（旧経路維持）", () => {
+    expect(USE_STITCH_V2).toBe(false);
+  });
 });
 
 describe.skipIf(!isDesignPackPresent())("stitch golden design pack paths", () => {
@@ -60,4 +67,39 @@ describe.skipIf(!isDesignPackPresent())("stitch golden design pack paths", () =>
     }
     expect(missing, `missing frames:\n${missing.join("\n")}`).toEqual([]);
   });
+});
+
+describe.skipIf(!isDesignPackPresent())("stitch golden R1 scrollStartRatio (absdiff)", () => {
+  const packRoot = getDesignPackRoot();
+
+  it("G-TRN scrollStartRatio ∈ [0.48, 0.54]", async () => {
+    const c = getGoldenCase("G-TRN")!;
+    expect(c.framePaths.length).toBeGreaterThanOrEqual(2);
+    const measured = await measureScrollStartFromFrames(
+      packRoot,
+      c.framePaths,
+      c.layout
+    );
+    expect(
+      isRatioInBand(measured.scrollStartRatio, c.scrollStartRatio),
+      `ratio=${measured.scrollStartRatio.toFixed(4)} method=${measured.method}`
+    ).toBe(true);
+  }, 60_000);
+
+  it("G-HOF-S scrollStartRatio ∈ [0.36, 0.46]", async () => {
+    const c = getGoldenCase("G-HOF-S")!;
+    const framePaths = [c.framePaths[0], "screenshots/HOF/skill/S1-mid.png"];
+    const secondPath = join(packRoot, framePaths[1]);
+    expect(existsSync(secondPath), `missing ${framePaths[1]}`).toBe(true);
+
+    const measured = await measureScrollStartFromFrames(
+      packRoot,
+      framePaths,
+      c.layout
+    );
+    expect(
+      isRatioInBand(measured.scrollStartRatio, c.scrollStartRatio),
+      `ratio=${measured.scrollStartRatio.toFixed(4)} method=${measured.method}`
+    ).toBe(true);
+  }, 60_000);
 });
