@@ -4,13 +4,13 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-26 07:13
+最終更新: 2026-06-26 07:33
 
 ---
 
 ## 現在のフォーカス
 
-**P1** — オートキャプチャ Phase 1 実機検証 C1（TRN L2 誤判定修正・再検証待ち）。
+**P1** — オートキャプチャ C1 TRN 再検証（L2 緑プロファイル検出・header≈50% 修正後）。
 
 **Phase 順**: v1.1.0 は R1→R2.5→R3 完了。[`REQ-release-v1.1.0.md`](tasks/REQ-release-v1.1.0.md) **done**
 
@@ -18,7 +18,7 @@
 
 ## 進行中
 
-- **オートキャプチャ C1 TRN 修正** — `StitchLayout` L3+Btn 誤判定を L2 優先スキャンで修正（`opencvStitcher.ts`）。ユーザー実機で G-TRN 再検証待ち
+- **オートキャプチャ C1 TRN** — L2 誤推定（22%→計測50%）修正・緑タブ検出。実機 G-TRN 再検証待ち
 
 ## 次にやること（Backlog）
 
@@ -221,7 +221,7 @@
 ## 既知の問題・メモ
 
 - パレットのスキル一覧は **`umasimSkillDataList`（ローカル）正本** — `buildPaletteSkillOptions`。WASM sim は `fetchSkillData()`（GitHub 優先 → AppData → 同梱 `public/skill_data.txt`）
-- **オートキャプチャ**: Phase 1 実装済み。C1 TRN で L3+Btn 誤判定 → L2 優先判定に修正（2026-06-26 07:13）。実機 G-TRN 再検証待ち
+- **オートキャプチャ**: C1 TRN — L2 header 誤推定（22%）を設計パック計測（≈50%）で修正、緑タブ検出へ刷新（2026-06-26 07:33）。実機再検証待ち
 - **sim スキルデータ**: オンライン時 GitHub fetch + AppData キャッシュ。オフライン時は同梱/キャッシュで制限付き動作（フォールバック時トースト）
 - **REQ-skill-data-fetch-fallback 実機検証**: 手順 1〜2 確認済み。手順 3〜7（同梱のみ・fetch 全滅・Worker 区別・回帰）は P1 Backlog — 後日クローズ予定（2026-06-25）
 - **将来（案B・Backlog）**: `skill_data.txt` を自前 GitHub に置き fetch 一本化 → extract→push でユーザー再配布を減らす方針。sim 定義と UI 一覧を同一 JSON に揃える

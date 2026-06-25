@@ -1,37 +1,39 @@
 // @ts-nocheck
 
 // --- 結合定数（Phase 1 正本） ---
+// L2 比率は設計パック TRN 計測（tools/measure-stitch-layout.ps1）: タブ下端≈50.3%。旧 D1 の 22% は誤推定。
 const STITCH_FOOTER_HEIGHT_RATIO = 0.15;
-const STITCH_HEADER_HEIGHT_L2 = 0.22;
+const STITCH_HEADER_HEIGHT_L2 = 0.5; // フォールバックのみ（検出成功時はタブ行から動的算出）
 const STITCH_HEADER_HEIGHT_L3 = 0.16;
-const STITCH_HEADER_HEIGHT_L3_BTN = 0.18;
+const STITCH_HEADER_HEIGHT_L3_BTN = 0.24; // 練習パートナー解除帯＋下段タブ（FRD 系）
+const STITCH_HEADER_TAB_BOTTOM_MARGIN_RATIO = 0.012; // タブ下端〜スクロール開始の余白
 const STITCH_MATCH_SCORE_THRESHOLD = 0.85;
 const STITCH_SEARCH_WIDTH_RATIO = 0.95;
 const STITCH_SCROLLBAR_WIDTH_RATIO = 0.03;
 const STITCH_TEMPLATE_HEIGHT_RATIO = 0.2;
-const STITCH_TAB_ROW_Y_RATIO = 0.11; // L3 既定
-const STITCH_TAB_ROW_L3_SCAN_START = 0.08;
-const STITCH_TAB_ROW_L3_SCAN_END = 0.14;
-const STITCH_TAB_ROW_L2_SCAN_START = 0.16;
-const STITCH_TAB_ROW_L2_SCAN_END = 0.22;
-const STITCH_TAB_ROW_L3_BTN_TAB_SCAN_START = 0.17;
-const STITCH_TAB_ROW_L3_BTN_TAB_SCAN_END = 0.22;
-const STITCH_TAB_ROW_Y_SCAN_STEP = 0.02;
 const STITCH_TAB_ROW_HEIGHT_RATIO = 0.035;
-const STITCH_TAB_EDGE_THRESHOLD = 22;
-const STITCH_TAB_EDGE_THRESHOLD_L2 = 16; // TRN 2タブはエッジが弱いことがある
-const STITCH_TAB_EDGE_MIN_GAP = 0.12; // 幅に対する比率
+// L3 タブ行: 上段（HOF/CMP 計測・ログ Header 144/900=16% 整合）
+const STITCH_TAB_ROW_L3_SCAN_START = 0.08;
+const STITCH_TAB_ROW_L3_SCAN_END = 0.16;
+const STITCH_L3_GREEN_SEG_MIN = 0.15;
+// L2 タブ行: 下段（TRN 計測 ratio≈0.47, L2score≈0.83）
+const STITCH_TAB_ROW_L2_SCAN_START = 0.38;
+const STITCH_TAB_ROW_L2_SCAN_END = 0.54;
+const STITCH_L2_GREEN_SCORE_MIN = 0.45;
+const STITCH_TAB_ROW_L3_BTN_TAB_SCAN_START = 0.17;
+const STITCH_TAB_ROW_L3_BTN_TAB_SCAN_END = 0.26;
+const STITCH_TAB_ROW_Y_SCAN_STEP = 0.01;
 const STITCH_PARTNER_BTN_Y_START = 0.12;
 const STITCH_PARTNER_BTN_Y_END = 0.17;
 const STITCH_PARTNER_BTN_MIN_WIDTH_RATIO = 0.45;
 const STITCH_PARTNER_BTN_BRIGHTNESS = 210;
-const STITCH_PARTNER_BTN_MAX_ROW_RATIO = 0.045; // ボタン高さ上限（成長率帯との区別）
+const STITCH_PARTNER_BTN_MAX_ROW_RATIO = 0.045;
 const STITCH_SCROLL_DIFF_AVG_THRESHOLD = 5;
 const STITCH_SCROLL_DIFF_CONSECUTIVE_ROWS = 10;
 const STITCH_SCROLL_DIFF_CHECK_WIDTH_RATIO = 0.8;
-const STITCH_INHERITANCE_GREEN_SEARCH_START = 0.65; // スクロール領域内の開始比率（因子ヘッダー回避）
+const STITCH_INHERITANCE_GREEN_SEARCH_START = 0.65;
 const STITCH_INHERITANCE_GREEN_MIN_WIDTH_RATIO = 0.8;
-const STITCH_INHERITANCE_FACTOR_HEADER_MAX_RATIO = 0.30; // スクロール領域先頭の誤検出スキップ
+const STITCH_INHERITANCE_FACTOR_HEADER_MAX_RATIO = 0.3;
 const STITCH_WHITESPACE_STD_THRESHOLD = 20;
 
 export type StitchLayout = "L2" | "L3" | "L3+Btn";
@@ -49,121 +51,131 @@ function getHeaderHeightRatio(layout: StitchLayout): number {
   }
 }
 
-type TabRowInfo = { tabCount: number; tabY: number; found: boolean };
+type TabRowInfo = {
+  tabCount: number;
+  tabY: number;
+  found: boolean;
+  method?: "green-l2" | "green-l3" | "fallback";
+};
 
-/** 指定 Y のタブ行で垂直エッジ数からタブ数を推定 */
-function countTabSegmentsAtRow(
-  mat: any,
+/** 1行分の緑タブプロファイル（HSV・opencv detectStitchTab と同系） */
+function measureGreenTabProfile(
+  croppedMat: any,
   cv: any,
   cropWidth: number,
   tabY: number,
-  cropHeight: number,
-  edgeThreshold: number = STITCH_TAB_EDGE_THRESHOLD
-): number {
+  cropHeight: number
+): { l2Score: number; seg1: number; seg2: number; seg3: number; maxSeg: number } {
   const tabH = Math.max(4, Math.floor(cropHeight * STITCH_TAB_ROW_HEIGHT_RATIO));
-  const roi = mat.roi(new cv.Rect(0, tabY, cropWidth, tabH));
-  const gray = new cv.Mat();
-  cv.cvtColor(roi, gray, cv.COLOR_RGBA2GRAY);
+  const roi = croppedMat.roi(new cv.Rect(0, tabY, cropWidth, tabH));
+  const hsv = new cv.Mat();
+  cv.cvtColor(roi, hsv, cv.COLOR_RGBA2RGB);
+  cv.cvtColor(hsv, hsv, cv.COLOR_RGB2HSV);
 
-  const minGap = Math.floor(cropWidth * STITCH_TAB_EDGE_MIN_GAP);
-  const edges: number[] = [];
+  const seg2X = Math.floor(cropWidth / 2);
+  const seg3W = Math.floor(cropWidth / 3);
+  let leftG = 0;
+  let rightG = 0;
+  let leftT = 0;
+  let rightT = 0;
+  const segG = [0, 0, 0];
+  const segT = [0, 0, 0];
 
-  for (let x = 2; x < gray.cols - 2; x++) {
-    let colDiff = 0;
-    for (let y = 0; y < gray.rows; y++) {
-      const left = gray.ucharPtr(y, x - 1)[0];
-      const right = gray.ucharPtr(y, x + 1)[0];
-      colDiff += Math.abs(right - left);
-    }
-    colDiff /= gray.rows;
-    if (colDiff > edgeThreshold) {
-      if (edges.length === 0 || x - edges[edges.length - 1] >= minGap) {
-        edges.push(x);
+  const isTabGreen = (ptr: Uint8Array) => {
+    const h = ptr[0];
+    const s = ptr[1];
+    const v = ptr[2];
+    return h >= 35 && h <= 85 && s >= 80 && v >= 80;
+  };
+
+  for (let y = 0; y < hsv.rows; y++) {
+    for (let x = 0; x < hsv.cols; x++) {
+      const ptr = hsv.ucharPtr(y, x);
+      const g = isTabGreen(ptr);
+      if (x < Math.floor(cropWidth * 0.48)) {
+        leftT++;
+        if (g) leftG++;
+      } else if (x >= Math.floor(cropWidth * 0.52)) {
+        rightT++;
+        if (g) rightG++;
       }
+      const si = x < seg3W ? 0 : x < seg3W * 2 ? 1 : 2;
+      segT[si]++;
+      if (g) segG[si]++;
     }
   }
 
-  gray.delete();
+  hsv.delete();
   roi.delete();
 
-  return Math.max(0, Math.min(4, edges.length + 1));
+  const seg1 = segT[0] > 0 ? segG[0] / segT[0] : 0;
+  const seg2 = segT[1] > 0 ? segG[1] / segT[1] : 0;
+  const seg3 = segT[2] > 0 ? segG[2] / segT[2] : 0;
+  const l2Score =
+    (rightT > 0 ? rightG / rightT : 0) - (leftT > 0 ? leftG / leftT : 0);
+
+  return { l2Score, seg1, seg2, seg3, maxSeg: Math.max(seg1, seg2, seg3) };
 }
 
-/** 指定 Y 範囲で期待タブ数の行を探索 */
-function scanTabRowInRange(
-  mat: any,
+/** 緑プロファイルでタブ行を走査 */
+function scanGreenTabRow(
+  croppedMat: any,
   cv: any,
   cropWidth: number,
   cropHeight: number,
   startRatio: number,
   endRatio: number,
-  preferTabCount: 2 | 3,
-  edgeThreshold: number = STITCH_TAB_EDGE_THRESHOLD
+  mode: "l2" | "l3"
 ): TabRowInfo {
   let best: TabRowInfo = {
-    tabCount: preferTabCount,
-    tabY: Math.floor(cropHeight * STITCH_TAB_ROW_Y_RATIO),
+    tabCount: mode === "l2" ? 2 : 3,
+    tabY: Math.floor(cropHeight * ((startRatio + endRatio) / 2)),
     found: false,
+    method: mode === "l2" ? "green-l2" : "green-l3",
   };
   let bestScore = -1;
 
   for (let ratio = startRatio; ratio <= endRatio; ratio += STITCH_TAB_ROW_Y_SCAN_STEP) {
     const tabY = Math.floor(cropHeight * ratio);
-    const tabCount = countTabSegmentsAtRow(
-      mat,
-      cv,
-      cropWidth,
-      tabY,
-      cropHeight,
-      edgeThreshold
-    );
-    if (tabCount !== preferTabCount) continue;
+    if (tabY + Math.floor(cropHeight * STITCH_TAB_ROW_HEIGHT_RATIO) >= cropHeight) continue;
 
-    // L2 はタブ行が下寄りなので ratio 大きいほど優先。L3 は上寄り優先
-    const score = preferTabCount === 2 ? ratio * 10 : (endRatio - ratio) * 10 + ratio;
-    if (score > bestScore) {
-      bestScore = score;
-      best = { tabCount, tabY, found: true };
+    const p = measureGreenTabProfile(croppedMat, cv, cropWidth, tabY, cropHeight);
+
+    if (mode === "l2") {
+      if (p.l2Score < STITCH_L2_GREEN_SCORE_MIN) continue;
+      if (p.l2Score > bestScore) {
+        bestScore = p.l2Score;
+        best = { tabCount: 2, tabY, found: true, method: "green-l2" };
+      }
+    } else {
+      if (p.maxSeg < STITCH_L3_GREEN_SEG_MIN) continue;
+      if (p.maxSeg > bestScore) {
+        bestScore = p.maxSeg;
+        best = { tabCount: 3, tabY, found: true, method: "green-l3" };
+      }
     }
   }
 
   return best;
 }
 
-/** 後方互換: 広域スキャン（非推奨・detectStitchLayoutAndTabRow を使用） */
-function scanTabRow(mat: any, cv: any, cropWidth: number, cropHeight: number): TabRowInfo {
-  const l2 = scanTabRowInRange(
-    mat,
-    cv,
-    cropWidth,
-    cropHeight,
-    STITCH_TAB_ROW_L2_SCAN_START,
-    STITCH_TAB_ROW_L2_SCAN_END,
-    2,
-    STITCH_TAB_EDGE_THRESHOLD_L2
+/** タブ行下端からヘッダー高さを算出（検出成功時は固定比率より優先） */
+function computeHeaderHeight(
+  layout: StitchLayout,
+  cropHeight: number,
+  tabRow: TabRowInfo
+): number {
+  const tabH = Math.floor(cropHeight * STITCH_TAB_ROW_HEIGHT_RATIO);
+  const margin = Math.max(
+    1,
+    Math.floor(cropHeight * STITCH_HEADER_TAB_BOTTOM_MARGIN_RATIO)
   );
-  if (l2.found) return l2;
 
-  const l3 = scanTabRowInRange(
-    mat,
-    cv,
-    cropWidth,
-    cropHeight,
-    STITCH_TAB_ROW_L3_SCAN_START,
-    STITCH_TAB_ROW_L3_SCAN_END,
-    3
-  );
-  if (l3.found) return l3;
+  if (tabRow.found) {
+    return tabRow.tabY + tabH + margin;
+  }
 
-  return {
-    tabCount: 0,
-    tabY: Math.floor(cropHeight * STITCH_TAB_ROW_Y_RATIO),
-    found: false,
-  };
-}
-
-function countTabSegments(mat: any, cv: any, cropWidth: number, cropHeight: number): number {
-  return scanTabRow(mat, cv, cropWidth, cropHeight).tabCount;
+  return Math.floor(cropHeight * getHeaderHeightRatio(layout));
 }
 
 /** 「練習パートナー解除」帯（明るい横長ボタン・縦幅が狭い）の有無 */
@@ -209,68 +221,76 @@ function detectPartnerReleaseBand(mat: any, cv: any, cropWidth: number, cropHeig
 
 export type LayoutDetection = { layout: StitchLayout; tabRow: TabRowInfo };
 
-/** 初回フレームからレイアウトとタブ行を判定（L2 優先・L3+Btn は厳格） */
+/** 初回フレームからレイアウトとタブ行を判定 */
 export function detectStitchLayoutAndTabRow(
   croppedMat: any,
   cv: any,
   cropWidth: number,
   cropHeight: number
 ): LayoutDetection {
-  // Fix-1: 下寄り 2 タブ → TRN（L2）を最優先
-  const l2Row = scanTabRowInRange(
-    croppedMat,
-    cv,
-    cropWidth,
-    cropHeight,
-    STITCH_TAB_ROW_L2_SCAN_START,
-    STITCH_TAB_ROW_L2_SCAN_END,
-    2,
-    STITCH_TAB_EDGE_THRESHOLD_L2
-  );
-  if (l2Row.found) {
-    return { layout: "L2", tabRow: l2Row };
-  }
-
-  const l3Row = scanTabRowInRange(
+  const l3Upper = scanGreenTabRow(
     croppedMat,
     cv,
     cropWidth,
     cropHeight,
     STITCH_TAB_ROW_L3_SCAN_START,
     STITCH_TAB_ROW_L3_SCAN_END,
-    3
+    "l3"
   );
 
-  const l3BtnTabRow = scanTabRowInRange(
+  const l2Lower = scanGreenTabRow(
+    croppedMat,
+    cv,
+    cropWidth,
+    cropHeight,
+    STITCH_TAB_ROW_L2_SCAN_START,
+    STITCH_TAB_ROW_L2_SCAN_END,
+    "l2"
+  );
+
+  const l3BtnTabRow = scanGreenTabRow(
     croppedMat,
     cv,
     cropWidth,
     cropHeight,
     STITCH_TAB_ROW_L3_BTN_TAB_SCAN_START,
     STITCH_TAB_ROW_L3_BTN_TAB_SCAN_END,
-    3
+    "l3"
   );
 
-  // Fix-2: L3+Btn は上段3タブ or 下段3タブ + コンパクトな解除ボタンの両方が必要
   const hasPartnerBtn = detectPartnerReleaseBand(croppedMat, cv, cropWidth, cropHeight);
-  if (hasPartnerBtn && l3BtnTabRow.found) {
-    return { layout: "L3+Btn", tabRow: l3BtnTabRow };
+
+  // 上段3タブ（殿堂入り等）を最優先
+  if (l3Upper.found) {
+    if (hasPartnerBtn && l3BtnTabRow.found) {
+      return { layout: "L3+Btn", tabRow: l3BtnTabRow };
+    }
+    return { layout: "L3", tabRow: l3Upper };
   }
 
-  if (l3Row.found) {
-    return { layout: "L3", tabRow: l3Row };
+  // 下段2タブ（育成中 TRN）
+  if (l2Lower.found) {
+    return { layout: "L2", tabRow: l2Lower };
+  }
+
+  // 練習パートナー解除＋下段3タブのみ（上段3タブなし）
+  if (hasPartnerBtn && l3BtnTabRow.found) {
+    return { layout: "L3+Btn", tabRow: l3BtnTabRow };
   }
 
   if (l3BtnTabRow.found) {
     return { layout: "L3", tabRow: l3BtnTabRow };
   }
 
+  // 上段3タブなし → L2（旧 L3 フォールバックは TRN で致命的だった）
+  const fallbackTabY = Math.floor(cropHeight * 0.46);
   return {
-    layout: "L3",
+    layout: "L2",
     tabRow: {
-      tabCount: 0,
-      tabY: Math.floor(cropHeight * STITCH_TAB_ROW_Y_RATIO),
-      found: false,
+      tabCount: 2,
+      tabY: fallbackTabY,
+      found: true,
+      method: "fallback",
     },
   };
 }
@@ -295,7 +315,8 @@ export function detectStitchTab(
   tabRowY?: number
 ): StitchTab {
   const tabY =
-    tabRowY ?? scanTabRow(croppedMat, cv, cropWidth, cropHeight).tabY;
+    tabRowY ??
+    detectStitchLayoutAndTabRow(croppedMat, cv, cropWidth, cropHeight).tabRow.tabY;
   const tabH = Math.max(4, Math.floor(cropHeight * STITCH_TAB_ROW_HEIGHT_RATIO));
   const roi = croppedMat.roi(new cv.Rect(0, tabY, cropWidth, tabH));
 
@@ -572,12 +593,10 @@ export async function stitchWithOpenCV(imageUrls: string[]): Promise<{ cleanData
     tabRow.tabY
   );
 
-  if (!tabRow.found) {
+  if (tabRow.method === "fallback") {
     console.warn(
-      "StitchLayout/StitchTab を判別できませんでした。L3 + Skill にフォールバックします。"
+      "StitchLayout: タブ行を緑プロファイルで特定できず L2 フォールバック（tabY≈46%）を使用します。"
     );
-    layout = "L3";
-    tab = "Skill";
   }
 
   if (tab === "TrainingInfo") {
@@ -587,12 +606,13 @@ export async function stitchWithOpenCV(imageUrls: string[]): Promise<{ cleanData
     tab = "Skill";
   }
 
-  const headerHeight = Math.floor(cropRect.height * getHeaderHeightRatio(layout));
+  const headerHeight = computeHeaderHeight(layout, cropRect.height, tabRow);
   const footerHeight = Math.floor(cropRect.height * STITCH_FOOTER_HEIGHT_RATIO);
   const scrollHeight = cropRect.height - headerHeight - footerHeight;
 
+  const tabRowRatio = (tabRow.tabY / cropRect.height).toFixed(3);
   console.log(
-    `StitchLayout=${layout}, StitchTab=${tab}, Header: ${headerHeight}px, Scroll: ${scrollHeight}px, Footer: ${footerHeight}px`
+    `StitchLayout=${layout}, StitchTab=${tab}, tabDetect=${tabRow.method ?? "n/a"}, tabY=${tabRow.tabY}(${tabRowRatio}), Header: ${headerHeight}px, Scroll: ${scrollHeight}px, Footer: ${footerHeight}px`
   );
 
   const headerMat = croppedMats[0].roi(new cv.Rect(0, 0, cropRect.width, headerHeight));
