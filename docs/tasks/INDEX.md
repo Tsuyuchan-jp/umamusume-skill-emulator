@@ -2,7 +2,7 @@
 
 > **TODO の代替ではない。** 次にやることの正本は [`docs/TODO.md`](../TODO.md)。
 > 本ファイルは `docs/tasks/REQ-*.md`（テンプレ除く）の **一覧・ステータス・辿りやすさ** を目的とする。
-> ステータスは各 REQ の `**ステータス**:` 行を正とする。最終更新: 2026-06-25 07:25
+> ステータスは各 REQ の `**ステータス**:` 行を正とする。最終更新: 2026-06-26 08:13
 
 ## 使い方
 
@@ -88,7 +88,8 @@
 
 | REQ | ステータス | TODO掲載 | 備考 |
 |-----|-----------|---------|------|
-| [`REQ-auto-capture-multi-screen.md`](REQ-auto-capture-multi-screen.md) | draft | Backlog | Phase 1 done・**G-TRN OK**・Phase 3 残検証 |
+| [`REQ-auto-capture-multi-screen.md`](REQ-auto-capture-multi-screen.md) | draft | Backlog | Phase 1 done・**G-TRN OK**・Phase 3 は R1 後 |
+| [`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md) | draft | Backlog | R0 **done**・R1 待ち。**scrollStartY 正本** |
 
 ---
 
@@ -105,8 +106,8 @@
 
 | 項目 | 件数 |
 |------|------|
-| REQ 総数（テンプレ除く） | 30 |
+| REQ 総数（テンプレ除く） | 31 |
 | done | 25 |
-| draft | 2 |
+| draft | 3 |
 | superseded | 3 |
 | ロードマップ（親） | 1（`REQ-race-detail-graph.md`） |

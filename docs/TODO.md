@@ -4,21 +4,19 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-26 07:47
+最終更新: 2026-06-26 08:13
 
 ---
 
 ## 現在のフォーカス
 
-**P1** — オートキャプチャ Phase 3 残検証（G-HOF-S 回帰 → G-FRD/CMP）。G-TRN は実機クローズ済み。
-
-**Phase 順**: v1.1.0 は R1→R2.5→R3 完了。[`REQ-release-v1.1.0.md`](tasks/REQ-release-v1.1.0.md) **done**
+**P1** — オートキャプチャ結合リライト **R1**（`stitch/regions.ts`）— **新チャット着手**。R0 golden ハーネス完了。
 
 ---
 
 ## 進行中
 
-（なし）
+（なし — R1 は新チャット）
 
 ## 次にやること（Backlog）
 
@@ -30,11 +28,20 @@
 
 ### P1 — 重要
 
-- [ ] **オートキャプチャ Phase 3 残検証**（G-HOF/CMP/FRD・FS-HOF）
+- [ ] **オートキャプチャ結合リライト R1**（scrollStartY absdiff 主経路）— **次チャット**
+  - REQ 末尾プロンプト: [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
+  - golden: `npm run stitch:golden` / `tools/stitch-golden/measure-regions.ps1`
+
+- [ ] **オートキャプチャ結合リライト R2〜R5**（layout / compose / postProcess / 旧ファイル削除）
+  - REQ: [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
+
+- [ ] **オートキャプチャ Phase 3 残検証**（G-HOF/CMP/FRD・FS-HOF）— **R1 完了後**
+
   - G-TRN: **実機 OK**（2026-06-26 07:47）— 下記「完了済み」
-  - 次: G-HOF-S 回帰 → G-FRD-S/F → G-CMP → FS-HOF（任意 FS-TRN フルスクリーン）
+  - 合格基準: **scrollStartRatio**（旧 Header 144px/16% は廃止）— [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
+  - 次: G-HOF-S → G-FRD-S/F → G-CMP → FS-HOF（R1 後）
   - REQ: [`REQ-auto-capture-multi-screen.md`](tasks/REQ-auto-capture-multi-screen.md) Phase 3 **draft**
-  - Phase 1b（育成情報 S-6）は別タスク
+  - Phase 1b（育成情報 S-6）は R4 へ統合検討
 
 - [ ] **REQ-skill-data-fetch-fallback 実機検証クローズ（手順 3〜7）**
   - 背景: 実装・docs 完了済み（`a5c04a0`）。**手順 1〜2 は OK**（オンライン sim・オフライン AppData フォールバック＋警告トースト）。**手順 3〜7 は未実施** — 後日実施
@@ -140,6 +147,7 @@
 
 ## 完了済み
 
+- [x] **オートキャプチャ結合リライト R0（golden ハーネス）** — expectations.json・measure-regions.ps1・Vitest 5件 PASS・設計パック 6 golden PASS（2026-06-26 08:13）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 - [x] **オートキャプチャ G-TRN（C1 育成中・スキル結合）実機検証** — L2/green-l2・Header 464px・score≈0.95・scroll≈241・目視 OK（2026-06-26 07:47 / `0887fcd`）/ [`REQ-auto-capture-multi-screen.md`](tasks/REQ-auto-capture-multi-screen.md)
 - [x] **オートキャプチャ Phase 1（結合修正 S-1〜S-5）** — StitchLayout/StitchTab・absdiff フォールバック・継承緑帯修正。`capture.rs` 未変更（2026-06-26 06:12 / `700d0b3`）/ [`REQ-auto-capture-multi-screen.md`](tasks/REQ-auto-capture-multi-screen.md) Phase 1 **done**
 - [x] **スキルデータ fetch フォールバック + シミュレーションエラー区別** — GitHub→AppData→同梱チェーン、`SkillDataFetchError`/`SimulationWorkerError` 区別、フォールバックトースト（2026-06-23 03:36 / `a5c04a0`）/ [`REQ-skill-data-fetch-fallback.md`](tasks/REQ-skill-data-fetch-fallback.md) **done**（実機検証: 手順 1〜2 OK、**3〜7 は Backlog 延期** 2026-06-25）

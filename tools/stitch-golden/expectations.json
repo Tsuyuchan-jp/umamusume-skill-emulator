@@ -1,0 +1,75 @@
+{
+  "version": 1,
+  "description": "オートキャプチャ結合 golden 期待値（CropRect 基準・scrollStartY = 静的ヘッダー下端）",
+  "designPackRoot": "auto-capture-design-pack",
+  "footerRatio": 0.15,
+  "tabRowHeightRatio": 0.035,
+  "tabBottomMarginRatio": 0.012,
+  "cases": [
+    {
+      "id": "G-HOF-S",
+      "label": "殿堂入り・スキルタブ（ウィンドウ）",
+      "layout": "L3",
+      "framePaths": ["screenshots/HOF/skill/S0-top.png"],
+      "scrollStartRatio": { "min": 0.36, "max": 0.46 },
+      "tabRowRatio": { "min": 0.33, "max": 0.43 },
+      "legacyHeaderRatio": 0.16,
+      "notes": "旧 Header 144px は scrollStart ではない。目視≈40%"
+    },
+    {
+      "id": "G-HOF-F",
+      "label": "殿堂入り・継承タブ（ウィンドウ）",
+      "layout": "L3",
+      "framePaths": ["screenshots/HOF/factor/S0-top.png"],
+      "scrollStartRatio": { "min": 0.36, "max": 0.51 },
+      "tabRowRatio": { "min": 0.33, "max": 0.46 },
+      "legacyHeaderRatio": 0.16,
+      "notes": "継承タブ選択。タブ行はスキルよりやや下（計測≈45–50%）"
+    },
+    {
+      "id": "G-TRN",
+      "label": "育成中・2タブ（golden 4枚）",
+      "layout": "L2",
+      "framePaths": [
+        "golden/TRN/frame_000.png",
+        "golden/TRN/frame_001.png"
+      ],
+      "scrollStartRatio": { "min": 0.48, "max": 0.54 },
+      "tabRowRatio": { "min": 0.44, "max": 0.50 },
+      "legacyHeaderRatio": null,
+      "notes": "G-TRN 実機: Header 464px/900≈51.6%。crop 検出で計測（preCropped 不可）"
+    },
+    {
+      "id": "G-CMP-S",
+      "label": "育成完了・スキルタブ",
+      "layout": "L3",
+      "framePaths": ["screenshots/CMP/skill/S0-top.png"],
+      "scrollStartRatio": { "min": 0.36, "max": 0.46 },
+      "tabRowRatio": { "min": 0.33, "max": 0.43 },
+      "legacyHeaderRatio": 0.16,
+      "notes": "CMP 左パネル詳細モーダル"
+    },
+    {
+      "id": "G-FRD-S",
+      "label": "フレンド・スキルタブ",
+      "layout": "L3+Btn",
+      "framePaths": ["golden/FRD/skill/frame_000.png"],
+      "preCropped": true,
+      "scrollStartRatio": { "min": 0.22, "max": 0.30 },
+      "tabRowRatio": { "min": 0.19, "max": 0.27 },
+      "legacyHeaderRatio": 0.16,
+      "notes": "旧ログ Header 144px は誤り。L3+Btn 下段タブ"
+    },
+    {
+      "id": "G-FRD-F",
+      "label": "フレンド・継承タブ",
+      "layout": "L3+Btn",
+      "framePaths": ["golden/FRD/factor/frame_000.png"],
+      "preCropped": true,
+      "scrollStartRatio": { "min": 0.22, "max": 0.30 },
+      "tabRowRatio": { "min": 0.19, "max": 0.27 },
+      "legacyHeaderRatio": 0.16,
+      "notes": "練習パートナー解除帯あり"
+    }
+  ]
+}

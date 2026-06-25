@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
+    "stitch:golden": "vitest run app/lib/stitch/golden.test.ts",
     "sync-version": "node scripts/sync-cargo-version.js",
     "tauri": "npm run sync-version && tauri",
     "extract-skill-info": "node ../tools/mdb-extractor/extract_rarity_from_mdb.js",

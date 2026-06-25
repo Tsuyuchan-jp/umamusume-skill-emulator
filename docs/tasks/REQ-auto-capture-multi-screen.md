@@ -80,7 +80,7 @@
 |----|------|------|
 | **S-1** | `trueScrollStartY` を **タブ下端以下にクランプ** | TRN memo・目視 |
 | **S-2** | スクロールバー隠しを **スクロール領域内・右端3%のみ** に限定 | 同上 |
-| **S-3** | L2 はタブ行から動的 header（≈50%）、L3 は 16% 維持 | 設計パック計測・実機 G-TRN |
+| **S-3** | L2 はタブ行から動的 header（≈50%）、L3 は 16% 維持 | 設計パック計測・実機 G-TRN。**→ 監査後 [`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md) で scrollStartY 正本化（L3 16% 廃止予定）** |
 | **S-4** | `score<0.85` または `scrollAmount<=0` 時 **absdiff 縦シフトフォールバック** | FRD 低 score |
 | **S-5** | `StitchTab.Inheritance` の緑帯クロップ（因子ヘッダー誤検出 Y≈504 回避） | FRD-factor ログ |
 | **S-6** | `StitchTab.TrainingInfo` 別結合パス | FRD-info NG（Phase 1b） |
