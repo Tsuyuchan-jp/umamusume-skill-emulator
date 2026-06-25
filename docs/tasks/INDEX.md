@@ -88,7 +88,7 @@
 
 | REQ | ステータス | TODO掲載 | 備考 |
 |-----|-----------|---------|------|
-| [`REQ-auto-capture-multi-screen.md`](REQ-auto-capture-multi-screen.md) | draft | Backlog | 殿堂入り以外 3 経路のオートキャプチャ対応 |
+| [`REQ-auto-capture-multi-screen.md`](REQ-auto-capture-multi-screen.md) | draft | Backlog | D1 完了・Phase 1 結合修正待ち（[`IMPLEMENTATION_PROMPT-auto-capture-phase1.md`](IMPLEMENTATION_PROMPT-auto-capture-phase1.md)） |
 
 ---
 

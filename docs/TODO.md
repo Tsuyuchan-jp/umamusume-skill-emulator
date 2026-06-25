@@ -4,13 +4,13 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-25 07:29
+最終更新: 2026-06-26 06:03
 
 ---
 
 ## 現在のフォーカス
 
-**P1 次候補** — OCR 解析の中止機能、または Worker 大量試行時の断続失敗調査（Backlog 参照）。
+**P1 次候補** — オートキャプチャ Phase 1（結合修正・[`IMPLEMENTATION_PROMPT-auto-capture-phase1.md`](tasks/IMPLEMENTATION_PROMPT-auto-capture-phase1.md)）。D1 設計完了済み。
 
 **Phase 順**: v1.1.0 は R1→R2.5→R3 完了。[`REQ-release-v1.1.0.md`](tasks/REQ-release-v1.1.0.md) **done**
 
@@ -31,16 +31,12 @@
 ### P1 — 重要
 
 - [ ] **オートキャプチャの複数ゲーム画面対応**（殿堂入り以外 3 経路）
-  - 症状: オートキャプチャは **殿堂入りウマ娘一覧 → ステータス／因子ページ** 経路でのみ安定。`capture.rs` の緑ヘッダー検知・継承履歴バー終了条件が他画面と合わない
-  - 目標: 次の 3 パターンでもオートキャプチャ完了→結合→OCR まで通す
-    1. **育成完了時の確認ページ**
-    2. **育成完了直前のスキル取得前後の確認ページ**
-    3. **フレンドのウマ娘を確認時**
-  - 回帰: 既存の殿堂入り経路は退行させない
-  - 着手: 設計レビュー（各画面スクショ・終了条件）→ 実装。詳細: [`REQ-auto-capture-multi-screen.md`](tasks/REQ-auto-capture-multi-screen.md) **draft**
-  - 触る想定: `src-tauri/src/capture.rs`（主）、必要なら `CapturePanel.tsx`（対応画面ヒント）
-  - 触らない: `geminiOcr.ts`, `fuzzyMatcher.ts`, sim/WASM 経路
-  - 注意: **実機検証必須**（4 経路）。`PROJECT.md` 触ってはいけない領域（キャプチャ Rust）— 差分はプロファイル追加に閉じる
+  - D1 完了（2026-06-26）: キャプチャは Generic で全経路末端到達済み（`auto-capture-design-pack/`）。**不具合は結合（`opencvStitcher.ts`）**
+  - Phase 1: StitchLayout/StitchTab + S-1〜S-5。`capture.rs` は触らない
+  - 目標: TRN/FRD 結合 NG 解消、HOF/CMP 回帰、スキル・継承タブ（F-2）
+  - 実装プロンプト: [`IMPLEMENTATION_PROMPT-auto-capture-phase1.md`](tasks/IMPLEMENTATION_PROMPT-auto-capture-phase1.md)
+  - REQ: [`REQ-auto-capture-multi-screen.md`](tasks/REQ-auto-capture-multi-screen.md) **draft**（D1 done）
+  - 触らない: `geminiOcr.ts`, `fuzzyMatcher.ts`, sim/WASM。Phase 1 で `capture.rs` 変更禁止
 
 - [ ] **REQ-skill-data-fetch-fallback 実機検証クローズ（手順 3〜7）**
   - 背景: 実装・docs 完了済み（`a5c04a0`）。**手順 1〜2 は OK**（オンライン sim・オフライン AppData フォールバック＋警告トースト）。**手順 3〜7 は未実施** — 後日実施
@@ -233,7 +229,7 @@
 ## 既知の問題・メモ
 
 - パレットのスキル一覧は **`umasimSkillDataList`（ローカル）正本** — `buildPaletteSkillOptions`。WASM sim は `fetchSkillData()`（GitHub 優先 → AppData → 同梱 `public/skill_data.txt`）
-- **オートキャプチャ**: 現状は殿堂入り → ステータス／因子のみ安定。育成完了・スキル取得前後・フレンド確認は P1 Backlog（[`REQ-auto-capture-multi-screen.md`](tasks/REQ-auto-capture-multi-screen.md)）
+- **オートキャプチャ**: D1 完了。キャプチャ Generic OK・結合 NG（TRN/FRD）。Phase 1 は `opencvStitcher.ts`（[`REQ-auto-capture-multi-screen.md`](tasks/REQ-auto-capture-multi-screen.md)）
 - **sim スキルデータ**: オンライン時 GitHub fetch + AppData キャッシュ。オフライン時は同梱/キャッシュで制限付き動作（フォールバック時トースト）
 - **REQ-skill-data-fetch-fallback 実機検証**: 手順 1〜2 確認済み。手順 3〜7（同梱のみ・fetch 全滅・Worker 区別・回帰）は P1 Backlog — 後日クローズ予定（2026-06-25）
 - **将来（案B・Backlog）**: `skill_data.txt` を自前 GitHub に置き fetch 一本化 → extract→push でユーザー再配布を減らす方針。sim 定義と UI 一覧を同一 JSON に揃える
