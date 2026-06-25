@@ -6,7 +6,7 @@
 - **ステータス**: draft（Phase 1 done・Phase 1b/3 待ち）
 - **作成日**: 2026-06-25 07:25
 - **設計レビュー完了**: 2026-06-26 06:03
-- **関連コミット**: `700d0b3`（Phase 1）
+- **関連コミット**: `700d0b3`（Phase 1）/ `0887fcd`（C1 TRN 修正）
 
 ---
 
@@ -24,7 +24,7 @@
 |----|------|
 | **キャプチャ（`capture.rs`）** | **Generic 1本で全経路カバー済み**（設計パック全 Rust ログで末端到達）。経路別4プロファイル分岐は **Phase 1 では不要** |
 | **結合（`opencvStitcher.ts`）** | **本バグの所在**。TRN/FRD 等で NG。HOF/CMP は OK |
-| **TRN** | キャプチャ正常（4フレーム・末端目視 OK）。結合でスクロールバー隠しがタブより上から始まる等の欠陥 |
+| **TRN** | キャプチャ正常。**G-TRN 実機結合 OK**（2026-06-26・`0887fcd` 後） |
 
 ### 方針決定（F-1〜F-5）
 
@@ -67,10 +67,10 @@
 
 **判定優先順（結合側）**:
 
-1. タブ行セグメント数 → L2 or L3
-2. 練習パートナー解除帯 → L3+Btn
+1. 上段緑プロファイル → L3 / L3+Btn
+2. 下段緑プロファイル（左右分割）→ L2
 3. 現在タブ（色・アクティブタブ位置）→ StitchTab
-4. 判別不能 → L3 + StitchTab.Skill + コンソール warn
+4. 上段 L3 なし → L2（旧: L3 フォールバックは TRN で NG）
 
 ---
 
@@ -80,7 +80,7 @@
 |----|------|------|
 | **S-1** | `trueScrollStartY` を **タブ下端以下にクランプ** | TRN memo・目視 |
 | **S-2** | スクロールバー隠しを **スクロール領域内・右端3%のみ** に限定 | 同上 |
-| **S-3** | L2 は `headerHeight` 22%、L3 は 16% 維持 | 設計パックログ |
+| **S-3** | L2 はタブ行から動的 header（≈50%）、L3 は 16% 維持 | 設計パック計測・実機 G-TRN |
 | **S-4** | `score<0.85` または `scrollAmount<=0` 時 **absdiff 縦シフトフォールバック** | FRD 低 score |
 | **S-5** | `StitchTab.Inheritance` の緑帯クロップ（因子ヘッダー誤検出 Y≈504 回避） | FRD-factor ログ |
 | **S-6** | `StitchTab.TrainingInfo` 別結合パス | FRD-info NG（Phase 1b） |
@@ -94,7 +94,8 @@
 | 結果 | score | scrollAmount | 例 |
 |------|-------|--------------|-----|
 | OK | ≈0.95+ | ≈240 一定 | HOF skill, CMP skill |
-| NG（TRN） | 0.72〜0.84 | 25/78/188（正だが小刻み） | バー隠し位置が主因 |
+| NG（TRN・修正前） | 0.72〜0.84 | 25/78/188（正だが小刻み） | バー隠し位置が主因 |
+| OK（TRN・G-TRN） | ≈0.95+ | ≈241 一定（末端 167） | L2・Header 464px・`green-l2` |
 | NG（FRD） | 0.37〜0.80 | 不規則 | S-4 フォールバック対象 |
 
 ウィンドウ HOF: Header 144 / Scroll 621 / Footer 135（H=900）。  
@@ -150,7 +151,7 @@
 
 - [x] 設計レビュー D1 完了（設計パック・方針 F-1〜F-5）
 - [x] Phase 1: S-1〜S-5 実装
-- [ ] G-TRN: `golden/TRN/` + memo 合格条件（実機/GOLDEN 要確認）
+- [x] G-TRN: `golden/TRN/` + memo 合格条件（**実機検証クローズ** 2026-06-26 07:47）
 - [ ] G-FRD-S / G-FRD-F: FRD skill・継承 NG 解消（実機/GOLDEN 要確認）
 - [ ] G-HOF / G-CMP: ウィンドウ＋フルスクリーン HOF skill 回帰（実機要確認）
 - [ ] Phase 1b: FRD-info（育成情報）結合
@@ -165,22 +166,22 @@
 
 ### GOLDEN（ウィンドウ・設計パック）
 
-| ID | データ | 合格 |
-|----|--------|------|
-| G-TRN | `golden/TRN/` 4枚 + memo | スキル全行・タブ上右端非崩壊 |
-| G-HOF-S | `golden/` または実機 skill | stitched-OK 同等 |
-| G-HOF-F | HOF factor | 継承履歴手前・緑クロップ |
-| G-FRD-S | `golden/FRD/skill/` | NG→OK |
-| G-FRD-F | `golden/FRD/factor/` | 因子＋履歴 |
-| G-FRD-I | `golden/FRD/info/` | 戦績末尾（Phase 1b） |
-| G-CMP | CMP skill/factor/info OK 回帰 | 退行なし |
+| ID | データ | 合格 | 状態 |
+|----|--------|------|------|
+| G-TRN | `golden/TRN/` 4枚 + memo | スキル全行・タブ上右端非崩壊 | **OK**（実機 2026-06-26） |
+| G-HOF-S | `golden/` または実機 skill | stitched-OK 同等 | 未 |
+| G-HOF-F | HOF factor | 継承履歴手前・緑クロップ | 未 |
+| G-FRD-S | `golden/FRD/skill/` | NG→OK | 未 |
+| G-FRD-F | `golden/FRD/factor/` | 因子＋履歴 | 未 |
+| G-FRD-I | `golden/FRD/info/` | 戦績末尾（Phase 1b） | Phase 1b |
+| G-CMP | CMP skill/factor/info OK 回帰 | 退行なし | 未 |
 
 ### フルスクリーン（最小）
 
 | ID | 内容 |
 |----|------|
 | FS-HOF | `logs/fullscreen/HOF-skill-console.txt` + stitched 1枚 |
-| FS-TRN | 同上 TRN（ユーザー準備中） |
+| FS-TRN | 同上 TRN | ウィンドウ G-TRN OK（2026-06-26）。フルスクリーンは未 |
 
 ---
 
@@ -188,7 +189,7 @@
 
 | リスク | 対策 |
 |--------|------|
-| L2 header 22% がズレる | 設計パック TRN で再調整。定数1箇所 |
+| L2 header 比率のずれ | `tools/measure-stitch-layout.ps1` で計測・タブ行から動的算出 |
 | TrainingInfo はレイアウトが別 | Phase 1b で S-6 を分離 |
 | ウィンドウサイズ可変（F-5） | 比率ベース。ピクセル固定しない |
 | `capture.rs` 無断変更 | Phase 1 では禁止 |
@@ -204,6 +205,7 @@
 | 2026-06-26 06:03 | 4経路 CaptureProfile **不採用** | 全経路で Rust 末端到達を確認 |
 | 2026-06-26 06:03 | StitchLayout + StitchTab 採用 | 経路名ではなくレイアウト/タブで分岐 |
 | 2026-06-26 06:03 | F-3 結合先・F-4 汎用・F-2 継承タブ込み | ユーザー承認 |
+| 2026-06-26 07:47 | **G-TRN 実機検証クローズ** | L2/green-l2・Header 464px・score≈0.95・scroll≈241。目視 OK |
 | 2026-06-26 07:33 | **C1 TRN 根本原因修正** | D1 の L2=22% は誤推定。設計パック計測でタブ下端≈50%。緑プロファイル検出＋動的 header |
 | 2026-06-26 07:13 | **C1 TRN 実機 NG → L2 判定修正** | L3+Btn 誤判定（成長率帯の明るさ）。L2 下段スキャン優先・L3+Btn 厳格化 |
 | 2026-06-26 06:12 | **Phase 1 実装完了**（S-1〜S-5） | StitchLayout/StitchTab・absdiff フォールバック・継承緑帯 searchStartY 修正 |
