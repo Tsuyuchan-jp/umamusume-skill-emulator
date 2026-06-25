@@ -3,7 +3,7 @@
 > 殿堂入り以外のステータス確認画面でも、オートキャプチャ→結合→OCR まで通す。
 > **設計正本**: 本 REQ（Phase D1 完了: 2026-06-26）。検証データ: [`auto-capture-design-pack/`](../../auto-capture-design-pack/)（リポジトリ直下・git 未追跡可）。
 
-- **ステータス**: draft（Phase 1 実装待ち）
+- **ステータス**: draft（Phase 1 done・Phase 1b/3 待ち）
 - **作成日**: 2026-06-25 07:25
 - **設計レビュー完了**: 2026-06-26 06:03
 - **関連コミット**: （Phase 完了後に記入）
@@ -107,7 +107,7 @@
 | Phase | 内容 | 状態 |
 |-------|------|------|
 | **D1** | 設計レビュー・設計パック | **done** |
-| **1** | 結合修正 S-1〜S-5（`opencvStitcher.ts`） | draft |
+| **1** | 結合修正 S-1〜S-5（`opencvStitcher.ts`） | **done** |
 | **1b** | 育成情報タブ S-6 | draft |
 | **2** | キャプチャ最小分岐（必要時のみ FactorScroll）・UI ヒント | draft |
 | **3** | 実機検証・フルスクリーン最小・docs クローズ | draft |
@@ -149,10 +149,10 @@
 ## 完了条件
 
 - [x] 設計レビュー D1 完了（設計パック・方針 F-1〜F-5）
-- [ ] Phase 1: S-1〜S-5 実装
-- [ ] G-TRN: `golden/TRN/` + memo 合格条件
-- [ ] G-FRD-S / G-FRD-F: FRD skill・継承 NG 解消
-- [ ] G-HOF / G-CMP: ウィンドウ＋フルスクリーン HOF skill 回帰
+- [x] Phase 1: S-1〜S-5 実装
+- [ ] G-TRN: `golden/TRN/` + memo 合格条件（実機/GOLDEN 要確認）
+- [ ] G-FRD-S / G-FRD-F: FRD skill・継承 NG 解消（実機/GOLDEN 要確認）
+- [ ] G-HOF / G-CMP: ウィンドウ＋フルスクリーン HOF skill 回帰（実機要確認）
 - [ ] Phase 1b: FRD-info（育成情報）結合
 - [ ] 実機検証手順を本 REQ に追記（Phase 3）
 - [ ] REQ `done`、TODO 完了済み、INDEX 更新
@@ -204,7 +204,7 @@
 | 2026-06-26 06:03 | 4経路 CaptureProfile **不採用** | 全経路で Rust 末端到達を確認 |
 | 2026-06-26 06:03 | StitchLayout + StitchTab 採用 | 経路名ではなくレイアウト/タブで分岐 |
 | 2026-06-26 06:03 | F-3 結合先・F-4 汎用・F-2 継承タブ込み | ユーザー承認 |
-| 2026-06-26 06:03 | フルスクリーン最小: HOF+TRN skill 各1回 | コスト抑制 |
+| 2026-06-26 06:12 | **Phase 1 実装完了**（S-1〜S-5） | StitchLayout/StitchTab・absdiff フォールバック・継承緑帯 searchStartY 修正 |
 
 ---
 

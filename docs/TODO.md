@@ -4,13 +4,13 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-26 06:08
+最終更新: 2026-06-26 06:12
 
 ---
 
 ## 現在のフォーカス
 
-**P1 次候補** — オートキャプチャ Phase 1（結合修正・[`REQ-auto-capture-multi-screen.md`](tasks/REQ-auto-capture-multi-screen.md)）。D1 設計完了済み。実装プロンプトは設計レビューチャット参照。
+**P1** — REQ-skill-data-fetch-fallback 実機検証クローズ（手順 3〜7）ほか Backlog 候補。
 
 **Phase 順**: v1.1.0 は R1→R2.5→R3 完了。[`REQ-release-v1.1.0.md`](tasks/REQ-release-v1.1.0.md) **done**
 
@@ -29,14 +29,6 @@
 （完了 — 下記「完了済み」参照）
 
 ### P1 — 重要
-
-- [ ] **オートキャプチャの複数ゲーム画面対応**（殿堂入り以外 3 経路）
-  - D1 完了（2026-06-26）: キャプチャは Generic で全経路末端到達済み（`auto-capture-design-pack/`）。**不具合は結合（`opencvStitcher.ts`）**
-  - Phase 1: StitchLayout/StitchTab + S-1〜S-5。`capture.rs` は触らない
-  - 目標: TRN/FRD 結合 NG 解消、HOF/CMP 回帰、スキル・継承タブ（F-2）
-  - 実装: REQ Phase 1・設計レビューチャット内の完成プロンプトを Agent mode 新チャットへ貼る
-  - REQ: [`REQ-auto-capture-multi-screen.md`](tasks/REQ-auto-capture-multi-screen.md) **draft**（D1 done）
-  - 触らない: `geminiOcr.ts`, `fuzzyMatcher.ts`, sim/WASM。Phase 1 で `capture.rs` 変更禁止
 
 - [ ] **REQ-skill-data-fetch-fallback 実機検証クローズ（手順 3〜7）**
   - 背景: 実装・docs 完了済み（`a5c04a0`）。**手順 1〜2 は OK**（オンライン sim・オフライン AppData フォールバック＋警告トースト）。**手順 3〜7 は未実施** — 後日実施
@@ -142,7 +134,7 @@
 
 ## 完了済み
 
-- [x] **スキルデータ fetch フォールバック + シミュレーションエラー区別** — GitHub→AppData→同梱チェーン、`SkillDataFetchError`/`SimulationWorkerError` 区別、フォールバックトースト（2026-06-23 03:36 / `a5c04a0`）/ [`REQ-skill-data-fetch-fallback.md`](tasks/REQ-skill-data-fetch-fallback.md) **done**（実機検証: 手順 1〜2 OK、**3〜7 は Backlog 延期** 2026-06-25）
+- [x] **オートキャプチャ Phase 1（結合修正 S-1〜S-5）** — StitchLayout/StitchTab・absdiff フォールバック・継承緑帯修正。`capture.rs` 未変更（2026-06-26 06:12 / コミット後追記）/ [`REQ-auto-capture-multi-screen.md`](tasks/REQ-auto-capture-multi-screen.md) Phase 1 **done**（Phase 1b/3 は Backlog） — GitHub→AppData→同梱チェーン、`SkillDataFetchError`/`SimulationWorkerError` 区別、フォールバックトースト（2026-06-23 03:36 / `a5c04a0`）/ [`REQ-skill-data-fetch-fallback.md`](tasks/REQ-skill-data-fetch-fallback.md) **done**（実機検証: 手順 1〜2 OK、**3〜7 は Backlog 延期** 2026-06-25）
 - [x] **REQ 索引 INDEX.md 新設とロードマップ同期** — 全28件カタログ・`REQ-race-detail-graph.md` Phase 5 同期・`PROJECT.md` / rules 更新（2026-06-20 00:41 / `5d9dc0c`）
 - [x] **v1.1.0 リリース（Phase R1 + R2.5 + R3）** — バージョン 1.1.0 bump・CHANGELOG・`tauri build` 通過（2026-06-19 23:51 / `5650bb7`）/ [`REQ-release-v1.1.0.md`](tasks/REQ-release-v1.1.0.md) **done**
 - [x] **v1.1.0 リリース — Phase R2.5: スキルデータ extract** — umasim 2021件同期・新規4エントリ（フローラ固有/継承・evo×2）・extract スクリプトにヘルパー保持（2026-06-19 23:36 / `8293001`）
@@ -229,7 +221,7 @@
 ## 既知の問題・メモ
 
 - パレットのスキル一覧は **`umasimSkillDataList`（ローカル）正本** — `buildPaletteSkillOptions`。WASM sim は `fetchSkillData()`（GitHub 優先 → AppData → 同梱 `public/skill_data.txt`）
-- **オートキャプチャ**: D1 完了。キャプチャ Generic OK・結合 NG（TRN/FRD）。Phase 1 は `opencvStitcher.ts`（[`REQ-auto-capture-multi-screen.md`](tasks/REQ-auto-capture-multi-screen.md)）
+- **オートキャプチャ**: Phase 1 結合修正完了（`opencvStitcher.ts` S-1〜S-5）。Phase 1b（育成情報）・Phase 3 実機検証は未（[`REQ-auto-capture-multi-screen.md`](tasks/REQ-auto-capture-multi-screen.md)）
 - **sim スキルデータ**: オンライン時 GitHub fetch + AppData キャッシュ。オフライン時は同梱/キャッシュで制限付き動作（フォールバック時トースト）
 - **REQ-skill-data-fetch-fallback 実機検証**: 手順 1〜2 確認済み。手順 3〜7（同梱のみ・fetch 全滅・Worker 区別・回帰）は P1 Backlog — 後日クローズ予定（2026-06-25）
 - **将来（案B・Backlog）**: `skill_data.txt` を自前 GitHub に置き fetch 一本化 → extract→push でユーザー再配布を減らす方針。sim 定義と UI 一覧を同一 JSON に揃える

@@ -88,7 +88,7 @@
 
 | REQ | ステータス | TODO掲載 | 備考 |
 |-----|-----------|---------|------|
-| [`REQ-auto-capture-multi-screen.md`](REQ-auto-capture-multi-screen.md) | draft | Backlog | D1 完了・Phase 1 結合修正待ち |
+| [`REQ-auto-capture-multi-screen.md`](REQ-auto-capture-multi-screen.md) | draft | 完了済み | Phase 1 done・Phase 1b/3 待ち |
 
 ---
 

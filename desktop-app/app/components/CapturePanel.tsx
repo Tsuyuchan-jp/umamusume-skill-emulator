@@ -73,6 +73,9 @@ export function CapturePanel(props: CapturePanelProps) {
 
         <div className="border-t border-white/[0.05] pt-4">
           <p className="text-xs text-zinc-400">{captureMessage}</p>
+          <p className="text-xs text-zinc-500 mt-1">
+            キャプチャ前に対象タブ（スキル・継承・育成情報）を開いてください。
+          </p>
         </div>
 
         {/* エラーメッセージ表示 */}
