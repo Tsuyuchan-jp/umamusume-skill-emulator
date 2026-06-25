@@ -134,7 +134,7 @@
 
 ## 完了済み
 
-- [x] **オートキャプチャ Phase 1（結合修正 S-1〜S-5）** — StitchLayout/StitchTab・absdiff フォールバック・継承緑帯修正。`capture.rs` 未変更（2026-06-26 06:12 / コミット後追記）/ [`REQ-auto-capture-multi-screen.md`](tasks/REQ-auto-capture-multi-screen.md) Phase 1 **done**（Phase 1b/3 は Backlog） — GitHub→AppData→同梱チェーン、`SkillDataFetchError`/`SimulationWorkerError` 区別、フォールバックトースト（2026-06-23 03:36 / `a5c04a0`）/ [`REQ-skill-data-fetch-fallback.md`](tasks/REQ-skill-data-fetch-fallback.md) **done**（実機検証: 手順 1〜2 OK、**3〜7 は Backlog 延期** 2026-06-25）
+- [x] **オートキャプチャ Phase 1（結合修正 S-1〜S-5）** — StitchLayout/StitchTab・absdiff フォールバック・継承緑帯修正。`capture.rs` 未変更（2026-06-26 06:12 / `700d0b3`）/ [`REQ-auto-capture-multi-screen.md`](tasks/REQ-auto-capture-multi-screen.md) Phase 1 **done**（Phase 1b/3 は Backlog） — GitHub→AppData→同梱チェーン、`SkillDataFetchError`/`SimulationWorkerError` 区別、フォールバックトースト（2026-06-23 03:36 / `a5c04a0`）/ [`REQ-skill-data-fetch-fallback.md`](tasks/REQ-skill-data-fetch-fallback.md) **done**（実機検証: 手順 1〜2 OK、**3〜7 は Backlog 延期** 2026-06-25）
 - [x] **REQ 索引 INDEX.md 新設とロードマップ同期** — 全28件カタログ・`REQ-race-detail-graph.md` Phase 5 同期・`PROJECT.md` / rules 更新（2026-06-20 00:41 / `5d9dc0c`）
 - [x] **v1.1.0 リリース（Phase R1 + R2.5 + R3）** — バージョン 1.1.0 bump・CHANGELOG・`tauri build` 通過（2026-06-19 23:51 / `5650bb7`）/ [`REQ-release-v1.1.0.md`](tasks/REQ-release-v1.1.0.md) **done**
 - [x] **v1.1.0 リリース — Phase R2.5: スキルデータ extract** — umasim 2021件同期・新規4エントリ（フローラ固有/継承・evo×2）・extract スクリプトにヘルパー保持（2026-06-19 23:36 / `8293001`）
