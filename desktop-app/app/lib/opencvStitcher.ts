@@ -9,17 +9,23 @@ const STITCH_MATCH_SCORE_THRESHOLD = 0.85;
 const STITCH_SEARCH_WIDTH_RATIO = 0.95;
 const STITCH_SCROLLBAR_WIDTH_RATIO = 0.03;
 const STITCH_TEMPLATE_HEIGHT_RATIO = 0.2;
-const STITCH_TAB_ROW_Y_RATIO = 0.11; // L3 既定。L2/L3+Btn は scanTabRow で推定
-const STITCH_TAB_ROW_Y_SCAN_START = 0.08;
-const STITCH_TAB_ROW_Y_SCAN_END = 0.22;
+const STITCH_TAB_ROW_Y_RATIO = 0.11; // L3 既定
+const STITCH_TAB_ROW_L3_SCAN_START = 0.08;
+const STITCH_TAB_ROW_L3_SCAN_END = 0.14;
+const STITCH_TAB_ROW_L2_SCAN_START = 0.16;
+const STITCH_TAB_ROW_L2_SCAN_END = 0.22;
+const STITCH_TAB_ROW_L3_BTN_TAB_SCAN_START = 0.17;
+const STITCH_TAB_ROW_L3_BTN_TAB_SCAN_END = 0.22;
 const STITCH_TAB_ROW_Y_SCAN_STEP = 0.02;
 const STITCH_TAB_ROW_HEIGHT_RATIO = 0.035;
 const STITCH_TAB_EDGE_THRESHOLD = 22;
+const STITCH_TAB_EDGE_THRESHOLD_L2 = 16; // TRN 2タブはエッジが弱いことがある
 const STITCH_TAB_EDGE_MIN_GAP = 0.12; // 幅に対する比率
-const STITCH_PARTNER_BTN_Y_START = 0.14;
-const STITCH_PARTNER_BTN_Y_END = 0.21;
+const STITCH_PARTNER_BTN_Y_START = 0.12;
+const STITCH_PARTNER_BTN_Y_END = 0.17;
 const STITCH_PARTNER_BTN_MIN_WIDTH_RATIO = 0.45;
-const STITCH_PARTNER_BTN_BRIGHTNESS = 200;
+const STITCH_PARTNER_BTN_BRIGHTNESS = 210;
+const STITCH_PARTNER_BTN_MAX_ROW_RATIO = 0.045; // ボタン高さ上限（成長率帯との区別）
 const STITCH_SCROLL_DIFF_AVG_THRESHOLD = 5;
 const STITCH_SCROLL_DIFF_CONSECUTIVE_ROWS = 10;
 const STITCH_SCROLL_DIFF_CHECK_WIDTH_RATIO = 0.8;
@@ -43,7 +49,7 @@ function getHeaderHeightRatio(layout: StitchLayout): number {
   }
 }
 
-type TabRowInfo = { tabCount: number; tabY: number };
+type TabRowInfo = { tabCount: number; tabY: number; found: boolean };
 
 /** 指定 Y のタブ行で垂直エッジ数からタブ数を推定 */
 function countTabSegmentsAtRow(
@@ -51,7 +57,8 @@ function countTabSegmentsAtRow(
   cv: any,
   cropWidth: number,
   tabY: number,
-  cropHeight: number
+  cropHeight: number,
+  edgeThreshold: number = STITCH_TAB_EDGE_THRESHOLD
 ): number {
   const tabH = Math.max(4, Math.floor(cropHeight * STITCH_TAB_ROW_HEIGHT_RATIO));
   const roi = mat.roi(new cv.Rect(0, tabY, cropWidth, tabH));
@@ -69,7 +76,7 @@ function countTabSegmentsAtRow(
       colDiff += Math.abs(right - left);
     }
     colDiff /= gray.rows;
-    if (colDiff > STITCH_TAB_EDGE_THRESHOLD) {
+    if (colDiff > edgeThreshold) {
       if (edges.length === 0 || x - edges[edges.length - 1] >= minGap) {
         edges.push(x);
       }
@@ -82,39 +89,84 @@ function countTabSegmentsAtRow(
   return Math.max(0, Math.min(4, edges.length + 1));
 }
 
-/** 複数 Y を走査してタブ行位置とタブ数を推定（L2 はタブ行が下寄り） */
-function scanTabRow(mat: any, cv: any, cropWidth: number, cropHeight: number): TabRowInfo {
+/** 指定 Y 範囲で期待タブ数の行を探索 */
+function scanTabRowInRange(
+  mat: any,
+  cv: any,
+  cropWidth: number,
+  cropHeight: number,
+  startRatio: number,
+  endRatio: number,
+  preferTabCount: 2 | 3,
+  edgeThreshold: number = STITCH_TAB_EDGE_THRESHOLD
+): TabRowInfo {
   let best: TabRowInfo = {
-    tabCount: 3,
+    tabCount: preferTabCount,
     tabY: Math.floor(cropHeight * STITCH_TAB_ROW_Y_RATIO),
+    found: false,
   };
   let bestScore = -1;
 
-  for (
-    let ratio = STITCH_TAB_ROW_Y_SCAN_START;
-    ratio <= STITCH_TAB_ROW_Y_SCAN_END;
-    ratio += STITCH_TAB_ROW_Y_SCAN_STEP
-  ) {
+  for (let ratio = startRatio; ratio <= endRatio; ratio += STITCH_TAB_ROW_Y_SCAN_STEP) {
     const tabY = Math.floor(cropHeight * ratio);
-    const tabCount = countTabSegmentsAtRow(mat, cv, cropWidth, tabY, cropHeight);
-    if (tabCount !== 2 && tabCount !== 3) continue;
+    const tabCount = countTabSegmentsAtRow(
+      mat,
+      cv,
+      cropWidth,
+      tabY,
+      cropHeight,
+      edgeThreshold
+    );
+    if (tabCount !== preferTabCount) continue;
 
-    // 2/3 タブを優先し、エッジが明確な行を選ぶ
-    const score = tabCount === 2 ? 100 + ratio * 10 : 50 + ratio * 10;
+    // L2 はタブ行が下寄りなので ratio 大きいほど優先。L3 は上寄り優先
+    const score = preferTabCount === 2 ? ratio * 10 : (endRatio - ratio) * 10 + ratio;
     if (score > bestScore) {
       bestScore = score;
-      best = { tabCount, tabY };
+      best = { tabCount, tabY, found: true };
     }
   }
 
   return best;
 }
 
+/** 後方互換: 広域スキャン（非推奨・detectStitchLayoutAndTabRow を使用） */
+function scanTabRow(mat: any, cv: any, cropWidth: number, cropHeight: number): TabRowInfo {
+  const l2 = scanTabRowInRange(
+    mat,
+    cv,
+    cropWidth,
+    cropHeight,
+    STITCH_TAB_ROW_L2_SCAN_START,
+    STITCH_TAB_ROW_L2_SCAN_END,
+    2,
+    STITCH_TAB_EDGE_THRESHOLD_L2
+  );
+  if (l2.found) return l2;
+
+  const l3 = scanTabRowInRange(
+    mat,
+    cv,
+    cropWidth,
+    cropHeight,
+    STITCH_TAB_ROW_L3_SCAN_START,
+    STITCH_TAB_ROW_L3_SCAN_END,
+    3
+  );
+  if (l3.found) return l3;
+
+  return {
+    tabCount: 0,
+    tabY: Math.floor(cropHeight * STITCH_TAB_ROW_Y_RATIO),
+    found: false,
+  };
+}
+
 function countTabSegments(mat: any, cv: any, cropWidth: number, cropHeight: number): number {
   return scanTabRow(mat, cv, cropWidth, cropHeight).tabCount;
 }
 
-/** 「練習パートナー解除」帯（明るい横長ボタン）の有無 */
+/** 「練習パートナー解除」帯（明るい横長ボタン・縦幅が狭い）の有無 */
 function detectPartnerReleaseBand(mat: any, cv: any, cropWidth: number, cropHeight: number): boolean {
   const yStart = Math.floor(cropHeight * STITCH_PARTNER_BTN_Y_START);
   const yEnd = Math.floor(cropHeight * STITCH_PARTNER_BTN_Y_END);
@@ -124,7 +176,10 @@ function detectPartnerReleaseBand(mat: any, cv: any, cropWidth: number, cropHeig
   cv.cvtColor(roi, gray, cv.COLOR_RGBA2GRAY);
 
   const minBrightPixels = Math.floor(cropWidth * STITCH_PARTNER_BTN_MIN_WIDTH_RATIO);
-  let found = false;
+  const maxButtonRows = Math.max(2, Math.floor(cropHeight * STITCH_PARTNER_BTN_MAX_ROW_RATIO));
+
+  let runStart = -1;
+  let bestRun = 0;
 
   for (let y = 0; y < gray.rows; y++) {
     let brightCount = 0;
@@ -133,15 +188,91 @@ function detectPartnerReleaseBand(mat: any, cv: any, cropWidth: number, cropHeig
         brightCount++;
       }
     }
-    if (brightCount >= minBrightPixels) {
-      found = true;
-      break;
+    const isBrightRow = brightCount >= minBrightPixels;
+    if (isBrightRow) {
+      if (runStart === -1) runStart = y;
+    } else if (runStart !== -1) {
+      bestRun = Math.max(bestRun, y - runStart);
+      runStart = -1;
     }
+  }
+  if (runStart !== -1) {
+    bestRun = Math.max(bestRun, gray.rows - runStart);
   }
 
   gray.delete();
   roi.delete();
-  return found;
+
+  // 成長率帯のような縦に長い明るい領域は除外
+  return bestRun > 0 && bestRun <= maxButtonRows;
+}
+
+export type LayoutDetection = { layout: StitchLayout; tabRow: TabRowInfo };
+
+/** 初回フレームからレイアウトとタブ行を判定（L2 優先・L3+Btn は厳格） */
+export function detectStitchLayoutAndTabRow(
+  croppedMat: any,
+  cv: any,
+  cropWidth: number,
+  cropHeight: number
+): LayoutDetection {
+  // Fix-1: 下寄り 2 タブ → TRN（L2）を最優先
+  const l2Row = scanTabRowInRange(
+    croppedMat,
+    cv,
+    cropWidth,
+    cropHeight,
+    STITCH_TAB_ROW_L2_SCAN_START,
+    STITCH_TAB_ROW_L2_SCAN_END,
+    2,
+    STITCH_TAB_EDGE_THRESHOLD_L2
+  );
+  if (l2Row.found) {
+    return { layout: "L2", tabRow: l2Row };
+  }
+
+  const l3Row = scanTabRowInRange(
+    croppedMat,
+    cv,
+    cropWidth,
+    cropHeight,
+    STITCH_TAB_ROW_L3_SCAN_START,
+    STITCH_TAB_ROW_L3_SCAN_END,
+    3
+  );
+
+  const l3BtnTabRow = scanTabRowInRange(
+    croppedMat,
+    cv,
+    cropWidth,
+    cropHeight,
+    STITCH_TAB_ROW_L3_BTN_TAB_SCAN_START,
+    STITCH_TAB_ROW_L3_BTN_TAB_SCAN_END,
+    3
+  );
+
+  // Fix-2: L3+Btn は上段3タブ or 下段3タブ + コンパクトな解除ボタンの両方が必要
+  const hasPartnerBtn = detectPartnerReleaseBand(croppedMat, cv, cropWidth, cropHeight);
+  if (hasPartnerBtn && l3BtnTabRow.found) {
+    return { layout: "L3+Btn", tabRow: l3BtnTabRow };
+  }
+
+  if (l3Row.found) {
+    return { layout: "L3", tabRow: l3Row };
+  }
+
+  if (l3BtnTabRow.found) {
+    return { layout: "L3", tabRow: l3BtnTabRow };
+  }
+
+  return {
+    layout: "L3",
+    tabRow: {
+      tabCount: 0,
+      tabY: Math.floor(cropHeight * STITCH_TAB_ROW_Y_RATIO),
+      found: false,
+    },
+  };
 }
 
 /** 初回フレームからレイアウトを判定 */
@@ -151,17 +282,7 @@ export function detectStitchLayout(
   cropWidth: number,
   cropHeight: number
 ): StitchLayout {
-  const tabCount = countTabSegments(croppedMat, cv, cropWidth, cropHeight);
-
-  if (tabCount <= 2) {
-    return "L2";
-  }
-
-  if (detectPartnerReleaseBand(croppedMat, cv, cropWidth, cropHeight)) {
-    return "L3+Btn";
-  }
-
-  return "L3";
+  return detectStitchLayoutAndTabRow(croppedMat, cv, cropWidth, cropHeight).layout;
 }
 
 /** アクティブタブ（緑ハイライト位置）から StitchTab を判定 */
@@ -435,8 +556,13 @@ export async function stitchWithOpenCV(imageUrls: string[]): Promise<{ cleanData
   const croppedMats = mats.map((mat) => mat.roi(cropRect));
 
   // StitchLayout / StitchTab 判定（S-3）
-  const tabRow = scanTabRow(croppedMats[0], cv, cropRect.width, cropRect.height);
-  let layout = detectStitchLayout(croppedMats[0], cv, cropRect.width, cropRect.height);
+  const { layout: detectedLayout, tabRow } = detectStitchLayoutAndTabRow(
+    croppedMats[0],
+    cv,
+    cropRect.width,
+    cropRect.height
+  );
+  let layout = detectedLayout;
   let tab = detectStitchTab(
     croppedMats[0],
     cv,
@@ -446,7 +572,7 @@ export async function stitchWithOpenCV(imageUrls: string[]): Promise<{ cleanData
     tabRow.tabY
   );
 
-  if (tabRow.tabCount < 2) {
+  if (!tabRow.found) {
     console.warn(
       "StitchLayout/StitchTab を判別できませんでした。L3 + Skill にフォールバックします。"
     );
