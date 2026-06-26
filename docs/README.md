@@ -3,7 +3,7 @@
 > **人間も AI も、docs で迷ったらまずこのファイル。**
 > アプリの製品仕様・技術概要は [`PROJECT.md`](PROJECT.md)。**進捗・要件・運用の地図はここ。**
 
-最終更新: 2026-06-27 04:26
+最終更新: 2026-06-27 04:30
 
 ---
 
@@ -136,21 +136,6 @@ Get-Date -Format "yyyy-MM-dd HH:mm"
 ```
 
 形式: `YYYY-MM-DD HH:mm`（日付のみは不可）。詳細: `.cursor/rules/docs-management.mdc`
-
----
-
-## キャプチャ結合まわり（いま注力中の例）
-
-複数 doc が絡む典型例。**脳内で全部覚えなくてよい** — この表だけ見る。
-
-| 層 | ファイル | 覚える一言 |
-|----|---------|-----------|
-| 今やること | `TODO.md` | M1 シーンカタログ |
-| 作業チケット | `REQ-stitch-scene-model.md` | Phase M0〜M6 |
-| 作業チケット | `REQ-stitch-rewrite.md` | パイプライン実装 R0〜R5 |
-| 永続 | `SCENE-CATALOG.md` | 画面バリエーション一覧 |
-| 永続 | `expectations.json` | 数値 golden |
-| 契約（暫定） | `REQ-stitch-rewrite` の Capture–Stitch 節 | wheel -3/-4 |
 
 ---
 
