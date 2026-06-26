@@ -145,7 +145,7 @@
 
 ## 完了済み
 
-- [x] **オートキャプチャ結合リライト R3.5b**（layout L2 優先・tabDetect 2タブガード）— golden 17/17 PASS（2026-06-27 00:02 / コミット後更新）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
+- [x] **オートキャプチャ結合リライト R3.5b**（layout L2 優先・tabDetect 2タブガード）— golden 17/17 PASS（2026-06-27 00:02 / `5d98121`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 - [x] **オートキャプチャ結合リライト R3.5a**（shiftEstimate: SSD + median・scrollMatch 委譲）— golden 15/15 PASS（2026-06-26 23:12 / `76b3fc7`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 - [x] **オートキャプチャ結合リライト R3**（compose / scrollMatch・`USE_STITCH_V2=true`）— golden 12/12 PASS（2026-06-26 19:41 / `7fbf8b5`）。**実機**: HOF OK・FRD/TRN NG → R3.5 へ / [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 - [x] **オートキャプチャ結合リライト R2**（layout / tabDetect 整理・走査帯正本化）— G-CMP-S + G-FRD-S layout/tabRow PASS、G-FRD-S scrollStart 要フォロー（2026-06-26 18:07 / `47d5755`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
