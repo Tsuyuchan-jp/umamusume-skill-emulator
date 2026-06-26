@@ -5,6 +5,33 @@ import { stitchWithOpenCV } from "../lib/opencvStitcher";
 
 export type CaptureStatus = "idle" | "recording" | "done" | "saving" | "saved";
 
+/** 自動キャプチャのホイール推定（R3.5d・Rust capture-wheel-decision / capture-complete） */
+export type CaptureWheelInfo = {
+  wheel: number;
+  scrollRegionH: number | null;
+  reason: string;
+};
+
+type CaptureCompletePayload = {
+  frameCount: number;
+  frameDir: string;
+  wheel?: number;
+  scrollRegionH?: number | null;
+  reason?: string;
+};
+
+function formatCaptureWheelLog(info: CaptureWheelInfo): string {
+  const region =
+    info.scrollRegionH != null && info.scrollRegionH > 0
+      ? `${info.scrollRegionH}px`
+      : "?px";
+  return `[Capture] scrollRegion=${region} wheel=${info.wheel} reason=${info.reason}`;
+}
+
+function logCaptureWheel(info: CaptureWheelInfo, label: string): void {
+  console.log(`${formatCaptureWheelLog(info)} (${label})`);
+}
+
 export function useCapture() {
   const [captureStatus, setCaptureStatus] = useState<CaptureStatus>("idle");
   const [frameCount, setFrameCount] = useState<number>(0);
@@ -15,8 +42,18 @@ export function useCapture() {
   const [resultImage, setResultImage] = useState<string>("");
 
   useEffect(() => {
-    const unlistenPromise = listen<{ frameCount: number; frameDir: string }>("capture-complete", (event) => {
-      const { frameCount: count, frameDir } = event.payload;
+    const unlistenWheel = listen<CaptureWheelInfo>("capture-wheel-decision", (event) => {
+      logCaptureWheel(event.payload, "frame0 推定");
+    });
+
+    const unlistenComplete = listen<CaptureCompletePayload>("capture-complete", (event) => {
+      const { frameCount: count, frameDir, wheel, scrollRegionH, reason } = event.payload;
+      if (wheel != null && reason != null) {
+        logCaptureWheel(
+          { wheel, scrollRegionH: scrollRegionH ?? null, reason },
+          "セッション完了"
+        );
+      }
       setFrameCount(count);
       setCaptureStatus("done");
       setCaptureMessage(
@@ -32,7 +69,8 @@ export function useCapture() {
     });
 
     return () => {
-      unlistenPromise.then((unlisten) => unlisten());
+      unlistenWheel.then((unlisten) => unlisten());
+      unlistenComplete.then((unlisten) => unlisten());
     };
   }, []);
 

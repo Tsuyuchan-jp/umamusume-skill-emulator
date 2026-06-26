@@ -767,6 +767,23 @@ fn log_wheel_decision(decision: &WheelDecision) {
     }
 }
 
+fn wheel_decision_payload(decision: &WheelDecision) -> serde_json::Value {
+    serde_json::json!({
+        "wheel": decision.clicks,
+        "scrollRegionH": if decision.scroll_region_h > 0 {
+            serde_json::Value::from(decision.scroll_region_h)
+        } else {
+            serde_json::Value::Null
+        },
+        "reason": decision.reason
+    })
+}
+
+fn emit_wheel_decision(app_handle: &tauri::AppHandle, decision: &WheelDecision) {
+    log_wheel_decision(decision);
+    let _ = app_handle.emit("capture-wheel-decision", wheel_decision_payload(decision));
+}
+
 // 最初のフレームから因子ヘッダーの「左端」と「右端」、そして「Y座標」を動的に見つけ出す関数
 fn find_factor_header_bounds(frame: &image::RgbImage) -> (u32, u32, u32) {
     let width = frame.width();
@@ -929,7 +946,7 @@ pub async fn start_auto_scroll_capture_session(
     };
 
     // 最初のフレームをキャプチャして追加
-    let (mut prev_frame, factor_start_x, factor_end_x, header_y, wheel_clicks) =
+    let (mut prev_frame, factor_start_x, factor_end_x, header_y, wheel_decision) =
         match capture_window(&game_window) {
             Ok(f) => {
                 let bounds = find_factor_header_bounds(&f);
@@ -941,7 +958,7 @@ pub async fn start_auto_scroll_capture_session(
                     start_x, end_x, h_y
                 );
                 let wheel_decision = estimate_wheel_from_frame0(&f);
-                log_wheel_decision(&wheel_decision);
+                emit_wheel_decision(&app_handle, &wheel_decision);
                 let mut frames = state.frames.lock().unwrap();
                 frames.push(f.clone());
                 (
@@ -949,7 +966,7 @@ pub async fn start_auto_scroll_capture_session(
                     start_x,
                     end_x,
                     h_y,
-                    wheel_decision.clicks,
+                    wheel_decision,
                 )
             }
             Err(e) => {
@@ -983,7 +1000,7 @@ pub async fn start_auto_scroll_capture_session(
             game_window.hwnd,
             absolute_target_x,
             absolute_target_y,
-            wheel_clicks,
+            wheel_decision.clicks,
         );
 
         // スクロールアニメーションの完了とバウンドの停止を待つ
@@ -1092,11 +1109,19 @@ pub async fn start_auto_scroll_capture_session(
 
     println!("[Rust] フレームを {} に保存しました", output_dir.display());
 
-    // capture-complete イベントにフレーム数とディレクトリパスを含める
-    let payload = serde_json::json!({
+    // capture-complete イベントにフレーム数・wheel 推定を含める
+    let mut payload = serde_json::json!({
         "frameCount": frame_count,
         "frameDir": output_dir.to_string_lossy().to_string()
     });
+    if let Some(obj) = payload.as_object_mut() {
+        obj.extend(
+            wheel_decision_payload(&wheel_decision)
+                .as_object()
+                .cloned()
+                .unwrap_or_default(),
+        );
+    }
     let _ = app_handle.emit("capture-complete", payload);
 
     Ok(format!(
