@@ -157,7 +157,7 @@
 
 ## 完了済み
 
-- [x] **CONCEPT-MAP 新設** — 概念地図・`communication.mdc` / `concept-map.mdc`・CHAT_TEMPLATE・DOCS-GUIDE 同期（2026-06-27 06:40）
+- [x] **CONCEPT-MAP 新設** — 概念地図・`communication.mdc` / `concept-map.mdc`・CHAT_TEMPLATE・DOCS-GUIDE 同期（2026-06-27 06:40 / `18f43f0`）
 - [x] **Scene Model M2** — expectations `sceneSpec`（partnerBand/tabRow/scrollStart/wheel）・Catalog 期待サマリー・REQ INV 対応表・measure-regions R0 notes（2026-06-27 06:13 / `028221f`）/ [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
 - [x] **Scene Model M1 Phase C** — G-FRD-S-register golden（frame_000〜007）・expectations・Vitest・Catalog、golden 19+1 expected fail（2026-06-27 05:57 / `5d4f9a6`）/ `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)`
 - [x] **Scene Model M1 Phase B** — `G-FRD-S` → `G-FRD-S-release`、`golden/FRD/skill/` → `skill-release/`、expectations・Vitest・Catalog 同期、golden 18/18 PASS（2026-06-27 05:30 / `a84d51f`）/ `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)`
