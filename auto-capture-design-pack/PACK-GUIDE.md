@@ -3,7 +3,7 @@
 > **オートキャプチャ結合の素材で迷ったらまずこのファイル。**
 > プロジェクト docs: [`docs/DOCS-GUIDE.md`](../docs/DOCS-GUIDE.md)
 
-最終更新: 2026-06-27 05:24
+最終更新: 2026-06-27 05:28
 
 ---
 
@@ -47,7 +47,7 @@ golden/{経路}/{タブ}/frame_{NNN}.png
 | `golden/HOF/factor/frame_000.png` | G-HOF-F |
 | `golden/CMP/skill/frame_000.png` | G-CMP-S |
 | `golden/TRN/frame_000.png` | G-TRN |
-| `golden/FRD/skill/frame_000.png` | G-FRD-S-release（Phase B で `skill-release/` へ移行予定） |
+| `golden/FRD/skill-release/frame_000.png` | G-FRD-S-release |
 | `golden/FRD/factor/frame_000.png` | G-FRD-F |
 | `golden/FRD/skill-register/frame_000.png` | G-FRD-S-register（未収録。Catalog `goldenPath` 参照） |
 

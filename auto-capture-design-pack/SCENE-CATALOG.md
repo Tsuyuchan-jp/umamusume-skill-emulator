@@ -25,7 +25,7 @@
 | G-HOF-F | HOF | 因子/継承 | absent | L3 | `golden/HOF/factor/frame_000.png` | yes | 5 | ok | |
 | G-TRN | TRN | Skill | absent | L2 | `golden/TRN/frame_000.png` | yes | 3 | ok | tabY≈0.47 |
 | G-CMP-S | CMP | Skill | absent | L3 | `golden/CMP/skill/frame_000.png` | yes | 2 skip | ok | |
-| G-FRD-S-release | FRD | Skill | **release**（灰・解除） | L3+Btn | `golden/FRD/skill/frame_000.png` | yes | 4 | **ng** | アーモンドアイ: absdiff scrollStart≈0.29 誤検出。アストンマーチャン: ok |
+| G-FRD-S-release | FRD | Skill | **release**（灰・解除） | L3+Btn | `golden/FRD/skill-release/frame_000.png` | yes | 4 | **ng** | アーモンドアイ: absdiff scrollStart≈0.29 誤検出。アストンマーチャン: ok |
 | G-FRD-S-register | FRD | Skill | **register**（緑・登録） | L3+Btn | `golden/FRD/skill-register/frame_000.png` | no | 4 | **欠落** | キタサンブラック等。Rust wheel=-4, tabY≈0.44 誤検出。**PNG 未収録が主因** |
 | G-FRD-F | FRD | 因子 | release/absent | L3+Btn | `golden/FRD/factor/frame_000.png` | yes | 6 | 要再検証 | R3.5d 狭帯 -3 後 |
 | G-FRD-I | FRD | 育成情報 | — | — | — | R4 | — | 欠落 | R4 スコープ・golden 不要 |
@@ -36,13 +36,13 @@
 
 `tools/stitch-golden/expectations.json` の `cases[].id` と Catalog 行の対応。パスはいずれも **designPackRoot 相対**。
 
-| Catalog シーン ID | expectations `cases[].id` | goldenPath（現状） | 整合 |
-|-------------------|---------------------------|-------------------|------|
+| Catalog シーン ID | expectations `cases[].id` | goldenPath | 整合 |
+|-------------------|---------------------------|------------|------|
 | G-HOF-S | G-HOF-S | `golden/HOF/skill/frame_000.png` | 一致 |
 | G-HOF-F | G-HOF-F | `golden/HOF/factor/frame_000.png` | 一致 |
 | G-TRN | G-TRN | `golden/TRN/frame_000.png` | 一致 |
 | G-CMP-S | G-CMP-S | `golden/CMP/skill/frame_000.png` | 一致 |
-| G-FRD-S-release | **G-FRD-S** | `golden/FRD/skill/frame_000.png` | **ID 不一致** — Phase B で expectations を `G-FRD-S-release` にリネーム、`golden/FRD/skill-release/` へ移行予定 |
+| G-FRD-S-release | G-FRD-S-release | `golden/FRD/skill-release/frame_000.png` | 一致 |
 | G-FRD-S-register | （なし） | — | Phase C で case 追加予定 |
 | G-FRD-F | G-FRD-F | `golden/FRD/factor/frame_000.png` | 一致 |
 | G-FRD-I | — | — | R4 スコープ外 |
@@ -69,13 +69,13 @@
 
 ---
 
-## Phase 境界（この Catalog 更新のスコープ）
+## Phase 境界
 
-| Phase | 内容 | 本ファイルでの扱い |
-|-------|------|-------------------|
-| **A（完了）** | Catalog 正本化 — goldenPath・expectations 列、節統合 | 本更新 |
-| **B** | `G-FRD-S` → `G-FRD-S-release` リネーム、`golden/FRD/skill/` → `skill-release/` | 上表「整合」列参照 |
-| **C** | `G-FRD-S-register` の PNG 収録 + expectations case 追加 | 収集手順節参照 |
+| Phase | 内容 | 状態 |
+|-------|------|------|
+| **A** | Catalog 正本化 — goldenPath・expectations 列、節統合 | 完了 |
+| **B** | `G-FRD-S` → `G-FRD-S-release` リネーム、`golden/FRD/skill-release/` 移行 | **完了** |
+| **C** | `G-FRD-S-register` の PNG 収録 + expectations case 追加 | 未着手 |
 
 ---
 
@@ -85,4 +85,4 @@
 2. `measure-regions.ps1` 出力で ratio を更新したら **日時**を決定ログ（REQ-stitch-scene-model）へ
 3. golden PNG を追加したら `goldenPath` を実パスに更新し、`状態` を `ok` / `ng` / `要再検証` へ
 
-最終更新: 2026-06-27 05:24
+最終更新: 2026-06-27 05:28

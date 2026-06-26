@@ -120,10 +120,10 @@ describe.skipIf(!isDesignPackPresent())("stitch golden R3.5a shiftEstimate", () 
     ).toBe(framePaths.length - 1);
   }, 60_000);
 
-  it("G-FRD-S frame_000..007: std(S_k)<20, min(S_k)>80, [22,32] 禁止帯 0件", async () => {
-    const c = getGoldenCase("G-FRD-S")!;
+  it("G-FRD-S-release frame_000..007: std(S_k)<20, min(S_k)>80, [22,32] 禁止帯 0件", async () => {
+    const c = getGoldenCase("G-FRD-S-release")!;
     const framePaths = Array.from({ length: 8 }, (_, i) =>
-      `golden/FRD/skill/frame_${String(i).padStart(3, "0")}.png`
+      `golden/FRD/skill-release/frame_${String(i).padStart(3, "0")}.png`
     );
     for (const rel of framePaths) {
       expect(existsSync(join(packRoot, rel)), `missing ${rel}`).toBe(true);
@@ -172,10 +172,10 @@ describe.skipIf(!isDesignPackPresent())("stitch golden R3.5a shiftEstimate", () 
     expect(measured.representative).toBeLessThanOrEqual(c.shiftRepresentative!.max);
   }, 60_000);
 
-  it("G-FRD-S compose: overlapSum>700, outputHeight>1300", async () => {
-    const c = getGoldenCase("G-FRD-S")!;
+  it("G-FRD-S-release compose: overlapSum>700, outputHeight>1300", async () => {
+    const c = getGoldenCase("G-FRD-S-release")!;
     const framePaths = Array.from({ length: 8 }, (_, i) =>
-      `golden/FRD/skill/frame_${String(i).padStart(3, "0")}.png`
+      `golden/FRD/skill-release/frame_${String(i).padStart(3, "0")}.png`
     );
 
     const measured = await measureComposeFromFrames(packRoot, framePaths, c.layout);
@@ -295,9 +295,9 @@ describe.skipIf(!isDesignPackPresent())("stitch golden R2 layout + scrollStartRa
     ).toBe(true);
   }, 60_000);
 
-  it("G-FRD-S layout=L3+Btn, tabRowRatio∈[0.39,0.47], scrollStartRatio∈[0.52,0.56]", async () => {
-    const c = getGoldenCase("G-FRD-S")!;
-    const framePaths = [c.framePaths[0], "golden/FRD/skill/frame_001.png"];
+  it("G-FRD-S-release layout=L3+Btn, tabRowRatio∈[0.39,0.47], scrollStartRatio∈[0.52,0.56]", async () => {
+    const c = getGoldenCase("G-FRD-S-release")!;
+    const framePaths = [c.framePaths[0], "golden/FRD/skill-release/frame_001.png"];
     const secondPath = join(packRoot, framePaths[1]);
     expect(existsSync(secondPath), `missing ${framePaths[1]}`).toBe(true);
 
@@ -317,6 +317,6 @@ describe.skipIf(!isDesignPackPresent())("stitch golden R2 layout + scrollStartRa
       isRatioInBand(scrollMeasured.scrollStartRatio, c.scrollStartRatio),
       `scrollStartRatio=${scrollMeasured.scrollStartRatio.toFixed(4)} method=${scrollMeasured.method}`
     ).toBe(true);
-    expect(scrollMeasured.method, "G-FRD-S scrollStart は absdiff 主経路").toBe("absdiff");
+    expect(scrollMeasured.method, "G-FRD-S-release scrollStart は absdiff 主経路").toBe("absdiff");
   }, 60_000);
 });

@@ -52,15 +52,15 @@
       "notes": "CMP 左パネル詳細モーダル"
     },
     {
-      "id": "G-FRD-S",
-      "label": "フレンド・スキルタブ",
+      "id": "G-FRD-S-release",
+      "label": "フレンド・スキルタブ（解除）",
       "layout": "L3+Btn",
-      "framePaths": ["golden/FRD/skill/frame_000.png"],
+      "framePaths": ["golden/FRD/skill-release/frame_000.png"],
       "scrollStartRatio": { "min": 0.52, "max": 0.56 },
       "tabRowRatio": { "min": 0.39, "max": 0.47 },
       "legacyHeaderRatio": 0.16,
       "shiftRepresentative": { "min": 120, "max": 160 },
-      "notes": "R3.5d: 狭帯 -3 帯 S*≈130–160。設計パック golden S*≈133"
+      "notes": "R3.5d: 狭帯 -3 帯 S*≈130–160。設計パック golden S*≈133。旧 ID: G-FRD-S"
     },
     {
       "id": "G-FRD-F",
