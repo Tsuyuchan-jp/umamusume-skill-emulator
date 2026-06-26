@@ -2,7 +2,8 @@
 
 > [`opencvStitcher.ts`](../../desktop-app/app/lib/opencvStitcher.ts) を **scrollStartY 正本** のパイプラインに置き換える。
 > 親 REQ: [`REQ-auto-capture-multi-screen.md`](REQ-auto-capture-multi-screen.md)（Phase 1 パッチ完了・本 REQ で根本修正）。
-> 設計パック: [`auto-capture-design-pack/`](../../auto-capture-design-pack/)（golden / screenshots / logs）。
+> **方法論・持続可能性**: sibling [`REQ-stitch-scene-model.md`](REQ-stitch-scene-model.md)（Scene Spec / Catalog / 検出器統一ロードマップ）。
+> 設計パック: [`auto-capture-design-pack/`](../../auto-capture-design-pack/)（golden / screenshots / logs / [`SCENE-CATALOG.md`](../../auto-capture-design-pack/SCENE-CATALOG.md)）。
 
 - **ステータス**: in-progress（R0–R3.5c 実装 done・**R3.5d 設計確定（docs）**・c-5 一部実機 OK・R4 待ち）
 - **作成日**: 2026-06-26 08:13

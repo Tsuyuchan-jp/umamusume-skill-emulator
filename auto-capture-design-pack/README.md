@@ -1,3 +1,11 @@
+## Scene Catalog（シーン正本）
+
+オートキャプチャ結合の画面バリエーション一覧: [`SCENE-CATALOG.md`](SCENE-CATALOG.md)
+
+ロードマップ: [`docs/tasks/REQ-stitch-scene-model.md`](../docs/tasks/REQ-stitch-scene-model.md)
+
+---
+
 ## 環境
 
 - クライアント: steam

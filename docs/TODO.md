@@ -4,19 +4,21 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-27 03:48
+最終更新: 2026-06-27 04:11
 
 ---
 
 ## 現在のフォーカス
 
-**P1** — オートキャプチャ結合 **R3.5d 実機検証**（d-5: FRD Step 4/6・HOF/TRN 退行）— d-2〜d-4 実装完了待ち
+**P1** — **Scene Model M1**（シーンカタログ欠落洗い出し）+ R3.5d 実機（保留・ユーザー検証待ち）
 
 ---
 
 ## 進行中
 
-- [ ] **R3.5d パートナー登録緑ボタン除外**（緑タブ誤検出 → wheel 過大評価の修正）— 実機再検証待ち
+- [ ] **Scene Model M1** — シーンカタログ欠落洗い出し（G-FRD-S-register 最優先）
+  - REQ: [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md) M1
+  - Catalog: [`SCENE-CATALOG.md`](../auto-capture-design-pack/SCENE-CATALOG.md)
 
 ## 次にやること（Backlog）
 
@@ -27,6 +29,10 @@
 （完了 — 下記「完了済み」参照）
 
 ### P1 — 重要
+
+- [ ] **Scene Model M2〜M6**（Spec 具体化・golden 強化・検出器統一・capture 責務分離・既知バグ修正）
+  - 前提: M1 Catalog 欠落解消（少なくとも G-FRD-S-register）
+  - REQ: [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
 
 - [ ] **オートキャプチャ結合 R3.5d 実機検証クローズ**（d-5: FRD Step 4/6・HOF/TRN 退行）
   - 前提: d-2〜d-4 実装完了
@@ -230,7 +236,8 @@
 
 ## 保留 / ブロック中
 
-なし
+- [ ] **R3.5d パートナー登録緑ボタン除外**（`6de25ad`）— **実機再検証待ち**（tauri dev 再起動 or release exe 後）
+  - Scene Model M4/M6 と統合修正予定。暫定パッチの追加は [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md) パッチ禁止リストに従う
 
 ---
 
@@ -238,7 +245,8 @@
 
 - パレットのスキル一覧は **`umasimSkillDataList`（ローカル）正本** — `buildPaletteSkillOptions`。WASM sim は `fetchSkillData()`（GitHub 優先 → AppData → 同梱 `public/skill_data.txt`）
 - **オートキャプチャ Capture–Stitch 契約**: **広帯 -4 / 狭帯 -3**（`scrollRegionH` しきい値 280px・R3.5d）。Rust frame0 推定実装済み（d-2〜d-4）。正本: [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)「Capture–Stitch 契約」
-- **オートキャプチャ結合 R3.5d**: d-2〜d-4 完了。**d-5 実機**継続 — パートナー登録緑ボタンの緑タブ誤検出を除外（2026-06-27）
+- **Scene Model ロードマップ**: [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md) 起票（M0 done）。場当たり修正防止の正本。Catalog: [`SCENE-CATALOG.md`](../auto-capture-design-pack/SCENE-CATALOG.md)
+- **オートキャプチャ結合 R3.5d**: d-2〜d-4 完了。**d-5 実機**は保留（6de25ad 未検証）。Scene Model M6 で Spec 準拠修正予定
 - **オートキャプチャ結合 R3.5b 完了**: layout L2 優先 + tabDetect 2タブガード。golden 17/17
 - **オートキャプチャ結合 R3.5 設計正本**: shiftEstimate（SSD + median）。詳細: [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) R3.5 節
 - **sim スキルデータ**: オンライン時 GitHub fetch + AppData キャッシュ。オフライン時は同梱/キャッシュで制限付き動作（フォールバック時トースト）
