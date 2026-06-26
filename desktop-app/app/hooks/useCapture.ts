@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { invoke, convertFileSrc } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
-import { stitchWithOpenCV } from "../lib/opencvStitcher";
+import { deriveCaptureWheelFromFrameUrl } from "../lib/stitch/captureWheel";
+import type { CaptureWheelDecision } from "../lib/stitch/wheelCore";
 
 export type CaptureStatus = "idle" | "recording" | "done" | "saving" | "saved";
 
@@ -167,8 +168,19 @@ export function useCapture() {
     setFrameCount(0);
 
     try {
-      const result = await invoke<string>("start_auto_scroll_capture_session");
-      setCaptureMessage(result);
+      // M5: frame0 プレビュー → stitch 正本で wheel 決定 → Rust へ IPC
+      const framePath = await invoke<string>("capture_frame0_preview");
+      const frameUrl = `${convertFileSrc(framePath)}?t=${Date.now()}`;
+      const wheelDecision: CaptureWheelDecision =
+        await deriveCaptureWheelFromFrameUrl(frameUrl);
+      logCaptureWheel(wheelDecision, "stitch frame0");
+
+      await invoke<string>("start_auto_scroll_capture_session", {
+        wheel: wheelDecision.wheel,
+        scrollRegionH: wheelDecision.scrollRegionH ?? 0,
+        reason: wheelDecision.reason,
+      });
+      setCaptureMessage("自動スクロールを実行中...");
     } catch (error: unknown) {
       const msg = typeof error === "string" ? error : JSON.stringify(error);
       setCaptureStatus("idle");

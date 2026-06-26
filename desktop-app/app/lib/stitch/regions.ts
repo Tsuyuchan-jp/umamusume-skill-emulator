@@ -6,7 +6,7 @@ import { detectScrollStartYFromRgba } from "./regionsCore";
 import type { ScrollStartResult } from "./types";
 
 export type { ScrollStartResult } from "./types";
-export { detectScrollStartYFromRgba } from "./regionsCore";
+export { detectScrollStartYFromRgba, detectScrollStartYFromFrame0Rgba } from "./regionsCore";
 
 /** OpenCV Mat 2枚から scrollStartY を決定（regionsCore 正本・RGBA 経由） */
 export function detectScrollStartY(

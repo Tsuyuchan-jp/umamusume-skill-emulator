@@ -469,6 +469,22 @@ function detectScrollStartByGreenTab(
   return bestY + tabH + margin;
 }
 
+/** frame0 のみ・緑タブ走査（capture wheel 用・M5 stitch 正本） */
+export function detectScrollStartYFromFrame0Rgba(
+  frame0: RgbaImage
+): ScrollStartResult | null {
+  const cropWidth = frame0.width;
+  const cropHeight = frame0.height;
+  const y = detectScrollStartByGreenTab(frame0, cropWidth, cropHeight);
+  if (y === null) return null;
+  return {
+    scrollStartY: y,
+    ratio: y / cropHeight,
+    method: "green-tab",
+    confidence: "low",
+  };
+}
+
 function rgbaGray(img: RgbaImage, x: number, y: number): number {
   const i = (y * img.width + x) * 4;
   const r = img.data[i];

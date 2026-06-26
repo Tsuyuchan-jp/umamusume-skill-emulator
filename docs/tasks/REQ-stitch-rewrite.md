@@ -83,30 +83,54 @@ Screen
 
 > **キャプチャ（Rust）と結合（`stitch/`）の前提をここに集約する。** 新 REQ は起票せず、本節と Phase 表を更新する。
 
-### ホイールスクロール（2段・R3.5d 正本）
+### ホイールスクロール（2段・R3.5d / M5 stitch 正本）
 
 | 項目 | 正本 |
 |------|------|
-| 実装 | `capture.rs` — frame0 推定後にセッション固定 |
+| **実装** | **`wheelCore.ts`**（`deriveWheelFromScrollRegionH`）— frame0 緑タブ走査は `regionsCore` |
+| **IPC** | `capture_frame0_preview` → TS 算出 → `start_auto_scroll_capture_session(wheel, scrollRegionH, reason)` |
 | **広い帯**（`scrollRegionH ≥ しきい値`） | **-4**（HOF / TRN / CMP 等） |
 | **狭い帯**（`scrollRegionH < しきい値`） | **-3**（FRD 等） |
-| しきい値（初期） | **280px**（crop 高さ ≈900 基準。実機で調整可） |
-| 推定失敗時 | **-4**（HOF/TRN 退行回避・安全側） |
+| しきい値（初期） | **280px**（`STITCH_SCROLL_REGION_NARROW_THRESHOLD`） |
+| 推定失敗時 | **-4**（`stitch_fallback`・HOF/TRN 退行回避） |
 | **-5** | **導入しない**（2026-06-27 決定） |
 | 1 ノッチ | Windows `WHEEL_DELTA` = 120 |
 
-**判定は layout 名ではなく帯の高さ。** frame0 のみで `scrollStartY` を推定し、`scrollRegionH = footerStartY − scrollStartY`（footer = crop 高さ × 0.15）を算出する（R3.5d）。
+**判定は layout 名ではなく帯の高さ。** frame0 のみで `scrollStartY` を推定（緑タブ走査・`detectScrollStartYFromFrame0Rgba`）、`scrollRegionH = footerStartY − scrollStartY`（footer = crop 高さ × 0.15）を算出する。
 
 | 履歴 | 内容 |
 |------|------|
 | 初期 | **-3** |
 | 中間 | **-5**（HOF 向け）→ TRN/FRD で SSD 重なり不足 |
 | R3.5c | 単一 **-4** 正本 → HOF/TRN/HOF-F 実機 OK |
-| R3.5d | **広帯 -4 / 狭帯 -3**（FRD 実機 NG 対応） |
+| R3.5d | **広帯 -4 / 狭帯 -3**（FRD 実機 NG 対応）— Rust frame0 推定 |
+| **M5** | wheel 導出を **stitch（TS）正本**へ。Rust 緑タブ走査廃止・IPC 受信 |
 
 実験: `019a567`（-4）、`23ebab7`（terminal 実測シフト）。TRN/HOF-S 実機 -4 クローズ（2026-06-27）。
 
-### Rust frame0 推定（R3.5d 正本）
+### TS frame0 推定（M5 正本）
+
+```
+capture_frame0_preview（Rust）
+  → deriveCaptureWheelFromFrameUrl（TS: crop → green-tab scrollStart → scrollRegionH）
+  → deriveWheelFromScrollRegionH
+  → start_auto_scroll_capture_session(wheel, scrollRegionH, reason) — セッション固定
+```
+
+| ログ（必須） | 例 |
+|--------------|-----|
+| `[Capture] scrollRegion=265px wheel=-3 reason=stitch_narrow_band` | FRD（TS コンソール） |
+| `[Rust] scrollRegion=265px wheel=-3 reason=stitch_narrow_band` | 同上（IPC 受信後） |
+| `[Capture] scrollRegion=368px wheel=-4 reason=stitch_wide_band` | HOF |
+
+**UX**: 推定処理は frame0 で **1 回・数十〜200ms**。遅延の主因は FRD の -3 によるフレーム増のみ（広帯は -4 維持）。
+
+**採用しなかった案**: 全画面 -3 固定、layout 名での 3 段ホイール（-5 含む）。R3.5d の Rust 単独推定は M5 で廃止。
+
+### Rust frame0 推定（R3.5d・**M5 で廃止**）
+
+<details>
+<summary>履歴（参照用）</summary>
 
 ```
 frame0 キャプチャ（既存）
@@ -114,17 +138,9 @@ frame0 キャプチャ（既存）
   → scrollStartY 推定（緑タブ走査 0.28–0.54・frame0 のみ）
   → scrollRegionH = floor(cropH × 0.85) − scrollStartY
   → wheel = scrollRegionH < 280 ? -3 : -4
-  → 以降のスクロールループは wheel 固定
 ```
 
-| ログ（必須） | 例 |
-|--------------|-----|
-| `[Rust] scrollRegion=265px wheel=-3 reason=narrow_band` | FRD |
-| `[Rust] scrollRegion=368px wheel=-4 reason=wide_band` | HOF |
-
-**UX**: 推定処理は frame0 で **1 回・数十〜200ms**。遅延の主因は FRD の -3 によるフレーム増のみ（広帯は -4 維持）。
-
-**採用しなかった案**: 全画面 -3 固定（HOF/TRN が不要に遅くなる）、2フェーズ IPC（TS に frame0 返却）、layout 名での 3 段ホイール（-5 含む）。
+</details>
 
 ### 幾何: scrollRegion と shift の関係
 
@@ -553,6 +569,7 @@ score(S) = mean | prev[scrollStartY + S + y, x] - curr[scrollStartY + y, x] |
 
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
+| 2026-06-27 08:11 | **M5 Capture–Stitch IPC** — wheel 導出を `wheelCore.ts` 正本化。`capture_frame0_preview` → TS `deriveCaptureWheel` → `start_auto_scroll_capture_session` 引数。Rust 緑タブ走査削除。`reason=stitch_narrow_band` 等 | R3.5d Rust 推定は履歴化。破壊変更: `start_auto_scroll_capture_session` に wheel 3 引数必須 |
 | 2026-06-27 02:41 | **R3.5d d-2〜d-4 実装完了** | `capture.rs`: frame0 crop 同系・緑タブ走査 0.28–0.54・scrollRegionH 推定・狭帯 -3 / 広帯 -4・構造化ログ。FRD `shiftRepresentative` 120–160。golden 18/18 PASS。d-5 実機はユーザー確認待ち |
 | 2026-06-27 02:32 | **R3.5d 設計確定（docs）** | 実機: HOF-S/TRN/HOF-F OK（-4）。FRD-S/F NG（-4・重なり ≈70–80px 不足）。-5 は採用しない。**案3**: frame0 で scrollRegionH 推定、狭帯 **-3** / 広帯 **-4**（しきい値 280px・失敗時 -4）。layout 名 3 段より帯高さ 2 段。推定オーバーヘッドは 1 回・≈0.1–0.3s |
 | 2026-06-27 02:04 | **R3.5c-2 修正（実機 HOF-S/TRN）** | 最終ペアで `median-corrected` が raw（60/119）を S*=192 に上書きし重複。末端は `S < 0.85·S*` なら補正せず実測シフト + terminal で compose |

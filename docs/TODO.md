@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-27 08:01
+最終更新: 2026-06-27 08:11
 
 ---
 
@@ -16,7 +16,7 @@
 
 ## 現在のフォーカス
 
-**P1** — **Scene Model M5**（capture 責務分離）+ R3.5d 実機（保留）
+**P1** — **Scene Model M6**（既知バグ修正）+ R3.5d 実機（保留）
 
 ---
 
@@ -34,8 +34,8 @@
 
 ### P1 — 重要
 
-- [ ] **Scene Model M5〜M6**（capture 責務分離・既知バグ修正）
-  - 前提: M4 完了
+- [ ] **Scene Model M6**（既知バグ修正・G-FRD-S-register・R3.5d-5 実機）
+  - 前提: M5 完了
   - REQ: [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
 
 - [ ] **オートキャプチャ時のスクロール用カーソル位置をやや下方へ**
@@ -157,6 +157,7 @@
 
 ## 完了済み
 
+- [x] **Scene Model M5** — wheelCore・capture_frame0_preview IPC・Rust 緑タブ走査廃止・reason=stitch_*（2026-06-27 08:11）/ [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
 - [x] **Scene Model M4** — partnerDetectCore・緑判定 rgba 正本化・tabDetect INV-2 配線・capture.rs 閾値同期（2026-06-27 08:01 / `40bcbca`）/ [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
 - [x] **Scene Model M3** — expectations sceneSpec 必須・Vitest 駆動・INV-1 メタ（FRD タイト帯）（2026-06-27 07:14 / `cf2a6a0`）/ [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
 - [x] **CHAT_TEMPLATE 起票ルール** — ネストフェンス禁止・検証コマンド共通化（2026-06-27 07:03 / `1e11a78`）
@@ -266,7 +267,7 @@
 ## 既知の問題・メモ
 
 - パレットのスキル一覧は `**umasimSkillDataList`（ローカル）正本** — `buildPaletteSkillOptions`。WASM sim は `fetchSkillData()`（GitHub 優先 → AppData → 同梱 `public/skill_data.txt`）
-- **オートキャプチャ Capture–Stitch 契約**: **広帯 -4 / 狭帯 -3**（`scrollRegionH` しきい値 280px・R3.5d）。Rust frame0 推定実装済み（d-2〜d-4）。正本: `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)`「Capture–Stitch 契約」
+- **オートキャプチャ Capture–Stitch 契約**: **広帯 -4 / 狭帯 -3**（`scrollRegionH` しきい値 280px）。**M5**: wheel は stitch（TS）正本・Rust IPC 受信。正本: `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)`「Capture–Stitch 契約」
 - **Scene Model ロードマップ**: `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)` 起票（M0 done）。Catalog: `[SCENE-CATALOG.md](../auto-capture-design-pack/SCENE-CATALOG.md)`。素材運用: `[PACK-GUIDE.md](../auto-capture-design-pack/PACK-GUIDE.md)`
 - **オートキャプチャ結合 R3.5d**: d-2〜d-4 完了。**d-5 実機**は保留（6de25ad 未検証）。Scene Model M6 で Spec 準拠修正予定
 - **オートキャプチャ結合 R3.5b 完了**: layout L2 優先 + tabDetect 2タブガード。golden 17/17

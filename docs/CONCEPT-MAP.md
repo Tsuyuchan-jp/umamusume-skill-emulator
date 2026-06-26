@@ -5,7 +5,7 @@
 >
 > 入口: [`DOCS-GUIDE.md`](DOCS-GUIDE.md)
 
-最終更新: 2026-06-27 08:01
+最終更新: 2026-06-27 08:11
 
 ---
 
@@ -105,6 +105,8 @@ crop 内（上→下）
 | green detection | 緑判定 | 概念＋識別子 | タブ・タイトルバー・partner の緑ピクセル閾値 | `rgba.ts`・`constants.ts` 正本 |
 | tabDetect | タブ検出 | 処理・モジュール | partnerDetect 結果を見てからタブ行を測る（INV-2） | `tabDetectCore.ts` 等 |
 | regionsCore | 領域検出 | 処理・モジュール | scrollStart 等を測る | `regionsCore.ts` |
+| deriveWheel | ホイール導出 | 処理・モジュール | scrollRegionH から -3 / -4 を決める（INV-3・M5 正本） | `wheelCore.ts` |
+| capture-wheel IPC | キャプチャ・結合 IPC | 概念＋データ項目 | frame0 プレビュー → TS wheel → Rust セッション固定 | `capture_frame0_preview`・`useCapture.ts` |
 | stitch rewrite | 結合リライト | 概念＋ファイル・ドキュメント | キャプチャ画像の縦結合パイプライン | `REQ-stitch-rewrite.md` |
 | INV-1〜3 | 不変条件 | 概念＋識別子・定数 | 帯の幾何が矛盾したら棄却 | `REQ-stitch-scene-model.md` |
 

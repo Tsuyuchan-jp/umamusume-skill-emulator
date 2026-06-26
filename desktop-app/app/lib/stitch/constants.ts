@@ -11,6 +11,10 @@ export const STITCH_TITLE_BAR_H_MAX = 60;
 export const STITCH_TITLE_BAR_S_MIN = 150;
 
 export const STITCH_FOOTER_HEIGHT_RATIO = 0.15;
+/** INV-3: scrollRegionH からホイール段を決めるしきい値（capture.rs 廃止・stitch 正本） */
+export const STITCH_SCROLL_REGION_NARROW_THRESHOLD = 280;
+/** 推定失敗時のフォールバック（広帯 -4・HOF/TRN 退行回避） */
+export const STITCH_CAPTURE_WHEEL_FALLBACK = -4 as const;
 export const STITCH_TAB_ROW_HEIGHT_RATIO = 0.035;
 export const STITCH_HEADER_TAB_BOTTOM_MARGIN_RATIO = 0.012;
 

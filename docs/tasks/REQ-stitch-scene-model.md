@@ -5,7 +5,7 @@
 >
 > **作業ロードマップ**（完了後はアーカイブ）。永続仕様は [`DOCS-GUIDE.md`](../DOCS-GUIDE.md) の永続正本一覧・[`SCENE-CATALOG.md`](../../auto-capture-design-pack/SCENE-CATALOG.md) を参照。
 
-- **ステータス**: in-progress（M4 完了・M5 待ち）
+- **ステータス**: in-progress（M5 完了・M6 待ち）
 - **作成日**: 2026-06-27 04:11
 - **関連コミット**: （M0 完了後に記入）
 
@@ -93,9 +93,9 @@ crop 基準比率。正本: [`expectations.json`](../../tools/stitch-golden/expe
 | `detectPartnerBand` | `partnerDetectCore`（新設） | crop 画像 | `register \| release \| absent` + bandY |
 | `detectTabRow` | `tabDetectCore` | crop + partner 結果 | tabY, tabCount, method |
 | `detectScrollStart` | `regionsCore` | frame0, frame1, tabRow | scrollStartY, method, confidence |
-| `deriveWheel` | `capture.rs` または IPC 受信 | scrollRegionH | wheel=-3 \| -4 |
+| `deriveWheel` | `wheelCore.ts` | scrollRegionH | wheel=-3 \| -4 |
 
-**暫定（R3.5d）**: `capture.rs` が独自に緑タブ走査 — **M5 で廃止**し stitch 正本の scrollRegionH を IPC 渡しに統一。
+**M5 完了**: wheel 導出は **stitch（TS）正本**。`capture_frame0_preview` → `deriveCaptureWheel` → Rust IPC。Rust の緑タブ走査は廃止。
 
 ---
 
@@ -108,7 +108,7 @@ crop 基準比率。正本: [`expectations.json`](../../tools/stitch-golden/expe
 | **M2** | Scene Spec 具体化 | シーン別期待領域表・不変条件の golden 化 | **done** |
 | **M3** | 計測パイプライン強化 | expectations に partner/tab/scroll/wheel 中間値。シーン別 Vitest | **done** |
 | **M4** | 検出器統一 | 緑判定 1 系統（Rust/TS 同期）。partnerDetect 分離 | **done** |
-| **M5** | capture–stitch 責務分離 | wheel 用の二重緑走査廃止・IPC 契約 | 待ち |
+| **M5** | capture–stitch 責務分離 | wheel 用の二重緑走査廃止・IPC 契約 | **done** |
 | **M6** | 既知バグを Spec 準拠で修正 | 登録ボタン・absdiff 257。R3.5d-5 実機クローズ | 待ち |
 
 **依存**: M0 → M1 → M2 → M3 が並行可能な部分あり。M4 は M2+M3 推奨。M6 は M4 以降が安全だが **M1 完了後**なら登録ボタン用 PNG 追加と並行可。
@@ -166,7 +166,7 @@ crop 基準比率。正本: [`expectations.json`](../../tools/stitch-golden/expe
 - [ ] M2: 各シーンに期待領域 ratio 帯が Scene Spec 名付きで記載
 - [x] M3: シーン別 golden（partner / tabY / scrollStart / wheel）が Vitest で PASS
 - [x] M4: 緑判定実装が **1 系統**（grep で HSV/RGB 重複なし）
-- [ ] M5: capture が stitch と矛盾する scroll 推定をしない
+- [x] M5: capture が stitch と矛盾する scroll 推定をしない
 - [ ] M6: R3.5d-5 実機 Step 4/6 + HOF/TRN 退行なし
 - [ ] REQ-stitch-rewrite R3.5d-5 / 親 REQ Phase 3 クローズ
 - [ ] TODO・INDEX・決定ログ更新
@@ -209,6 +209,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\stitch-golden\measure-
 | 2026-06-27 06:13 | **M2 完了** — 全7 case に `partnerBand`/`tabRow`/`scrollStart`/`wheel`、INV 対応表・シーン別期待領域表、measure-regions R0 計測を notes 反映 | `stitch:golden` 19+1 expected fail 維持。Vitest 駆動化は M3 |
 | 2026-06-27 07:14 | **M3 完了** — `expectations.ts` sceneSpec 必須化・legacy 同期検証・INV-1 メタ（FRD タイト帯）・Vitest `sceneSpec.*` 駆動 | `stitch:golden` 21+1 expected fail（`cf2a6a0`）。G-FRD-S-register `it.fails` 維持 |
 | 2026-06-27 08:01 | **M4 完了** — `partnerDetectCore.ts` 新設（register/release/absent + bandY）・`rgba.ts`/`constants.ts` 緑閾値正本化・tabDetect INV-2 配線・`capture.rs` RGB/タイトルバー同期 | `stitch:golden` 21+1 expected fail 維持。G-FRD-S-register tabY≈0.44 NG は M6 まで |
+| 2026-06-27 08:11 | **M5 完了** — `wheelCore.ts` / `captureWheel.ts` 新設・`capture_frame0_preview` IPC・Rust 緑タブ走査廃止・`reason=stitch_*` ログ | `stitch:golden` 21+1 expected fail 維持。wheel 正本は stitch のみ |
 
 ---
 

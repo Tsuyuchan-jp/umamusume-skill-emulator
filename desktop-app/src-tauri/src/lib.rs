@@ -97,6 +97,7 @@ pub fn run() {
             // ── キャプチャセッション ──
             capture::start_capture_session,
             capture::stop_capture_session,
+            capture::capture_frame0_preview,
             capture::start_auto_scroll_capture_session,
             // ── 画像一時保存（フロントエンド結合用） ──
             stitch::save_and_copy_result,

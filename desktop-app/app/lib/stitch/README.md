@@ -1,7 +1,7 @@
 # stitch モジュール（リライト中）
 
 設計正本: [`docs/tasks/REQ-stitch-rewrite.md`](../../../../docs/tasks/REQ-stitch-rewrite.md)  
-キャプチャ正本: [`capture.rs`](../../../src-tauri/src/capture.rs) — **広帯 -4 / 狭帯 -3**（R3.5d・`scrollRegionH` しきい値 280px）。契約は REQ「Capture–Stitch 契約」節。
+キャプチャ正本: **`wheelCore.ts`** + **`captureWheel.ts`**（M5）— **広帯 -4 / 狭帯 -3**（`scrollRegionH` しきい値 280px）。Rust は IPC 受信のみ。契約は REQ「Capture–Stitch 契約」節。
 
 | Phase | 状態 |
 |-------|------|

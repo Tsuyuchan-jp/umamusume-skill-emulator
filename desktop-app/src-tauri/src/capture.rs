@@ -6,10 +6,10 @@
 /// - `start_capture_session`: 非同期キャプチャループ（差分監視で自動終了）
 /// - `stop_capture_session`: キャプチャの手動中断
 ///
-/// Capture–Stitch 契約（R3.5d）: frame0 で `scrollRegionH` を推定し、セッション内ホイールを固定。
+/// Capture–Stitch 契約（M5）: **wheel / scrollRegionH は stitch（TS）正本**。
+/// `capture_frame0_preview` → TS `deriveCaptureWheel` → 本コマンドへ IPC で受け取りセッション固定。
 /// - 広帯（scrollRegionH ≥ 280px）→ **-4**（HOF / TRN / CMP 等）
 /// - 狭帯（scrollRegionH < 280px）→ **-3**（FRD 等）
-/// - 推定失敗時 → **-4**（HOF/TRN 退行回避）
 use std::sync::atomic::Ordering;
 use tauri::Emitter;
 use tauri::Manager;
@@ -21,50 +21,17 @@ use windows_sys::Win32::Graphics::Gdi::{
 
 use crate::{CaptureError, CaptureSessionState};
 
-/// 推定失敗時のフォールバック（広帯 -4・安全側）
-const WHEEL_CLICKS_FALLBACK: i16 = -4;
-/// 狭帯 / 広帯のしきい値（crop 高さ ≈900px 基準）
-const SCROLL_REGION_NARROW_THRESHOLD: i32 = 280;
-/// stitch 正本: footer = crop 高さ × 15%
-const CROP_FOOTER_RATIO: f32 = 0.15;
-/// 緑タブ走査帯（regionsCore / constants 正本と同系）
-const GREEN_TAB_SCAN_START: f32 = 0.28;
-const GREEN_TAB_SCAN_END: f32 = 0.54;
-const GREEN_TAB_SCAN_STEP: f32 = 0.01;
-const TAB_ROW_HEIGHT_RATIO: f32 = 0.035;
-const TAB_BOTTOM_MARGIN_RATIO: f32 = 0.012;
-const L2_GREEN_SCORE_MIN: f32 = 0.45;
-const L3_GREEN_SEG_MIN: f32 = 0.15;
-/// 緑タブ走査から除外する練習パートナー登録ボタン帯（constants.ts 正本と同期）
-const PARTNER_GREEN_EXCLUDE_RATIO_START: f32 = 0.385;
-const PARTNER_GREEN_EXCLUDE_RATIO_END: f32 = 0.455;
-const PARTNER_GREEN_UNIFORM_MIN_SEG: f32 = 0.35;
-const PARTNER_GREEN_UNIFORM_MAX_SPREAD: f32 = 0.12;
-const PARTNER_GREEN_SIDE_MIN_SEG: f32 = 0.35;
-const PARTNER_GREEN_CENTER_GAP: f32 = 0.06;
-/// rgba.ts / constants.ts STITCH_TAB_GREEN_* と同期（RGB 正本）
-const TAB_GREEN_G_MIN: u8 = 100;
-const TAB_GREEN_G_OVER_R: i16 = 30;
-const TAB_GREEN_G_OVER_B: i16 = 20;
-/// rgba.ts STITCH_TITLE_BAR_* と同期（OpenCV 半スケール HSV → Rust 0–360° / 0–1）
-const TITLE_BAR_H_MIN: f32 = 40.0;
-const TITLE_BAR_H_MAX: f32 = 120.0;
-const TITLE_BAR_S_MIN: f32 = 0.59;
-
-/// CropRect（findCropBounds 同系・frame 座標系）
-struct CropRect {
-    x: u32,
-    y: u32,
-    width: u32,
-    height: u32,
-}
-
-/// frame0 推定結果
+/// TS stitch から受け取るホイール決定（セッション内固定）
 struct WheelDecision {
     clicks: i16,
     scroll_region_h: i32,
-    reason: &'static str,
+    reason: String,
 }
+
+/// タブ緑ピクセル判定（因子ヘッダー・継承履歴バー用・rgba.ts 正本と同期）
+const TAB_GREEN_G_MIN: u8 = 100;
+const TAB_GREEN_G_OVER_R: i16 = 30;
+const TAB_GREEN_G_OVER_B: i16 = 20;
 
 // ============================================================
 // 公開関数
@@ -472,335 +439,18 @@ use windows_sys::Win32::UI::WindowsAndMessaging::{
     GetCursorPos, SetCursorPos, SetForegroundWindow,
 };
 
-fn rgb_to_hsv(r: u8, g: u8, b: u8) -> (f32, f32, f32) {
-    let r = r as f32 / 255.0;
-    let g = g as f32 / 255.0;
-    let b = b as f32 / 255.0;
-
-    let max = r.max(g).max(b);
-    let min = r.min(g).min(b);
-    let delta = max - min;
-
-    let mut h = 0.0;
-    if delta > 0.0 {
-        if max == r {
-            h = 60.0 * (((g - b) / delta) % 6.0);
-        } else if max == g {
-            h = 60.0 * (((b - r) / delta) + 2.0);
-        } else if max == b {
-            h = 60.0 * (((r - g) / delta) + 4.0);
-        }
-    }
-    if h < 0.0 {
-        h += 360.0;
-    }
-
-    let s = if max == 0.0 { 0.0 } else { delta / max };
-    let v = max;
-
-    (h, s, v)
-}
-
-/// タブ・緑帯走査の正本（rgba.ts isTabGreenRgb / constants.ts STITCH_TAB_GREEN_*）
+/// タブ緑ピクセル判定（因子ヘッダー・継承履歴バー用・rgba.ts 正本と同期）
 fn is_tab_green_rgb(r: u8, g: u8, b: u8) -> bool {
     g >= TAB_GREEN_G_MIN
         && (g as i16) > (r as i16) + TAB_GREEN_G_OVER_R
         && (g as i16) > (b as i16) + TAB_GREEN_G_OVER_B
 }
 
-/// cropCore findCropBounds 同系 — 緑タイトルバー検出（rgba.ts isTitleBarGreenHsv）
-fn is_title_bar_green(r: u8, g: u8, b: u8) -> bool {
-    let (h, s, _v) = rgb_to_hsv(r, g, b);
-    h >= TITLE_BAR_H_MIN && h <= TITLE_BAR_H_MAX && s >= TITLE_BAR_S_MIN
-}
-
-fn find_crop_bounds(frame: &image::RgbImage) -> Option<CropRect> {
-    let width = frame.width();
-    let height = frame.height();
-    let search_height = ((height as f32) * 0.3) as u32;
-
-    let mut max_detected_width = 0u32;
-    let mut widest_left_x = 0u32;
-    let mut widest_right_x = 0u32;
-
-    for y in 0..search_height.min(height) {
-        let mut first_x: Option<u32> = None;
-        let mut last_x: Option<u32> = None;
-        for x in 0..width {
-            let pixel = frame.get_pixel(x, y);
-            if is_title_bar_green(pixel[0], pixel[1], pixel[2]) {
-                if first_x.is_none() {
-                    first_x = Some(x);
-                }
-                last_x = Some(x);
-            }
-        }
-        if let (Some(first), Some(last)) = (first_x, last_x) {
-            let current_width = last - first + 1;
-            if current_width > max_detected_width {
-                max_detected_width = current_width;
-                widest_left_x = first;
-                widest_right_x = last;
-            }
-        }
-    }
-
-    let mut header_y: Option<u32> = None;
-    for y in 0..search_height.min(height) {
-        let mut first_x: Option<u32> = None;
-        let mut last_x: Option<u32> = None;
-        for x in 0..width {
-            let pixel = frame.get_pixel(x, y);
-            if is_title_bar_green(pixel[0], pixel[1], pixel[2]) {
-                if first_x.is_none() {
-                    first_x = Some(x);
-                }
-                last_x = Some(x);
-            }
-        }
-        if let (Some(first), Some(last)) = (first_x, last_x) {
-            let current_width = last - first + 1;
-            if current_width as f32 >= max_detected_width as f32 * 0.95 {
-                header_y = Some(y);
-                break;
-            }
-        }
-    }
-
-    let start_y = header_y?;
-    if max_detected_width < 100 {
-        return None;
-    }
-
-    let start_x = widest_left_x;
-    let ui_width = widest_right_x - widest_left_x + 1;
-    let mut ui_height = (ui_width as f32 / 0.5625).floor() as u32;
-    if start_y + ui_height > height {
-        ui_height = height - start_y;
-    }
-
-    Some(CropRect {
-        x: start_x,
-        y: start_y,
-        width: ui_width,
-        height: ui_height,
-    })
-}
-
-struct GreenTabProfile {
-    l2_score: f32,
-    seg1: f32,
-    seg2: f32,
-    seg3: f32,
-}
-
-fn measure_green_tab_profile(
-    frame: &image::RgbImage,
-    crop: &CropRect,
-    tab_y: u32,
-    tab_h: u32,
-) -> GreenTabProfile {
-    let crop_width = crop.width;
-    let seg3_w = crop_width / 3;
-    let mut left_g = 0u32;
-    let mut right_g = 0u32;
-    let mut left_t = 0u32;
-    let mut right_t = 0u32;
-    let mut seg_g = [0u32; 3];
-    let mut seg_t = [0u32; 3];
-
-    for y in tab_y..tab_y + tab_h {
-        for x in 0..crop_width {
-            let pixel = frame.get_pixel(crop.x + x, crop.y + y);
-            let g = is_tab_green_rgb(pixel[0], pixel[1], pixel[2]);
-
-            if x < (crop_width as f32 * 0.48).floor() as u32 {
-                left_t += 1;
-                if g {
-                    left_g += 1;
-                }
-            } else if x >= (crop_width as f32 * 0.52).floor() as u32 {
-                right_t += 1;
-                if g {
-                    right_g += 1;
-                }
-            }
-
-            let si = if x < seg3_w {
-                0
-            } else if x < seg3_w * 2 {
-                1
-            } else {
-                2
-            };
-            seg_t[si] += 1;
-            if g {
-                seg_g[si] += 1;
-            }
-        }
-    }
-
-    let seg1 = if seg_t[0] > 0 {
-        seg_g[0] as f32 / seg_t[0] as f32
-    } else {
-        0.0
-    };
-    let seg2 = if seg_t[1] > 0 {
-        seg_g[1] as f32 / seg_t[1] as f32
-    } else {
-        0.0
-    };
-    let seg3 = if seg_t[2] > 0 {
-        seg_g[2] as f32 / seg_t[2] as f32
-    } else {
-        0.0
-    };
-    let l2_score = (if right_t > 0 {
-        right_g as f32 / right_t as f32
-    } else {
-        0.0
-    }) - (if left_t > 0 {
-        left_g as f32 / left_t as f32
-    } else {
-        0.0
-    });
-
-    GreenTabProfile {
-        l2_score,
-        seg1,
-        seg2,
-        seg3,
-    }
-}
-
-/// 練習パートナー登録（緑横長ボタン）— partnerDetectCore isPartnerGreenRegisterBand 同系
-fn is_partner_green_register_band(ratio: f32, profile: &GreenTabProfile) -> bool {
-    if ratio < PARTNER_GREEN_EXCLUDE_RATIO_START || ratio > PARTNER_GREEN_EXCLUDE_RATIO_END {
-        return false;
-    }
-
-    let min_seg = profile.seg1.min(profile.seg2).min(profile.seg3);
-    let max_seg = profile.seg1.max(profile.seg2).max(profile.seg3);
-    let side_min = profile.seg1.min(profile.seg3);
-    let max_seg_field = profile.seg1.max(profile.seg2).max(profile.seg3);
-
-    let uniform = min_seg >= PARTNER_GREEN_UNIFORM_MIN_SEG
-        && max_seg - min_seg <= PARTNER_GREEN_UNIFORM_MAX_SPREAD;
-
-    let register_with_label = side_min >= PARTNER_GREEN_SIDE_MIN_SEG
-        && profile.seg2 < side_min - PARTNER_GREEN_CENTER_GAP
-        && max_seg_field >= L3_GREEN_SEG_MIN;
-
-    uniform || register_with_label
-}
-
-/// frame0 のみ・緑タブ走査 0.28–0.54（regionsCore detectScrollStartByGreenTab 同系）
-fn estimate_scroll_start_y_green_tab(frame: &image::RgbImage, crop: &CropRect) -> Option<u32> {
-    let crop_h = crop.height;
-    let tab_h = (crop_h as f32 * TAB_ROW_HEIGHT_RATIO).floor().max(4.0) as u32;
-    let margin = (crop_h as f32 * TAB_BOTTOM_MARGIN_RATIO).floor().max(1.0) as u32;
-
-    let mut best_y: Option<u32> = None;
-    let mut best_score = -1.0f32;
-
-    let mut ratio = GREEN_TAB_SCAN_START;
-    while ratio <= GREEN_TAB_SCAN_END {
-        let tab_y = (crop_h as f32 * ratio).floor() as u32;
-        if tab_y + tab_h >= crop_h {
-            ratio += GREEN_TAB_SCAN_STEP;
-            continue;
-        }
-
-        let profile = measure_green_tab_profile(frame, crop, tab_y, tab_h);
-        if is_partner_green_register_band(ratio, &profile) {
-            ratio += GREEN_TAB_SCAN_STEP;
-            continue;
-        }
-
-        let l3_score = profile.seg1.max(profile.seg2).max(profile.seg3);
-
-        let l2_ok = profile.l2_score >= L2_GREEN_SCORE_MIN;
-        let l3_ok = l3_score >= L3_GREEN_SEG_MIN;
-
-        let score = if l2_ok && l3_ok {
-            profile.l2_score.max(l3_score)
-        } else if l2_ok {
-            profile.l2_score
-        } else if l3_ok {
-            l3_score
-        } else {
-            -1.0
-        };
-
-        if score > best_score {
-            best_score = score;
-            best_y = Some(tab_y);
-        }
-
-        ratio += GREEN_TAB_SCAN_STEP;
-    }
-
-    let tab_y = best_y?;
-    if best_score < 0.0 {
-        return None;
-    }
-
-    let scroll_start = tab_y + tab_h + margin;
-    if scroll_start >= crop_h {
-        return None;
-    }
-
-    Some(scroll_start)
-}
-
-/// frame0 から scrollRegionH を推定しホイール段を決定（R3.5d 正本）
-fn estimate_wheel_from_frame0(frame: &image::RgbImage) -> WheelDecision {
-    let crop = match find_crop_bounds(frame) {
-        Some(c) => c,
-        None => {
-            return WheelDecision {
-                clicks: WHEEL_CLICKS_FALLBACK,
-                scroll_region_h: 0,
-                reason: "fallback",
-            };
-        }
-    };
-
-    let scroll_start_y = match estimate_scroll_start_y_green_tab(frame, &crop) {
-        Some(y) => y,
-        None => {
-            return WheelDecision {
-                clicks: WHEEL_CLICKS_FALLBACK,
-                scroll_region_h: 0,
-                reason: "fallback",
-            };
-        }
-    };
-
-    let footer_start_y =
-        (crop.height as f32 * (1.0 - CROP_FOOTER_RATIO)).floor() as u32;
-    let scroll_region_h = footer_start_y.saturating_sub(scroll_start_y) as i32;
-
-    if scroll_region_h < SCROLL_REGION_NARROW_THRESHOLD {
-        WheelDecision {
-            clicks: -3,
-            scroll_region_h,
-            reason: "narrow_band",
-        }
-    } else {
-        WheelDecision {
-            clicks: -4,
-            scroll_region_h,
-            reason: "wide_band",
-        }
-    }
-}
-
 fn log_wheel_decision(decision: &WheelDecision) {
-    if decision.reason == "fallback" {
+    if decision.scroll_region_h <= 0 {
         println!(
-            "[Rust] scrollRegion=?px wheel={} reason=fallback",
-            decision.clicks
+            "[Rust] scrollRegion=?px wheel={} reason={}",
+            decision.clicks, decision.reason
         );
     } else {
         println!(
@@ -825,6 +475,44 @@ fn wheel_decision_payload(decision: &WheelDecision) -> serde_json::Value {
 fn emit_wheel_decision(app_handle: &tauri::AppHandle, decision: &WheelDecision) {
     log_wheel_decision(decision);
     let _ = app_handle.emit("capture-wheel-decision", wheel_decision_payload(decision));
+}
+
+/// frame0 をキャプチャしてプレビュー PNG を返す（M5: TS stitch が wheel を決定する前提）
+#[tauri::command]
+pub async fn capture_frame0_preview(
+    app_handle: tauri::AppHandle,
+    state: tauri::State<'_, CaptureSessionState>,
+) -> Result<String, CaptureError> {
+    if state.is_recording.load(Ordering::Relaxed) {
+        return Err(CaptureError::CaptureFailed(
+            "すでにキャプチャセッションが実行中です".to_string(),
+        ));
+    }
+
+    let game_window = crate::window::find_game_window()?;
+    let frame = capture_window(&game_window)?;
+
+    {
+        let mut frames = state.frames.lock().unwrap();
+        frames.clear();
+        frames.push(frame.clone());
+    }
+
+    let cache_dir = app_handle
+        .path()
+        .app_cache_dir()
+        .map_err(|e| CaptureError::IoError(format!("キャッシュフォルダの取得に失敗: {}", e)))?;
+
+    let preview_dir = cache_dir.join("frame0_preview");
+    std::fs::create_dir_all(&preview_dir)
+        .map_err(|e| CaptureError::IoError(format!("プレビューフォルダ作成エラー: {}", e)))?;
+
+    let file_path = preview_dir.join("frame_000.png");
+    frame
+        .save(&file_path)
+        .map_err(|e| CaptureError::IoError(format!("frame0 保存エラー: {}", e)))?;
+
+    Ok(file_path.to_string_lossy().to_string())
 }
 
 // 最初のフレームから因子ヘッダーの「左端」と「右端」、そして「Y座標」を動的に見つけ出す関数
@@ -957,11 +645,14 @@ fn scroll_window_input(hwnd: isize, target_x: i32, target_y: i32, clicks: i16) {
     }
 }
 
-/// 自動スクロールを用いたキャプチャセッション（完全自動化版）
+/// 自動スクロールを用いたキャプチャセッション（M5: wheel は TS stitch 正本から IPC 受信）
 #[tauri::command]
 pub async fn start_auto_scroll_capture_session(
     app_handle: tauri::AppHandle,
     state: tauri::State<'_, CaptureSessionState>,
+    wheel: i16,
+    scroll_region_h: i32,
+    reason: String,
 ) -> Result<String, CaptureError> {
     if state
         .is_recording
@@ -975,10 +666,12 @@ pub async fn start_auto_scroll_capture_session(
 
     println!("[Rust] 自動スクロールキャプチャセッション開始...");
 
-    {
-        let mut frames = state.frames.lock().unwrap();
-        frames.clear();
-    }
+    let wheel_decision = WheelDecision {
+        clicks: wheel,
+        scroll_region_h,
+        reason: reason.clone(),
+    };
+    emit_wheel_decision(&app_handle, &wheel_decision);
 
     let game_window = match crate::window::find_game_window() {
         Ok(w) => w,
@@ -988,35 +681,40 @@ pub async fn start_auto_scroll_capture_session(
         }
     };
 
-    // 最初のフレームをキャプチャして追加
-    let (mut prev_frame, factor_start_x, factor_end_x, header_y, wheel_decision) =
-        match capture_window(&game_window) {
-            Ok(f) => {
-                let bounds = find_factor_header_bounds(&f);
-                let start_x = bounds.0;
-                let end_x = bounds.1;
-                let h_y = bounds.2;
-                println!(
-                    "[Rust] 因子ヘッダー検知: X座標 {} 〜 {}, Y座標 {}",
-                    start_x, end_x, h_y
-                );
-                let wheel_decision = estimate_wheel_from_frame0(&f);
-                emit_wheel_decision(&app_handle, &wheel_decision);
-                let mut frames = state.frames.lock().unwrap();
-                frames.push(f.clone());
-                (
-                    Some(f),
-                    start_x,
-                    end_x,
-                    h_y,
-                    wheel_decision,
-                )
-            }
-            Err(e) => {
-                state.is_recording.store(false, Ordering::SeqCst);
-                return Err(e);
+    // frame0: プレビュー済みなら再利用、なければ新規キャプチャ
+    let (mut prev_frame, factor_start_x, factor_end_x, header_y) = {
+        let preview_frame = {
+            let frames_guard = state.frames.lock().unwrap();
+            frames_guard.first().cloned()
+        };
+
+        let frame0 = if let Some(f) = preview_frame {
+            f
+        } else {
+            match capture_window(&game_window) {
+                Ok(f) => {
+                    let mut frames = state.frames.lock().unwrap();
+                    frames.push(f.clone());
+                    f
+                }
+                Err(e) => {
+                    state.is_recording.store(false, Ordering::SeqCst);
+                    return Err(e);
+                }
             }
         };
+
+        let bounds = find_factor_header_bounds(&frame0);
+        let start_x = bounds.0;
+        let end_x = bounds.1;
+        let h_y = bounds.2;
+        println!(
+            "[Rust] 因子ヘッダー検知: X座標 {} 〜 {}, Y座標 {}",
+            start_x, end_x, h_y
+        );
+
+        (Some(frame0), start_x, end_x, h_y)
+    };
 
     // スクロールのアンカーとなるマウス座標（画面全体に対する絶対座標）を計算
     let target_client_x = (factor_start_x + factor_end_x) as i32 / 2;
