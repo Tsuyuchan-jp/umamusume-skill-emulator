@@ -3,6 +3,7 @@ import { invoke, convertFileSrc } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { deriveCaptureWheelFromFrameUrl } from "../lib/stitch/captureWheel";
 import type { CaptureWheelDecision } from "../lib/stitch/wheelCore";
+import { stitchWithOpenCV } from "../lib/opencvStitcher";
 
 export type CaptureStatus = "idle" | "recording" | "done" | "saving" | "saved";
 
