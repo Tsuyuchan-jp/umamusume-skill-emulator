@@ -157,7 +157,7 @@
 
 ## 完了済み
 
-- [x] **CHAT_TEMPLATE 起票ルール** — ネストフェンス禁止・検証コマンド共通化・M3 一括コピー用ブロック（2026-06-27 07:03）
+- [x] **CHAT_TEMPLATE 起票ルール** — ネストフェンス禁止・検証コマンド共通化・M3 一括コピー用ブロック（2026-06-27 07:03 / `1e11a78`）
 - [x] **CONCEPT-MAP 種別列** — 英語先頭・種別列追加・隣の概念削除（2026-06-27 06:52 / `db7969f`）
 - [x] **CONCEPT-MAP 新設** — 概念地図・`communication.mdc` / `concept-map.mdc`・CHAT_TEMPLATE・DOCS-GUIDE 同期（2026-06-27 06:40 / `18f43f0`）
 - [x] **Scene Model M2** — expectations `sceneSpec`（partnerBand/tabRow/scrollStart/wheel）・Catalog 期待サマリー・REQ INV 対応表・measure-regions R0 notes（2026-06-27 06:13 / `028221f`）/ [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
