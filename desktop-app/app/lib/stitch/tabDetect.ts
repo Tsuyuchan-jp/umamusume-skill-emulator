@@ -1,0 +1,56 @@
+// @ts-nocheck
+
+import { STITCH_TAB_ROW_HEIGHT_RATIO, type StitchLayout } from "./constants";
+import { detectStitchLayoutAndTabRow } from "./layout";
+import { matToRgba } from "./opencvRgba";
+import { detectStitchTabFromRgba, measureGreenTabProfileRgba, scanGreenTabRowRgba } from "./tabDetectCore";
+import type { StitchTab, TabRowInfo } from "./types";
+
+export {
+  detectStitchTabFromRgba,
+  measureGreenTabProfileRgba,
+  scanGreenTabRowRgba,
+} from "./tabDetectCore";
+
+/** OpenCV Mat 向け緑タブプロファイル */
+export function measureGreenTabProfile(
+  croppedMat: any,
+  cv: any,
+  cropWidth: number,
+  tabY: number,
+  cropHeight: number
+) {
+  const rgba = matToRgba(croppedMat, cv, cropWidth, cropHeight);
+  return measureGreenTabProfileRgba(rgba, tabY);
+}
+
+/** OpenCV Mat 向けタブ行走査 */
+export function scanGreenTabRow(
+  croppedMat: any,
+  cv: any,
+  cropWidth: number,
+  cropHeight: number,
+  startRatio: number,
+  endRatio: number,
+  mode: "l2" | "l3"
+): TabRowInfo {
+  const rgba = matToRgba(croppedMat, cv, cropWidth, cropHeight);
+  return scanGreenTabRowRgba(rgba, startRatio, endRatio, mode);
+}
+
+/** アクティブタブ（緑ハイライト位置）から StitchTab を判定 */
+export function detectStitchTab(
+  croppedMat: any,
+  cv: any,
+  cropWidth: number,
+  cropHeight: number,
+  layout: StitchLayout,
+  tabRowY?: number
+): StitchTab {
+  const tabY =
+    tabRowY ??
+    detectStitchLayoutAndTabRow(croppedMat, cv, cropWidth, cropHeight).tabRow.tabY;
+
+  const rgba = matToRgba(croppedMat, cv, cropWidth, cropHeight);
+  return detectStitchTabFromRgba(rgba, layout, tabY);
+}

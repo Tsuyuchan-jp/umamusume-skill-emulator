@@ -8,7 +8,7 @@ import {
   isRatioInBand,
   loadStitchGoldenExpectations,
 } from "./expectations";
-import { measureScrollStartFromFrames } from "./goldenMeasure";
+import { measureLayoutFromFrame, measureScrollStartFromFrames } from "./goldenMeasure";
 import { USE_STITCH_V2 } from "./flags";
 
 describe("stitch golden expectations (R0)", () => {
@@ -100,6 +100,58 @@ describe.skipIf(!isDesignPackPresent())("stitch golden R1 scrollStartRatio (absd
     expect(
       isRatioInBand(measured.scrollStartRatio, c.scrollStartRatio),
       `ratio=${measured.scrollStartRatio.toFixed(4)} method=${measured.method}`
+    ).toBe(true);
+  }, 60_000);
+});
+
+describe.skipIf(!isDesignPackPresent())("stitch golden R2 layout + scrollStartRatio", () => {
+  const packRoot = getDesignPackRoot();
+
+  it("G-CMP-S layout=L3, tabRowRatio∈[0.33,0.43], scrollStartRatio∈[0.36,0.46]", async () => {
+    const c = getGoldenCase("G-CMP-S")!;
+    const framePaths = [c.framePaths[0], "screenshots/CMP/skill/S1-mid.png"];
+    const secondPath = join(packRoot, framePaths[1]);
+    expect(existsSync(secondPath), `missing ${framePaths[1]}`).toBe(true);
+
+    const layoutMeasured = await measureLayoutFromFrame(packRoot, framePaths[0]);
+    expect(layoutMeasured.layout, `layout=${layoutMeasured.layout}`).toBe("L3");
+    expect(
+      isRatioInBand(layoutMeasured.tabRowRatio, c.tabRowRatio),
+      `tabRowRatio=${layoutMeasured.tabRowRatio.toFixed(4)} method=${layoutMeasured.tabRowMethod}`
+    ).toBe(true);
+
+    const scrollMeasured = await measureScrollStartFromFrames(
+      packRoot,
+      framePaths,
+      c.layout
+    );
+    expect(
+      isRatioInBand(scrollMeasured.scrollStartRatio, c.scrollStartRatio),
+      `scrollStartRatio=${scrollMeasured.scrollStartRatio.toFixed(4)} method=${scrollMeasured.method}`
+    ).toBe(true);
+  }, 60_000);
+
+  it("G-FRD-S layout=L3+Btn, tabRowRatio∈[0.39,0.47], scrollStartRatio∈[0.46,0.52]", async () => {
+    const c = getGoldenCase("G-FRD-S")!;
+    const framePaths = [c.framePaths[0], "golden/FRD/skill/frame_001.png"];
+    const secondPath = join(packRoot, framePaths[1]);
+    expect(existsSync(secondPath), `missing ${framePaths[1]}`).toBe(true);
+
+    const layoutMeasured = await measureLayoutFromFrame(packRoot, framePaths[0]);
+    expect(layoutMeasured.layout, `layout=${layoutMeasured.layout}`).toBe("L3+Btn");
+    expect(
+      isRatioInBand(layoutMeasured.tabRowRatio, c.tabRowRatio),
+      `tabRowRatio=${layoutMeasured.tabRowRatio.toFixed(4)} method=${layoutMeasured.tabRowMethod}`
+    ).toBe(true);
+
+    const scrollMeasured = await measureScrollStartFromFrames(
+      packRoot,
+      framePaths,
+      c.layout
+    );
+    expect(
+      isRatioInBand(scrollMeasured.scrollStartRatio, c.scrollStartRatio),
+      `scrollStartRatio=${scrollMeasured.scrollStartRatio.toFixed(4)} method=${scrollMeasured.method}`
     ).toBe(true);
   }, 60_000);
 });

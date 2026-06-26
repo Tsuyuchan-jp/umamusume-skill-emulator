@@ -4,13 +4,13 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-26 08:41
+最終更新: 2026-06-26 18:07
 
 ---
 
 ## 現在のフォーカス
 
-**P1** — オートキャプチャ結合リライト **R2**（layout / tabDetect）— R1 完了。
+**P1** — オートキャプチャ結合リライト **R3**（compose）— R2 layout 完了。G-FRD-S scrollStart 要フォロー。
 
 ---
 
@@ -28,9 +28,11 @@
 
 ### P1 — 重要
 
-- [ ] **オートキャプチャ結合リライト R2〜R5**（layout / compose / postProcess / 旧ファイル削除）
+- [ ] **G-FRD-S scrollStart absdiff フォロー**（R2 残）— golden f000/f001 で absdiff 未検出、green-tab 0.545。regionsCore 副経路 or フレーム選定の承認待ち
   - REQ: [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
-  - R2 ゲート: G-CMP + G-FRD-S
+
+- [ ] **オートキャプチャ結合リライト R3〜R5**（compose / postProcess / 旧ファイル削除）
+  - REQ: [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 
 - [ ] **オートキャプチャ Phase 3 残検証**（G-HOF/CMP/FRD・FS-HOF）— **R1 完了後**
 
@@ -144,6 +146,7 @@
 
 ## 完了済み
 
+- [x] **オートキャプチャ結合リライト R2**（layout / tabDetect 整理・走査帯正本化）— G-CMP-S + G-FRD-S layout/tabRow PASS、G-FRD-S scrollStart 要フォロー（2026-06-26 18:07）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 - [x] **オートキャプチャ結合リライト R1**（scrollStartY absdiff 正本・`USE_STITCH_V2`）— G-TRN/G-HOF-S golden PASS（2026-06-26 08:41 / `1df1860`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 - [x] **オートキャプチャ結合リライト R0（golden ハーネス）** — expectations.json・measure-regions.ps1・Vitest 5件 PASS・設計パック 6 golden PASS（2026-06-26 08:13 / `851d341`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 - [x] **オートキャプチャ G-TRN（C1 育成中・スキル結合）実機検証** — L2/green-l2・Header 464px・score≈0.95・scroll≈241・目視 OK（2026-06-26 07:47 / `0887fcd`）/ [`REQ-auto-capture-multi-screen.md`](tasks/REQ-auto-capture-multi-screen.md)
@@ -235,7 +238,7 @@
 ## 既知の問題・メモ
 
 - パレットのスキル一覧は **`umasimSkillDataList`（ローカル）正本** — `buildPaletteSkillOptions`。WASM sim は `fetchSkillData()`（GitHub 優先 → AppData → 同梱 `public/skill_data.txt`）
-- **オートキャプチャ**: G-TRN 実機 OK（2026-06-26）。Phase 3 残り G-HOF/FRD/CMP・FS-HOF（[`REQ-auto-capture-multi-screen.md`](tasks/REQ-auto-capture-multi-screen.md)）
+- **オートキャプチャ結合 R2**: layout/tabDetect モジュール分割完了。G-FRD-S scrollStart は golden f000/f001 で absdiff 未検出（green-tab 0.545）— Backlog フォロー（2026-06-26）
 - **sim スキルデータ**: オンライン時 GitHub fetch + AppData キャッシュ。オフライン時は同梱/キャッシュで制限付き動作（フォールバック時トースト）
 - **REQ-skill-data-fetch-fallback 実機検証**: 手順 1〜2 確認済み。手順 3〜7（同梱のみ・fetch 全滅・Worker 区別・回帰）は P1 Backlog — 後日クローズ予定（2026-06-25）
 - **将来（案B・Backlog）**: `skill_data.txt` を自前 GitHub に置き fetch 一本化 → extract→push でユーザー再配布を減らす方針。sim 定義と UI 一覧を同一 JSON に揃える

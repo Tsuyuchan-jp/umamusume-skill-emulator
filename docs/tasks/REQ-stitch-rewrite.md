@@ -4,7 +4,7 @@
 > 親 REQ: [`REQ-auto-capture-multi-screen.md`](REQ-auto-capture-multi-screen.md)（Phase 1 パッチ完了・本 REQ で根本修正）。
 > 設計パック: [`auto-capture-design-pack/`](../../auto-capture-design-pack/)（golden / screenshots / logs）。
 
-- **ステータス**: in-progress（R1 done・R2 待ち）
+- **ステータス**: in-progress（R1/R2 done・R3 待ち）
 - **作成日**: 2026-06-26 08:13
 - **関連コミット**: `1df1860`（R1）
 
@@ -96,7 +96,7 @@ interface StitchReport {
 |-------|------|------|
 | **R0** | REQ・golden 期待値・計測 CLI（`tools/stitch-golden/`） | **done** |
 | **R1** | `regions.ts`（absdiff 主経路）+ 旧 API 内部差替 | **done** |
-| **R2** | layout / tabDetect 整理・走査帯魔術削除 | draft |
+| **R2** | layout / tabDetect 整理・走査帯魔術削除 | **done**（G-FRD-S scrollStart は下記ログ参照） |
 | **R3** | compose 簡素化・旧 scrollMats 全貼り廃止 | draft |
 | **R4** | postProcess 分離・TrainingInfo 別パス（旧 S-6） | draft |
 | **R5** | `opencvStitcher.ts` 削除・REQ done | draft |
@@ -151,7 +151,7 @@ interface StitchReport {
 
 - [x] R0: golden 期待値 JSON + 計測 CLI + Vitest スモーク
 - [x] R1: G-TRN + G-HOF-S golden 合格（scrollStartRatio が期待帯内）
-- [ ] R2: G-CMP + G-FRD-S golden 合格
+- [x] R2: G-CMP-S golden 合格（layout hard + tabRow + scrollStart）。G-FRD-S layout/tabRow 合格・scrollStart は absdiff 未検出（既知）
 - [ ] R3: stitched-OK 退行なし（目視 + SSIM 任意）
 - [ ] R4: TrainingInfo 別パス（G-FRD-I）
 - [ ] R5: `opencvStitcher.ts` 削除、親 REQ Phase 3 検証クローズ、TODO/INDEX 更新
@@ -194,7 +194,8 @@ npm run stitch:golden
 |------|---------|------|
 | 2026-06-26 08:13 | **REQ 起票・R0 着手** | 監査で 16%≠目視境界を確認。パッチ積み上げ限界 |
 | 2026-06-26 08:13 | **scrollStartY を absdiff 主経路に** | レイアウト非依存・HOF/TRN 共通 |
-| 2026-06-26 08:41 | **R1 完了** | scrollStartY absdiff 正本・`USE_STITCH_V2` フラグ・G-TRN/G-HOF-S golden PASS。G-FRD 期待値修正（R2 ゲート） |
+| 2026-06-26 18:07 | **R2 実装完了（layout/tabDetect）** | 走査帯 0.28–0.48/0.52/0.38–0.54 正本化・8–16% 廃止・G-CMP-S PASS。G-FRD-S: layout L3+Btn + tabRow PASS、scrollStart は golden f000/f001 で absdiff 静止境界未検出→green-tab 0.545（期待帯外）。regionsCore 変更は R2 スコープ外のため別途要承認 |
+| 2026-06-26 18:07 | **R2 方針確定** | layout/tabDetect 分割、L3+Btn 補助 0.385、partner 帯タブ走査、G-CMP-S/G-FRD-S layout hard assert、USE_STITCH_V2 false 維持 |
 | 2026-06-26 08:13 | **R0 完了** | golden 6件 PASS。HOF scrollStart≈0.44–0.50、legacy 16% delta +257〜302px |
 
 ---

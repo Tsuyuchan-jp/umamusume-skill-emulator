@@ -3,45 +3,38 @@
 import { findCropBounds } from "./stitch/crop";
 import { detectScrollStartY } from "./stitch/regions";
 import { USE_STITCH_V2 } from "./stitch/flags";
+import {
+  STITCH_FOOTER_HEIGHT_RATIO,
+  STITCH_HEADER_HEIGHT_L2,
+  STITCH_HEADER_HEIGHT_L3,
+  STITCH_HEADER_HEIGHT_L3_BTN,
+  STITCH_HEADER_TAB_BOTTOM_MARGIN_RATIO,
+  STITCH_MATCH_SCORE_THRESHOLD,
+  STITCH_SCROLLBAR_WIDTH_RATIO,
+  STITCH_SCROLL_DIFF_AVG_THRESHOLD,
+  STITCH_SCROLL_DIFF_CHECK_WIDTH_RATIO,
+  STITCH_SCROLL_DIFF_CONSECUTIVE_ROWS,
+  STITCH_SEARCH_WIDTH_RATIO,
+  STITCH_TAB_ROW_HEIGHT_RATIO,
+  STITCH_TEMPLATE_HEIGHT_RATIO,
+  STITCH_WHITESPACE_STD_THRESHOLD,
+  type StitchLayout,
+} from "./stitch/constants";
+import {
+  detectStitchLayout,
+  detectStitchLayoutAndTabRow,
+} from "./stitch/layout";
+import { detectStitchTab } from "./stitch/tabDetect";
+import type { LayoutDetection, TabRowInfo } from "./stitch/types";
 
-// --- 結合定数（Phase 1 正本） ---
-// L2 比率は設計パック TRN 計測（tools/measure-stitch-layout.ps1）: タブ下端≈50.3%。旧 D1 の 22% は誤推定。
-const STITCH_FOOTER_HEIGHT_RATIO = 0.15;
-const STITCH_HEADER_HEIGHT_L2 = 0.5; // フォールバックのみ（検出成功時はタブ行から動的算出）
-const STITCH_HEADER_HEIGHT_L3 = 0.16;
-const STITCH_HEADER_HEIGHT_L3_BTN = 0.24; // 練習パートナー解除帯＋下段タブ（FRD 系）
-const STITCH_HEADER_TAB_BOTTOM_MARGIN_RATIO = 0.012; // タブ下端〜スクロール開始の余白
-const STITCH_MATCH_SCORE_THRESHOLD = 0.85;
-const STITCH_SEARCH_WIDTH_RATIO = 0.95;
-const STITCH_SCROLLBAR_WIDTH_RATIO = 0.03;
-const STITCH_TEMPLATE_HEIGHT_RATIO = 0.2;
-const STITCH_TAB_ROW_HEIGHT_RATIO = 0.035;
-// L3 タブ行: 上段（HOF/CMP 計測・ログ Header 144/900=16% 整合）
-const STITCH_TAB_ROW_L3_SCAN_START = 0.08;
-const STITCH_TAB_ROW_L3_SCAN_END = 0.16;
-const STITCH_L3_GREEN_SEG_MIN = 0.15;
-// L2 タブ行: 下段（TRN 計測 ratio≈0.47, L2score≈0.83）
-const STITCH_TAB_ROW_L2_SCAN_START = 0.38;
-const STITCH_TAB_ROW_L2_SCAN_END = 0.54;
-const STITCH_L2_GREEN_SCORE_MIN = 0.45;
-const STITCH_TAB_ROW_L3_BTN_TAB_SCAN_START = 0.17;
-const STITCH_TAB_ROW_L3_BTN_TAB_SCAN_END = 0.26;
-const STITCH_TAB_ROW_Y_SCAN_STEP = 0.01;
-const STITCH_PARTNER_BTN_Y_START = 0.12;
-const STITCH_PARTNER_BTN_Y_END = 0.17;
-const STITCH_PARTNER_BTN_MIN_WIDTH_RATIO = 0.45;
-const STITCH_PARTNER_BTN_BRIGHTNESS = 210;
-const STITCH_PARTNER_BTN_MAX_ROW_RATIO = 0.045;
-const STITCH_SCROLL_DIFF_AVG_THRESHOLD = 5;
-const STITCH_SCROLL_DIFF_CONSECUTIVE_ROWS = 10;
-const STITCH_SCROLL_DIFF_CHECK_WIDTH_RATIO = 0.8;
+export type { StitchLayout } from "./stitch/constants";
+export type { StitchTab } from "./stitch/types";
+export { detectStitchLayout, detectStitchLayoutAndTabRow, detectStitchTab };
+
+// --- 結合定数（compose / scrollMatch 用・R3 まで opencvStitcher に残す） ---
 const STITCH_INHERITANCE_GREEN_SEARCH_START = 0.65;
 const STITCH_INHERITANCE_GREEN_MIN_WIDTH_RATIO = 0.8;
 const STITCH_INHERITANCE_FACTOR_HEADER_MAX_RATIO = 0.3;
-const STITCH_WHITESPACE_STD_THRESHOLD = 20;
-
-export type StitchLayout = "L2" | "L3" | "L3+Btn";
-export type StitchTab = "Skill" | "Inheritance" | "TrainingInfo";
 
 function getHeaderHeightRatio(layout: StitchLayout): number {
   switch (layout) {
@@ -55,115 +48,7 @@ function getHeaderHeightRatio(layout: StitchLayout): number {
   }
 }
 
-type TabRowInfo = {
-  tabCount: number;
-  tabY: number;
-  found: boolean;
-  method?: "green-l2" | "green-l3" | "fallback";
-};
-
-/** 1行分の緑タブプロファイル（HSV・opencv detectStitchTab と同系） */
-function measureGreenTabProfile(
-  croppedMat: any,
-  cv: any,
-  cropWidth: number,
-  tabY: number,
-  cropHeight: number
-): { l2Score: number; seg1: number; seg2: number; seg3: number; maxSeg: number } {
-  const tabH = Math.max(4, Math.floor(cropHeight * STITCH_TAB_ROW_HEIGHT_RATIO));
-  const roi = croppedMat.roi(new cv.Rect(0, tabY, cropWidth, tabH));
-  const hsv = new cv.Mat();
-  cv.cvtColor(roi, hsv, cv.COLOR_RGBA2RGB);
-  cv.cvtColor(hsv, hsv, cv.COLOR_RGB2HSV);
-
-  const seg2X = Math.floor(cropWidth / 2);
-  const seg3W = Math.floor(cropWidth / 3);
-  let leftG = 0;
-  let rightG = 0;
-  let leftT = 0;
-  let rightT = 0;
-  const segG = [0, 0, 0];
-  const segT = [0, 0, 0];
-
-  const isTabGreen = (ptr: Uint8Array) => {
-    const h = ptr[0];
-    const s = ptr[1];
-    const v = ptr[2];
-    return h >= 35 && h <= 85 && s >= 80 && v >= 80;
-  };
-
-  for (let y = 0; y < hsv.rows; y++) {
-    for (let x = 0; x < hsv.cols; x++) {
-      const ptr = hsv.ucharPtr(y, x);
-      const g = isTabGreen(ptr);
-      if (x < Math.floor(cropWidth * 0.48)) {
-        leftT++;
-        if (g) leftG++;
-      } else if (x >= Math.floor(cropWidth * 0.52)) {
-        rightT++;
-        if (g) rightG++;
-      }
-      const si = x < seg3W ? 0 : x < seg3W * 2 ? 1 : 2;
-      segT[si]++;
-      if (g) segG[si]++;
-    }
-  }
-
-  hsv.delete();
-  roi.delete();
-
-  const seg1 = segT[0] > 0 ? segG[0] / segT[0] : 0;
-  const seg2 = segT[1] > 0 ? segG[1] / segT[1] : 0;
-  const seg3 = segT[2] > 0 ? segG[2] / segT[2] : 0;
-  const l2Score =
-    (rightT > 0 ? rightG / rightT : 0) - (leftT > 0 ? leftG / leftT : 0);
-
-  return { l2Score, seg1, seg2, seg3, maxSeg: Math.max(seg1, seg2, seg3) };
-}
-
-/** 緑プロファイルでタブ行を走査 */
-function scanGreenTabRow(
-  croppedMat: any,
-  cv: any,
-  cropWidth: number,
-  cropHeight: number,
-  startRatio: number,
-  endRatio: number,
-  mode: "l2" | "l3"
-): TabRowInfo {
-  let best: TabRowInfo = {
-    tabCount: mode === "l2" ? 2 : 3,
-    tabY: Math.floor(cropHeight * ((startRatio + endRatio) / 2)),
-    found: false,
-    method: mode === "l2" ? "green-l2" : "green-l3",
-  };
-  let bestScore = -1;
-
-  for (let ratio = startRatio; ratio <= endRatio; ratio += STITCH_TAB_ROW_Y_SCAN_STEP) {
-    const tabY = Math.floor(cropHeight * ratio);
-    if (tabY + Math.floor(cropHeight * STITCH_TAB_ROW_HEIGHT_RATIO) >= cropHeight) continue;
-
-    const p = measureGreenTabProfile(croppedMat, cv, cropWidth, tabY, cropHeight);
-
-    if (mode === "l2") {
-      if (p.l2Score < STITCH_L2_GREEN_SCORE_MIN) continue;
-      if (p.l2Score > bestScore) {
-        bestScore = p.l2Score;
-        best = { tabCount: 2, tabY, found: true, method: "green-l2" };
-      }
-    } else {
-      if (p.maxSeg < STITCH_L3_GREEN_SEG_MIN) continue;
-      if (p.maxSeg > bestScore) {
-        bestScore = p.maxSeg;
-        best = { tabCount: 3, tabY, found: true, method: "green-l3" };
-      }
-    }
-  }
-
-  return best;
-}
-
-/** タブ行下端からヘッダー高さを算出（検出成功時は固定比率より優先） */
+/** タブ行下端からヘッダー高さを算出（USE_STITCH_V2=false 向け・R3 まで残す） */
 function computeHeaderHeight(
   layout: StitchLayout,
   cropHeight: number,
@@ -182,194 +67,7 @@ function computeHeaderHeight(
   return Math.floor(cropHeight * getHeaderHeightRatio(layout));
 }
 
-/** 「練習パートナー解除」帯（明るい横長ボタン・縦幅が狭い）の有無 */
-function detectPartnerReleaseBand(mat: any, cv: any, cropWidth: number, cropHeight: number): boolean {
-  const yStart = Math.floor(cropHeight * STITCH_PARTNER_BTN_Y_START);
-  const yEnd = Math.floor(cropHeight * STITCH_PARTNER_BTN_Y_END);
-  const roiH = Math.max(1, yEnd - yStart);
-  const roi = mat.roi(new cv.Rect(0, yStart, cropWidth, roiH));
-  const gray = new cv.Mat();
-  cv.cvtColor(roi, gray, cv.COLOR_RGBA2GRAY);
-
-  const minBrightPixels = Math.floor(cropWidth * STITCH_PARTNER_BTN_MIN_WIDTH_RATIO);
-  const maxButtonRows = Math.max(2, Math.floor(cropHeight * STITCH_PARTNER_BTN_MAX_ROW_RATIO));
-
-  let runStart = -1;
-  let bestRun = 0;
-
-  for (let y = 0; y < gray.rows; y++) {
-    let brightCount = 0;
-    for (let x = 0; x < gray.cols; x++) {
-      if (gray.ucharPtr(y, x)[0] >= STITCH_PARTNER_BTN_BRIGHTNESS) {
-        brightCount++;
-      }
-    }
-    const isBrightRow = brightCount >= minBrightPixels;
-    if (isBrightRow) {
-      if (runStart === -1) runStart = y;
-    } else if (runStart !== -1) {
-      bestRun = Math.max(bestRun, y - runStart);
-      runStart = -1;
-    }
-  }
-  if (runStart !== -1) {
-    bestRun = Math.max(bestRun, gray.rows - runStart);
-  }
-
-  gray.delete();
-  roi.delete();
-
-  // 成長率帯のような縦に長い明るい領域は除外
-  return bestRun > 0 && bestRun <= maxButtonRows;
-}
-
-export type LayoutDetection = { layout: StitchLayout; tabRow: TabRowInfo };
-
-/** 初回フレームからレイアウトとタブ行を判定 */
-export function detectStitchLayoutAndTabRow(
-  croppedMat: any,
-  cv: any,
-  cropWidth: number,
-  cropHeight: number
-): LayoutDetection {
-  const l3Upper = scanGreenTabRow(
-    croppedMat,
-    cv,
-    cropWidth,
-    cropHeight,
-    STITCH_TAB_ROW_L3_SCAN_START,
-    STITCH_TAB_ROW_L3_SCAN_END,
-    "l3"
-  );
-
-  const l2Lower = scanGreenTabRow(
-    croppedMat,
-    cv,
-    cropWidth,
-    cropHeight,
-    STITCH_TAB_ROW_L2_SCAN_START,
-    STITCH_TAB_ROW_L2_SCAN_END,
-    "l2"
-  );
-
-  const l3BtnTabRow = scanGreenTabRow(
-    croppedMat,
-    cv,
-    cropWidth,
-    cropHeight,
-    STITCH_TAB_ROW_L3_BTN_TAB_SCAN_START,
-    STITCH_TAB_ROW_L3_BTN_TAB_SCAN_END,
-    "l3"
-  );
-
-  const hasPartnerBtn = detectPartnerReleaseBand(croppedMat, cv, cropWidth, cropHeight);
-
-  // 上段3タブ（殿堂入り等）を最優先
-  if (l3Upper.found) {
-    if (hasPartnerBtn && l3BtnTabRow.found) {
-      return { layout: "L3+Btn", tabRow: l3BtnTabRow };
-    }
-    return { layout: "L3", tabRow: l3Upper };
-  }
-
-  // 下段2タブ（育成中 TRN）
-  if (l2Lower.found) {
-    return { layout: "L2", tabRow: l2Lower };
-  }
-
-  // 練習パートナー解除＋下段3タブのみ（上段3タブなし）
-  if (hasPartnerBtn && l3BtnTabRow.found) {
-    return { layout: "L3+Btn", tabRow: l3BtnTabRow };
-  }
-
-  if (l3BtnTabRow.found) {
-    return { layout: "L3", tabRow: l3BtnTabRow };
-  }
-
-  // 上段3タブなし → L2（旧 L3 フォールバックは TRN で致命的だった）
-  const fallbackTabY = Math.floor(cropHeight * 0.46);
-  return {
-    layout: "L2",
-    tabRow: {
-      tabCount: 2,
-      tabY: fallbackTabY,
-      found: true,
-      method: "fallback",
-    },
-  };
-}
-
-/** 初回フレームからレイアウトを判定 */
-export function detectStitchLayout(
-  croppedMat: any,
-  cv: any,
-  cropWidth: number,
-  cropHeight: number
-): StitchLayout {
-  return detectStitchLayoutAndTabRow(croppedMat, cv, cropWidth, cropHeight).layout;
-}
-
-/** アクティブタブ（緑ハイライト位置）から StitchTab を判定 */
-export function detectStitchTab(
-  croppedMat: any,
-  cv: any,
-  cropWidth: number,
-  cropHeight: number,
-  layout: StitchLayout,
-  tabRowY?: number
-): StitchTab {
-  const tabY =
-    tabRowY ??
-    detectStitchLayoutAndTabRow(croppedMat, cv, cropWidth, cropHeight).tabRow.tabY;
-  const tabH = Math.max(4, Math.floor(cropHeight * STITCH_TAB_ROW_HEIGHT_RATIO));
-  const roi = croppedMat.roi(new cv.Rect(0, tabY, cropWidth, tabH));
-
-  const hsv = new cv.Mat();
-  cv.cvtColor(roi, hsv, cv.COLOR_RGBA2RGB);
-  cv.cvtColor(hsv, hsv, cv.COLOR_RGB2HSV);
-
-  const segmentCount = layout === "L2" ? 2 : 3;
-  const segWidth = Math.floor(cropWidth / segmentCount);
-  let bestSeg = 0;
-  let bestGreen = 0;
-
-  for (let seg = 0; seg < segmentCount; seg++) {
-    const x0 = seg * segWidth;
-    const x1 = seg === segmentCount - 1 ? cropWidth : (seg + 1) * segWidth;
-    let greenSum = 0;
-    let count = 0;
-    for (let y = 0; y < hsv.rows; y++) {
-      for (let x = x0; x < x1; x++) {
-        const ptr = hsv.ucharPtr(y, x);
-        const h = ptr[0];
-        const s = ptr[1];
-        const v = ptr[2];
-        if (h >= 35 && h <= 85 && s >= 80 && v >= 80) {
-          greenSum += s;
-          count++;
-        }
-      }
-    }
-    const avg = count > 0 ? greenSum / count : 0;
-    if (avg > bestGreen) {
-      bestGreen = avg;
-      bestSeg = seg;
-    }
-  }
-
-  hsv.delete();
-  roi.delete();
-
-  if (layout === "L2") {
-    // 右タブ（スキル）が通常のキャプチャ対象
-    return bestSeg >= 1 ? "Skill" : "Skill";
-  }
-
-  if (bestSeg === 1) return "Inheritance";
-  if (bestSeg === 2) return "TrainingInfo";
-  return "Skill";
-}
-
+export type { LayoutDetection };
 /** テンプレートマッチでスクロール量を算出 */
 function computeTemplateScrollAmount(
   prev: any,

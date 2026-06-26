@@ -1,9 +1,12 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { cropRgba, findCropBoundsOrFallback } from "./cropCore";
+import { detectLayoutAndTabRowRgba } from "./layoutCore";
 import { detectScrollStartYFromRgba } from "./regionsCore";
+import { detectStitchTabFromRgba } from "./tabDetectCore";
 import type { RgbaImage } from "./rgba";
 import type { StitchLayout } from "./constants";
+import type { StitchTab } from "./types";
 
 /** PNG を RGBA にデコード（Node golden 計測用・sharp 依存） */
 export async function loadPngRgba(filePath: string): Promise<RgbaImage> {
@@ -24,6 +27,37 @@ export interface GoldenMeasureResult {
   scrollStartY: number;
   scrollStartRatio: number;
   method: string;
+}
+
+export interface GoldenLayoutMeasureResult {
+  crop: { x: number; y: number; width: number; height: number };
+  layout: StitchLayout;
+  tabRowY: number;
+  tabRowRatio: number;
+  tab: StitchTab;
+  tabRowMethod?: string;
+}
+
+/** 単一フレームから layout / tabRow / tab を計測（R2 ゲート） */
+export async function measureLayoutFromFrame(
+  packRoot: string,
+  framePath: string
+): Promise<GoldenLayoutMeasureResult> {
+  const frameFull = await loadPngRgba(join(packRoot, framePath));
+  const cropRect = findCropBoundsOrFallback(frameFull);
+  const frame = cropRgba(frameFull, cropRect);
+
+  const { layout, tabRow } = detectLayoutAndTabRowRgba(frame);
+  const tab = detectStitchTabFromRgba(frame, layout, tabRow.tabY);
+
+  return {
+    crop: cropRect,
+    layout,
+    tabRowY: tabRow.tabY,
+    tabRowRatio: tabRow.tabY / cropRect.height,
+    tab,
+    tabRowMethod: tabRow.method,
+  };
 }
 
 /** 設計パック 2 フレームから scrollStartRatio を計測（R1 ゲート） */

@@ -35,6 +35,11 @@ export function isTabGreenHsv(h: number, s: number, v: number): boolean {
   return h >= 35 && h <= 85 && s >= 80 && v >= 80;
 }
 
+/** measure-regions.ps1 Test-TabGreen 相当（タブ行走査用） */
+export function isTabGreenRgb(r: number, g: number, b: number): boolean {
+  return g >= 100 && g > r + 30 && g > b + 20;
+}
+
 export function isTitleBarGreenHsv(h: number, s: number, v: number): boolean {
   return h >= 20 && h <= 60 && s >= 150;
 }

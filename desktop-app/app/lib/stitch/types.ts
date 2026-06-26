@@ -16,6 +16,22 @@ export interface ScrollStartResult {
   confidence: "high" | "low";
 }
 
+export type StitchTab = "Skill" | "Inheritance" | "TrainingInfo";
+
+export type TabRowMethod = "green-l2" | "green-l3" | "fallback";
+
+export interface TabRowInfo {
+  tabCount: number;
+  tabY: number;
+  found: boolean;
+  method?: TabRowMethod;
+}
+
+export interface LayoutDetection {
+  layout: StitchLayout;
+  tabRow: TabRowInfo;
+}
+
 export interface StitchReport {
   crop: CropRect;
   regions: {
@@ -25,5 +41,5 @@ export interface StitchReport {
     confidence: "high" | "low";
   };
   layout: StitchLayout;
-  tab: "Skill" | "Inheritance" | "TrainingInfo";
+  tab: StitchTab;
 }
