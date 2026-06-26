@@ -157,7 +157,7 @@
 
 ## 完了済み
 
-- [x] **Scene Model M4** — partnerDetectCore・緑判定 rgba 正本化・tabDetect INV-2 配線・capture.rs 閾値同期（2026-06-27 08:01）/ [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
+- [x] **Scene Model M4** — partnerDetectCore・緑判定 rgba 正本化・tabDetect INV-2 配線・capture.rs 閾値同期（2026-06-27 08:01 / `40bcbca`）/ [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
 - [x] **Scene Model M3** — expectations sceneSpec 必須・Vitest 駆動・INV-1 メタ（FRD タイト帯）（2026-06-27 07:14 / `cf2a6a0`）/ [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
 - [x] **CHAT_TEMPLATE 起票ルール** — ネストフェンス禁止・検証コマンド共通化（2026-06-27 07:03 / `1e11a78`）
 - [x] **CONCEPT-MAP 種別列** — 英語先頭・種別列追加・隣の概念削除（2026-06-27 06:52 / `db7969f`）
