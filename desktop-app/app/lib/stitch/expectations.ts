@@ -17,6 +17,8 @@ export interface GoldenCase {
   scrollStartRatio: RatioBand;
   tabRowRatio: RatioBand;
   legacyHeaderRatio: number | null;
+  /** R3.5c: セッション代表 shift S*（ホイール -4 正本） */
+  shiftRepresentative?: RatioBand;
   notes?: string;
 }
 

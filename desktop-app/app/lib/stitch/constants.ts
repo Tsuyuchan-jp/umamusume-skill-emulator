@@ -17,6 +17,10 @@ export const STITCH_SCROLLBAR_WIDTH_RATIO = 0.03;
 
 /** shiftEstimate（R3.5a: 全重なり SSD + セッション median） */
 export const STITCH_SHIFT_CONTENT_WIDTH_RATIO = 0.8;
+/** R3.5c: SSD 重なり高さ = scrollRegionH − S の下限比率（狭い帯のみ探索上界に適用） */
+export const STITCH_SHIFT_MIN_OVERLAP_RATIO = 0.28;
+/** この高さ未満のスクロール帯に重なり下限ガードを適用（TRN/FRD 等） */
+export const STITCH_SHIFT_NARROW_REGION_MAX = 320;
 export const STITCH_SHIFT_S_MIN = 40;
 export const STITCH_SHIFT_S_MAX_MARGIN = 40;
 export const STITCH_SHIFT_OUTLIER_TAU = 40;

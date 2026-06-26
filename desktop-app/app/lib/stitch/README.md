@@ -11,15 +11,15 @@
 | R3 | `compose.ts` / `scrollMatch.ts`・`stitch.ts`・V2 ON **done** |
 | R3.5a | `shiftEstimate*`（SSD + median）**done** |
 | R3.5b | layout L2 優先・tabDetect 2タブガード **done** |
-| **R3.5c** | **-4 正本・shift 末端・golden・実機**（c-1 docs done、c-2〜実装待ち） |
+| **R3.5c** | **-4 正本・shift 末端・golden**（c-2〜c-4 done・c-5 実機待ち） |
 | R4 | postProcess 分離・TrainingInfo |
 | R5 | `opencvStitcher.ts` 削除 |
 
 ## shiftEstimate（R3.5a 正本）
 
 - **Step B**: スクロール帯 RGBA 列の全重なり SSD（`overlapAvgDiff`）
-- **Step C**: セッション `S*`（median）・外れ値 τ・末端 terminal / bound（**R3.5c-2 で bound 見直し**）
-- **R3.5c-3**: 重なり下限 `scrollRegionH − S` を帯比率で保証（定数は `constants.ts`）
+- **Step C**: セッション `S*`（median）・外れ値 τ・末端 terminal / bound（**R3.5c-2 done**）
+- **R3.5c-3**: 狭帯（`<320px`）のみ `STITCH_SHIFT_MIN_OVERLAP_RATIO` で探索上界を制約
 
 `scrollMatch.ts` は `shiftEstimate.ts` へ委譲。
 

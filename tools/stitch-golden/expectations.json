@@ -14,7 +14,8 @@
       "scrollStartRatio": { "min": 0.36, "max": 0.46 },
       "tabRowRatio": { "min": 0.33, "max": 0.43 },
       "legacyHeaderRatio": 0.16,
-      "notes": "旧 Header 144px は scrollStart ではない。目視≈40%"
+      "shiftRepresentative": { "min": 200, "max": 280 },
+      "notes": "旧 Header 144px は scrollStart ではない。設計パックは -5 時代 S*≈274。実機 -4 は 180–220"
     },
     {
       "id": "G-HOF-F",
@@ -37,6 +38,7 @@
       "scrollStartRatio": { "min": 0.48, "max": 0.54 },
       "tabRowRatio": { "min": 0.44, "max": 0.50 },
       "legacyHeaderRatio": null,
+      "shiftRepresentative": { "min": 175, "max": 210 },
       "notes": "G-TRN 実機: Header 464px/900≈51.6%。crop 検出で計測（preCropped 不可）"
     },
     {
@@ -57,7 +59,8 @@
       "scrollStartRatio": { "min": 0.52, "max": 0.56 },
       "tabRowRatio": { "min": 0.39, "max": 0.47 },
       "legacyHeaderRatio": 0.16,
-      "notes": "R2 ゲート。広帯タブ（旧 22–30% 期待は誤り）"
+      "shiftRepresentative": { "min": 120, "max": 180 },
+      "notes": "R2 ゲート。設計パック S*≈133。実機 -4 は 170–210"
     },
     {
       "id": "G-FRD-F",

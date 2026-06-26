@@ -16,7 +16,7 @@ use windows_sys::Win32::Graphics::Gdi::{
 
 use crate::{CaptureError, CaptureSessionState};
 
-/// オートキャプチャ時のホイールノッチ数（負=下方向）。正本は -5。TRN shift 実験で -4。
+/// オートキャプチャ時のホイールノッチ数（負=下方向）。Capture–Stitch 契約の正本は **-4**。
 const AUTO_SCROLL_WHEEL_CLICKS: i16 = -4;
 
 // ============================================================

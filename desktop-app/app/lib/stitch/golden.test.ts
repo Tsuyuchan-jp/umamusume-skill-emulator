@@ -95,6 +95,31 @@ describe.skipIf(!isDesignPackPresent())("stitch golden R3.5a shiftEstimate", () 
     return Math.sqrt(variance);
   }
 
+  it("G-TRN 4フレーム: median(S*)∈[175,210]・最終ペア bound なし", async () => {
+    const c = getGoldenCase("G-TRN")!;
+    expect(c.shiftRepresentative).toBeDefined();
+    const framePaths = [
+      "golden/TRN/frame_000.png",
+      "golden/TRN/frame_001.png",
+      "golden/TRN/frame_002.png",
+      "golden/TRN/frame_003.png",
+    ];
+    for (const rel of framePaths) {
+      expect(existsSync(join(packRoot, rel)), `missing ${rel}`).toBe(true);
+    }
+
+    const measured = await measureShiftFromFrames(packRoot, framePaths, c.layout);
+    expect(
+      measured.representative,
+      `S*=${measured.representative} overlaps=${measured.overlaps.join(",")}`
+    ).toBeGreaterThanOrEqual(c.shiftRepresentative!.min);
+    expect(measured.representative).toBeLessThanOrEqual(c.shiftRepresentative!.max);
+    expect(
+      measured.overlaps.length,
+      `bound により最終フレーム欠落 overlaps=${measured.overlaps.join(",")}`
+    ).toBe(framePaths.length - 1);
+  }, 60_000);
+
   it("G-FRD-S frame_000..007: std(S_k)<20, min(S_k)>80, [22,32] 禁止帯 0件", async () => {
     const c = getGoldenCase("G-FRD-S")!;
     const framePaths = Array.from({ length: 8 }, (_, i) =>
@@ -108,6 +133,14 @@ describe.skipIf(!isDesignPackPresent())("stitch golden R3.5a shiftEstimate", () 
     const overlaps = measured.overlaps;
     expect(overlaps.length).toBeGreaterThanOrEqual(6);
 
+    if (c.shiftRepresentative) {
+      expect(
+        measured.representative,
+        `S*=${measured.representative} overlaps=${overlaps.join(",")}`
+      ).toBeGreaterThanOrEqual(c.shiftRepresentative.min);
+      expect(measured.representative).toBeLessThanOrEqual(c.shiftRepresentative.max);
+    }
+
     const sStd = stdDev(overlaps);
     expect(sStd, `std(S_k)=${sStd.toFixed(2)} overlaps=${overlaps.join(",")}`).toBeLessThan(20);
     expect(Math.min(...overlaps), `min(S_k)=${Math.min(...overlaps)}`).toBeGreaterThan(80);
@@ -119,8 +152,9 @@ describe.skipIf(!isDesignPackPresent())("stitch golden R3.5a shiftEstimate", () 
     ).toBe(0);
   }, 120_000);
 
-  it("G-HOF-S 3フレーム: median(S*)∈[200,280]", async () => {
+  it("G-HOF-S 3フレーム: median(S*)∈期待帯（設計パック退行ゲート）", async () => {
     const c = getGoldenCase("G-HOF-S")!;
+    expect(c.shiftRepresentative).toBeDefined();
     const framePaths = [
       c.framePaths[0],
       "screenshots/HOF/skill/S1-mid.png",
@@ -134,8 +168,8 @@ describe.skipIf(!isDesignPackPresent())("stitch golden R3.5a shiftEstimate", () 
     expect(
       measured.representative,
       `S*=${measured.representative} overlaps=${measured.overlaps.join(",")}`
-    ).toBeGreaterThanOrEqual(200);
-    expect(measured.representative).toBeLessThanOrEqual(280);
+    ).toBeGreaterThanOrEqual(c.shiftRepresentative!.min);
+    expect(measured.representative).toBeLessThanOrEqual(c.shiftRepresentative!.max);
   }, 60_000);
 
   it("G-FRD-S compose: overlapSum>700, outputHeight>1300", async () => {

@@ -1,6 +1,8 @@
 import {
   STITCH_SHIFT_COARSE_STEP,
   STITCH_SHIFT_CONTENT_WIDTH_RATIO,
+  STITCH_SHIFT_MIN_OVERLAP_RATIO,
+  STITCH_SHIFT_NARROW_REGION_MAX,
   STITCH_SHIFT_OUTLIER_TAU,
   STITCH_SHIFT_REFINE_WINDOW,
   STITCH_SHIFT_S_MAX_MARGIN,
@@ -36,6 +38,7 @@ export interface ShiftEstimateResult {
 export interface ShiftEstimateOptions {
   sMin?: number;
   sMaxMargin?: number;
+  minOverlapRatio?: number;
   contentWidthRatio?: number;
   outlierTau?: number;
   refineWindow?: number;
@@ -48,6 +51,7 @@ export interface ShiftEstimateOptions {
 interface ResolvedShiftOptions {
   sMin: number;
   sMaxMargin: number;
+  minOverlapRatio: number;
   contentWidthRatio: number;
   outlierTau: number;
   refineWindow: number;
@@ -65,6 +69,7 @@ function resolveOptions(
   return {
     sMin: options?.sMin ?? STITCH_SHIFT_S_MIN,
     sMaxMargin,
+    minOverlapRatio: options?.minOverlapRatio ?? STITCH_SHIFT_MIN_OVERLAP_RATIO,
     contentWidthRatio: options?.contentWidthRatio ?? STITCH_SHIFT_CONTENT_WIDTH_RATIO,
     outlierTau: options?.outlierTau ?? STITCH_SHIFT_OUTLIER_TAU,
     refineWindow: options?.refineWindow ?? STITCH_SHIFT_REFINE_WINDOW,
@@ -73,6 +78,16 @@ function resolveOptions(
     terminalRatio: options?.terminalRatio ?? STITCH_SHIFT_TERMINAL_RATIO,
     coarseStep: options?.coarseStep ?? STITCH_SHIFT_COARSE_STEP,
   };
+}
+
+/** scrollRegionH から SSD 重なり下限を満たす探索上界（狭い帯のみ比率ガード） */
+function effectiveSMax(stripHeight: number, opts: ResolvedShiftOptions): number {
+  const fromMargin = stripHeight - opts.sMaxMargin;
+  if (stripHeight >= STITCH_SHIFT_NARROW_REGION_MAX) {
+    return fromMargin;
+  }
+  const minOverlap = Math.floor(stripHeight * opts.minOverlapRatio);
+  return Math.min(fromMargin, stripHeight - minOverlap);
 }
 
 function rgbaGray(img: RgbaImage, x: number, y: number): number {
@@ -121,7 +136,7 @@ function searchBestShift(
   rangeMax: number
 ): { scrollAmount: number; score: number; avgDiff: number } {
   const H = prev.height;
-  const sMax = H - opts.sMaxMargin;
+  const sMax = effectiveSMax(H, opts);
   const contentWidth = Math.floor(prev.width * opts.contentWidthRatio);
   const lo = Math.max(opts.sMin, rangeMin);
   const hi = Math.min(sMax, rangeMax);
@@ -151,7 +166,7 @@ export function estimatePairShiftRgba(
   options?: ShiftEstimateOptions
 ): { scrollAmount: number; score: number } {
   const opts = resolveOptions(options, prev.height);
-  const sMax = prev.height - opts.sMaxMargin;
+  const sMax = effectiveSMax(prev.height, opts);
   const result = searchBestShift(prev, curr, opts, opts.sMin, sMax);
   return { scrollAmount: result.scrollAmount, score: result.score };
 }
@@ -282,12 +297,31 @@ export function estimateShiftFramesRgba(
       method = "median-corrected";
     }
 
-    const isTerminal =
+    const isTerminalShort =
       isLast &&
       representative > 0 &&
       scrollAmount > 0 &&
       scrollAmount < opts.terminalRatio * representative &&
       score < opts.scoreMin;
+
+    const priorAmounts = refinedPairs
+      .slice(0, i)
+      .map((p) => p.scrollAmount)
+      .filter((s) => s > 0);
+    const sessionStable =
+      representative > 0 &&
+      priorAmounts.length > 0 &&
+      priorAmounts.every((s) => Math.abs(s - representative) <= opts.outlierTau);
+
+    // 先行 S* 安定時は最終ペアを bound せず terminal として compose に含める（R3.5c-2）
+    const isTerminalLowScore =
+      isLast &&
+      sessionStable &&
+      representative > 0 &&
+      scrollAmount > 0 &&
+      score < opts.scoreMin;
+
+    const isTerminal = isTerminalShort || isTerminalLowScore;
 
     if (isTerminal) {
       method = "terminal";

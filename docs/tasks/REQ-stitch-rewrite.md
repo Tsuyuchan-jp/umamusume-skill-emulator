@@ -156,7 +156,7 @@ interface StitchReport {
 | **R3** | compose 簡素化・旧 scrollMats 全貼り廃止・V2 配線 | **done** |
 | **R3.5a** | `shiftEstimate`（全重なり SSD + セッション median）— scrollMatch 置換 | **done** |
 | **R3.5b** | layout L2 優先・tabDetect 2タブガード（TRN） | **done** |
-| **R3.5c** | **-4 正本・shift 末端・golden・実機クローズ**（下表） | **in-progress（docs 確定）** |
+| **R3.5c** | **-4 正本・shift 末端・golden・実機クローズ**（下表） | **in-progress（c-2〜c-4 done・c-5 実機待ち）** |
 | **R4** | postProcess 分離・TrainingInfo 別パス（旧 S-6） | draft |
 | **R5** | `opencvStitcher.ts` 削除・REQ done | draft |
 
@@ -165,9 +165,9 @@ interface StitchReport {
 | サブ | 内容 | 主な変更 | 状態 |
 |------|------|----------|------|
 | **c-1** | Capture–Stitch 契約・docs 同期 | 本 REQ・TODO・INDEX・README・親 REQ | **done（docs）** |
-| **c-2** | 末端 bound → terminal | `shiftEstimateCore.ts` | 待ち |
-| **c-3** | 重なり下限ガード | `shiftEstimateCore.ts`・`constants.ts` | 待ち |
-| **c-4** | golden shift 更新（-4） | `golden.test.ts`・`expectations.json` | 待ち |
+| **c-2** | 末端 bound → terminal | `shiftEstimateCore.ts` | **done** |
+| **c-3** | 重なり下限ガード | `shiftEstimateCore.ts`・`constants.ts` | **done** |
+| **c-4** | golden shift 更新（-4） | `golden.test.ts`・`expectations.json` | **done** |
 | **c-5** | 実機 Step 1/3/4/6 クローズ | ログ・親 REQ 検証表 | 待ち |
 
 **Phase 3 実機検証**（[`REQ-auto-capture-multi-screen.md`](REQ-auto-capture-multi-screen.md)）は **R1 完了後** に golden + 実機で再実施。旧「Header 144px」合格基準は **廃止**。
@@ -464,11 +464,11 @@ score(S) = mean | prev[scrollStartY + S + y, x] - curr[scrollStartY + y, x] |
 ### R3.5c 完了条件
 
 - [x] c-1: Capture–Stitch 契約節・TODO/INDEX/README/親 REQ 同期（docs）
-- [ ] c-2: 最終ペア `score < SCORE_MIN` でも先行 S* 安定時は bound せず terminal / 最終フレーム compose に含める
-- [ ] c-3: `STITCH_SHIFT_MIN_OVERLAP_RATIO`（または同等）で `S ≤ scrollRegionH − minOverlap` を探索制約
-- [ ] c-4: G-TRN shift ゲート新設。HOF/FRD `S*` 帯を -4 実測で更新。`npm run stitch:golden` 全 PASS
+- [x] c-2: 最終ペア `score < SCORE_MIN` でも先行 S* 安定時は bound せず terminal / 最終フレーム compose に含める
+- [x] c-3: `STITCH_SHIFT_MIN_OVERLAP_RATIO`（または同等）で `S ≤ scrollRegionH − minOverlap` を探索制約
+- [x] c-4: G-TRN shift ゲート新設。HOF/FRD `S*` 帯を -4 実測で更新。`npm run stitch:golden` 全 PASS
 - [ ] c-5: 実機 Step 1 HOF / 3 TRN / 4 FRD-S / 6 FRD-F クローズ。親 REQ 検証表更新
-- [ ] `capture.rs` コメントを「正本 -4」に同期（実験コメント解消）
+- [x] `capture.rs` コメントを「正本 -4」に同期（実験コメント解消）
 
 ### R3.5a 完了条件（draft）
 
@@ -497,6 +497,7 @@ score(S) = mean | prev[scrollStartY + S + y, x] - curr[scrollStartY + y, x] |
 
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
+| 2026-06-27 01:49 | **R3.5c c-2〜c-4 完了** | terminal: 先行 S* 安定時は最終ペアを bound しない。重なりガード: `STITCH_SHIFT_NARROW_REGION_MAX=320` 未満の帯のみ `MIN_OVERLAP_RATIO=0.28` 適用（TRN 235→帯内・HOF 広帯退行なし）。golden 18/18 PASS・G-TRN shift ゲート新設 |
 | 2026-06-27 01:01 | **R3.5c 設計確定（docs）** | ホイール **-4 を Capture–Stitch 正本**採用。TRN/FRD は scroll 帯が狭く -5+S≈240 で SSD 重なり不足が誤推定の主因。実機 -4: TRN 中間 S*≈192 OK・末端 bound NG。サブ Phase c-1〜c-5 を本 REQ に集約（新 REQ 起票なし）。親 Phase 3 は R3.5c-5 でクローズ |
 | 2026-06-27 00:02 | **R3.5b 完了** | `shouldPreferL2`（L2 vs L3 同行走査・TRN trnPattern）+ tabDetect 2タブガード。golden 17/17 PASS（G-TRN layout=L2/tab=Skill、G-HOF-S layout=L3 退行なし） |
 | 2026-06-26 23:12 | **R3.5a 完了** | `shiftEstimateCore` + `shiftEstimate` 配線。scrollMatch 委譲。golden 15/15（FRD std(S_k)<20・26px 禁止帯 0、HOF S*∈[200,280]）。高側 SSD 誤ピークは 2 ペア時 min アンカー + 再探索で解消 |
