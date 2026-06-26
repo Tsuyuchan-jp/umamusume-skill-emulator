@@ -1,0 +1,10 @@
+[Rust] 自動スクロールキャプチャセッション開始...
+[Rust/window] Found window: title='UmamusumePrettyDerby_Jpn', class='UnityWndClass'
+[Rust/window] Captured window: 'UmamusumePrettyDerby_Jpn' at (x=210, y=57, w=1646, h=926)
+[Rust/window] Found window: title='UmamusumePrettyDerby_Jpn', class='UnityWndClass'
+[Rust/window] Captured window: 'UmamusumePrettyDerby_Jpn' at (x=210, y=57, w=1646, h=926)
+[Rust] 因子ヘッダー検知: X座標 231 〜 716, Y座標 224
+[Rust] スクロール末端に到達しました。
+[Rust] 自動キャプチャ完了: 7 フレーム取得
+[Rust] フレームを C:\Users\PC1\AppData\Local\com.umamusume.race-analyzer\umamusume_frames_1782417692098 に保 存しました
+[Rust/stitch] ディスクから 7 フレームを読み込みました: C:\Users\PC1\AppData\Local\com.umamusume.race-analyzer\umamusume_frames_1782417692098

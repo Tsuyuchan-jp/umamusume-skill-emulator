@@ -4,19 +4,19 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-26 18:57
+最終更新: 2026-06-26 19:41
 
 ---
 
 ## 現在のフォーカス
 
-**P1** — オートキャプチャ結合リライト **R3**（compose 簡素化）— **設計レビュー（Ask mode）→ 承認 → 実装**
+**P1** — オートキャプチャ結合リライト **R4**（postProcess 分離・TrainingInfo）
 
 ---
 
 ## 進行中
 
-（なし — R3 は設計レビュー承認後に Agent 着手）
+（なし）
 
 ## 次にやること（Backlog）
 
@@ -27,12 +27,6 @@
 （完了 — 下記「完了済み」参照）
 
 ### P1 — 重要
-
-- [ ] **オートキャプチャ結合リライト R3**（compose 簡素化・scrollMats 全貼り廃止）
-  - 前提: R0–R2 完了（scrollStart golden 10/10、`b01ceb3`）
-  - 手順: **Ask mode 設計レビュー** → 承認 → Agent 実装（[`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) R3 節・設計レビュー起票プロンプト）
-  - ゲート: stitched-OK 退行なし（HOF/CMP 目視 + golden scrollStart 維持）
-  - 未決: `USE_STITCH_V2` を R3 で ON にするか / `regions.ts` OpenCV 経路同期タイミング
 
 - [ ] **オートキャプチャ結合リライト R4〜R5**（postProcess 分離・`opencvStitcher.ts` 削除）
   - REQ: [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
@@ -149,7 +143,7 @@
 
 ## 完了済み
 
-- [x] **G-FRD-S scrollStart — regionsCore 改善（R2 残）** — absdiff LOW 走査 + 小スクロール scan・期待帯 0.52–0.56・golden 10件 PASS（2026-06-26 18:41 / `b01ceb3`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
+- [x] **オートキャプチャ結合リライト R3**（compose / scrollMatch・scrollMats 全貼り廃止・`USE_STITCH_V2=true`）— golden 12/12 PASS・compose スモーク G-TRN/G-HOF-S（2026-06-26 19:41）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) — absdiff LOW 走査 + 小スクロール scan・期待帯 0.52–0.56・golden 10件 PASS（2026-06-26 18:41 / `b01ceb3`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 - [x] **オートキャプチャ結合リライト R2**（layout / tabDetect 整理・走査帯正本化）— G-CMP-S + G-FRD-S layout/tabRow PASS、G-FRD-S scrollStart 要フォロー（2026-06-26 18:07 / `47d5755`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 - [x] **オートキャプチャ結合リライト R1**（scrollStartY absdiff 正本・`USE_STITCH_V2`）— G-TRN/G-HOF-S golden PASS（2026-06-26 08:41 / `1df1860`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 - [x] **オートキャプチャ結合リライト R0（golden ハーネス）** — expectations.json・measure-regions.ps1・Vitest 5件 PASS・設計パック 6 golden PASS（2026-06-26 08:13 / `851d341`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
@@ -242,8 +236,8 @@
 ## 既知の問題・メモ
 
 - パレットのスキル一覧は **`umasimSkillDataList`（ローカル）正本** — `buildPaletteSkillOptions`。WASM sim は `fetchSkillData()`（GitHub 優先 → AppData → 同梱 `public/skill_data.txt`）
-- **オートキャプチャ結合 R2**: layout/tabDetect + G-FRD-S scrollStart 完了（`b01ceb3`）。**次: R3** compose 簡素化（設計レビュー先行）。本番は `USE_STITCH_V2=false` のまま
-- **技術的負債（R3 前）**: `regionsCore.ts`（RGBA/golden）と `regions.ts`（OpenCV V2）の absdiff 境界ロジック未同期。V2 ON 時は R3 設計で同期方針を決める
+- **オートキャプチャ結合 R3 完了**: compose/scrollMatch/stitch オーケストレータ・`USE_STITCH_V2=true`。**次: R4** postProcess 分離・TrainingInfo
+- **技術的負債（R3 解消）**: `regions.ts` は `regionsCore` 薄ラッパー化済み。本番結合は `stitch.ts` 正本
 - **sim スキルデータ**: オンライン時 GitHub fetch + AppData キャッシュ。オフライン時は同梱/キャッシュで制限付き動作（フォールバック時トースト）
 - **REQ-skill-data-fetch-fallback 実機検証**: 手順 1〜2 確認済み。手順 3〜7（同梱のみ・fetch 全滅・Worker 区別・回帰）は P1 Backlog — 後日クローズ予定（2026-06-25）
 - **将来（案B・Backlog）**: `skill_data.txt` を自前 GitHub に置き fetch 一本化 → extract→push でユーザー再配布を減らす方針。sim 定義と UI 一覧を同一 JSON に揃える

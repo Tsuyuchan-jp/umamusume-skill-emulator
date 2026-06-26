@@ -1,0 +1,10 @@
+Detected UI Bounds: Rect
+forward-logs-shared.ts:95 StitchLayout=L3+Btn, StitchTab=Skill, Header: 189px, Scroll: 707px, Footer: 157px
+forward-logs-shared.ts:95 Frame 0 -> 1: absdiff fallback score=0.948, scrollAmount=93
+forward-logs-shared.ts:95 Frame 0 -> 1: score=0.948, scrollAmount=93
+forward-logs-shared.ts:95 Frame 1 -> 2: absdiff fallback score=0.959, scrollAmount=30
+forward-logs-shared.ts:95 Frame 1 -> 2: score=0.959, scrollAmount=30
+forward-logs-shared.ts:95 Frame 2 -> 3: absdiff fallback score=0.953, scrollAmount=93
+forward-logs-shared.ts:95 Frame 2 -> 3: score=0.953, scrollAmount=93
+forward-logs-shared.ts:95 Frame 3 -> 4: score=0.972, scrollAmount=196
+forward-logs-shared.ts:95 余白を自動スキップし、Y= 1308 でクロップします（元のY= 1308 ）

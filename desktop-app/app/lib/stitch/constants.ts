@@ -45,8 +45,13 @@ export const STITCH_HEADER_HEIGHT_L2 = 0.5;
 export const STITCH_HEADER_HEIGHT_L3 = 0.16;
 export const STITCH_HEADER_HEIGHT_L3_BTN = 0.24;
 
-/** postProcess 余白トリム（R4 まで opencvStitcher 経由） */
+/** postProcess 余白トリム（R3 compose 正本） */
 export const STITCH_WHITESPACE_STD_THRESHOLD = 20;
+
+/** 継承タブ S-5: 緑履歴バー検出 */
+export const STITCH_INHERITANCE_GREEN_SEARCH_START = 0.65;
+export const STITCH_INHERITANCE_GREEN_MIN_WIDTH_RATIO = 0.8;
+export const STITCH_INHERITANCE_FACTOR_HEADER_MAX_RATIO = 0.3;
 
 export type StitchLayout = "L2" | "L3" | "L3+Btn";
 

@@ -8,7 +8,7 @@ import {
   isRatioInBand,
   loadStitchGoldenExpectations,
 } from "./expectations";
-import { measureLayoutFromFrame, measureScrollStartFromFrames } from "./goldenMeasure";
+import { measureLayoutFromFrame, measureScrollStartFromFrames, measureComposeFromFrames } from "./goldenMeasure";
 import { USE_STITCH_V2 } from "./flags";
 
 describe("stitch golden expectations (R0)", () => {
@@ -45,9 +45,43 @@ describe("stitch golden expectations (R0)", () => {
     expect(trn!.scrollStartRatio.min).toBeGreaterThan(0.45);
   });
 
-  it("USE_STITCH_V2 はデフォルト false（旧経路維持）", () => {
-    expect(USE_STITCH_V2).toBe(false);
+  it("USE_STITCH_V2 は R3 で true（stitch オーケストレータ正本）", () => {
+    expect(USE_STITCH_V2).toBe(true);
   });
+});
+
+describe.skipIf(!isDesignPackPresent())("stitch golden R3 compose smoke (RGBA)", () => {
+  const packRoot = getDesignPackRoot();
+
+  it("G-TRN compose: 出力高さ > crop 高さ・overlap 合計 > 0", async () => {
+    const c = getGoldenCase("G-TRN")!;
+    const framePaths = [
+      "golden/TRN/frame_000.png",
+      "golden/TRN/frame_001.png",
+      "golden/TRN/frame_002.png",
+      "golden/TRN/frame_003.png",
+    ];
+    const measured = await measureComposeFromFrames(packRoot, framePaths, c.layout);
+    expect(measured.outputHeight).toBeGreaterThan(measured.crop.height);
+    expect(measured.overlapSum).toBeGreaterThan(0);
+    expect(measured.frameCount).toBeGreaterThanOrEqual(2);
+  }, 60_000);
+
+  it("G-HOF-S compose: 出力高さ > crop 高さ・3フレーム結合", async () => {
+    const c = getGoldenCase("G-HOF-S")!;
+    const framePaths = [
+      c.framePaths[0],
+      "screenshots/HOF/skill/S1-mid.png",
+      "screenshots/HOF/skill/S2-bottom.png",
+    ];
+    for (const rel of framePaths) {
+      expect(existsSync(join(packRoot, rel)), `missing ${rel}`).toBe(true);
+    }
+    const measured = await measureComposeFromFrames(packRoot, framePaths, c.layout);
+    expect(measured.outputHeight).toBeGreaterThan(measured.crop.height);
+    expect(measured.overlapSum).toBeGreaterThan(100);
+    expect(measured.frameCount).toBe(3);
+  }, 60_000);
 });
 
 describe.skipIf(!isDesignPackPresent())("stitch golden design pack paths", () => {

@@ -1,0 +1,9 @@
+Detected UI Bounds: Rect {x: 256, y: 27, width: 594, height: 1053}
+opencvStitcher.ts:37 Header: 168px, Scroll: 728px, Footer: 157px
+opencvStitcher.ts:76 Frame 0 -> 1: score=0.984, scrollAmount=281
+opencvStitcher.ts:76 Frame 1 -> 2: score=0.988, scrollAmount=281
+opencvStitcher.ts:76 Frame 2 -> 3: score=0.984, scrollAmount=281
+opencvStitcher.ts:76 Frame 3 -> 4: score=0.988, scrollAmount=281
+opencvStitcher.ts:76 Frame 4 -> 5: score=0.988, scrollAmount=281
+opencvStitcher.ts:76 Frame 5 -> 6: score=0.958, scrollAmount=238
+opencvStitcher.ts:270 余白を自動スキップし、Y= 2539 でクロップします（元のY= 2539 ）

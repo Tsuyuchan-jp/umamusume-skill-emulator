@@ -1,13 +1,15 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { STITCH_FOOTER_HEIGHT_RATIO } from "./constants";
 import { cropRgba, findCropBoundsOrFallback } from "./cropCore";
+import { composeStitchedRgba } from "./composeCore";
 import { detectLayoutAndTabRowRgba } from "./layoutCore";
 import { detectScrollStartYFromRgba } from "./regionsCore";
+import { matchScrollFramesRgba } from "./scrollMatchCore";
 import { detectStitchTabFromRgba } from "./tabDetectCore";
 import type { RgbaImage } from "./rgba";
 import type { StitchLayout } from "./constants";
 import type { StitchTab } from "./types";
-
 /** PNG を RGBA にデコード（Node golden 計測用・sharp 依存） */
 export async function loadPngRgba(filePath: string): Promise<RgbaImage> {
   const sharp = (await import("sharp")).default;
@@ -85,4 +87,80 @@ export async function measureScrollStartFromFrames(
     scrollStartRatio: result.ratio,
     method: result.method,
   };
+}
+
+export interface GoldenComposeMeasureResult {
+  crop: { x: number; y: number; width: number; height: number };
+  scrollStartY: number;
+  scrollStartRatio: number;
+  outputHeight: number;
+  overlapSum: number;
+  frameCount: number;
+}
+
+/** 設計パック複数フレームから RGBA 結合スモーク計測（R3 compose ゲート） */
+export async function measureComposeFromFrames(
+  packRoot: string,
+  framePaths: string[],
+  layout: StitchLayout
+): Promise<GoldenComposeMeasureResult> {
+  if (framePaths.length < 2) {
+    throw new Error("compose 計測には frame0 と frame1 以上が必要です");
+  }
+
+  const frame0Full = await loadPngRgba(join(packRoot, framePaths[0]));
+  const cropRect = findCropBoundsOrFallback(frame0Full);
+  const frames: RgbaImage[] = [];
+
+  for (const rel of framePaths) {
+    const full = await loadPngRgba(join(packRoot, rel));
+    frames.push(cropRgba(full, cropRect));
+  }
+
+  const scroll = detectScrollStartYFromRgba(frames[0]!, frames[1]!, layout);
+  const footerHeight = Math.floor(cropRect.height * STITCH_FOOTER_HEIGHT_RATIO);
+  const footerStartY = cropRect.height - footerHeight;
+  const scrollRegionH = footerStartY - scroll.scrollStartY;
+
+  const strips = frames.map((f) => ({
+    data: extractStripRgba(f, scroll.scrollStartY, scrollRegionH),
+    width: f.width,
+    height: scrollRegionH,
+  }));
+
+  const { overlaps } = matchScrollFramesRgba(strips);
+  const boundCount = overlaps.length + 1;
+  const composeFrames = frames.slice(0, boundCount);
+
+  const composed = composeStitchedRgba({
+    frames: composeFrames,
+    scrollStartY: scroll.scrollStartY,
+    footerHeight,
+    overlaps,
+  });
+
+  return {
+    crop: cropRect,
+    scrollStartY: scroll.scrollStartY,
+    scrollStartRatio: scroll.ratio,
+    outputHeight: composed.image.height,
+    overlapSum: overlaps.reduce((a, b) => a + b, 0),
+    frameCount: composeFrames.length,
+  };
+}
+
+function extractStripRgba(frame: RgbaImage, startY: number, h: number): Uint8Array {
+  const w = frame.width;
+  const out = new Uint8Array(w * h * 4);
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const si = ((startY + y) * w + x) * 4;
+      const di = (y * w + x) * 4;
+      out[di] = frame.data[si]!;
+      out[di + 1] = frame.data[si + 1]!;
+      out[di + 2] = frame.data[si + 2]!;
+      out[di + 3] = frame.data[si + 3]!;
+    }
+  }
+  return out;
 }
