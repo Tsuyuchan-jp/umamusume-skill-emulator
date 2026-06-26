@@ -4,7 +4,7 @@
 > アプリの製品仕様・技術概要は [`PROJECT.md`](PROJECT.md)。**進捗・要件・運用の地図はここ。**
 > リポジトリ全体の紹介は [ルート `README.md`](../README.md)（別ファイル）。
 
-最終更新: 2026-06-27 05:12
+最終更新: 2026-06-27 06:40
 
 ---
 
@@ -23,7 +23,10 @@
 └─────────────────────────────────────────────────────────┘
 ```
 
-**覚えることは1つでよい**: 作業開始 → **`TODO.md`** → リンクされた **REQ** → 必要なら **永続正本**。
+**覚えることは2つでよい**:
+
+1. 作業開始 → **`TODO.md`** → リンクされた **REQ** → 必要なら **永続正本**
+2. **用語が分からない** → **`CONCEPT-MAP.md`**（概念地図）
 
 ---
 
@@ -36,6 +39,7 @@ REQ が `done` になっても、**ここを更新し続ける**。
 | ファイル | 内容 |
 |---------|------|
 | [`DOCS-GUIDE.md`](DOCS-GUIDE.md) | 本ガイド（docs 運用の入口） |
+| [`CONCEPT-MAP.md`](CONCEPT-MAP.md) | **用語・意味構造の正本**（日本語主導の概念地図） |
 | [`../README.md`](../README.md) | リポジトリ紹介・セットアップ（**ルート**。本ファイルとは別） |
 | [`PROJECT.md`](PROJECT.md) | アプリ概要・開発ルール要約 |
 | [`CHAT_TEMPLATE.md`](CHAT_TEMPLATE.md) | チャット起票テンプレ（設計 / 実装 / 検証 / 実機クローズ） |
@@ -77,6 +81,8 @@ REQ が `done` になっても、**ここを更新し続ける**。
 |--------|------|
 | `git-commit.mdc` | 毎作業コミット必須 |
 | `docs-management.mdc` | TODO / REQ / 日時形式・INDEX 更新 |
+| `communication.mdc` | 読者プロフィール・説明の順序（全チャット） |
+| `concept-map.mdc` | CONCEPT-MAP 更新トリガー |
 | `development.mdc` | プロジェクト構成・リリースビルド・触らない領域 |
 
 ---
@@ -107,6 +113,7 @@ REQ が `done` になっても、**ここを更新し続ける**。
 | やりたいこと | 開くファイル |
 |-------------|-------------|
 | 今日何をする？ | `TODO.md` |
+| **用語の意味は？** | **`CONCEPT-MAP.md`** |
 | この機能の仕様は？ | 着手 REQ → 永続正本（上表） |
 | 新チャットを起票 | `CHAT_TEMPLATE.md` |
 | 全 REQ の状態 | `tasks/INDEX.md` |
@@ -152,6 +159,7 @@ Get-Date -Format "yyyy-MM-dd HH:mm"
 | 質問 | Yes なら |
 |------|---------|
 | 完了後も仕様として残る？ | **永続正本**（`docs/` または design-pack）。評価用のみなら **`reference/`** |
+| 用語・概念の意味を残す？ | **`CONCEPT-MAP.md`**（`.cursor/rules/concept-map.mdc` で更新トリガー） |
 | 1回きりの作業の手順・Phase？ | **REQ** |
 | 今週やるかどうか？ | **TODO** Backlog |
 | チャットの貼り付け型？ | **CHAT_TEMPLATE** に追記 |
@@ -166,6 +174,7 @@ Get-Date -Format "yyyy-MM-dd HH:mm"
 | リンク | パス |
 |--------|------|
 | docs 運用入口 | `docs/DOCS-GUIDE.md`（本ファイル） |
+| 概念地図 | `docs/CONCEPT-MAP.md` |
 | リポジトリ紹介 | `README.md`（ルート） |
 | 進捗 | `docs/TODO.md` |
 | アプリ概要 | `docs/PROJECT.md` |
