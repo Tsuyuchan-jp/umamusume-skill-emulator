@@ -4,19 +4,19 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-26 18:41
+最終更新: 2026-06-26 18:57
 
 ---
 
 ## 現在のフォーカス
 
-**P1** — オートキャプチャ結合リライト **R3**（compose 簡素化）— R2 完了待ちコミット後。
+**P1** — オートキャプチャ結合リライト **R3**（compose 簡素化）— **設計レビュー（Ask mode）→ 承認 → 実装**
 
 ---
 
 ## 進行中
 
-（なし）
+（なし — R3 は設計レビュー承認後に Agent 着手）
 
 ## 次にやること（Backlog）
 
@@ -28,7 +28,13 @@
 
 ### P1 — 重要
 
-- [ ] **オートキャプチャ結合リライト R3〜R5**（compose / postProcess / 旧ファイル削除）
+- [ ] **オートキャプチャ結合リライト R3**（compose 簡素化・scrollMats 全貼り廃止）
+  - 前提: R0–R2 完了（scrollStart golden 10/10、`b01ceb3`）
+  - 手順: **Ask mode 設計レビュー** → 承認 → Agent 実装（[`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) R3 節・設計レビュー起票プロンプト）
+  - ゲート: stitched-OK 退行なし（HOF/CMP 目視 + golden scrollStart 維持）
+  - 未決: `USE_STITCH_V2` を R3 で ON にするか / `regions.ts` OpenCV 経路同期タイミング
+
+- [ ] **オートキャプチャ結合リライト R4〜R5**（postProcess 分離・`opencvStitcher.ts` 削除）
   - REQ: [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 
 - [ ] **オートキャプチャ Phase 3 残検証**（G-HOF/CMP/FRD・FS-HOF）— **R1 完了後**
@@ -236,7 +242,8 @@
 ## 既知の問題・メモ
 
 - パレットのスキル一覧は **`umasimSkillDataList`（ローカル）正本** — `buildPaletteSkillOptions`。WASM sim は `fetchSkillData()`（GitHub 優先 → AppData → 同梱 `public/skill_data.txt`）
-- **オートキャプチャ結合 R2**: layout/tabDetect + G-FRD-S scrollStart 完了（R2 残 2026-06-26）。absdiff LOW 走査・f0→f1 実スクロール≈26px 時は scrollAmount 走査で境界≈0.55
+- **オートキャプチャ結合 R2**: layout/tabDetect + G-FRD-S scrollStart 完了（`b01ceb3`）。**次: R3** compose 簡素化（設計レビュー先行）。本番は `USE_STITCH_V2=false` のまま
+- **技術的負債（R3 前）**: `regionsCore.ts`（RGBA/golden）と `regions.ts`（OpenCV V2）の absdiff 境界ロジック未同期。V2 ON 時は R3 設計で同期方針を決める
 - **sim スキルデータ**: オンライン時 GitHub fetch + AppData キャッシュ。オフライン時は同梱/キャッシュで制限付き動作（フォールバック時トースト）
 - **REQ-skill-data-fetch-fallback 実機検証**: 手順 1〜2 確認済み。手順 3〜7（同梱のみ・fetch 全滅・Worker 区別・回帰）は P1 Backlog — 後日クローズ予定（2026-06-25）
 - **将来（案B・Backlog）**: `skill_data.txt` を自前 GitHub に置き fetch 一本化 → extract→push でユーザー再配布を減らす方針。sim 定義と UI 一覧を同一 JSON に揃える

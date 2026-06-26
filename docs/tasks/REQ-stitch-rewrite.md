@@ -4,9 +4,9 @@
 > 親 REQ: [`REQ-auto-capture-multi-screen.md`](REQ-auto-capture-multi-screen.md)（Phase 1 パッチ完了・本 REQ で根本修正）。
 > 設計パック: [`auto-capture-design-pack/`](../../auto-capture-design-pack/)（golden / screenshots / logs）。
 
-- **ステータス**: in-progress（R1/R2 done・R3 待ち）
+- **ステータス**: in-progress（R0–R2 done・**R3 設計レビュー待ち**）
 - **作成日**: 2026-06-26 08:13
-- **関連コミット**: `1df1860`（R1）
+- **関連コミット**: `b01ceb3`（R2 残 scrollStart）、`47d5755`（R2 layout）、`1df1860`（R1）
 
 ---
 
@@ -97,7 +97,7 @@ interface StitchReport {
 | **R0** | REQ・golden 期待値・計測 CLI（`tools/stitch-golden/`） | **done** |
 | **R1** | `regions.ts`（absdiff 主経路）+ 旧 API 内部差替 | **done** |
 | **R2** | layout / tabDetect 整理・走査帯魔術削除 + G-FRD-S scrollStart | **done** |
-| **R3** | compose 簡素化・旧 scrollMats 全貼り廃止 | draft |
+| **R3** | compose 簡素化・旧 scrollMats 全貼り廃止・V2 配線 | **draft**（設計レビュー待ち） |
 | **R4** | postProcess 分離・TrainingInfo 別パス（旧 S-6） | draft |
 | **R5** | `opencvStitcher.ts` 削除・REQ done | draft |
 
@@ -142,7 +142,7 @@ interface StitchReport {
 | Phase | ファイル |
 |-------|---------|
 | R0 | `tools/stitch-golden/*`, `docs/tasks/REQ-stitch-rewrite.md`, `docs/TODO.md`, `docs/tasks/INDEX.md` |
-| R1+ | `desktop-app/app/lib/stitch/**`（R2 残は `regionsCore.ts` 中心）, `opencvStitcher.ts`（re-export） |
+| R1+ | `desktop-app/app/lib/stitch/**`（R3: `compose.ts` / `scrollMatch.ts` / `stitch.ts` 新設）, `opencvStitcher.ts`（段階委譲） |
 | R1+ | `desktop-app/app/hooks/useCapture.ts`（StitchReport ログ任意） |
 
 ---
@@ -225,10 +225,68 @@ npm run stitch:golden
 
 ---
 
+---
+
+## R3: compose 簡素化（設計レビュー対象）
+
+### 背景（R2 完了時点）
+
+| 領域 | 状態 |
+|------|------|
+| scrollStart 決定（golden） | `regionsCore.ts` — absdiff LOW 走査。G-FRD-S **0.554**（`b01ceb3`） |
+| layout / tabDetect | R2 完了（`47d5755`） |
+| **本番結合** | `USE_STITCH_V2=false` — 旧 `opencvStitcher` 経路 |
+| headerHeight（本番） | タブ行から算出（**scrollStartY 未使用**） |
+| 合成 | `scrollMats[0]` 全貼り + S-1 後追い absdiff（スクロールバー隠しのみ） |
+
+### R3 で解く問題
+
+旧パイプラインは **headerHeight（≈16% やタブ行）と scrollStartY（≈40–55%）が不一致** のまま、`scrollMats[0]` 全貼りで誤差を吸収している。REQ 正本の合成式:
+
+```
+出力 = StaticHeader(frame0, 0..scrollStartY)
+     + ScrollStrip(frame0, scrollStartY..footerStart)
+     + Σ append(frameN 下端 overlap)
+     + Footer(frameLast)
+```
+
+### 設計レビューで決めること
+
+1. **`USE_STITCH_V2` を R3 で ON にするか** — ON なら `regions.ts` を `regionsCore` と同期必須
+2. **`compose.ts` / `scrollMatch.ts` の切り出し方** — `opencvStitcher.ts` から何を移すか
+3. **段階移行** — 旧経路を feature flag で残す期間、ログ（StitchReport）の粒度
+4. **検証** — 設計パック `stitched-OK` / `stitched-NG` との照合、golden scrollStart 退行ゲート
+5. **R4 との境界** — スクロールバー隠し・継承クロップ・余白トリムを R3 に含めるか
+
+### R3 スコープ案（draft）
+
+**やること**
+
+- `stitch/compose.ts` — 正本合成式の実装
+- `stitch/scrollMatch.ts` — テンプレート + S-4 absdiff（`opencvStitcher` から抽出）
+- `stitch/stitch.ts` — オーケストレータ（crop → regions → layout → scrollMatch → compose）
+- `opencvStitcher.ts` — 薄いラッパーへ段階縮小（R5 で削除）
+
+**やらないこと（R3）**
+
+- `capture.rs` / `geminiOcr.ts`
+- TrainingInfo 別パス（R4）
+- Phase 3 実機検証クローズ（R5 後）
+
+### 完了条件（R3）
+
+- [ ] HOF/CMP/TRN の stitched-OK 相当が目視退行なし
+- [ ] `npm run stitch:golden` 全 PASS（scrollStart ゲート維持）
+- [ ] REQ 合成式どおり scrollMats[0] 全貼り廃止
+- [ ] 決定ログに V2 フラグ方針を記録
+
+---
+
 ## 決定事項ログ
 
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
+| 2026-06-26 18:57 | **R3 着手前: 設計レビュー必須** | compose / V2 フラグ / regions.ts 同期は未決。実装前に Ask mode で方針固定 |
 | 2026-06-26 18:41 | **R2 残 完了** | `regionsCore`: S-4 scrollAmount + LOW streak 境界 + 小スクロール（<80px）/ 高 ratio 走査。G-FRD-S absdiff **0.554**、期待帯 **0.52–0.56** に更新（R0 単フレーム 0.46–0.52 は absdiff 計測と乖離） |
 | 2026-06-26 18:19 | **R2 残: 案A 承認** | G-FRD-S scrollStart は green-tab≈0.545（目視≈0.55）で副経路は妥当。absdiff 主経路未動作が問題。`regionsCore` 改善で対応。f001 固定維持 |
 | 2026-06-26 18:19 | **期待帯 0.46–0.52 vs 目視≈0.55** | 着手チャットで absdiff 修正後の計測を正本に期待帯を維持 or 更新を決定 |
@@ -242,7 +300,71 @@ npm run stitch:golden
 
 ## 実装チャット用プロンプト（新チャット先頭に貼る）
 
-### R2 残: G-FRD-S scrollStart（regionsCore・案A）
+### R3: compose 簡素化 — 設計レビュー起票（Ask mode）
+
+```
+@docs/PROJECT.md
+@docs/TODO.md
+@docs/tasks/REQ-stitch-rewrite.md
+@desktop-app/app/lib/opencvStitcher.ts
+@desktop-app/app/lib/stitch/regionsCore.ts
+@desktop-app/app/lib/stitch/README.md
+@auto-capture-design-pack/README.md
+
+## チャット種別
+設計レビュー（Ask mode）
+
+## 進め方（重要）
+- このチャットでは **コード変更・ファイル編集・コミットを一切しない**
+- 現状整理 → 方針提案 → 変更範囲 → リスク → 検証手順 まで提示する
+- 私が「承認」「修正」「見送り」のいずれかを返すまで、実装に進まない
+
+## 背景
+REQ-stitch-rewrite **R0–R2 完了**（`b01ceb3`）。scrollStart / layout / tabDetect は golden 10/10 PASS。
+**次は R3**: 結合（compose）を REQ 正本の合成式に合わせ、旧 scrollMats[0] 全貼りを廃止する。
+
+## 現状のギャップ（調査済み）
+- 本番 `USE_STITCH_V2=false` → headerHeight はタブ行算出。scrollStartY（regionsCore）は **golden 計測のみ**
+- `regionsCore.ts`（LOW streak + 小スクロール scan）と `regions.ts`（OpenCV・旧 HIGH streak）**未同期**
+- `compose.ts` / `scrollMatch.ts` は **未作成**。合成ロジックは `opencvStitcher.ts` に残存
+- 設計パック: HOF/CMP は stitched-OK、FRD/TRN は stitched-NG あり（R3 の改善対象）
+
+## 今回決めたいこと
+1. R3 の **推奨アーキテクチャ**（compose / scrollMatch / stitch オーケストレータ分割）
+2. **`USE_STITCH_V2` を R3 で ON にするか**、段階移行の手順
+3. **`regions.ts` を regionsCore と同期するタイミング**（R3 必須か R3.5 か）
+4. **R3 と R4（postProcess）の境界** — スクロールバー隠し・継承クロップをどこまで含めるか
+5. **検証計画** — golden + 設計パック stitched 目視 + 退行ゲート
+
+## 確認してほしいファイル
+- desktop-app/app/lib/opencvStitcher.ts（合成・scrollMatch・S-1 後追い）
+- desktop-app/app/lib/stitch/regionsCore.ts / regions.ts / flags.ts
+- desktop-app/app/lib/stitch/golden.test.ts
+- tools/stitch-golden/expectations.json
+- auto-capture-design-pack/screenshots/**/stitched-*.png
+- docs/tasks/REQ-auto-capture-multi-screen.md（Phase 1 S-1〜S-5）
+
+## 触らないこと（設計上も変更提案に含めない）
+- capture.rs / geminiOcr.ts / WASM
+- layout.ts / tabDetect.ts / constants.ts 走査帯（R2 正本維持）
+
+## 報告形式（CHAT_TEMPLATE.md 準拠）
+1. 現状整理 — データの流れ（crop → header → scrollMats → 合成）
+2. 選択肢比較 — 2〜3案（V2 ON タイミング、compose 切り出し粒度）
+3. 推奨案（1つ）
+4. 変更計画 — 触る/触らないファイル
+5. 移行・互換 — USE_STITCH_V2 / 旧ログ Header 144px 廃止
+6. UI・UX — ユーザー向け変更（あれば）
+7. リスク・未決事項 — 質問形式
+8. 検証手順 — golden + 設計パック + 実機（任意）
+9. 実装チャット用完成プロンプト — Agent mode 1ブロック（▼ここからコピー / ▲ここまで）
+
+## 完了条件（設計レビュー）
+- R3 スコープ・V2 方針・regions 同期タイミングが文書化されている
+- Agent mode 実装プロンプトがそのまま貼れる
+```
+
+### R2 残: G-FRD-S scrollStart（完了・参考）
 
 ```
 @docs/PROJECT.md
