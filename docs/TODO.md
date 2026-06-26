@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-27 05:30
+最終更新: 2026-06-27 05:44
 
 ---
 
@@ -22,7 +22,9 @@
 
 ## 進行中
 
-（なし）
+- [ ] **Scene Model M1 Phase C** — `G-FRD-S-register` golden 収録 + expectations・Vitest（**実機 PNG 待ち**）
+  - REQ: [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md) M1
+  - 配置先: `auto-capture-design-pack/golden/FRD/skill-register/frame_000.png`
 
 ## 次にやること（Backlog）
 
