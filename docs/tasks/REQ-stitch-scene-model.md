@@ -207,7 +207,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\stitch-golden\measure-
 | 2026-06-27 05:57 | **M1 Phase C 完了** — `G-FRD-S-register` golden（frame_000〜007）収録、expectations case 追加、Vitest（layout ゲート + `it.fails` で tabY≈0.44 NG 再現） | M1 欠落解消。実機 NG は M6 で partnerDetect 修正 |
 | 2026-06-27 06:06 | **M2 着手** — expectations `sceneSpec` スキーマ拡張、Catalog/REQ 同期 | ratio 定数を Scene Spec 名付き期待構造へ昇格 |
 | 2026-06-27 06:13 | **M2 完了** — 全7 case に `partnerBand`/`tabRow`/`scrollStart`/`wheel`、INV 対応表・シーン別期待領域表、measure-regions R0 計測を notes 反映 | `stitch:golden` 19+1 expected fail 維持。Vitest 駆動化は M3 |
-| 2026-06-27 07:14 | **M3 完了** — `expectations.ts` sceneSpec 必須化・legacy 同期検証・INV-1 メタ（FRD タイト帯）・Vitest `sceneSpec.*` 駆動 | `stitch:golden` 21+1 expected fail。G-FRD-S-register `it.fails` 維持 |
+| 2026-06-27 07:14 | **M3 完了** — `expectations.ts` sceneSpec 必須化・legacy 同期検証・INV-1 メタ（FRD タイト帯）・Vitest `sceneSpec.*` 駆動 | `stitch:golden` 21+1 expected fail（`cf2a6a0`）。G-FRD-S-register `it.fails` 維持 |
 
 ---
 

@@ -35,7 +35,7 @@
 ### P1 — 重要
 
 - [ ] **Scene Model M4〜M6**（検出器統一・capture 責務分離・既知バグ修正）
-  - 前提: M3 完了（Vitest sceneSpec 駆動 / 次コミット）
+  - 前提: M3 完了（Vitest sceneSpec 駆動 / `cf2a6a0`）
   - REQ: [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
 
 - [ ] **オートキャプチャ時のスクロール用カーソル位置をやや下方へ**
@@ -157,7 +157,7 @@
 
 ## 完了済み
 
-- [x] **Scene Model M3** — expectations sceneSpec 必須・Vitest 駆動・INV-1 メタ（FRD タイト帯）（2026-06-27 07:14 / 次コミット）/ [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
+- [x] **Scene Model M3** — expectations sceneSpec 必須・Vitest 駆動・INV-1 メタ（FRD タイト帯）（2026-06-27 07:14 / `cf2a6a0`）/ [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
 - [x] **CHAT_TEMPLATE 起票ルール** — ネストフェンス禁止・検証コマンド共通化（2026-06-27 07:03 / `1e11a78`）
 - [x] **CONCEPT-MAP 種別列** — 英語先頭・種別列追加・隣の概念削除（2026-06-27 06:52 / `db7969f`）
 - [x] **CONCEPT-MAP 新設** — 概念地図・`communication.mdc` / `concept-map.mdc`・CHAT_TEMPLATE・DOCS-GUIDE 同期（2026-06-27 06:40 / `18f43f0`）
