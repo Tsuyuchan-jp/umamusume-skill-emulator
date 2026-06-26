@@ -140,7 +140,7 @@
 
 ## 完了済み
 
-- [x] **オートキャプチャ結合 R3.5d 実装**（d-2〜d-4: frame0 帯推定・狭帯 -3 / 広帯 -4・FRD golden）— golden 18/18 PASS（2026-06-27 02:41 / コミット待ち）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) — **d-5 実機はユーザー確認待ち**
+- [x] **オートキャプチャ結合 R3.5d 実装**（d-2〜d-4: frame0 帯推定・狭帯 -3 / 広帯 -4・FRD golden）— golden 18/18 PASS（2026-06-27 02:41 / `139c14e`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) — **d-5 実機はユーザー確認待ち**
 - [x] **オートキャプチャ結合 R3.5c**（c-2〜c-5 一部 + 実機 HOF-S/TRN/HOF-F）— terminal・狭帯ガード・golden 18/18（2026-06-27 02:04 / `23ebab7`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 - [x] **オートキャプチャ結合リライト R3.5b**（layout L2 優先・tabDetect 2タブガード）— golden 17/17 PASS（2026-06-27 00:02 / `5d98121`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 - [x] **オートキャプチャ結合リライト R3.5a**（shiftEstimate: SSD + median・scrollMatch 委譲）— golden 15/15 PASS（2026-06-26 23:12 / `76b3fc7`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
