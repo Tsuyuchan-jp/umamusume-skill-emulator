@@ -319,4 +319,35 @@ describe.skipIf(!isDesignPackPresent())("stitch golden R2 layout + scrollStartRa
     ).toBe(true);
     expect(scrollMeasured.method, "G-FRD-S-release scrollStart は absdiff 主経路").toBe("absdiff");
   }, 60_000);
+
+  it("G-FRD-S-register layout=L3+Btn（golden 収録ゲート）", async () => {
+    const c = getGoldenCase("G-FRD-S-register")!;
+    const framePath = c.framePaths[0]!;
+    expect(existsSync(join(packRoot, framePath)), `missing ${framePath}`).toBe(true);
+
+    const layoutMeasured = await measureLayoutFromFrame(packRoot, framePath);
+    expect(layoutMeasured.layout, `layout=${layoutMeasured.layout}`).toBe("L3+Btn");
+  }, 60_000);
+
+  // M6（partnerDetect）まで tabRow≈0.44 の誤検出が再現する既知 NG。直ったら fails → 通常 it に昇格
+  it.fails("G-FRD-S-register tabRow/scrollStart Scene Spec 帯（tabY≈0.44 誤認）", async () => {
+    const c = getGoldenCase("G-FRD-S-register")!;
+    const framePaths = [c.framePaths[0]!, c.framePaths[1]!];
+
+    const layoutMeasured = await measureLayoutFromFrame(packRoot, framePaths[0]!);
+    expect(
+      isRatioInBand(layoutMeasured.tabRowRatio, c.tabRowRatio),
+      `tabRowRatio=${layoutMeasured.tabRowRatio.toFixed(4)} method=${layoutMeasured.tabRowMethod}`
+    ).toBe(true);
+
+    const scrollMeasured = await measureScrollStartFromFrames(
+      packRoot,
+      framePaths,
+      c.layout
+    );
+    expect(
+      isRatioInBand(scrollMeasured.scrollStartRatio, c.scrollStartRatio),
+      `scrollStartRatio=${scrollMeasured.scrollStartRatio.toFixed(4)} method=${scrollMeasured.method}`
+    ).toBe(true);
+  }, 60_000);
 });

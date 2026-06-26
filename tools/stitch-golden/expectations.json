@@ -63,6 +63,20 @@
       "notes": "R3.5d: 狭帯 -3 帯 S*≈130–160。設計パック golden S*≈133。旧 ID: G-FRD-S"
     },
     {
+      "id": "G-FRD-S-register",
+      "label": "フレンド・スキルタブ（登録）",
+      "layout": "L3+Btn",
+      "framePaths": [
+        "golden/FRD/skill-register/frame_000.png",
+        "golden/FRD/skill-register/frame_001.png"
+      ],
+      "scrollStartRatio": { "min": 0.52, "max": 0.56 },
+      "tabRowRatio": { "min": 0.46, "max": 0.48 },
+      "legacyHeaderRatio": 0.16,
+      "shiftRepresentative": { "min": 120, "max": 160 },
+      "notes": "partnerBand=register。golden 計測 tabY≈0.44（Scene Spec 帯外）。実機 NG: wheel=-4。M6 で partnerDetect 修正後に it.fails 昇格"
+    },
+    {
       "id": "G-FRD-F",
       "label": "フレンド・継承タブ",
       "layout": "L3+Btn",

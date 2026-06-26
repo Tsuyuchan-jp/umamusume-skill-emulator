@@ -3,7 +3,7 @@
 > **オートキャプチャ結合の素材で迷ったらまずこのファイル。**
 > プロジェクト docs: [`docs/DOCS-GUIDE.md`](../docs/DOCS-GUIDE.md)
 
-最終更新: 2026-06-27 05:28
+最終更新: 2026-06-27 05:57
 
 ---
 
@@ -49,7 +49,7 @@ golden/{経路}/{タブ}/frame_{NNN}.png
 | `golden/TRN/frame_000.png` | G-TRN |
 | `golden/FRD/skill-release/frame_000.png` | G-FRD-S-release |
 | `golden/FRD/factor/frame_000.png` | G-FRD-F |
-| `golden/FRD/skill-register/frame_000.png` | G-FRD-S-register（未収録。Catalog `goldenPath` 参照） |
+| `golden/FRD/skill-register/frame_000.png` | G-FRD-S-register（frame_001 以降は scrollStart 用） |
 
 - 3 桁ゼロ埋め（`frame_000` 始まり）
 - `expectations.json` の `framePaths` は **designPackRoot からの相対パス**

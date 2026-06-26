@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-27 05:52
+最終更新: 2026-06-27 05:57
 
 ---
 
@@ -16,15 +16,13 @@
 
 ## 現在のフォーカス
 
-**P1** — **Scene Model M1**（G-FRD-S-register golden 収集 Phase C）+ R3.5d 実機（保留）
+**P1** — **Scene Model M2**（Spec 具体化）+ R3.5d 実機（保留）
 
 ---
 
 ## 進行中
 
-- [ ] **Scene Model M1 Phase C** — `G-FRD-S-register` golden 収録 + expectations・Vitest（**実機 PNG 待ち**）
-  - REQ: [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md) M1
-  - 配置先: `auto-capture-design-pack/golden/FRD/skill-register/frame_000.png`
+（なし）
 
 ## 次にやること（Backlog）
 
@@ -36,13 +34,8 @@
 
 ### P1 — 重要
 
-- [ ] **Scene Model M1** — シーンカタログ欠落洗い出し（G-FRD-S-register 最優先）
-  - REQ: [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md) M1
-  - Catalog: [`SCENE-CATALOG.md`](../auto-capture-design-pack/SCENE-CATALOG.md)
-  - 運用: [`PACK-GUIDE.md`](../auto-capture-design-pack/PACK-GUIDE.md)
-
 - [ ] **Scene Model M2〜M6**（Spec 具体化・golden 強化・検出器統一・capture 責務分離・既知バグ修正）
-  - 前提: M1 Catalog 欠落解消（少なくとも G-FRD-S-register）
+  - 前提: M1 完了（G-FRD-S-register 収録済み。修正は M6）
   - REQ: [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
 
 - [ ] **オートキャプチャ時のスクロール用カーソル位置をやや下方へ**
@@ -164,6 +157,7 @@
 
 ## 完了済み
 
+- [x] **Scene Model M1 Phase C** — G-FRD-S-register golden（frame_000〜007）・expectations・Vitest・Catalog、golden 20/20 PASS（2026-06-27 05:57 / コミット後記入）/ [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
 - [x] **Scene Model M1 Phase B** — `G-FRD-S` → `G-FRD-S-release`、`golden/FRD/skill/` → `skill-release/`、expectations・Vitest・Catalog 同期、golden 18/18 PASS（2026-06-27 05:30 / `a84d51f`）/ [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
 - [x] **Scene Model Catalog Phase A** — SCENE-CATALOG に goldenPath・expectations 列・対応表、欠落表吸収、NG サブケース整理、PACK-GUIDE 同期（2026-06-27 05:25 / `fa91f07`）/ [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md) M1 Phase A
 - [x] **design-pack 整理** — logs/screenshots 削除・Vitest 参照 PNG を golden/ へ統合・PACK-GUIDE 2層化（2026-06-27 05:12 / `23cac9f`）
