@@ -7,6 +7,9 @@ import {
   isDesignPackPresent,
   isRatioInBand,
   loadStitchGoldenExpectations,
+  satisfiesInv1Measured,
+  satisfiesInv1SpecBands,
+  validateAllGoldenCaseSceneSpecs,
 } from "./expectations";
 import { measureLayoutFromFrame, measureScrollStartFromFrames, measureComposeFromFrames, measureShiftFromFrames } from "./goldenMeasure";
 import { USE_STITCH_V2 } from "./flags";
@@ -15,34 +18,53 @@ describe("stitch golden expectations (R0)", () => {
   it("expectations.json が読み込める", () => {
     const exp = loadStitchGoldenExpectations();
     expect(exp.version).toBe(1);
-    expect(exp.cases.length).toBeGreaterThanOrEqual(4);
+    expect(exp.cases.length).toBe(7);
   });
 
-  it("各ケースに必須フィールドと妥当な比率帯がある", () => {
+  it("全7 case: sceneSpec 必須・スキーマ・legacy 同期", () => {
+    const exp = loadStitchGoldenExpectations();
+    const errors = validateAllGoldenCaseSceneSpecs(exp);
+    expect(errors, errors.join("\n")).toEqual([]);
+  });
+
+  it("各ケースに必須フィールドと妥当な sceneSpec 比率帯がある", () => {
     const exp = loadStitchGoldenExpectations();
     for (const c of exp.cases) {
       expect(c.id).toMatch(/^G-/);
       expect(["L2", "L3", "L3+Btn"]).toContain(c.layout);
       expect(c.framePaths.length).toBeGreaterThan(0);
-      expect(c.scrollStartRatio.min).toBeLessThan(c.scrollStartRatio.max);
-      expect(c.tabRowRatio.min).toBeLessThan(c.tabRowRatio.max);
-      expect(c.scrollStartRatio.min).toBeGreaterThan(0.1);
-      expect(c.scrollStartRatio.max).toBeLessThan(0.6);
+      expect(c.sceneSpec).toBeDefined();
+      expect(c.sceneSpec.tabRow.min).toBeLessThan(c.sceneSpec.tabRow.max);
+      expect(c.sceneSpec.scrollStart.min).toBeLessThan(c.sceneSpec.scrollStart.max);
+      expect(c.sceneSpec.scrollStart.min).toBeGreaterThan(0.1);
+      expect(c.sceneSpec.scrollStart.max).toBeLessThan(0.6);
+      expect([-3, -4]).toContain(c.sceneSpec.wheel);
+    }
+  });
+
+  it("FRD スキルタブ（register/release）の sceneSpec 帯は INV-1 メタを満たす", () => {
+    const exp = loadStitchGoldenExpectations();
+    for (const id of ["G-FRD-S-release", "G-FRD-S-register"]) {
+      const c = exp.cases.find((x) => x.id === id);
+      expect(c, id).toBeDefined();
+      expect(
+        satisfiesInv1SpecBands(c!.sceneSpec, exp.tabBottomMarginRatio),
+        `${id}: scrollStart.min=${c!.sceneSpec.scrollStart.min} tabRow.max=${c!.sceneSpec.tabRow.max}`
+      ).toBe(true);
     }
   });
 
   it("HOF の scrollStart 期待帯は旧 16% と一致しない", () => {
-    const hof = loadStitchGoldenExpectations().cases.find((c) => c.id === "G-HOF-S");
-    expect(hof).toBeDefined();
-    expect(hof!.legacyHeaderRatio).toBe(0.16);
-    expect(isRatioInBand(0.16, hof!.scrollStartRatio)).toBe(false);
+    const hof = getGoldenCase("G-HOF-S")!;
+    expect(hof.legacyHeaderRatio).toBe(0.16);
+    expect(isRatioInBand(0.16, hof.sceneSpec.scrollStart)).toBe(false);
   });
 
   it("TRN の scrollStart 期待帯は L2（≈50%）付近", () => {
-    const trn = loadStitchGoldenExpectations().cases.find((c) => c.id === "G-TRN");
-    expect(trn).toBeDefined();
-    expect(trn!.layout).toBe("L2");
-    expect(trn!.scrollStartRatio.min).toBeGreaterThan(0.45);
+    const trn = getGoldenCase("G-TRN")!;
+    expect(trn.layout).toBe("L2");
+    expect(trn.sceneSpec.scrollStart.min).toBeGreaterThan(0.45);
+    expect(trn.sceneSpec.wheel).toBe(-4);
   });
 
   it("USE_STITCH_V2 は R3 で true（stitch オーケストレータ正本）", () => {
@@ -142,7 +164,7 @@ describe.skipIf(!isDesignPackPresent())("stitch golden R3.5a shiftEstimate", () 
     }
 
     const sStd = stdDev(overlaps);
-    expect(sStd, `std(S_k)=${sStd.toFixed(2)} overlaps=${overlaps.join(",")}`).toBeLessThan(20);
+    expect(sStd).toBeLessThan(20);
     expect(Math.min(...overlaps), `min(S_k)=${Math.min(...overlaps)}`).toBeGreaterThan(80);
 
     const forbidden = overlaps.filter((s) => s >= 22 && s <= 32);
@@ -209,10 +231,11 @@ describe.skipIf(!isDesignPackPresent())("stitch golden design pack paths", () =>
   });
 });
 
-describe.skipIf(!isDesignPackPresent())("stitch golden R1 scrollStartRatio (absdiff)", () => {
+describe.skipIf(!isDesignPackPresent())("stitch golden R1 scrollStart (absdiff, sceneSpec 正本)", () => {
   const packRoot = getDesignPackRoot();
+  const exp = loadStitchGoldenExpectations();
 
-  it("G-TRN scrollStartRatio ∈ [0.48, 0.54]", async () => {
+  it("G-TRN scrollStart ∈ sceneSpec.scrollStart", async () => {
     const c = getGoldenCase("G-TRN")!;
     expect(c.framePaths.length).toBeGreaterThanOrEqual(2);
     const measured = await measureScrollStartFromFrames(
@@ -221,12 +244,20 @@ describe.skipIf(!isDesignPackPresent())("stitch golden R1 scrollStartRatio (absd
       c.layout
     );
     expect(
-      isRatioInBand(measured.scrollStartRatio, c.scrollStartRatio),
-      `ratio=${measured.scrollStartRatio.toFixed(4)} method=${measured.method}`
+      isRatioInBand(measured.scrollStartRatio, c.sceneSpec.scrollStart),
+      `ratio=${measured.scrollStartRatio.toFixed(4)} method=${measured.method} band=${c.sceneSpec.scrollStart.min}-${c.sceneSpec.scrollStart.max}`
+    ).toBe(true);
+    expect(
+      satisfiesInv1Measured(
+        c.sceneSpec.tabRow.max,
+        measured.scrollStartRatio,
+        exp.tabBottomMarginRatio
+      ),
+      `INV-1: scrollStart=${measured.scrollStartRatio.toFixed(4)} tabRow.max=${c.sceneSpec.tabRow.max}`
     ).toBe(true);
   }, 60_000);
 
-  it("G-HOF-S scrollStartRatio ∈ [0.36, 0.46]", async () => {
+  it("G-HOF-S scrollStart ∈ sceneSpec.scrollStart", async () => {
     const c = getGoldenCase("G-HOF-S")!;
     const framePaths = [c.framePaths[0], "golden/HOF/skill/frame_001.png"];
     const secondPath = join(packRoot, framePaths[1]);
@@ -238,26 +269,26 @@ describe.skipIf(!isDesignPackPresent())("stitch golden R1 scrollStartRatio (absd
       c.layout
     );
     expect(
-      isRatioInBand(measured.scrollStartRatio, c.scrollStartRatio),
+      isRatioInBand(measured.scrollStartRatio, c.sceneSpec.scrollStart),
       `ratio=${measured.scrollStartRatio.toFixed(4)} method=${measured.method}`
     ).toBe(true);
   }, 60_000);
 });
 
-describe.skipIf(!isDesignPackPresent())("stitch golden R3.5b layout + tabDetect", () => {
+describe.skipIf(!isDesignPackPresent())("stitch golden R3.5b layout + tabDetect (sceneSpec 正本)", () => {
   const packRoot = getDesignPackRoot();
 
-  it("G-TRN: layout=L2, tabRowRatio∈[0.44,0.50], tab=Skill", async () => {
+  it("G-TRN: layout=L2, tabRow∈sceneSpec.tabRow, tab=Skill", async () => {
     const c = getGoldenCase("G-TRN")!;
     const framePath = c.framePaths[0]!;
+    const { tabRow } = c.sceneSpec;
 
     const measured = await measureLayoutFromFrame(packRoot, framePath);
     expect(measured.layout, `layout=${measured.layout}`).toBe("L2");
     expect(
-      measured.tabRowRatio,
-      `tabRowRatio=${measured.tabRowRatio.toFixed(4)} method=${measured.tabRowMethod}`
-    ).toBeGreaterThanOrEqual(0.44);
-    expect(measured.tabRowRatio).toBeLessThanOrEqual(0.5);
+      isRatioInBand(measured.tabRowRatio, tabRow),
+      `tabRowRatio=${measured.tabRowRatio.toFixed(4)} method=${measured.tabRowMethod} band=${tabRow.min}-${tabRow.max}`
+    ).toBe(true);
     expect(measured.tab, `tab=${measured.tab}`).toBe("Skill");
   }, 60_000);
 
@@ -268,10 +299,11 @@ describe.skipIf(!isDesignPackPresent())("stitch golden R3.5b layout + tabDetect"
   }, 60_000);
 });
 
-describe.skipIf(!isDesignPackPresent())("stitch golden R2 layout + scrollStartRatio", () => {
+describe.skipIf(!isDesignPackPresent())("stitch golden R2 layout + scrollStart (sceneSpec 正本)", () => {
   const packRoot = getDesignPackRoot();
+  const exp = loadStitchGoldenExpectations();
 
-  it("G-CMP-S layout=L3, tabRowRatio∈[0.33,0.43], scrollStartRatio∈[0.36,0.46]", async () => {
+  it("G-CMP-S layout=L3, tabRow/scrollStart ∈ sceneSpec", async () => {
     const c = getGoldenCase("G-CMP-S")!;
     const framePaths = [c.framePaths[0], "golden/CMP/skill/frame_001.png"];
     const secondPath = join(packRoot, framePaths[1]);
@@ -280,7 +312,7 @@ describe.skipIf(!isDesignPackPresent())("stitch golden R2 layout + scrollStartRa
     const layoutMeasured = await measureLayoutFromFrame(packRoot, framePaths[0]);
     expect(layoutMeasured.layout, `layout=${layoutMeasured.layout}`).toBe("L3");
     expect(
-      isRatioInBand(layoutMeasured.tabRowRatio, c.tabRowRatio),
+      isRatioInBand(layoutMeasured.tabRowRatio, c.sceneSpec.tabRow),
       `tabRowRatio=${layoutMeasured.tabRowRatio.toFixed(4)} method=${layoutMeasured.tabRowMethod}`
     ).toBe(true);
 
@@ -290,12 +322,12 @@ describe.skipIf(!isDesignPackPresent())("stitch golden R2 layout + scrollStartRa
       c.layout
     );
     expect(
-      isRatioInBand(scrollMeasured.scrollStartRatio, c.scrollStartRatio),
+      isRatioInBand(scrollMeasured.scrollStartRatio, c.sceneSpec.scrollStart),
       `scrollStartRatio=${scrollMeasured.scrollStartRatio.toFixed(4)} method=${scrollMeasured.method}`
     ).toBe(true);
   }, 60_000);
 
-  it("G-FRD-S-release layout=L3+Btn, tabRowRatio∈[0.39,0.47], scrollStartRatio∈[0.52,0.56]", async () => {
+  it("G-FRD-S-release layout=L3+Btn, tabRow/scrollStart ∈ sceneSpec", async () => {
     const c = getGoldenCase("G-FRD-S-release")!;
     const framePaths = [c.framePaths[0], "golden/FRD/skill-release/frame_001.png"];
     const secondPath = join(packRoot, framePaths[1]);
@@ -304,7 +336,7 @@ describe.skipIf(!isDesignPackPresent())("stitch golden R2 layout + scrollStartRa
     const layoutMeasured = await measureLayoutFromFrame(packRoot, framePaths[0]);
     expect(layoutMeasured.layout, `layout=${layoutMeasured.layout}`).toBe("L3+Btn");
     expect(
-      isRatioInBand(layoutMeasured.tabRowRatio, c.tabRowRatio),
+      isRatioInBand(layoutMeasured.tabRowRatio, c.sceneSpec.tabRow),
       `tabRowRatio=${layoutMeasured.tabRowRatio.toFixed(4)} method=${layoutMeasured.tabRowMethod}`
     ).toBe(true);
 
@@ -314,10 +346,18 @@ describe.skipIf(!isDesignPackPresent())("stitch golden R2 layout + scrollStartRa
       c.layout
     );
     expect(
-      isRatioInBand(scrollMeasured.scrollStartRatio, c.scrollStartRatio),
+      isRatioInBand(scrollMeasured.scrollStartRatio, c.sceneSpec.scrollStart),
       `scrollStartRatio=${scrollMeasured.scrollStartRatio.toFixed(4)} method=${scrollMeasured.method}`
     ).toBe(true);
     expect(scrollMeasured.method, "G-FRD-S-release scrollStart は absdiff 主経路").toBe("absdiff");
+    expect(
+      satisfiesInv1Measured(
+        layoutMeasured.tabRowRatio,
+        scrollMeasured.scrollStartRatio,
+        exp.tabBottomMarginRatio
+      ),
+      `INV-1: tabY=${layoutMeasured.tabRowRatio.toFixed(4)} scrollStart=${scrollMeasured.scrollStartRatio.toFixed(4)}`
+    ).toBe(true);
   }, 60_000);
 
   it("G-FRD-S-register layout=L3+Btn（golden 収録ゲート）", async () => {
@@ -327,6 +367,8 @@ describe.skipIf(!isDesignPackPresent())("stitch golden R2 layout + scrollStartRa
 
     const layoutMeasured = await measureLayoutFromFrame(packRoot, framePath);
     expect(layoutMeasured.layout, `layout=${layoutMeasured.layout}`).toBe("L3+Btn");
+    expect(c.sceneSpec.partnerBand.variant).toBe("register");
+    expect(c.sceneSpec.wheel).toBe(-3);
   }, 60_000);
 
   // M6（partnerDetect）まで tabRow≈0.44 の誤検出が再現する既知 NG。直ったら fails → 通常 it に昇格
@@ -336,8 +378,8 @@ describe.skipIf(!isDesignPackPresent())("stitch golden R2 layout + scrollStartRa
 
     const layoutMeasured = await measureLayoutFromFrame(packRoot, framePaths[0]!);
     expect(
-      isRatioInBand(layoutMeasured.tabRowRatio, c.tabRowRatio),
-      `tabRowRatio=${layoutMeasured.tabRowRatio.toFixed(4)} method=${layoutMeasured.tabRowMethod}`
+      isRatioInBand(layoutMeasured.tabRowRatio, c.sceneSpec.tabRow),
+      `tabRowRatio=${layoutMeasured.tabRowRatio.toFixed(4)} method=${layoutMeasured.tabRowMethod} band=${c.sceneSpec.tabRow.min}-${c.sceneSpec.tabRow.max}`
     ).toBe(true);
 
     const scrollMeasured = await measureScrollStartFromFrames(
@@ -346,7 +388,7 @@ describe.skipIf(!isDesignPackPresent())("stitch golden R2 layout + scrollStartRa
       c.layout
     );
     expect(
-      isRatioInBand(scrollMeasured.scrollStartRatio, c.scrollStartRatio),
+      isRatioInBand(scrollMeasured.scrollStartRatio, c.sceneSpec.scrollStart),
       `scrollStartRatio=${scrollMeasured.scrollStartRatio.toFixed(4)} method=${scrollMeasured.method}`
     ).toBe(true);
   }, 60_000);
