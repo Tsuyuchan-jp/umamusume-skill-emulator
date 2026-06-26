@@ -5,7 +5,7 @@
 >
 > 入口: [`DOCS-GUIDE.md`](DOCS-GUIDE.md)
 
-最終更新: 2026-06-27 06:52
+最終更新: 2026-06-27 07:57
 
 ---
 
@@ -47,7 +47,7 @@
 | 層 | 日本語 | 典型用語 |
 |----|--------|----------|
 | 仕様 | シーンモデル | sceneSpec、SCENE-CATALOG、expectations |
-| 検出 | 検出器 | tabDetect、regionsCore、crop |
+| 検出 | 検出器 | tabDetect、partnerDetect、crop、regionsCore |
 | ポリシー | キャプチャ方針 | wheel、shift、stitch rewrite |
 
 ---
@@ -100,7 +100,10 @@ crop 内（上→下）
 | 英語 | 日本語 | 種別 | 一言 | どこで見る |
 |------|--------|------|------|-----------|
 | Scene Model | シーンモデル | 概念 | 仕様→検出→ポリシーの方法論 | `REQ-stitch-scene-model.md` |
-| tabDetect | タブ検出 | 処理・モジュール | 画像からタブ行を測る | `tabDetectCore.ts` 等 |
+| detector | 検出器 | 概念 | 画像から画面要素の位置・種類を測る部品 | REQ「検出器の目標責務分割」 |
+| partnerDetectCore | パートナー帯検出 | 処理・モジュール | register / release / absent を先に決める（M4 新設） | `partnerDetectCore.ts`（予定） |
+| green detection | 緑判定 | 概念＋識別子 | タブ・タイトルバー・partner の緑ピクセル閾値 | `rgba.ts`・`constants.ts` 正本 |
+| tabDetect | タブ検出 | 処理・モジュール | partnerDetect 結果を見てからタブ行を測る（INV-2） | `tabDetectCore.ts` 等 |
 | regionsCore | 領域検出 | 処理・モジュール | scrollStart 等を測る | `regionsCore.ts` |
 | stitch rewrite | 結合リライト | 概念＋ファイル・ドキュメント | キャプチャ画像の縦結合パイプライン | `REQ-stitch-rewrite.md` |
 | INV-1〜3 | 不変条件 | 概念＋識別子・定数 | 帯の幾何が矛盾したら棄却 | `REQ-stitch-scene-model.md` |
@@ -110,7 +113,7 @@ crop 内（上→下）
 | 英語 | 日本語 | 種別 | 一言 |
 |------|--------|------|------|
 | INV-1 | スクロール開始はタブ行より十分下 | 識別子・定数＋概念 | scrollStart > tabRow + margin |
-| INV-2 | 登録帯とタブ行を混同しない | 識別子・定数＋概念 | partnerBand.register ≠ tabRow |
+| INV-2 | 登録帯とタブ行を混同しない | 識別子・定数＋概念 | partnerDetect を先に確定し tabRow 走査へ入力 |
 | INV-3 | ホイール段は帯高さで固定 | 識別子・定数＋概念 | scrollRegionH → wheel -3 / -4 |
 
 ---
