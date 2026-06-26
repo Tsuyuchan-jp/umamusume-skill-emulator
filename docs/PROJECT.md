@@ -1,7 +1,7 @@
 # プロジェクト概要
 
-> Cursor 作業チャット起票時に `@docs/PROJECT.md` で参照する正本。
-> 変わりにくい情報のみを書く。進捗は `docs/TODO.md` に書く。
+> **docs の入口（運用・永続正本・REQ の地図）**: [`docs/README.md`](README.md) — 迷ったらこちらを先に開く。
+> 本ファイルは **アプリ概要** と変わりにくい製品情報。進捗は [`docs/TODO.md`](TODO.md)。
 
 ## アプリ概要
 
@@ -173,6 +173,7 @@ npm run build:release-exe
 
 ## 関連ドキュメント
 
+- **docs 運用の入口（地図）**: [`docs/README.md`](README.md)
 - 進捗・Todo: `docs/TODO.md`
 - **REQ 索引（全件カタログ）**: `docs/tasks/INDEX.md`
 - 更新履歴: `docs/CHANGELOG.md`

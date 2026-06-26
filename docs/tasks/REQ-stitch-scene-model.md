@@ -3,7 +3,7 @@
 > **親シリーズ**: [`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md)（パイプライン実装）の **方法論・持続可能性** レイヤ。
 > 場当たり的ヒューリスティックの積み上げを止め、**画面の意味構造（Scene Spec）** を先に固定してから検出・ポリシーを実装する。
 >
-> **この REQ を見れば「次に何をするか」が分かる** — 作業チャットは Phase 表から **1 Phase だけ** 取る。
+> **作業ロードマップ**（完了後はアーカイブ）。永続仕様は [`docs/README.md`](../README.md) の永続正本一覧・[`SCENE-CATALOG.md`](../../auto-capture-design-pack/SCENE-CATALOG.md) を参照。
 
 - **ステータス**: in-progress（M1 着手）
 - **作成日**: 2026-06-27 04:11
