@@ -1,10 +1,10 @@
 # ウマ娘 レースアナライザー — システム仕様書
 
 > 別 AI によるプロジェクト評価用の技術概要ドキュメント。  
-> 正本の進捗・要件は [`TODO.md`](./TODO.md)・[`PROJECT.md`](./PROJECT.md)・[`tasks/INDEX.md`](./tasks/INDEX.md) を参照。
+> 正本の進捗・要件は [`TODO.md`](../TODO.md)・[`PROJECT.md`](../PROJECT.md)・[`tasks/INDEX.md`](../tasks/INDEX.md) を参照。
 
-**バージョン**: [`desktop-app/package.json`](../desktop-app/package.json) の `version` が正本（`app/lib/version.ts` → UI、`tauri.conf.json` → Tauri、`sync-version` → Cargo）。運用: [`RELEASE_BUILD.md`](RELEASE_BUILD.md#バージョン管理)  
-**最終更新**: 2026-06-22
+**バージョン**: [`desktop-app/package.json`](../../desktop-app/package.json) の `version` が正本（`app/lib/version.ts` → UI、`tauri.conf.json` → Tauri、`sync-version` → Cargo）。運用: [`RELEASE_BUILD.md`](../RELEASE_BUILD.md#バージョン管理)  
+**最終更新**: 2026-06-27 04:37（`docs/reference/` へ移動）
 
 ---
 
@@ -345,8 +345,9 @@ umamusume-skill-emulator/
 │   ├── TODO.md                  進捗管理正本
 │   ├── PROJECT.md               プロジェクト概要正本
 │   ├── CHANGELOG.md
-│   ├── RELEASE_BUILD.md
-│   ├── SYSTEM_SPECIFICATION.md  ← 本ドキュメント
+│   ├── DOCS-GUIDE.md            docs 運用ガイド
+│   ├── reference/
+│   │   └── SYSTEM_SPECIFICATION.md  ← 本ドキュメント
 │   └── tasks/                   REQ 要件ドキュメント群（INDEX.md あり）
 ├── .cursor/rules/               Cursor Agent 運用ルール
 ├── README.md
@@ -482,9 +483,10 @@ tools/
 | ドキュメント | 内容 |
 |-------------|------|
 | [`README.md`](../README.md) | セットアップ・動作環境 |
-| [`docs/PROJECT.md`](./PROJECT.md) | プロジェクト正本（触ってはいけない領域等） |
-| [`docs/TODO.md`](./TODO.md) | 進捗・Backlog |
-| [`docs/tasks/INDEX.md`](./tasks/INDEX.md) | 全 REQ 索引（28 件） |
-| [`UPDATE_SKILLS.md`](../UPDATE_SKILLS.md) | スキルデータ更新手順 |
-| [`docs/RELEASE_BUILD.md`](./RELEASE_BUILD.md) | app.exe ビルド手順 |
-| [`docs/CHANGELOG.md`](./CHANGELOG.md) | 更新履歴 |
+| [`docs/PROJECT.md`](../PROJECT.md) | プロジェクト正本（触ってはいけない領域等） |
+| [`docs/TODO.md`](../TODO.md) | 進捗・Backlog |
+| [`docs/tasks/INDEX.md`](../tasks/INDEX.md) | 全 REQ 索引 |
+| [`UPDATE_SKILLS.md`](../../UPDATE_SKILLS.md) | スキルデータ更新手順 |
+| [`docs/RELEASE_BUILD.md`](../RELEASE_BUILD.md) | app.exe ビルド手順 |
+| [`docs/CHANGELOG.md`](../CHANGELOG.md) | 更新履歴 |
+| [`docs/DOCS-GUIDE.md`](../DOCS-GUIDE.md) | docs 運用ガイド |

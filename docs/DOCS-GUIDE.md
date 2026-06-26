@@ -4,7 +4,7 @@
 > アプリの製品仕様・技術概要は [`PROJECT.md`](PROJECT.md)。**進捗・要件・運用の地図はここ。**
 > リポジトリ全体の紹介は [ルート `README.md`](../README.md)（別ファイル）。
 
-最終更新: 2026-06-27 04:33
+最終更新: 2026-06-27 04:37
 
 ---
 
@@ -41,7 +41,13 @@ REQ が `done` になっても、**ここを更新し続ける**。
 | [`CHAT_TEMPLATE.md`](CHAT_TEMPLATE.md) | チャット起票テンプレ（設計 / 実装 / 検証 / 実機クローズ） |
 | [`RELEASE_BUILD.md`](RELEASE_BUILD.md) | app.exe ビルド・バージョン bump |
 | [`CHANGELOG.md`](CHANGELOG.md) | リリース履歴 |
-| [`SYSTEM_SPECIFICATION.md`](SYSTEM_SPECIFICATION.md) | 外部向け技術概要（評価・引き継ぎ用。日常作業の入口ではない） |
+
+### 参照用（`reference/`）
+
+| ファイル | 内容 |
+|---------|------|
+| [`reference/README.md`](reference/README.md) | 参照フォルダの案内 |
+| [`reference/SYSTEM_SPECIFICATION.md`](reference/SYSTEM_SPECIFICATION.md) | 外部向け技術概要（評価・引き継ぎ用。日常作業の入口ではない） |
 
 ### 進捗・要件索引
 
@@ -145,7 +151,7 @@ Get-Date -Format "yyyy-MM-dd HH:mm"
 
 | 質問 | Yes なら |
 |------|---------|
-| 完了後も仕様として残る？ | **永続正本**（`docs/` または design-pack） |
+| 完了後も仕様として残る？ | **永続正本**（`docs/` または design-pack）。評価用のみなら **`reference/`** |
 | 1回きりの作業の手順・Phase？ | **REQ** |
 | 今週やるかどうか？ | **TODO** Backlog |
 | チャットの貼り付け型？ | **CHAT_TEMPLATE** に追記 |
