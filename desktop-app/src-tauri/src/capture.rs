@@ -16,6 +16,9 @@ use windows_sys::Win32::Graphics::Gdi::{
 
 use crate::{CaptureError, CaptureSessionState};
 
+/// オートキャプチャ時のホイールノッチ数（負=下方向）。正本は -5。TRN shift 実験で -4。
+const AUTO_SCROLL_WHEEL_CLICKS: i16 = -4;
+
 // ============================================================
 // 公開関数
 // ============================================================
@@ -660,7 +663,12 @@ pub async fn start_auto_scroll_capture_session(
 
         // ホイール下方向にスクロール
         // ターゲット座標に向かってスクロールを実行する
-        scroll_window_input(game_window.hwnd, absolute_target_x, absolute_target_y, -5);
+        scroll_window_input(
+            game_window.hwnd,
+            absolute_target_x,
+            absolute_target_y,
+            AUTO_SCROLL_WHEEL_CLICKS,
+        );
 
         // スクロールアニメーションの完了とバウンドの停止を待つ
         tokio::time::sleep(std::time::Duration::from_millis(300)).await;
