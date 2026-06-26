@@ -2,6 +2,7 @@
 
 > **docs で迷ったら**: [`DOCS-GUIDE.md`](DOCS-GUIDE.md)（運用ガイド・永続正本一覧・人間/AI フロー）
 > 新チャットを開いたら、下記をコピーして先頭に貼る。
+> **Phase 別の完成プロンプト（ワンクリック Copy）**: [`chat-prompts/`](chat-prompts/)（例: [Scene Model M3](chat-prompts/scene-model-m3.md)）
 > ファイル参照は `@` で添付する（付け方の方針: 下記「`@` ファイル添付の方針」）。
 
 ---
