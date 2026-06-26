@@ -10,6 +10,7 @@ import {
   STITCH_SCROLL_DIFF_AVG_THRESHOLD,
   STITCH_SCROLL_DIFF_CHECK_WIDTH_RATIO,
   STITCH_SCROLL_DIFF_CONSECUTIVE_ROWS,
+  STITCH_MATCH_SCORE_THRESHOLD,
   STITCH_SEARCH_WIDTH_RATIO,
   STITCH_TAB_ROW_HEIGHT_RATIO,
   STITCH_TAB_ROW_Y_SCAN_STEP,
@@ -152,6 +153,39 @@ function estimateScrollAmountCv(
   workHeight: number
 ): number {
   const searchWidth = Math.floor(cropWidth * STITCH_SEARCH_WIDTH_RATIO);
+  const { scrollAmount: nccAmount, score: nccScore } = estimateScrollAmountByNccCv(
+    prev,
+    curr,
+    cv,
+    searchWidth,
+    workHeight
+  );
+
+  if (nccScore >= STITCH_MATCH_SCORE_THRESHOLD && nccAmount > 0) {
+    return nccAmount;
+  }
+
+  const absAmount = estimateScrollAmountByAbsdiffMinCv(
+    prev,
+    curr,
+    cv,
+    searchWidth,
+    workHeight
+  );
+  if (absAmount > 0) {
+    return absAmount;
+  }
+
+  return nccAmount > 0 ? nccAmount : 0;
+}
+
+function estimateScrollAmountByNccCv(
+  prev: any,
+  curr: any,
+  cv: any,
+  searchWidth: number,
+  workHeight: number
+): { scrollAmount: number; score: number } {
   const templateHeight = Math.floor(workHeight * STITCH_TEMPLATE_HEIGHT_RATIO);
   const templateY = workHeight - templateHeight;
 
@@ -169,7 +203,61 @@ function estimateScrollAmountCv(
   template.delete();
   currSearchArea.delete();
 
-  return scrollAmount > 0 ? scrollAmount : 0;
+  return {
+    scrollAmount: scrollAmount > 0 ? scrollAmount : 0,
+    score: minMax.maxVal,
+  };
+}
+
+function estimateScrollAmountByAbsdiffMinCv(
+  prev: any,
+  curr: any,
+  cv: any,
+  searchWidth: number,
+  workHeight: number
+): number {
+  const templateHeight = Math.floor(workHeight * STITCH_TEMPLATE_HEIGHT_RATIO);
+  const templateY = workHeight - templateHeight;
+
+  const prevGray = new cv.Mat();
+  const currGray = new cv.Mat();
+  cv.cvtColor(prev, prevGray, cv.COLOR_RGBA2GRAY);
+  cv.cvtColor(curr, currGray, cv.COLOR_RGBA2GRAY);
+
+  let bestShift = 0;
+  let bestDiff = Infinity;
+
+  for (let matchedY = 0; matchedY <= templateY; matchedY++) {
+    const scrollAmount = templateY - matchedY;
+    if (scrollAmount <= 0) continue;
+
+    let totalDiff = 0;
+    let pixels = 0;
+
+    for (let dy = 0; dy < templateHeight; dy++) {
+      const prevY = templateY + dy;
+      const currY = matchedY + dy;
+      if (currY >= workHeight) break;
+      for (let x = 0; x < searchWidth; x++) {
+        const a = prevGray.ucharPtr(prevY, x)[0];
+        const b = currGray.ucharPtr(currY, x)[0];
+        totalDiff += Math.abs(a - b);
+        pixels++;
+      }
+    }
+
+    if (pixels === 0) continue;
+    const avgDiff = totalDiff / pixels;
+    if (avgDiff < bestDiff) {
+      bestDiff = avgDiff;
+      bestShift = scrollAmount;
+    }
+  }
+
+  prevGray.delete();
+  currGray.delete();
+
+  return bestShift;
 }
 
 function detectScrollStartByGreenTabCv(

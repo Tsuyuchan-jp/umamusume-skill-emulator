@@ -96,8 +96,7 @@ interface StitchReport {
 |-------|------|------|
 | **R0** | REQ・golden 期待値・計測 CLI（`tools/stitch-golden/`） | **done** |
 | **R1** | `regions.ts`（absdiff 主経路）+ 旧 API 内部差替 | **done** |
-| **R2** | layout / tabDetect 整理・走査帯魔術削除 | **done**（`47d5755`）。scrollStart 残 → **R2 残** |
-| **R2 残** | G-FRD-S scrollStart — `regionsCore` absdiff / scrollAmount（案A） | **承認済み・未着手** |
+| **R2** | layout / tabDetect 整理・走査帯魔術削除 + G-FRD-S scrollStart | **done** |
 | **R3** | compose 簡素化・旧 scrollMats 全貼り廃止 | draft |
 | **R4** | postProcess 分離・TrainingInfo 別パス（旧 S-6） | draft |
 | **R5** | `opencvStitcher.ts` 削除・REQ done | draft |
@@ -114,7 +113,7 @@ interface StitchReport {
 | G-HOF-F | HOF factor S0 | L3 | 0.36–0.51 | 計測 **0.495**（継承タブやや下） |
 | G-TRN | golden/TRN 4枚 | L2 | 0.48–0.54 | 計測 **0.515**（877 crop）。実機 464/900≈0.516 と整合 |
 | G-CMP-S | CMP skill S0 | L3 | 0.36–0.44 | |
-| G-FRD-S | FRD skill golden | L3+Btn | 0.46–0.52 | f000+f001。R2: layout/tabRow PASS。scrollStart: absdiff 失敗時 green-tab ≈0.545（目視 ≈0.55）。**期待帯と目視の差は R2 残で整合** |
+| G-FRD-S | FRD skill golden | L3+Btn | 0.52–0.56 | f000+f001 absdiff LOW 走査。計測 **0.554**（目視≈0.55 整合） |
 | G-FRD-F | FRD factor golden | L3+Btn | 0.46–0.52 | 練習パートナー解除帯 |
 
 正本 JSON: [`tools/stitch-golden/expectations.json`](../../tools/stitch-golden/expectations.json)
@@ -153,7 +152,7 @@ interface StitchReport {
 - [x] R0: golden 期待値 JSON + 計測 CLI + Vitest スモーク
 - [x] R1: G-TRN + G-HOF-S golden 合格（scrollStartRatio が期待帯内）
 - [x] R2: G-CMP-S golden 合格（layout hard + tabRow + scrollStart）。G-FRD-S layout/tabRow 合格
-- [ ] R2 残: G-FRD-S scrollStartRatio 合格（absdiff 主経路 or 承認済み regionsCore 修正）
+- [x] R2 残: G-FRD-S scrollStartRatio 合格（absdiff 主経路・LOW 走査 + 小スクロール scan）
 - [ ] R3: stitched-OK 退行なし（目視 + SSIM 任意）
 - [ ] R4: TrainingInfo 別パス（G-FRD-I）
 - [ ] R5: `opencvStitcher.ts` 削除、親 REQ Phase 3 検証クローズ、TODO/INDEX 更新
@@ -230,6 +229,7 @@ npm run stitch:golden
 
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
+| 2026-06-26 18:41 | **R2 残 完了** | `regionsCore`: S-4 scrollAmount + LOW streak 境界 + 小スクロール（<80px）/ 高 ratio 走査。G-FRD-S absdiff **0.554**、期待帯 **0.52–0.56** に更新（R0 単フレーム 0.46–0.52 は absdiff 計測と乖離） |
 | 2026-06-26 18:19 | **R2 残: 案A 承認** | G-FRD-S scrollStart は green-tab≈0.545（目視≈0.55）で副経路は妥当。absdiff 主経路未動作が問題。`regionsCore` 改善で対応。f001 固定維持 |
 | 2026-06-26 18:19 | **期待帯 0.46–0.52 vs 目視≈0.55** | 着手チャットで absdiff 修正後の計測を正本に期待帯を維持 or 更新を決定 |
 | 2026-06-26 08:13 | **REQ 起票・R0 着手** | 監査で 16%≠目視境界を確認。パッチ積み上げ限界 |

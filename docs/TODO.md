@@ -4,13 +4,13 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-26 18:19
+最終更新: 2026-06-26 18:41
 
 ---
 
 ## 現在のフォーカス
 
-**P1** — G-FRD-S **scrollStart**（`regionsCore` 案A）— R2 layout 完了（`47d5755`）。次チャットで着手。
+**P1** — オートキャプチャ結合リライト **R3**（compose 簡素化）— R2 完了待ちコミット後。
 
 ---
 
@@ -27,13 +27,6 @@
 （完了 — 下記「完了済み」参照）
 
 ### P1 — 重要
-
-- [ ] **G-FRD-S scrollStart — regionsCore 改善（案A・承認済み）**（R2 残）
-  - 背景: R2（`47d5755`）で layout/tabRow は合格。golden f000+f001 で **absdiff 主経路が未検出** → green-tab 副経路 ≈**0.545**（目視境界 ≈0.55 と整合）。期待帯は 0.46–0.52
-  - 方針: **案A** — `scrollAmount` 推定 or absdiff 前処理の改善（フレーム選定変更はしない）。副経路は参考（目視 OK）
-  - ゲート: G-FRD-S scrollStartRatio∈[0.46,0.52] + G-TRN/G-HOF-S 退行なし
-  - REQ: [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)「R2 残」・実装チャット用プロンプト
-  - 触る想定: `stitch/regionsCore.ts`（必要最小）、`golden.test.ts`、REQ 決定ログ
 
 - [ ] **オートキャプチャ結合リライト R3〜R5**（compose / postProcess / 旧ファイル削除）
   - REQ: [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
@@ -150,6 +143,7 @@
 
 ## 完了済み
 
+- [x] **G-FRD-S scrollStart — regionsCore 改善（R2 残）** — absdiff LOW 走査 + 小スクロール scan・期待帯 0.52–0.56・golden 10件 PASS（2026-06-26 18:41）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 - [x] **オートキャプチャ結合リライト R2**（layout / tabDetect 整理・走査帯正本化）— G-CMP-S + G-FRD-S layout/tabRow PASS、G-FRD-S scrollStart 要フォロー（2026-06-26 18:07 / `47d5755`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 - [x] **オートキャプチャ結合リライト R1**（scrollStartY absdiff 正本・`USE_STITCH_V2`）— G-TRN/G-HOF-S golden PASS（2026-06-26 08:41 / `1df1860`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 - [x] **オートキャプチャ結合リライト R0（golden ハーネス）** — expectations.json・measure-regions.ps1・Vitest 5件 PASS・設計パック 6 golden PASS（2026-06-26 08:13 / `851d341`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
@@ -242,7 +236,7 @@
 ## 既知の問題・メモ
 
 - パレットのスキル一覧は **`umasimSkillDataList`（ローカル）正本** — `buildPaletteSkillOptions`。WASM sim は `fetchSkillData()`（GitHub 優先 → AppData → 同梱 `public/skill_data.txt`）
-- **オートキャプチャ結合 R2**: layout/tabDetect 完了（`47d5755`）。**G-FRD-S scrollStart 残**: f000/f001 で absdiff 未検出、green-tab ≈0.545（ユーザー目視 ≈0.55 と近い）。期待帯 0.46–0.52 との差は次チャットで absdiff 修正＋期待値整合を検討（案A承認 2026-06-26）
+- **オートキャプチャ結合 R2**: layout/tabDetect + G-FRD-S scrollStart 完了（R2 残 2026-06-26）。absdiff LOW 走査・f0→f1 実スクロール≈26px 時は scrollAmount 走査で境界≈0.55
 - **sim スキルデータ**: オンライン時 GitHub fetch + AppData キャッシュ。オフライン時は同梱/キャッシュで制限付き動作（フォールバック時トースト）
 - **REQ-skill-data-fetch-fallback 実機検証**: 手順 1〜2 確認済み。手順 3〜7（同梱のみ・fetch 全滅・Worker 区別・回帰）は P1 Backlog — 後日クローズ予定（2026-06-25）
 - **将来（案B・Backlog）**: `skill_data.txt` を自前 GitHub に置き fetch 一本化 → extract→push でユーザー再配布を減らす方針。sim 定義と UI 一覧を同一 JSON に揃える

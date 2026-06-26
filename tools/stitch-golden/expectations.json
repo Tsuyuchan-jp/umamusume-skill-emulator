@@ -54,7 +54,7 @@
       "label": "フレンド・スキルタブ",
       "layout": "L3+Btn",
       "framePaths": ["golden/FRD/skill/frame_000.png"],
-      "scrollStartRatio": { "min": 0.46, "max": 0.52 },
+      "scrollStartRatio": { "min": 0.52, "max": 0.56 },
       "tabRowRatio": { "min": 0.39, "max": 0.47 },
       "legacyHeaderRatio": 0.16,
       "notes": "R2 ゲート。広帯タブ（旧 22–30% 期待は誤り）"

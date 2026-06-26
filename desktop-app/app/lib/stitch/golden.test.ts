@@ -131,7 +131,7 @@ describe.skipIf(!isDesignPackPresent())("stitch golden R2 layout + scrollStartRa
     ).toBe(true);
   }, 60_000);
 
-  it("G-FRD-S layout=L3+Btn, tabRowRatio∈[0.39,0.47], scrollStartRatio∈[0.46,0.52]", async () => {
+  it("G-FRD-S layout=L3+Btn, tabRowRatio∈[0.39,0.47], scrollStartRatio∈[0.52,0.56]", async () => {
     const c = getGoldenCase("G-FRD-S")!;
     const framePaths = [c.framePaths[0], "golden/FRD/skill/frame_001.png"];
     const secondPath = join(packRoot, framePaths[1]);
@@ -153,5 +153,6 @@ describe.skipIf(!isDesignPackPresent())("stitch golden R2 layout + scrollStartRa
       isRatioInBand(scrollMeasured.scrollStartRatio, c.scrollStartRatio),
       `scrollStartRatio=${scrollMeasured.scrollStartRatio.toFixed(4)} method=${scrollMeasured.method}`
     ).toBe(true);
+    expect(scrollMeasured.method, "G-FRD-S scrollStart は absdiff 主経路").toBe("absdiff");
   }, 60_000);
 });
