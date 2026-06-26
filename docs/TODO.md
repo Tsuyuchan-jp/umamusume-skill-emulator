@@ -159,7 +159,7 @@
 
 ## 完了済み
 
-- [x] **design-pack P0** — PACK-GUIDE 新設・README 案内板化・DOCS-GUIDE リンク（2026-06-27 04:48 / コミット後記入）/ [`PACK-GUIDE.md`](../auto-capture-design-pack/PACK-GUIDE.md)
+- [x] **design-pack P0** — PACK-GUIDE 新設・README 案内板化・DOCS-GUIDE リンク（2026-06-27 04:48 / `11a6879`）/ [`PACK-GUIDE.md`](../auto-capture-design-pack/PACK-GUIDE.md)
 - [x] **オートキャプチャ結合 R3.5d 実装**（d-2〜d-4: frame0 帯推定・狭帯 -3 / 広帯 -4・FRD golden）— golden 18/18 PASS（2026-06-27 02:41 / `139c14e`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) — **d-5 実機はユーザー確認待ち**
 - [x] **オートキャプチャ結合 R3.5c**（c-2〜c-5 一部 + 実機 HOF-S/TRN/HOF-F）— terminal・狭帯ガード・golden 18/18（2026-06-27 02:04 / `23ebab7`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 - [x] **オートキャプチャ結合リライト R3.5b**（layout L2 優先・tabDetect 2タブガード）— golden 17/17 PASS（2026-06-27 00:02 / `5d98121`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
