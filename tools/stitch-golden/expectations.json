@@ -59,8 +59,8 @@
       "scrollStartRatio": { "min": 0.52, "max": 0.56 },
       "tabRowRatio": { "min": 0.39, "max": 0.47 },
       "legacyHeaderRatio": 0.16,
-      "shiftRepresentative": { "min": 120, "max": 180 },
-      "notes": "R2 ゲート。設計パック S*≈133。実機 -4 は 170–210"
+      "shiftRepresentative": { "min": 120, "max": 160 },
+      "notes": "R3.5d: 狭帯 -3 帯 S*≈130–160。設計パック golden S*≈133"
     },
     {
       "id": "G-FRD-F",
@@ -70,7 +70,8 @@
       "scrollStartRatio": { "min": 0.46, "max": 0.52 },
       "tabRowRatio": { "min": 0.39, "max": 0.47 },
       "legacyHeaderRatio": 0.16,
-      "notes": "練習パートナー解除帯あり。R2 ゲート"
+      "shiftRepresentative": { "min": 120, "max": 160 },
+      "notes": "練習パートナー解除帯あり。R3.5d 狭帯 -3 帯"
     }
   ]
 }

@@ -189,7 +189,7 @@ interface StitchReport {
 | **R3.5a** | `shiftEstimate`（全重なり SSD + セッション median）— scrollMatch 置換 | **done** |
 | **R3.5b** | layout L2 優先・tabDetect 2タブガード（TRN） | **done** |
 | **R3.5c** | **-4・shift 末端・golden**（下表） | **done（c-5 一部: HOF/TRN OK・FRD は R3.5d へ）** |
-| **R3.5d** | **frame0 帯推定・狭帯 -3 / 広帯 -4・FRD 実機**（下表） | **in-progress（docs 確定）** |
+| **R3.5d** | **frame0 帯推定・狭帯 -3 / 広帯 -4・FRD 実機**（下表） | **in-progress（d-2〜d-4 done・d-5 実機待ち）** |
 | **R4** | postProcess 分離・TrainingInfo 別パス（旧 S-6） | draft |
 | **R5** | `opencvStitcher.ts` 削除・REQ done | draft |
 
@@ -208,10 +208,10 @@ interface StitchReport {
 | サブ | 内容 | 主な変更 | 状態 |
 |------|------|----------|------|
 | **d-1** | 契約・docs 同期 | 本 REQ・TODO・INDEX・README・親 REQ | **done（docs）** |
-| **d-2** | Rust frame0 帯推定 | `capture.rs`（緑タブ走査・scrollRegionH） | 待ち |
-| **d-3** | ホイール 2 段配線 | `capture.rs`（-3 / -4 セッション固定） | 待ち |
-| **d-4** | stitch golden（FRD -3） | `expectations.json`・`golden.test.ts` | 待ち |
-| **d-5** | 実機 FRD + 退行確認 | Step 4/6・HOF/TRN 退行ゲート | 待ち |
+| **d-2** | Rust frame0 帯推定 | `capture.rs`（緑タブ走査・scrollRegionH） | **done** |
+| **d-3** | ホイール 2 段配線 | `capture.rs`（-3 / -4 セッション固定） | **done** |
+| **d-4** | stitch golden（FRD -3） | `expectations.json`・`golden.test.ts` | **done** |
+| **d-5** | 実機 FRD + 退行確認 | Step 4/6・HOF/TRN 退行ゲート | 待ち（ユーザー実機） |
 
 **Phase 3 実機検証**（[`REQ-auto-capture-multi-screen.md`](REQ-auto-capture-multi-screen.md)）は **R3.5d-5 完了でクローズ**。
 
@@ -520,9 +520,9 @@ score(S) = mean | prev[scrollStartY + S + y, x] - curr[scrollStartY + y, x] |
 ### R3.5d 完了条件
 
 - [x] d-1: Capture–Stitch 契約（2 段ホイール）・TODO/INDEX/README/親 REQ 同期（docs）
-- [ ] d-2: `capture.rs` frame0 から `scrollRegionH` 推定（緑タブ走査・footer 15%）
-- [ ] d-3: `scrollRegionH < 280` → **-3**、else **-4**（失敗時 -4）。セッション内固定。構造化ログ
-- [ ] d-4: FRD golden `shiftRepresentative` を -3 帯に更新。`npm run stitch:golden` 全 PASS。HOF/TRN 退行なし
+- [x] d-2: `capture.rs` frame0 から `scrollRegionH` 推定（緑タブ走査・footer 15%）
+- [x] d-3: `scrollRegionH < 280` → **-3**、else **-4**（失敗時 -4）。セッション内固定。構造化ログ
+- [x] d-4: FRD golden `shiftRepresentative` を -3 帯に更新。`npm run stitch:golden` 全 PASS。HOF/TRN 退行なし
 - [ ] d-5: 実機 Step 4 FRD-S / 6 FRD-F OK。Step 1/3 HOF/TRN 退行なし。親 REQ Phase 3 クローズ
 
 ### R3.5a 完了条件（draft）
@@ -552,6 +552,7 @@ score(S) = mean | prev[scrollStartY + S + y, x] - curr[scrollStartY + y, x] |
 
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
+| 2026-06-27 02:41 | **R3.5d d-2〜d-4 実装完了** | `capture.rs`: frame0 crop 同系・緑タブ走査 0.28–0.54・scrollRegionH 推定・狭帯 -3 / 広帯 -4・構造化ログ。FRD `shiftRepresentative` 120–160。golden 18/18 PASS。d-5 実機はユーザー確認待ち |
 | 2026-06-27 02:32 | **R3.5d 設計確定（docs）** | 実機: HOF-S/TRN/HOF-F OK（-4）。FRD-S/F NG（-4・重なり ≈70–80px 不足）。-5 は採用しない。**案3**: frame0 で scrollRegionH 推定、狭帯 **-3** / 広帯 **-4**（しきい値 280px・失敗時 -4）。layout 名 3 段より帯高さ 2 段。推定オーバーヘッドは 1 回・≈0.1–0.3s |
 | 2026-06-27 02:04 | **R3.5c-2 修正（実機 HOF-S/TRN）** | 最終ペアで `median-corrected` が raw（60/119）を S*=192 に上書きし重複。末端は `S < 0.85·S*` なら補正せず実測シフト + terminal で compose |
 | 2026-06-27 01:49 | **R3.5c c-2〜c-4 完了** | terminal: 先行 S* 安定時は最終ペアを bound しない。重なりガード: `STITCH_SHIFT_NARROW_REGION_MAX=320` 未満の帯のみ `MIN_OVERLAP_RATIO=0.28` 適用（TRN 235→帯内・HOF 広帯退行なし）。golden 18/18 PASS・G-TRN shift ゲート新設 |

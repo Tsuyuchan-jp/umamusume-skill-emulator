@@ -5,6 +5,11 @@
 /// - `calculate_frame_diff`: 2フレーム間のピクセル差分の絶対値総和を計算
 /// - `start_capture_session`: 非同期キャプチャループ（差分監視で自動終了）
 /// - `stop_capture_session`: キャプチャの手動中断
+///
+/// Capture–Stitch 契約（R3.5d）: frame0 で `scrollRegionH` を推定し、セッション内ホイールを固定。
+/// - 広帯（scrollRegionH ≥ 280px）→ **-4**（HOF / TRN / CMP 等）
+/// - 狭帯（scrollRegionH < 280px）→ **-3**（FRD 等）
+/// - 推定失敗時 → **-4**（HOF/TRN 退行回避）
 use std::sync::atomic::Ordering;
 use tauri::Emitter;
 use tauri::Manager;
@@ -16,8 +21,35 @@ use windows_sys::Win32::Graphics::Gdi::{
 
 use crate::{CaptureError, CaptureSessionState};
 
-/// オートキャプチャ時のホイールノッチ数（負=下方向）。Capture–Stitch 契約の正本は **-4**。
-const AUTO_SCROLL_WHEEL_CLICKS: i16 = -4;
+/// 推定失敗時のフォールバック（広帯 -4・安全側）
+const WHEEL_CLICKS_FALLBACK: i16 = -4;
+/// 狭帯 / 広帯のしきい値（crop 高さ ≈900px 基準）
+const SCROLL_REGION_NARROW_THRESHOLD: i32 = 280;
+/// stitch 正本: footer = crop 高さ × 15%
+const CROP_FOOTER_RATIO: f32 = 0.15;
+/// 緑タブ走査帯（regionsCore / constants 正本と同系）
+const GREEN_TAB_SCAN_START: f32 = 0.28;
+const GREEN_TAB_SCAN_END: f32 = 0.54;
+const GREEN_TAB_SCAN_STEP: f32 = 0.01;
+const TAB_ROW_HEIGHT_RATIO: f32 = 0.035;
+const TAB_BOTTOM_MARGIN_RATIO: f32 = 0.012;
+const L2_GREEN_SCORE_MIN: f32 = 0.45;
+const L3_GREEN_SEG_MIN: f32 = 0.15;
+
+/// CropRect（findCropBounds 同系・frame 座標系）
+struct CropRect {
+    x: u32,
+    y: u32,
+    width: u32,
+    height: u32,
+}
+
+/// frame0 推定結果
+struct WheelDecision {
+    clicks: i16,
+    scroll_region_h: i32,
+    reason: &'static str,
+}
 
 // ============================================================
 // 公開関数
@@ -459,6 +491,282 @@ fn is_umamusume_green(r: u8, g: u8, b: u8) -> bool {
     h >= 70.0 && h <= 170.0 && s >= 0.35 && v >= 0.35
 }
 
+/// cropCore findCropBounds 同系 — 緑タイトルバー検出
+fn is_title_bar_green(r: u8, g: u8, b: u8) -> bool {
+    let (h, s, _v) = rgb_to_hsv(r, g, b);
+    h >= 40.0 && h <= 120.0 && s >= 0.59
+}
+
+fn find_crop_bounds(frame: &image::RgbImage) -> Option<CropRect> {
+    let width = frame.width();
+    let height = frame.height();
+    let search_height = ((height as f32) * 0.3) as u32;
+
+    let mut max_detected_width = 0u32;
+    let mut widest_left_x = 0u32;
+    let mut widest_right_x = 0u32;
+
+    for y in 0..search_height.min(height) {
+        let mut first_x: Option<u32> = None;
+        let mut last_x: Option<u32> = None;
+        for x in 0..width {
+            let pixel = frame.get_pixel(x, y);
+            if is_title_bar_green(pixel[0], pixel[1], pixel[2]) {
+                if first_x.is_none() {
+                    first_x = Some(x);
+                }
+                last_x = Some(x);
+            }
+        }
+        if let (Some(first), Some(last)) = (first_x, last_x) {
+            let current_width = last - first + 1;
+            if current_width > max_detected_width {
+                max_detected_width = current_width;
+                widest_left_x = first;
+                widest_right_x = last;
+            }
+        }
+    }
+
+    let mut header_y: Option<u32> = None;
+    for y in 0..search_height.min(height) {
+        let mut first_x: Option<u32> = None;
+        let mut last_x: Option<u32> = None;
+        for x in 0..width {
+            let pixel = frame.get_pixel(x, y);
+            if is_title_bar_green(pixel[0], pixel[1], pixel[2]) {
+                if first_x.is_none() {
+                    first_x = Some(x);
+                }
+                last_x = Some(x);
+            }
+        }
+        if let (Some(first), Some(last)) = (first_x, last_x) {
+            let current_width = last - first + 1;
+            if current_width as f32 >= max_detected_width as f32 * 0.95 {
+                header_y = Some(y);
+                break;
+            }
+        }
+    }
+
+    let start_y = header_y?;
+    if max_detected_width < 100 {
+        return None;
+    }
+
+    let start_x = widest_left_x;
+    let ui_width = widest_right_x - widest_left_x + 1;
+    let mut ui_height = (ui_width as f32 / 0.5625).floor() as u32;
+    if start_y + ui_height > height {
+        ui_height = height - start_y;
+    }
+
+    Some(CropRect {
+        x: start_x,
+        y: start_y,
+        width: ui_width,
+        height: ui_height,
+    })
+}
+
+struct GreenTabProfile {
+    l2_score: f32,
+    seg1: f32,
+    seg2: f32,
+    seg3: f32,
+}
+
+fn measure_green_tab_profile(
+    frame: &image::RgbImage,
+    crop: &CropRect,
+    tab_y: u32,
+    tab_h: u32,
+) -> GreenTabProfile {
+    let crop_width = crop.width;
+    let seg3_w = crop_width / 3;
+    let mut left_g = 0u32;
+    let mut right_g = 0u32;
+    let mut left_t = 0u32;
+    let mut right_t = 0u32;
+    let mut seg_g = [0u32; 3];
+    let mut seg_t = [0u32; 3];
+
+    for y in tab_y..tab_y + tab_h {
+        for x in 0..crop_width {
+            let pixel = frame.get_pixel(crop.x + x, crop.y + y);
+            let g = is_umamusume_green(pixel[0], pixel[1], pixel[2]);
+
+            if x < (crop_width as f32 * 0.48).floor() as u32 {
+                left_t += 1;
+                if g {
+                    left_g += 1;
+                }
+            } else if x >= (crop_width as f32 * 0.52).floor() as u32 {
+                right_t += 1;
+                if g {
+                    right_g += 1;
+                }
+            }
+
+            let si = if x < seg3_w {
+                0
+            } else if x < seg3_w * 2 {
+                1
+            } else {
+                2
+            };
+            seg_t[si] += 1;
+            if g {
+                seg_g[si] += 1;
+            }
+        }
+    }
+
+    let seg1 = if seg_t[0] > 0 {
+        seg_g[0] as f32 / seg_t[0] as f32
+    } else {
+        0.0
+    };
+    let seg2 = if seg_t[1] > 0 {
+        seg_g[1] as f32 / seg_t[1] as f32
+    } else {
+        0.0
+    };
+    let seg3 = if seg_t[2] > 0 {
+        seg_g[2] as f32 / seg_t[2] as f32
+    } else {
+        0.0
+    };
+    let l2_score = (if right_t > 0 {
+        right_g as f32 / right_t as f32
+    } else {
+        0.0
+    }) - (if left_t > 0 {
+        left_g as f32 / left_t as f32
+    } else {
+        0.0
+    });
+
+    GreenTabProfile {
+        l2_score,
+        seg1,
+        seg2,
+        seg3,
+    }
+}
+
+/// frame0 のみ・緑タブ走査 0.28–0.54（regionsCore detectScrollStartByGreenTab 同系）
+fn estimate_scroll_start_y_green_tab(frame: &image::RgbImage, crop: &CropRect) -> Option<u32> {
+    let crop_h = crop.height;
+    let tab_h = (crop_h as f32 * TAB_ROW_HEIGHT_RATIO).floor().max(4.0) as u32;
+    let margin = (crop_h as f32 * TAB_BOTTOM_MARGIN_RATIO).floor().max(1.0) as u32;
+
+    let mut best_y: Option<u32> = None;
+    let mut best_score = -1.0f32;
+
+    let mut ratio = GREEN_TAB_SCAN_START;
+    while ratio <= GREEN_TAB_SCAN_END {
+        let tab_y = (crop_h as f32 * ratio).floor() as u32;
+        if tab_y + tab_h >= crop_h {
+            ratio += GREEN_TAB_SCAN_STEP;
+            continue;
+        }
+
+        let profile = measure_green_tab_profile(frame, crop, tab_y, tab_h);
+        let l3_score = profile.seg1.max(profile.seg2).max(profile.seg3);
+
+        let l2_ok = profile.l2_score >= L2_GREEN_SCORE_MIN;
+        let l3_ok = l3_score >= L3_GREEN_SEG_MIN;
+
+        let score = if l2_ok && l3_ok {
+            profile.l2_score.max(l3_score)
+        } else if l2_ok {
+            profile.l2_score
+        } else if l3_ok {
+            l3_score
+        } else {
+            -1.0
+        };
+
+        if score > best_score {
+            best_score = score;
+            best_y = Some(tab_y);
+        }
+
+        ratio += GREEN_TAB_SCAN_STEP;
+    }
+
+    let tab_y = best_y?;
+    if best_score < 0.0 {
+        return None;
+    }
+
+    let scroll_start = tab_y + tab_h + margin;
+    if scroll_start >= crop_h {
+        return None;
+    }
+
+    Some(scroll_start)
+}
+
+/// frame0 から scrollRegionH を推定しホイール段を決定（R3.5d 正本）
+fn estimate_wheel_from_frame0(frame: &image::RgbImage) -> WheelDecision {
+    let crop = match find_crop_bounds(frame) {
+        Some(c) => c,
+        None => {
+            return WheelDecision {
+                clicks: WHEEL_CLICKS_FALLBACK,
+                scroll_region_h: 0,
+                reason: "fallback",
+            };
+        }
+    };
+
+    let scroll_start_y = match estimate_scroll_start_y_green_tab(frame, &crop) {
+        Some(y) => y,
+        None => {
+            return WheelDecision {
+                clicks: WHEEL_CLICKS_FALLBACK,
+                scroll_region_h: 0,
+                reason: "fallback",
+            };
+        }
+    };
+
+    let footer_start_y =
+        (crop.height as f32 * (1.0 - CROP_FOOTER_RATIO)).floor() as u32;
+    let scroll_region_h = footer_start_y.saturating_sub(scroll_start_y) as i32;
+
+    if scroll_region_h < SCROLL_REGION_NARROW_THRESHOLD {
+        WheelDecision {
+            clicks: -3,
+            scroll_region_h,
+            reason: "narrow_band",
+        }
+    } else {
+        WheelDecision {
+            clicks: -4,
+            scroll_region_h,
+            reason: "wide_band",
+        }
+    }
+}
+
+fn log_wheel_decision(decision: &WheelDecision) {
+    if decision.reason == "fallback" {
+        println!(
+            "[Rust] scrollRegion=?px wheel={} reason=fallback",
+            decision.clicks
+        );
+    } else {
+        println!(
+            "[Rust] scrollRegion={}px wheel={} reason={}",
+            decision.scroll_region_h, decision.clicks, decision.reason
+        );
+    }
+}
+
 // 最初のフレームから因子ヘッダーの「左端」と「右端」、そして「Y座標」を動的に見つけ出す関数
 fn find_factor_header_bounds(frame: &image::RgbImage) -> (u32, u32, u32) {
     let width = frame.width();
@@ -621,7 +929,7 @@ pub async fn start_auto_scroll_capture_session(
     };
 
     // 最初のフレームをキャプチャして追加
-    let (mut prev_frame, factor_start_x, factor_end_x, header_y) =
+    let (mut prev_frame, factor_start_x, factor_end_x, header_y, wheel_clicks) =
         match capture_window(&game_window) {
             Ok(f) => {
                 let bounds = find_factor_header_bounds(&f);
@@ -632,9 +940,17 @@ pub async fn start_auto_scroll_capture_session(
                     "[Rust] 因子ヘッダー検知: X座標 {} 〜 {}, Y座標 {}",
                     start_x, end_x, h_y
                 );
+                let wheel_decision = estimate_wheel_from_frame0(&f);
+                log_wheel_decision(&wheel_decision);
                 let mut frames = state.frames.lock().unwrap();
                 frames.push(f.clone());
-                (Some(f), start_x, end_x, h_y)
+                (
+                    Some(f),
+                    start_x,
+                    end_x,
+                    h_y,
+                    wheel_decision.clicks,
+                )
             }
             Err(e) => {
                 state.is_recording.store(false, Ordering::SeqCst);
@@ -667,7 +983,7 @@ pub async fn start_auto_scroll_capture_session(
             game_window.hwnd,
             absolute_target_x,
             absolute_target_y,
-            AUTO_SCROLL_WHEEL_CLICKS,
+            wheel_clicks,
         );
 
         // スクロールアニメーションの完了とバウンドの停止を待つ
