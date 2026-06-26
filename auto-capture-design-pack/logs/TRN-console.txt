@@ -1,8 +1,0 @@
-Download the React DevTools for a better development experience: https://react.dev/link/react-devtools
-forward-logs-shared.ts:95 [HMR] connected
-forward-logs-shared.ts:95 Detected UI Bounds: Rect
-forward-logs-shared.ts:95 Header: 140px, Scroll: 606px, Footer: 131px
-forward-logs-shared.ts:95 Frame 0 -> 1: score=0.719, scrollAmount=25
-forward-logs-shared.ts:95 Frame 1 -> 2: score=0.842, scrollAmount=78
-forward-logs-shared.ts:95 Frame 2 -> 3: score=0.821, scrollAmount=188
-forward-logs-shared.ts:95 余白を自動スキップし、Y= 1037 でクロップします（元のY= 1037 ）

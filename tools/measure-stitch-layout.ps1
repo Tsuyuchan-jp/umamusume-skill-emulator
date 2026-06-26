@@ -165,9 +165,9 @@ function Analyze-Image([string]$Label, [string]$Path, [switch]$PreCropped) {
     $bmp.Dispose()
 }
 
-Analyze-Image "TRN-full" (Join-Path $Root "screenshots\TRN\S0-top.png")
+Analyze-Image "TRN-full" (Join-Path $Root "golden\TRN\frame_000.png")
 Analyze-Image "TRN-crop" (Join-Path $Root "golden\TRN\frame_000.png") -PreCropped
-Analyze-Image "HOF-full" (Join-Path $Root "screenshots\HOF\skill\S0-top.png")
-Analyze-Image "HOF-crop" (Join-Path $Root "golden\TRD\frame_000.png") -PreCropped -ErrorAction SilentlyContinue
-Analyze-Image "CMP-full" (Join-Path $Root "screenshots\CMP\skill\S0-top.png")
-Analyze-Image "FRD-factor-full" (Join-Path $Root "screenshots\FRD\factor\S0-top.png")
+Analyze-Image "HOF-full" (Join-Path $Root "golden\HOF\skill\frame_000.png")
+Analyze-Image "HOF-crop" (Join-Path $Root "golden\HOF\skill\frame_000.png") -PreCropped
+Analyze-Image "CMP-full" (Join-Path $Root "golden\CMP\skill\frame_000.png")
+Analyze-Image "FRD-factor-full" (Join-Path $Root "golden\FRD\factor\frame_000.png")

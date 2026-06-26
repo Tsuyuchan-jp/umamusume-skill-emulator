@@ -71,8 +71,8 @@ describe.skipIf(!isDesignPackPresent())("stitch golden R3 compose smoke (RGBA)",
     const c = getGoldenCase("G-HOF-S")!;
     const framePaths = [
       c.framePaths[0],
-      "screenshots/HOF/skill/S1-mid.png",
-      "screenshots/HOF/skill/S2-bottom.png",
+      "golden/HOF/skill/frame_001.png",
+      "golden/HOF/skill/frame_002.png",
     ];
     for (const rel of framePaths) {
       expect(existsSync(join(packRoot, rel)), `missing ${rel}`).toBe(true);
@@ -157,8 +157,8 @@ describe.skipIf(!isDesignPackPresent())("stitch golden R3.5a shiftEstimate", () 
     expect(c.shiftRepresentative).toBeDefined();
     const framePaths = [
       c.framePaths[0],
-      "screenshots/HOF/skill/S1-mid.png",
-      "screenshots/HOF/skill/S2-bottom.png",
+      "golden/HOF/skill/frame_001.png",
+      "golden/HOF/skill/frame_002.png",
     ];
     for (const rel of framePaths) {
       expect(existsSync(join(packRoot, rel)), `missing ${rel}`).toBe(true);
@@ -228,7 +228,7 @@ describe.skipIf(!isDesignPackPresent())("stitch golden R1 scrollStartRatio (absd
 
   it("G-HOF-S scrollStartRatio ∈ [0.36, 0.46]", async () => {
     const c = getGoldenCase("G-HOF-S")!;
-    const framePaths = [c.framePaths[0], "screenshots/HOF/skill/S1-mid.png"];
+    const framePaths = [c.framePaths[0], "golden/HOF/skill/frame_001.png"];
     const secondPath = join(packRoot, framePaths[1]);
     expect(existsSync(secondPath), `missing ${framePaths[1]}`).toBe(true);
 
@@ -273,7 +273,7 @@ describe.skipIf(!isDesignPackPresent())("stitch golden R2 layout + scrollStartRa
 
   it("G-CMP-S layout=L3, tabRowRatio∈[0.33,0.43], scrollStartRatio∈[0.36,0.46]", async () => {
     const c = getGoldenCase("G-CMP-S")!;
-    const framePaths = [c.framePaths[0], "screenshots/CMP/skill/S1-mid.png"];
+    const framePaths = [c.framePaths[0], "golden/CMP/skill/frame_001.png"];
     const secondPath = join(packRoot, framePaths[1]);
     expect(existsSync(secondPath), `missing ${framePaths[1]}`).toBe(true);
 
