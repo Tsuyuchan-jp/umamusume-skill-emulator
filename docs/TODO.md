@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-27 01:49
+最終更新: 2026-06-27 02:04
 
 ---
 
@@ -237,7 +237,7 @@
 
 - パレットのスキル一覧は **`umasimSkillDataList`（ローカル）正本** — `buildPaletteSkillOptions`。WASM sim は `fetchSkillData()`（GitHub 優先 → AppData → 同梱 `public/skill_data.txt`）
 - **オートキャプチャ Capture–Stitch 契約**: ホイール **-4 正本**（`capture.rs`）。狭い scroll 帯（TRN/FRD）では SSD 重なり不足が誤推定の主因。正本: [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)「Capture–Stitch 契約」
-- **オートキャプチャ結合 R3.5c**: c-2〜c-4 完了（2026-06-27 01:49）。c-5 実機は Backlog
+- **オートキャプチャ結合 R3.5c-5**: Step1 HOF-S / Step3 TRN で末端 terminal が S* に上書き→重複。**fix: 短い実測シフトを採用**（`8936945` 後修正・再検証待ち）
 - **オートキャプチャ結合 R3.5b 完了**: layout L2 優先 + tabDetect 2タブガード。golden 17/17
 - **オートキャプチャ結合 R3.5 設計正本**: shiftEstimate（SSD + median）。詳細: [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) R3.5 節
 - **sim スキルデータ**: オンライン時 GitHub fetch + AppData キャッシュ。オフライン時は同梱/キャッシュで制限付き動作（フォールバック時トースト）

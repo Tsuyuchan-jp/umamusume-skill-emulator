@@ -285,7 +285,25 @@ export function estimateShiftFramesRgba(
       method = "ssd-refined";
     }
 
+    const priorAmounts = refinedPairs
+      .slice(0, i)
+      .map((p) => p.scrollAmount)
+      .filter((s) => s > 0);
+    const sessionStable =
+      representative > 0 &&
+      priorAmounts.length > 0 &&
+      priorAmounts.every((s) => Math.abs(s - representative) <= opts.outlierTau);
+
+    // リスト末端: 短い実測シフトは S* で補正せず raw/refined を採用（R3.5c-2）
+    const isTerminalShortScroll =
+      isLast &&
+      sessionStable &&
+      representative > 0 &&
+      scrollAmount > 0 &&
+      scrollAmount < opts.terminalRatio * representative;
+
     if (
+      !isTerminalShortScroll &&
       representative > 0 &&
       scrollAmount > 0 &&
       Math.abs(scrollAmount - representative) > opts.outlierTau
@@ -297,35 +315,24 @@ export function estimateShiftFramesRgba(
       method = "median-corrected";
     }
 
-    const isTerminalShort =
-      isLast &&
-      representative > 0 &&
-      scrollAmount > 0 &&
-      scrollAmount < opts.terminalRatio * representative &&
-      score < opts.scoreMin;
+    if (isTerminalShortScroll) {
+      const contentWidth = Math.floor(prev.width * opts.contentWidthRatio);
+      const avgDiff = overlapAvgDiff(prev, curr, scrollAmount, contentWidth);
+      score = avgDiffToScore(avgDiff, opts.scoreScale);
+      method = "terminal";
+    }
 
-    const priorAmounts = refinedPairs
-      .slice(0, i)
-      .map((p) => p.scrollAmount)
-      .filter((s) => s > 0);
-    const sessionStable =
-      representative > 0 &&
-      priorAmounts.length > 0 &&
-      priorAmounts.every((s) => Math.abs(s - representative) <= opts.outlierTau);
-
-    // 先行 S* 安定時は最終ペアを bound せず terminal として compose に含める（R3.5c-2）
     const isTerminalLowScore =
       isLast &&
       sessionStable &&
       representative > 0 &&
       scrollAmount > 0 &&
-      score < opts.scoreMin;
+      score < opts.scoreMin &&
+      method !== "terminal";
 
-    const isTerminal = isTerminalShort || isTerminalLowScore;
-
-    if (isTerminal) {
+    if (isTerminalLowScore) {
       method = "terminal";
-    } else if (score < opts.scoreMin && scrollAmount <= 0) {
+    } else if (!isTerminalShortScroll && score < opts.scoreMin && scrollAmount <= 0) {
       frames.push({
         index: i,
         scrollAmount: 0,
@@ -334,7 +341,7 @@ export function estimateShiftFramesRgba(
         rawScrollAmount,
       });
       return { overlaps, frames, representative };
-    } else if (score < opts.scoreMin) {
+    } else if (!isTerminalShortScroll && !isTerminalLowScore && score < opts.scoreMin) {
       frames.push({
         index: i,
         scrollAmount: 0,

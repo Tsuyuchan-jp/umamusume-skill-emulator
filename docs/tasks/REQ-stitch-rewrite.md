@@ -497,6 +497,7 @@ score(S) = mean | prev[scrollStartY + S + y, x] - curr[scrollStartY + y, x] |
 
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
+| 2026-06-27 02:04 | **R3.5c-2 修正（実機 HOF-S/TRN）** | 最終ペアで `median-corrected` が raw（60/119）を S*=192 に上書きし重複。末端は `S < 0.85·S*` なら補正せず実測シフト + terminal で compose |
 | 2026-06-27 01:49 | **R3.5c c-2〜c-4 完了** | terminal: 先行 S* 安定時は最終ペアを bound しない。重なりガード: `STITCH_SHIFT_NARROW_REGION_MAX=320` 未満の帯のみ `MIN_OVERLAP_RATIO=0.28` 適用（TRN 235→帯内・HOF 広帯退行なし）。golden 18/18 PASS・G-TRN shift ゲート新設 |
 | 2026-06-27 01:01 | **R3.5c 設計確定（docs）** | ホイール **-4 を Capture–Stitch 正本**採用。TRN/FRD は scroll 帯が狭く -5+S≈240 で SSD 重なり不足が誤推定の主因。実機 -4: TRN 中間 S*≈192 OK・末端 bound NG。サブ Phase c-1〜c-5 を本 REQ に集約（新 REQ 起票なし）。親 Phase 3 は R3.5c-5 でクローズ |
 | 2026-06-27 00:02 | **R3.5b 完了** | `shouldPreferL2`（L2 vs L3 同行走査・TRN trnPattern）+ tabDetect 2タブガード。golden 17/17 PASS（G-TRN layout=L2/tab=Skill、G-HOF-S layout=L3 退行なし） |
