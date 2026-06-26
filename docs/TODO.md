@@ -143,7 +143,7 @@
 
 ## 完了済み
 
-- [x] **オートキャプチャ結合リライト R3**（compose / scrollMatch・scrollMats 全貼り廃止・`USE_STITCH_V2=true`）— golden 12/12 PASS・compose スモーク G-TRN/G-HOF-S（2026-06-26 19:41）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) — absdiff LOW 走査 + 小スクロール scan・期待帯 0.52–0.56・golden 10件 PASS（2026-06-26 18:41 / `b01ceb3`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
+- [x] **オートキャプチャ結合リライト R3**（compose / scrollMatch・scrollMats 全貼り廃止・`USE_STITCH_V2=true`）— golden 12/12 PASS・compose スモーク G-TRN/G-HOF-S（2026-06-26 19:41 / `7fbf8b5`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) — absdiff LOW 走査 + 小スクロール scan・期待帯 0.52–0.56・golden 10件 PASS（2026-06-26 18:41 / `b01ceb3`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 - [x] **オートキャプチャ結合リライト R2**（layout / tabDetect 整理・走査帯正本化）— G-CMP-S + G-FRD-S layout/tabRow PASS、G-FRD-S scrollStart 要フォロー（2026-06-26 18:07 / `47d5755`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 - [x] **オートキャプチャ結合リライト R1**（scrollStartY absdiff 正本・`USE_STITCH_V2`）— G-TRN/G-HOF-S golden PASS（2026-06-26 08:41 / `1df1860`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 - [x] **オートキャプチャ結合リライト R0（golden ハーネス）** — expectations.json・measure-regions.ps1・Vitest 5件 PASS・設計パック 6 golden PASS（2026-06-26 08:13 / `851d341`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
