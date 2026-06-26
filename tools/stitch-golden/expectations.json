@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "description": "オートキャプチャ結合 golden 期待値（CropRect 基準・scrollStartY = 静的ヘッダー下端）",
+  "description": "オートキャプチャ結合 golden 期待値（CropRect 基準・Scene Spec 名付き帯が正本。scrollStartRatio/tabRowRatio は移行期互換）",
   "designPackRoot": "auto-capture-design-pack",
   "footerRatio": 0.15,
   "tabRowHeightRatio": 0.035,
@@ -11,21 +11,33 @@
       "label": "殿堂入り・スキルタブ（ウィンドウ）",
       "layout": "L3",
       "framePaths": ["golden/HOF/skill/frame_000.png"],
+      "sceneSpec": {
+        "partnerBand": { "variant": "absent" },
+        "tabRow": { "min": 0.33, "max": 0.43 },
+        "scrollStart": { "min": 0.36, "max": 0.46 },
+        "wheel": -4
+      },
       "scrollStartRatio": { "min": 0.36, "max": 0.46 },
       "tabRowRatio": { "min": 0.33, "max": 0.43 },
       "legacyHeaderRatio": 0.16,
       "shiftRepresentative": { "min": 200, "max": 280 },
-      "notes": "旧 Header 144px は scrollStart ではない。設計パックは -5 時代 S*≈274。実機 -4 は 180–220"
+      "notes": "measure-regions R0: tabRow≈0.40 scrollStart≈0.45。旧 Header 144px は scrollStart ではない。実機 -4 は 180–220"
     },
     {
       "id": "G-HOF-F",
       "label": "殿堂入り・継承タブ（ウィンドウ）",
       "layout": "L3",
       "framePaths": ["golden/HOF/factor/frame_000.png"],
+      "sceneSpec": {
+        "partnerBand": { "variant": "absent" },
+        "tabRow": { "min": 0.33, "max": 0.46 },
+        "scrollStart": { "min": 0.36, "max": 0.51 },
+        "wheel": -4
+      },
       "scrollStartRatio": { "min": 0.36, "max": 0.51 },
       "tabRowRatio": { "min": 0.33, "max": 0.46 },
       "legacyHeaderRatio": 0.16,
-      "notes": "継承タブ選択。タブ行はスキルよりやや下（計測≈45–50%）"
+      "notes": "measure-regions R0: tabRow≈0.45 scrollStart≈0.50。継承タブ選択。タブ行はスキルよりやや下"
     },
     {
       "id": "G-TRN",
@@ -35,32 +47,50 @@
         "golden/TRN/frame_000.png",
         "golden/TRN/frame_001.png"
       ],
+      "sceneSpec": {
+        "partnerBand": { "variant": "absent" },
+        "tabRow": { "min": 0.44, "max": 0.50 },
+        "scrollStart": { "min": 0.48, "max": 0.54 },
+        "wheel": -4
+      },
       "scrollStartRatio": { "min": 0.48, "max": 0.54 },
       "tabRowRatio": { "min": 0.44, "max": 0.50 },
       "legacyHeaderRatio": null,
       "shiftRepresentative": { "min": 175, "max": 210 },
-      "notes": "G-TRN 実機: Header 464px/900≈51.6%。crop 検出で計測（preCropped 不可）"
+      "notes": "measure-regions R0: tabRow≈0.47 scrollStart≈0.52。G-TRN 実機 Header 464px/900≈51.6%。crop 検出で計測（preCropped 不可）"
     },
     {
       "id": "G-CMP-S",
       "label": "育成完了・スキルタブ",
       "layout": "L3",
       "framePaths": ["golden/CMP/skill/frame_000.png"],
+      "sceneSpec": {
+        "partnerBand": { "variant": "absent" },
+        "tabRow": { "min": 0.33, "max": 0.43 },
+        "scrollStart": { "min": 0.36, "max": 0.46 },
+        "wheel": -4
+      },
       "scrollStartRatio": { "min": 0.36, "max": 0.46 },
       "tabRowRatio": { "min": 0.33, "max": 0.43 },
       "legacyHeaderRatio": 0.16,
-      "notes": "CMP 左パネル詳細モーダル"
+      "notes": "measure-regions R0: tabRow≈0.38 scrollStart≈0.42。CMP 左パネル詳細モーダル"
     },
     {
       "id": "G-FRD-S-release",
       "label": "フレンド・スキルタブ（解除）",
       "layout": "L3+Btn",
       "framePaths": ["golden/FRD/skill-release/frame_000.png"],
+      "sceneSpec": {
+        "partnerBand": { "variant": "release" },
+        "tabRow": { "min": 0.39, "max": 0.47 },
+        "scrollStart": { "min": 0.52, "max": 0.56 },
+        "wheel": -3
+      },
       "scrollStartRatio": { "min": 0.52, "max": 0.56 },
       "tabRowRatio": { "min": 0.39, "max": 0.47 },
       "legacyHeaderRatio": 0.16,
       "shiftRepresentative": { "min": 120, "max": 160 },
-      "notes": "R3.5d: 狭帯 -3 帯 S*≈130–160。設計パック golden S*≈133。旧 ID: G-FRD-S"
+      "notes": "measure-regions R0: tabRow≈0.50 scrollStart≈0.55（R0 緑走査は Vitest より上振れ）。Vitest absdiff scrollStart PASS。アーモンドアイ実機: scrollStart≈0.29 は NG（期待 0.52–0.56）。旧 ID: G-FRD-S"
     },
     {
       "id": "G-FRD-S-register",
@@ -70,22 +100,34 @@
         "golden/FRD/skill-register/frame_000.png",
         "golden/FRD/skill-register/frame_001.png"
       ],
+      "sceneSpec": {
+        "partnerBand": { "variant": "register" },
+        "tabRow": { "min": 0.46, "max": 0.48 },
+        "scrollStart": { "min": 0.52, "max": 0.56 },
+        "wheel": -3
+      },
       "scrollStartRatio": { "min": 0.52, "max": 0.56 },
       "tabRowRatio": { "min": 0.46, "max": 0.48 },
       "legacyHeaderRatio": 0.16,
       "shiftRepresentative": { "min": 120, "max": 160 },
-      "notes": "partnerBand=register。golden 計測 tabY≈0.44（Scene Spec 帯外）。実機 NG: wheel=-4。M6 で partnerDetect 修正後に it.fails 昇格"
+      "notes": "golden Vitest 計測 tabRow≈0.44（Scene Spec 帯外・INV-2 違反）。measure-regions R0: tabRow≈0.41 scrollStart≈0.46。実機 NG: wheel=-4（期待 -3）。M6 で partnerDetect 修正後に it.fails 昇格"
     },
     {
       "id": "G-FRD-F",
       "label": "フレンド・継承タブ",
       "layout": "L3+Btn",
       "framePaths": ["golden/FRD/factor/frame_000.png"],
+      "sceneSpec": {
+        "partnerBand": { "variant": "release" },
+        "tabRow": { "min": 0.39, "max": 0.47 },
+        "scrollStart": { "min": 0.46, "max": 0.52 },
+        "wheel": -3
+      },
       "scrollStartRatio": { "min": 0.46, "max": 0.52 },
       "tabRowRatio": { "min": 0.39, "max": 0.47 },
       "legacyHeaderRatio": 0.16,
       "shiftRepresentative": { "min": 120, "max": 160 },
-      "notes": "練習パートナー解除帯あり。R3.5d 狭帯 -3 帯"
+      "notes": "measure-regions R0: tabRow≈0.50 scrollStart≈0.55（R0 緑走査は Vitest 帯とずれ）。練習パートナー解除帯あり。R3.5d 狭帯 -3"
     }
   ]
 }

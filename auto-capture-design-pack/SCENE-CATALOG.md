@@ -58,14 +58,34 @@
 
 ---
 
-## NG サブケース期待値メモ（expectations 未登録分のみ）
+## Scene Spec 期待サマリー（M2 正本）
 
-比率は **crop 基準**。登録済みシーンの数値帯は → [`expectations.json`](../tools/stitch-golden/expectations.json) 参照。M2 で Scene Spec 名付き帯へ移行。
+比率は **crop 基準**。数値帯の正本は [`expectations.json`](../tools/stitch-golden/expectations.json) の `cases[].sceneSpec`。`scrollStartRatio` / `tabRowRatio` は移行期互換。
 
-| シーン ID | 事象 | tabRowRatio | scrollStartRatio | wheel |
-|-----------|------|-------------|------------------|-------|
-| G-FRD-S-register | キタサンブラック等（Scene Spec 期待） | 0.46–0.48（**0.44 は NG**・golden 計測一致） | 0.52–0.56 | **-3**（**-4 は NG**・実機ログ一致） |
-| G-FRD-S-release | アーモンドアイ absdiff 誤検出 | ≈0.47 | **0.29 は NG**（期待 0.52–0.56） | -3 |
+| シーン ID | partnerBand | tabRow | scrollStart | wheel |
+|-----------|-------------|--------|-------------|-------|
+| G-HOF-S | absent | 0.33–0.43 | 0.36–0.46 | -4 |
+| G-HOF-F | absent | 0.33–0.46 | 0.36–0.51 | -4 |
+| G-TRN | absent | 0.44–0.50 | 0.48–0.54 | -4 |
+| G-CMP-S | absent | 0.33–0.43 | 0.36–0.46 | -4 |
+| G-FRD-S-release | release | 0.39–0.47 | 0.52–0.56 | -3 |
+| G-FRD-S-register | register | 0.46–0.48 | 0.52–0.56 | -3 |
+| G-FRD-F | release | 0.39–0.47 | 0.46–0.52 | -3 |
+
+INV 対応・計測メモ: [`REQ-stitch-scene-model.md`](../docs/tasks/REQ-stitch-scene-model.md)「シーン別期待領域表」。
+
+---
+
+## NG サブケース（実機・未 golden 化）
+
+→ **Scene Spec 期待は上表および `expectations.json` の `sceneSpec` を参照。** 以下は既知 NG の要約のみ。
+
+| シーン ID | 事象 | 備考 |
+|-----------|------|------|
+| G-FRD-S-register | tabRow 計測≈0.44（期待 0.46–0.48 外）・wheel=-4 | Vitest `it.fails` で再現。M6 修正 |
+| G-FRD-S-release | アーモンドアイ absdiff scrollStart≈0.29 | 期待 0.52–0.56 外。M6 |
+
+アーモンドアイ用 **別 golden 行**（PNG 未収録）は M2 設計メモのみ。収録は別タスク。
 
 ---
 
@@ -75,7 +95,8 @@
 |-------|------|------|
 | **A** | Catalog 正本化 — goldenPath・expectations 列、節統合 | 完了 |
 | **B** | `G-FRD-S` → `G-FRD-S-release` リネーム、`golden/FRD/skill-release/` 移行 | 完了 |
-| **C** | `G-FRD-S-register` の PNG 収録 + expectations case 追加 | **完了** |
+| **C** | `G-FRD-S-register` の PNG 収録 + expectations case 追加 | 完了 |
+| **M2** | Scene Spec 期待構造化 — `sceneSpec` フィールド・Catalog/REQ 同期 | **完了** |
 | **M6** | register の tabY/wheel 修正 → `it.fails` テストを通常 assert に昇格 | 未着手 |
 
 ---
@@ -86,4 +107,4 @@
 2. `measure-regions.ps1` 出力で ratio を更新したら **日時**を決定ログ（REQ-stitch-scene-model）へ
 3. golden PNG を追加したら `goldenPath` を実パスに更新し、`状態` を `ok` / `ng` / `要再検証` へ
 
-最終更新: 2026-06-27 05:57
+最終更新: 2026-06-27 06:13

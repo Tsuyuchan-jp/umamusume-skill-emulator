@@ -3,7 +3,7 @@
 > **オートキャプチャ結合の素材で迷ったらまずこのファイル。**
 > プロジェクト docs: [`docs/DOCS-GUIDE.md`](../docs/DOCS-GUIDE.md)
 
-最終更新: 2026-06-27 05:57
+最終更新: 2026-06-27 06:13
 
 ---
 
@@ -29,7 +29,7 @@
 |------|------|
 | [`SCENE-CATALOG.md`](SCENE-CATALOG.md) | シーン ID・layout・partnerBand・`goldenPath`・expectations 対応・実機状態の正本 |
 | [`golden/`](golden/) | オートキャプチャ生フレーム PNG（Vitest 入力） |
-| [`../tools/stitch-golden/expectations.json`](../tools/stitch-golden/expectations.json) | scrollStartRatio 等の数値期待値 |
+| [`../tools/stitch-golden/expectations.json`](../tools/stitch-golden/expectations.json) | Scene Spec 期待帯（`sceneSpec` 正本）+ 移行期 `scrollStartRatio` 等 |
 
 **含めないもの**: 実機ログ・目視用スクショは **チャット報告**（`StitchLayout=...` + `[Capture] ...`）で足りる。design-pack には載せない。
 

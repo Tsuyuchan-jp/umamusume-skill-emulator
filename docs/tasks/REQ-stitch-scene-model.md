@@ -5,7 +5,7 @@
 >
 > **作業ロードマップ**（完了後はアーカイブ）。永続仕様は [`DOCS-GUIDE.md`](../DOCS-GUIDE.md) の永続正本一覧・[`SCENE-CATALOG.md`](../../auto-capture-design-pack/SCENE-CATALOG.md) を参照。
 
-- **ステータス**: in-progress（M1 着手）
+- **ステータス**: in-progress（M2 完了・M3 待ち）
 - **作成日**: 2026-06-27 04:11
 - **関連コミット**: （M0 完了後に記入）
 
@@ -59,6 +59,30 @@ Screen
 | INV-2 | `partnerBand.register` の Y 帯は `tabRow` と混同しない | partner 検出を先に確定し tab 走査へ入力 |
 | INV-3 | `scrollRegionH` の wheel 段は **1セッション固定**（帯高さ 2 段。layout 名では決めない） | [`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md) R3.5d 正本 |
 
+### 不変条件 ↔ expectations フィールド対応（M2）
+
+| INV | Scene Spec 領域 | expectations フィールド | 検証内容 |
+|-----|----------------|------------------------|---------|
+| INV-1 | `scrollStart` > `tabRow` + margin | `sceneSpec.scrollStart.min` > `sceneSpec.tabRow.max` + `tabBottomMarginRatio`（0.012） | 各 case の帯が幾何的に矛盾しないこと |
+| INV-2 | `partnerBand.register` ≠ `tabRow` | `sceneSpec.partnerBand.variant` + `sceneSpec.tabRow` | register 時 tabRow は 0.46–0.48（G-FRD-S-register）。0.44 計測は NG |
+| INV-3 | wheel は scrollRegionH から | `sceneSpec.wheel`（-3 狭帯 / -4 広帯） | FRD 系 -3、HOF/TRN/CMP -4。register 実機 -4 は NG |
+
+移行期: Vitest R0〜R2 は `scrollStartRatio` / `tabRowRatio` を参照。M3 で `sceneSpec.*` 駆動へ。
+
+### シーン別期待領域表（Scene Spec × ratio 帯）
+
+crop 基準比率。正本: [`expectations.json`](../../tools/stitch-golden/expectations.json) `cases[].sceneSpec`。計測: `measure-regions.ps1`（R0）+ Vitest absdiff（R1+）。
+
+| シーン ID | partnerBand | tabRow | scrollStart | wheel | layout |
+|-----------|-------------|--------|-------------|-------|--------|
+| G-HOF-S | absent | 0.33–0.43 | 0.36–0.46 | -4 | L3 |
+| G-HOF-F | absent | 0.33–0.46 | 0.36–0.51 | -4 | L3 |
+| G-TRN | absent | 0.44–0.50 | 0.48–0.54 | -4 | L2 |
+| G-CMP-S | absent | 0.33–0.43 | 0.36–0.46 | -4 | L3 |
+| G-FRD-S-release | release | 0.39–0.47 | 0.52–0.56 | -3 | L3+Btn |
+| G-FRD-S-register | register | **0.46–0.48**（計測≈0.44 NG） | 0.52–0.56 | **-3**（実機 -4 NG） | L3+Btn |
+| G-FRD-F | release | 0.39–0.47 | 0.46–0.52 | -3 | L3+Btn |
+
 ---
 
 ## 検出器の目標責務分割（M4 完了形）
@@ -80,8 +104,8 @@ Screen
 | Phase | 内容 | 主な成果物 | 状態 |
 |-------|------|-----------|------|
 | **M0** | ロードマップ・運用ルール起票 | 本 REQ、`SCENE-CATALOG.md`、TODO/INDEX | **done** |
-| **M1** | シーン欠落洗い出し | Catalog 全行・欠落シーンの PNG/ログ収集リスト | **in-progress** |
-| **M2** | Scene Spec 具体化 | シーン別期待領域表・不変条件の golden 化 | 待ち |
+| **M1** | シーン欠落洗い出し | Catalog 全行・欠落シーンの PNG/ログ収集リスト | **done** |
+| **M2** | Scene Spec 具体化 | シーン別期待領域表・不変条件の golden 化 | **done** |
 | **M3** | 計測パイプライン強化 | expectations に partner/tab/scroll/wheel 中間値。シーン別 Vitest | 待ち |
 | **M4** | 検出器統一 | 緑判定 1 系統（Rust/TS 同期）。partnerDetect 分離 | 待ち |
 | **M5** | capture–stitch 責務分離 | wheel 用の二重緑走査廃止・IPC 契約 | 待ち |
@@ -181,6 +205,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\stitch-golden\measure-
 | 2026-06-27 05:24 | **M1 Phase A 完了** — SCENE-CATALOG に `goldenPath`・`expectations` 列、expectations 対応表、欠落表吸収、NG サブケースのみ残存、PACK-GUIDE 同期 | Catalog を正本化してから Phase B（golden/expectations リネーム）・Phase C（register case）へ |
 | 2026-06-27 05:28 | **M1 Phase B 完了** — `G-FRD-S` → `G-FRD-S-release`、`golden/FRD/skill/` → `skill-release/`、expectations・`golden.test.ts`・Catalog/PACK-GUIDE 同期、`stitch:golden` PASS | Catalog と golden/expectations の ID・パスを 1:1 整合 |
 | 2026-06-27 05:57 | **M1 Phase C 完了** — `G-FRD-S-register` golden（frame_000〜007）収録、expectations case 追加、Vitest（layout ゲート + `it.fails` で tabY≈0.44 NG 再現） | M1 欠落解消。実機 NG は M6 で partnerDetect 修正 |
+| 2026-06-27 06:06 | **M2 着手** — expectations `sceneSpec` スキーマ拡張、Catalog/REQ 同期 | ratio 定数を Scene Spec 名付き期待構造へ昇格 |
+| 2026-06-27 06:13 | **M2 完了** — 全7 case に `partnerBand`/`tabRow`/`scrollStart`/`wheel`、INV 対応表・シーン別期待領域表、measure-regions R0 計測を notes 反映 | `stitch:golden` 19+1 expected fail 維持。Vitest 駆動化は M3 |
 
 ---
 

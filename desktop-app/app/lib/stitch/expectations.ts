@@ -9,11 +9,22 @@ export interface RatioBand {
   max: number;
 }
 
+/** Scene Spec 期待帯（expectations.json sceneSpec が正本。M2+） */
+export interface SceneSpecExpectations {
+  partnerBand: { variant: "absent" | "register" | "release" };
+  tabRow: RatioBand;
+  scrollStart: RatioBand;
+  /** INV-3: scrollRegionH 帯から導出（狭帯 -3 / 広帯 -4） */
+  wheel: -3 | -4;
+}
+
 export interface GoldenCase {
   id: string;
   label: string;
   layout: "L2" | "L3" | "L3+Btn";
   framePaths: string[];
+  /** Scene Spec 名付き期待（正本）。scrollStartRatio/tabRowRatio と同期 */
+  sceneSpec?: SceneSpecExpectations;
   scrollStartRatio: RatioBand;
   tabRowRatio: RatioBand;
   legacyHeaderRatio: number | null;
