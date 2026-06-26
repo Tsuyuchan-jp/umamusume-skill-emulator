@@ -29,6 +29,7 @@
 | **内側にフェンス禁止** | 外枠の中に ` ```powershell ` 等を **入れない** |
 | **コマンドの書き方** | プレーンテキストで1行ずつ（PowerShell は `&&` 禁止） |
 | **検証の書き方** | 起票文には `## 検証` + **下記「検証コマンド（共通）」への参照** のみ。コマンド本文は重複記載しない |
+| **一度きりの Phase 用** | 完成プロンプトは **本ファイルに置かない**。`TODO` + 着手 `REQ` を `@` し、チャットで生成（設計レビュー §9 または Agent への依頼） |
 | **設計レビュー §9** | 完成プロンプトも同ルール。表・ネストしたコードブロックは使わない |
 
 エージェントが起票プロンプトを生成するときも本節に従う（`.cursor/rules/communication.mdc`）。
@@ -643,69 +644,6 @@ Agent mode。docs 追記のみ。
 - 確認項目: 200562 ラベルのみ・持続バフ赤線・縦拡大/Tooltip/Phase 4 compare 退行なし
 
 REQ 決定事項ログ・TODO に追記してコミットしてください。
-```
-
----
-
-## Scene Model M3 実装チャット用
-
-> 下記コードブロックを **Copy 一発** で新チャット（Agent mode）に貼る。検証コマンドは共通節参照（ネスト ` ``` ` なし）。
-
-```
-@docs/TODO.md
-@docs/tasks/REQ-stitch-scene-model.md
-@docs/CONCEPT-MAP.md
-@auto-capture-design-pack/SCENE-CATALOG.md
-@tools/stitch-golden/expectations.json
-
-## 読者
-非エンジニア共同開発者。説明は「結論→構造図/表→用語の日本語定義→詳細」。初出の英語・関数名には必ず日本語を添える。
-
-## チャット種別
-実装（Agent mode）— Scene Model M3 のみ（M4/M5/M6 は触らない）
-
-## 引き継ぎ元
-前チャット群 — M0〜M2 完了
-- M2: expectations sceneSpec（partnerBand / tabRow / scrollStart / wheel）（028221f）
-- CONCEPT-MAP 新設・種別列（db7969f）
-- golden 現状: 19 passed + 1 expected fail（G-FRD-S-register tabY≈0.44 NG を it.fails で記録）
-
-## 今回やること（M3: 計測パイプライン強化 / golden 駆動化）
-REQ M3 に従い、Vitest を sceneSpec 正本で駆動する。
-
-1. expectations.ts: sceneSpec 必須化（全7 case）。scrollStartRatio / tabRowRatio との同期・不整合検出
-2. golden.test.ts: getGoldenCase + sceneSpec から期待帯を参照。R0 スキーマ・INV-1 メタ検証追加可。G-FRD-S-register の it.fails は維持
-3. docs: REQ M3 完了・TODO・CONCEPT-MAP（新用語時）
-
-## 触るファイル（想定）
-- desktop-app/app/lib/stitch/expectations.ts
-- desktop-app/app/lib/stitch/golden.test.ts
-- （必要なら）desktop-app/app/lib/stitch/goldenMeasure.ts（参照整理のみ）
-- tools/stitch-golden/expectations.json（微修正のみ可）
-- docs/tasks/REQ-stitch-scene-model.md、docs/TODO.md
-
-## 触らない（M3 スコープ外）
-- partnerDetectCore / capture.rs / tabDetectCore・regionsCore の検出アルゴリズム変更（M4）
-- G-FRD-S-register の it.fails 昇格（M6）
-- wheel Rust 実装・IPC（M5）
-- 新 golden PNG 収録
-
-## 完了条件
-- [ ] Vitest が sceneSpec を正本として期待帯を参照
-- [ ] 全7 case で sceneSpec 必須・スキーマ検証 PASS
-- [ ] npm run stitch:golden 退行なし（19+1 expected fail 維持）
-- [ ] REQ M3 done・TODO 着手/完了・コミット（push しない）
-
-## 検証
-CHAT_TEMPLATE「検証コマンド（共通）」stitch golden 節に従う
-
-## 人間がやること
-基本なし。完了後テストと sceneSpec の対応を軽くレビュー
-
-## エージェント必須
-- 着手時: TODO 進行中・Get-Date -Format "yyyy-MM-dd HH:mm"
-- git add . と git commit は別ステップ
-- communication.mdc / concept-map.mdc に従う
 ```
 
 ---

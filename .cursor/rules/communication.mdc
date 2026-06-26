@@ -22,4 +22,5 @@ alwaysApply: true
 - 単一の ` ``` ` ブロック1つにまとめる
 - **ブロック内に ` ``` ` をネストしない**（コマンドはプレーンテキスト1行ずつ）
 - 検証は [`CHAT_TEMPLATE.md`](../../docs/CHAT_TEMPLATE.md)「検証コマンド（共通）」へ参照のみ（コマンド重複記載しない）
+- **一度きりの Phase 用完成プロンプトは CHAT_TEMPLATE に追記しない**（TODO + REQ から都度生成）
 - 詳細: CHAT_TEMPLATE「起票プロンプト作成ルール」
