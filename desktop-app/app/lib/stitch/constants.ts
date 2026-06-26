@@ -9,11 +9,22 @@ export const STITCH_SCROLL_DIFF_AVG_THRESHOLD = 5;
 export const STITCH_SCROLL_DIFF_CONSECUTIVE_ROWS = 10;
 export const STITCH_SCROLL_DIFF_CHECK_WIDTH_RATIO = 0.8;
 
-/** テンプレートマッチ（scrollAmount 推定） */
+/** テンプレートマッチ（scrollAmount 推定・regionsCore 用） */
 export const STITCH_TEMPLATE_HEIGHT_RATIO = 0.2;
 export const STITCH_SEARCH_WIDTH_RATIO = 0.95;
 export const STITCH_MATCH_SCORE_THRESHOLD = 0.85;
 export const STITCH_SCROLLBAR_WIDTH_RATIO = 0.03;
+
+/** shiftEstimate（R3.5a: 全重なり SSD + セッション median） */
+export const STITCH_SHIFT_CONTENT_WIDTH_RATIO = 0.8;
+export const STITCH_SHIFT_S_MIN = 40;
+export const STITCH_SHIFT_S_MAX_MARGIN = 40;
+export const STITCH_SHIFT_OUTLIER_TAU = 40;
+export const STITCH_SHIFT_REFINE_WINDOW = 24;
+export const STITCH_SHIFT_SCORE_SCALE = 128;
+export const STITCH_SHIFT_SCORE_MIN = 0.85;
+export const STITCH_SHIFT_TERMINAL_RATIO = 0.85;
+export const STITCH_SHIFT_COARSE_STEP = 1;
 
 /** absdiff 失敗時の広帯タブ緑走査（regions.ts 正本・layout 走査帯とは別用途） */
 export const STITCH_GREEN_TAB_FALLBACK_SCAN_START = 0.28;

@@ -88,13 +88,15 @@ export async function stitchImages(
     `StitchLayout=${layout}, StitchTab=${tab}, tabDetect=${tabRow.method ?? "n/a"}, tabY=${tabRow.tabY}(${tabRowRatio}), scrollStartY=${scrollStartY}px(${regions.ratio.toFixed(3)}), method=${regions.method}, scrollRegion=${scrollRegionH}px, Footer=${footerHeight}px`
   );
 
-  const { overlaps, frames: matchFrames } = matchScrollFrames(
+  const { overlaps, frames: matchFrames, representative } = matchScrollFrames(
     croppedMats,
     cv,
     cropWidth,
     scrollStartY,
     scrollRegionH
   );
+
+  console.log(`shiftEstimate: S*=${representative}`);
 
   for (const fm of matchFrames) {
     if (fm.method === "bound") {
@@ -103,9 +105,16 @@ export async function stitchImages(
       );
     } else if (fm.method === "skip") {
       console.warn(`スクロール量が0以下です。Frame ${fm.index + 1} はスキップします。`);
+    } else if (
+      fm.rawScrollAmount !== undefined &&
+      fm.rawScrollAmount !== fm.scrollAmount
+    ) {
+      console.warn(
+        `Frame ${fm.index} -> ${fm.index + 1}: shift raw=${fm.rawScrollAmount}→final=${fm.scrollAmount} method=${fm.method} score=${fm.score.toFixed(3)}`
+      );
     } else {
       console.log(
-        `Frame ${fm.index} -> ${fm.index + 1}: score=${fm.score.toFixed(3)}, scrollAmount=${fm.scrollAmount}`
+        `Frame ${fm.index} -> ${fm.index + 1}: score=${fm.score.toFixed(3)}, scrollAmount=${fm.scrollAmount}, method=${fm.method}`
       );
     }
   }

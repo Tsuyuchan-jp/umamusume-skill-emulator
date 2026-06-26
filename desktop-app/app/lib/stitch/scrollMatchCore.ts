@@ -5,6 +5,10 @@ import {
 } from "./constants";
 import type { RgbaImage } from "./rgba";
 
+/**
+ * @deprecated R3.5a 以降は `shiftEstimateCore.ts` を正本とする。NCC 主経路は非推奨。
+ */
+
 export type ScrollMatchMethod = "ncc" | "absdiff" | "skip" | "bound";
 
 export interface ScrollFrameMatch {

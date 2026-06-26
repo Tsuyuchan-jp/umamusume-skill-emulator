@@ -8,7 +8,7 @@ import {
   isRatioInBand,
   loadStitchGoldenExpectations,
 } from "./expectations";
-import { measureLayoutFromFrame, measureScrollStartFromFrames, measureComposeFromFrames } from "./goldenMeasure";
+import { measureLayoutFromFrame, measureScrollStartFromFrames, measureComposeFromFrames, measureShiftFromFrames } from "./goldenMeasure";
 import { USE_STITCH_V2 } from "./flags";
 
 describe("stitch golden expectations (R0)", () => {
@@ -82,6 +82,78 @@ describe.skipIf(!isDesignPackPresent())("stitch golden R3 compose smoke (RGBA)",
     expect(measured.overlapSum).toBeGreaterThan(100);
     expect(measured.frameCount).toBe(3);
   }, 60_000);
+});
+
+describe.skipIf(!isDesignPackPresent())("stitch golden R3.5a shiftEstimate", () => {
+  const packRoot = getDesignPackRoot();
+
+  function stdDev(values: number[]): number {
+    if (values.length === 0) return 0;
+    const mean = values.reduce((a, b) => a + b, 0) / values.length;
+    const variance =
+      values.reduce((sum, v) => sum + (v - mean) ** 2, 0) / values.length;
+    return Math.sqrt(variance);
+  }
+
+  it("G-FRD-S frame_000..007: std(S_k)<20, min(S_k)>80, [22,32] 禁止帯 0件", async () => {
+    const c = getGoldenCase("G-FRD-S")!;
+    const framePaths = Array.from({ length: 8 }, (_, i) =>
+      `golden/FRD/skill/frame_${String(i).padStart(3, "0")}.png`
+    );
+    for (const rel of framePaths) {
+      expect(existsSync(join(packRoot, rel)), `missing ${rel}`).toBe(true);
+    }
+
+    const measured = await measureShiftFromFrames(packRoot, framePaths, c.layout);
+    const overlaps = measured.overlaps;
+    expect(overlaps.length).toBeGreaterThanOrEqual(6);
+
+    const sStd = stdDev(overlaps);
+    expect(sStd, `std(S_k)=${sStd.toFixed(2)} overlaps=${overlaps.join(",")}`).toBeLessThan(20);
+    expect(Math.min(...overlaps), `min(S_k)=${Math.min(...overlaps)}`).toBeGreaterThan(80);
+
+    const forbidden = overlaps.filter((s) => s >= 22 && s <= 32);
+    expect(
+      forbidden.length,
+      `26px 禁止帯ヒット: ${forbidden.join(",")}`
+    ).toBe(0);
+  }, 120_000);
+
+  it("G-HOF-S 3フレーム: median(S*)∈[200,280]", async () => {
+    const c = getGoldenCase("G-HOF-S")!;
+    const framePaths = [
+      c.framePaths[0],
+      "screenshots/HOF/skill/S1-mid.png",
+      "screenshots/HOF/skill/S2-bottom.png",
+    ];
+    for (const rel of framePaths) {
+      expect(existsSync(join(packRoot, rel)), `missing ${rel}`).toBe(true);
+    }
+
+    const measured = await measureShiftFromFrames(packRoot, framePaths, c.layout);
+    expect(
+      measured.representative,
+      `S*=${measured.representative} overlaps=${measured.overlaps.join(",")}`
+    ).toBeGreaterThanOrEqual(200);
+    expect(measured.representative).toBeLessThanOrEqual(280);
+  }, 60_000);
+
+  it("G-FRD-S compose: overlapSum>700, outputHeight>1300", async () => {
+    const c = getGoldenCase("G-FRD-S")!;
+    const framePaths = Array.from({ length: 8 }, (_, i) =>
+      `golden/FRD/skill/frame_${String(i).padStart(3, "0")}.png`
+    );
+
+    const measured = await measureComposeFromFrames(packRoot, framePaths, c.layout);
+    expect(
+      measured.overlapSum,
+      `overlapSum=${measured.overlapSum}`
+    ).toBeGreaterThan(700);
+    expect(
+      measured.outputHeight,
+      `outputHeight=${measured.outputHeight}`
+    ).toBeGreaterThan(1300);
+  }, 120_000);
 });
 
 describe.skipIf(!isDesignPackPresent())("stitch golden design pack paths", () => {

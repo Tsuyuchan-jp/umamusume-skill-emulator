@@ -5,7 +5,7 @@ import { cropRgba, findCropBoundsOrFallback } from "./cropCore";
 import { composeStitchedRgba } from "./composeCore";
 import { detectLayoutAndTabRowRgba } from "./layoutCore";
 import { detectScrollStartYFromRgba } from "./regionsCore";
-import { matchScrollFramesRgba } from "./scrollMatchCore";
+import { estimateShiftFramesRgba } from "./shiftEstimateCore";
 import { detectStitchTabFromRgba } from "./tabDetectCore";
 import type { RgbaImage } from "./rgba";
 import type { StitchLayout } from "./constants";
@@ -89,6 +89,57 @@ export async function measureScrollStartFromFrames(
   };
 }
 
+export interface GoldenShiftMeasureResult {
+  crop: { x: number; y: number; width: number; height: number };
+  scrollStartY: number;
+  scrollStartRatio: number;
+  overlaps: number[];
+  representative: number;
+  frameCount: number;
+}
+
+/** 設計パック複数フレームから shiftEstimate を計測（R3.5a ゲート） */
+export async function measureShiftFromFrames(
+  packRoot: string,
+  framePaths: string[],
+  layout: StitchLayout
+): Promise<GoldenShiftMeasureResult> {
+  if (framePaths.length < 2) {
+    throw new Error("shift 計測には frame0 と frame1 以上が必要です");
+  }
+
+  const frame0Full = await loadPngRgba(join(packRoot, framePaths[0]));
+  const cropRect = findCropBoundsOrFallback(frame0Full);
+  const frames: RgbaImage[] = [];
+
+  for (const rel of framePaths) {
+    const full = await loadPngRgba(join(packRoot, rel));
+    frames.push(cropRgba(full, cropRect));
+  }
+
+  const scroll = detectScrollStartYFromRgba(frames[0]!, frames[1]!, layout);
+  const footerHeight = Math.floor(cropRect.height * STITCH_FOOTER_HEIGHT_RATIO);
+  const footerStartY = cropRect.height - footerHeight;
+  const scrollRegionH = footerStartY - scroll.scrollStartY;
+
+  const strips = frames.map((f) => ({
+    data: extractStripRgba(f, scroll.scrollStartY, scrollRegionH),
+    width: f.width,
+    height: scrollRegionH,
+  }));
+
+  const { overlaps, representative } = estimateShiftFramesRgba(strips);
+
+  return {
+    crop: cropRect,
+    scrollStartY: scroll.scrollStartY,
+    scrollStartRatio: scroll.ratio,
+    overlaps,
+    representative,
+    frameCount: frames.length,
+  };
+}
+
 export interface GoldenComposeMeasureResult {
   crop: { x: number; y: number; width: number; height: number };
   scrollStartY: number;
@@ -128,7 +179,7 @@ export async function measureComposeFromFrames(
     height: scrollRegionH,
   }));
 
-  const { overlaps } = matchScrollFramesRgba(strips);
+  const { overlaps } = estimateShiftFramesRgba(strips);
   const boundCount = overlaps.length + 1;
   const composeFrames = frames.slice(0, boundCount);
 
