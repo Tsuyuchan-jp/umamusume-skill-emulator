@@ -4,7 +4,7 @@
 > アプリの製品仕様・技術概要は [`PROJECT.md`](PROJECT.md)。**進捗・要件・運用の地図はここ。**
 > リポジトリ全体の紹介は [ルート `README.md`](../README.md)（別ファイル）。
 
-最終更新: 2026-06-27 04:37
+最終更新: 2026-06-27 04:48
 
 ---
 
@@ -63,7 +63,7 @@ REQ が `done` になっても、**ここを更新し続ける**。
 |------|---------|------|
 | オートキャプチャ結合 | [`tasks/REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) の「Capture–Stitch 契約」節 ※ | wheel 段・パイプライン（移行予定: 専用 doc） |
 | キャプチャ結合シーン | [`../auto-capture-design-pack/SCENE-CATALOG.md`](../auto-capture-design-pack/SCENE-CATALOG.md) | 画面バリエーション一覧・golden 有無・実機状態 |
-| キャプチャ設計パック | [`../auto-capture-design-pack/README.md`](../auto-capture-design-pack/README.md) | golden PNG・ログ・スクリーンショット |
+| キャプチャ設計パック | [`../auto-capture-design-pack/PACK-GUIDE.md`](../auto-capture-design-pack/PACK-GUIDE.md) | golden / screenshots / logs の役割・命名・収集手順 |
 | golden 数値 | [`../tools/stitch-golden/expectations.json`](../tools/stitch-golden/expectations.json) | scrollStartRatio 等の計測期待値 |
 | スキルデータ更新 | [`../UPDATE_SKILLS.md`](../UPDATE_SKILLS.md) | skill_data 更新手順 |
 

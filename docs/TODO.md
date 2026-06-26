@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-27 04:33
+最終更新: 2026-06-27 04:48
 
 ---
 
@@ -22,9 +22,7 @@
 
 ## 進行中
 
-- [ ] **Scene Model M1** — シーンカタログ欠落洗い出し（G-FRD-S-register 最優先）
-  - REQ: [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md) M1
-  - Catalog: [`SCENE-CATALOG.md`](../auto-capture-design-pack/SCENE-CATALOG.md)
+（なし — design-pack P0 完了。次: Scene Model M1）
 
 ## 次にやること（Backlog）
 
@@ -35,6 +33,15 @@
 （完了 — 下記「完了済み」参照）
 
 ### P1 — 重要
+
+- [ ] **Scene Model M1** — シーンカタログ欠落洗い出し（G-FRD-S-register 最優先）
+  - REQ: [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md) M1
+  - Catalog: [`SCENE-CATALOG.md`](../auto-capture-design-pack/SCENE-CATALOG.md)
+  - 運用: [`PACK-GUIDE.md`](../auto-capture-design-pack/PACK-GUIDE.md)
+
+- [ ] **design-pack P2** — golden/logs/screenshots 一括リネーム・expectations 分割
+  - 前提: P0 PACK-GUIDE 完了
+  - 正本: [`PACK-GUIDE.md`](../auto-capture-design-pack/PACK-GUIDE.md)「P2 以降」節
 
 - [ ] **Scene Model M2〜M6**（Spec 具体化・golden 強化・検出器統一・capture 責務分離・既知バグ修正）
   - 前提: M1 Catalog 欠落解消（少なくとも G-FRD-S-register）
@@ -152,6 +159,7 @@
 
 ## 完了済み
 
+- [x] **design-pack P0** — PACK-GUIDE 新設・README 案内板化・DOCS-GUIDE リンク（2026-06-27 04:48 / コミット後記入）/ [`PACK-GUIDE.md`](../auto-capture-design-pack/PACK-GUIDE.md)
 - [x] **オートキャプチャ結合 R3.5d 実装**（d-2〜d-4: frame0 帯推定・狭帯 -3 / 広帯 -4・FRD golden）— golden 18/18 PASS（2026-06-27 02:41 / `139c14e`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) — **d-5 実機はユーザー確認待ち**
 - [x] **オートキャプチャ結合 R3.5c**（c-2〜c-5 一部 + 実機 HOF-S/TRN/HOF-F）— terminal・狭帯ガード・golden 18/18（2026-06-27 02:04 / `23ebab7`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 - [x] **オートキャプチャ結合リライト R3.5b**（layout L2 優先・tabDetect 2タブガード）— golden 17/17 PASS（2026-06-27 00:02 / `5d98121`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
@@ -251,7 +259,7 @@
 
 - パレットのスキル一覧は **`umasimSkillDataList`（ローカル）正本** — `buildPaletteSkillOptions`。WASM sim は `fetchSkillData()`（GitHub 優先 → AppData → 同梱 `public/skill_data.txt`）
 - **オートキャプチャ Capture–Stitch 契約**: **広帯 -4 / 狭帯 -3**（`scrollRegionH` しきい値 280px・R3.5d）。Rust frame0 推定実装済み（d-2〜d-4）。正本: [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)「Capture–Stitch 契約」
-- **Scene Model ロードマップ**: [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md) 起票（M0 done）。場当たり修正防止の正本。Catalog: [`SCENE-CATALOG.md`](../auto-capture-design-pack/SCENE-CATALOG.md)
+- **Scene Model ロードマップ**: [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md) 起票（M0 done）。Catalog: [`SCENE-CATALOG.md`](../auto-capture-design-pack/SCENE-CATALOG.md)。素材運用: [`PACK-GUIDE.md`](../auto-capture-design-pack/PACK-GUIDE.md)
 - **オートキャプチャ結合 R3.5d**: d-2〜d-4 完了。**d-5 実機**は保留（6de25ad 未検証）。Scene Model M6 で Spec 準拠修正予定
 - **オートキャプチャ結合 R3.5b 完了**: layout L2 優先 + tabDetect 2タブガード。golden 17/17
 - **オートキャプチャ結合 R3.5 設計正本**: shiftEstimate（SSD + median）。詳細: [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) R3.5 節
