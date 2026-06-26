@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-27 06:06
+最終更新: 2026-06-27 06:13
 
 ---
 
@@ -16,14 +16,13 @@
 
 ## 現在のフォーカス
 
-**P1** — **Scene Model M2**（Spec 具体化）+ R3.5d 実機（保留）
+**P1** — **Scene Model M3**（golden 駆動化）+ R3.5d 実機（保留）
 
 ---
 
 ## 進行中
 
-- [ ] **Scene Model M2**（Scene Spec 期待構造化）— expectations.json・SCENE-CATALOG・REQ 同期
-  - REQ: `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)` M2
+（なし）
 
 ## 次にやること（Backlog）
 
@@ -35,9 +34,9 @@
 
 ### P1 — 重要
 
-- [ ] **Scene Model M2〜M6**（Spec 具体化・golden 強化・検出器統一・capture 責務分離・既知バグ修正）
-  - 前提: M1 完了（G-FRD-S-register 収録済み。修正は M6）
-  - REQ: `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)`
+- [ ] **Scene Model M3〜M6**（golden 駆動化・検出器統一・capture 責務分離・既知バグ修正）
+  - 前提: M2 完了（`sceneSpec` 期待構造化済み / `028221f`）
+  - REQ: [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
 
 - [ ] **オートキャプチャ時のスクロール用カーソル位置をやや下方へ**
   - 症状: ホイール入力のカーソル位置がスクロールエリア上端ギリギリになり、**FRD-S** 等でスクロールが不安定
@@ -158,6 +157,7 @@
 
 ## 完了済み
 
+- [x] **Scene Model M2** — expectations `sceneSpec`（partnerBand/tabRow/scrollStart/wheel）・Catalog 期待サマリー・REQ INV 対応表・measure-regions R0 notes（2026-06-27 06:13 / `028221f`）/ [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
 - [x] **Scene Model M1 Phase C** — G-FRD-S-register golden（frame_000〜007）・expectations・Vitest・Catalog、golden 19+1 expected fail（2026-06-27 05:57 / `5d4f9a6`）/ `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)`
 - [x] **Scene Model M1 Phase B** — `G-FRD-S` → `G-FRD-S-release`、`golden/FRD/skill/` → `skill-release/`、expectations・Vitest・Catalog 同期、golden 18/18 PASS（2026-06-27 05:30 / `a84d51f`）/ `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)`
 - [x] **Scene Model Catalog Phase A** — SCENE-CATALOG に goldenPath・expectations 列・対応表、欠落表吸収、NG サブケース整理、PACK-GUIDE 同期（2026-06-27 05:25 / `fa91f07`）/ `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)` M1 Phase A
