@@ -1,19 +1,34 @@
 # 概念地図（CONCEPT-MAP）
 
-> **用語の意味・構造の正本。** 日本語を主タイトル、英語は括弧。
+> **用語の意味・構造の正本。** 表は **英語名 → 日本語 → 種別** の順。
 > 進捗は [`TODO.md`](TODO.md)、作業手順は [`tasks/REQ-*.md`](tasks/REQ-TEMPLATE.md)、**「何を意味するか」は本ファイル**。
 >
 > 入口: [`DOCS-GUIDE.md`](DOCS-GUIDE.md)
 
-最終更新: 2026-06-27 06:40
+最終更新: 2026-06-27 06:52
 
 ---
 
 ## 読み方
 
 1. **全体の層**で位置を掴む（仕様 → 検出 → ポリシー）
-2. **用語カード**で詳細を見る
-3. 英語名はカードの2列目だけ覚えればよい（コード・JSON のラベル）
+2. **種別**で「これは概念か・ファイル名か・コードのキーか」を判別する
+3. **用語カード**で日本語の意味と参照先を見る
+
+---
+
+## 種別の凡例
+
+その用語が **何として現れるか** の分類。複合は最大2つ（`＋` 区切り）。
+
+| 種別 | 意味 |
+|------|------|
+| **概念** | 設計・頭の中のもの。コードに1対1でないこともある |
+| **画面領域** | 画面上の帯・部品の名前 |
+| **データ項目** | JSON・設定のキー名 |
+| **ファイル・ドキュメント** | 正本がファイル・フォルダそのもの |
+| **処理・モジュール** | 測定・実行する仕組み（モジュール名） |
+| **識別子・定数** | 列挙値・マジック値・ルール ID |
 
 ---
 
@@ -31,9 +46,9 @@
 
 | 層 | 日本語 | 典型用語 |
 |----|--------|----------|
-| 仕様 | シーンモデル | 画面仕様、シーンカタログ、期待値 |
-| 検出 | 検出器 | タブ検出、スクロール開始検出、crop |
-| ポリシー | キャプチャ方針 | ホイール段、shift、結合 |
+| 仕様 | シーンモデル | sceneSpec、SCENE-CATALOG、expectations |
+| 検出 | 検出器 | tabDetect、regionsCore、crop |
+| ポリシー | キャプチャ方針 | wheel、shift、stitch rewrite |
 
 ---
 
@@ -59,44 +74,44 @@ crop 内（上→下）
 
 ### 運用・docs
 
-| 日本語 | 英語 | 一言 | どこで見る | 隣の概念 |
-|--------|------|------|-----------|----------|
-| 概念地図 | CONCEPT-MAP | 用語の意味と構造の正本 | 本ファイル | DOCS-GUIDE |
-| 進捗正本 | TODO | 次に何をするか | `docs/TODO.md` | REQ |
-| 作業チケット | REQ | 1作業のスコープ・完了条件 | `docs/tasks/REQ-*.md` | TODO |
-| シーンカタログ | SCENE-CATALOG | 画面バリエーション一覧 | `auto-capture-design-pack/SCENE-CATALOG.md` | golden、期待値 |
+| 英語 | 日本語 | 種別 | 一言 | どこで見る |
+|------|--------|------|------|-----------|
+| CONCEPT-MAP | 概念地図 | ファイル・ドキュメント | 用語の意味と構造の正本 | 本ファイル |
+| TODO | 進捗正本 | ファイル・ドキュメント | 次に何をするか | `docs/TODO.md` |
+| REQ | 作業チケット | ファイル・ドキュメント | 1作業のスコープ・完了条件 | `docs/tasks/REQ-*.md` |
+| SCENE-CATALOG | シーンカタログ | ファイル・ドキュメント | 画面バリエーション一覧 | `auto-capture-design-pack/SCENE-CATALOG.md` |
 
 ### オートキャプチャ結合 — 仕様層
 
-| 日本語 | 英語 | 一言 | どこで見る | 隣の概念 |
-|--------|------|------|-----------|----------|
-| 画面仕様 | sceneSpec | あるべき帯の高さ・種類 | `tools/stitch-golden/expectations.json` の `sceneSpec` | シーンカタログ |
-| パートナー帯 | partnerBand | 登録・解除・なし | `sceneSpec.partnerBand` | タブ行 |
-| タブ行 | tabRow | スキル/継承タブの縦位置（比率帯） | `sceneSpec.tabRow` | スクロール開始 |
-| スクロール開始 | scrollStart | 固定部分とリストの境界 | `sceneSpec.scrollStart` | スクロール領域 |
-| ホイール段 | wheel | スクロール量 -3（狭帯）/ -4（広帯） | `sceneSpec.wheel` | ポリシー |
-| 期待値 | expectations | golden テストの数値正本 | `expectations.json` | 画面仕様 |
-| golden | golden | 回帰用の実機キャプチャ PNG | `auto-capture-design-pack/golden/` | expectations |
-| 切り取り領域 | crop / CropRect | 緑タイトルバー基準の UI 矩形 | stitch コード・計測ログ | 画面の帯 |
-| レイアウト種別 | layout | L2（2タブ）/ L3 / L3+Btn | expectations `layout` | タブ行 |
+| 英語 | 日本語 | 種別 | 一言 | どこで見る |
+|------|--------|------|------|-----------|
+| sceneSpec | 画面仕様 | 概念＋データ項目 | あるべき帯の高さ・種類 | `tools/stitch-golden/expectations.json` の `sceneSpec` |
+| partnerBand | パートナー帯 | 画面領域＋データ項目 | 登録・解除・なし | `sceneSpec.partnerBand` |
+| tabRow | タブ行 | 画面領域＋データ項目 | スキル/継承タブの縦位置（比率帯） | `sceneSpec.tabRow` |
+| scrollStart | スクロール開始 | 画面領域＋データ項目 | 固定部分とリストの境界 | `sceneSpec.scrollStart` |
+| wheel | ホイール段 | 識別子・定数＋データ項目 | スクロール量 -3（狭帯）/ -4（広帯） | `sceneSpec.wheel` |
+| expectations | 期待値 | ファイル・ドキュメント＋データ項目 | golden テストの数値正本 | `expectations.json` |
+| golden | golden | ファイル・ドキュメント | 回帰用の実機キャプチャ PNG | `auto-capture-design-pack/golden/` |
+| crop / CropRect | 切り取り領域 | 画面領域＋処理・モジュール | 緑タイトルバー基準の UI 矩形 | stitch コード・計測ログ |
+| layout | レイアウト種別 | 識別子・定数＋データ項目 | L2（2タブ）/ L3 / L3+Btn | expectations `layout` |
 
 ### オートキャプチャ結合 — 検出・ポリシー層
 
-| 日本語 | 英語 | 一言 | どこで見る | 隣の概念 |
-|--------|------|------|-----------|----------|
-| シーンモデル | Scene Model | 仕様→検出→ポリシーの方法論 | `REQ-stitch-scene-model.md` | 画面仕様 |
-| タブ検出 | tabDetect | 画像からタブ行を測る | `tabDetectCore.ts` 等 | タブ行 |
-| 領域検出 | regionsCore | scrollStart 等を測る | `regionsCore.ts` | スクロール開始 |
-| 結合リライト | stitch rewrite | キャプチャ画像の縦結合パイプライン | `REQ-stitch-rewrite.md` | golden |
-| 不変条件 | INV-1〜3 | 帯の幾何が矛盾したら棄却 | `REQ-stitch-scene-model.md` | 画面仕様 |
+| 英語 | 日本語 | 種別 | 一言 | どこで見る |
+|------|--------|------|------|-----------|
+| Scene Model | シーンモデル | 概念 | 仕様→検出→ポリシーの方法論 | `REQ-stitch-scene-model.md` |
+| tabDetect | タブ検出 | 処理・モジュール | 画像からタブ行を測る | `tabDetectCore.ts` 等 |
+| regionsCore | 領域検出 | 処理・モジュール | scrollStart 等を測る | `regionsCore.ts` |
+| stitch rewrite | 結合リライト | 概念＋ファイル・ドキュメント | キャプチャ画像の縦結合パイプライン | `REQ-stitch-rewrite.md` |
+| INV-1〜3 | 不変条件 | 概念＋識別子・定数 | 帯の幾何が矛盾したら棄却 | `REQ-stitch-scene-model.md` |
 
 ### 不変条件（INV）要約
 
-| ID | 日本語の意味 |
-|----|-------------|
-| INV-1 | スクロール開始はタブ行より十分下にある |
-| INV-2 | 登録ボタン帯とタブ行を混同しない |
-| INV-3 | ホイール段は帯の高さから決め、1セッション固定 |
+| 英語 | 日本語 | 種別 | 一言 |
+|------|--------|------|------|
+| INV-1 | スクロール開始はタブ行より十分下 | 識別子・定数＋概念 | scrollStart > tabRow + margin |
+| INV-2 | 登録帯とタブ行を混同しない | 識別子・定数＋概念 | partnerBand.register ≠ tabRow |
+| INV-3 | ホイール段は帯高さで固定 | 識別子・定数＋概念 | scrollRegionH → wheel -3 / -4 |
 
 ---
 

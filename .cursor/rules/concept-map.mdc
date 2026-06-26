@@ -18,7 +18,9 @@ alwaysApply: true
 
 ## カードの型
 
-| 日本語 | 英語 | 一言 | どこで見る | 隣の概念 |
+| 英語 | 日本語 | 種別 | 一言 | どこで見る |
+
+- **種別**は [`CONCEPT-MAP.md`](../../docs/CONCEPT-MAP.md)「種別の凡例」に従う。複合は最大2つ（`＋` 区切り）
 
 - 既存行と重複する概念は **新規行を増やさず** 既存カードを更新する
 - `docs/CONCEPT-MAP.md` 先頭の `最終更新:` を `Get-Date -Format "yyyy-MM-dd HH:mm"` で更新（日時取得手順は `docs-management.mdc` に従う）
