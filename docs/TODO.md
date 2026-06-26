@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-27 05:44
+最終更新: 2026-06-27 05:52
 
 ---
 
@@ -44,6 +44,13 @@
 - [ ] **Scene Model M2〜M6**（Spec 具体化・golden 強化・検出器統一・capture 責務分離・既知バグ修正）
   - 前提: M1 Catalog 欠落解消（少なくとも G-FRD-S-register）
   - REQ: [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
+
+- [ ] **オートキャプチャ時のスクロール用カーソル位置をやや下方へ**
+  - 症状: ホイール入力のカーソル位置がスクロールエリア上端ギリギリになり、**FRD-S** 等でスクロールが不安定
+  - 目標: カーソルをスクロールエリア上端より少し下に置き、他画面（HOF/TRN/CMP 等）へ退行させない
+  - 触る想定: `src-tauri/src/capture.rs`（`target_client_y` / `estimate_scroll_start_y_green_tab` / `scroll_window_input`）
+  - 注意: **実機検証必須**（FRD-S + 既存経路退行）。R3.5d 実機検証と合わせて確認可
+  - 関連: [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) R3.5d
 
 - [ ] **オートキャプチャ結合 R3.5d 実機検証クローズ**（d-5: FRD Step 4/6・HOF/TRN 退行）
   - 前提: d-2〜d-4 実装完了
