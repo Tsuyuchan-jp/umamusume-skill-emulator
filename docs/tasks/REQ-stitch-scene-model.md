@@ -5,7 +5,7 @@
 >
 > **作業ロードマップ**（完了後はアーカイブ）。永続仕様は [`DOCS-GUIDE.md`](../DOCS-GUIDE.md) の永続正本一覧・[`SCENE-CATALOG.md`](../../auto-capture-design-pack/SCENE-CATALOG.md) を参照。
 
-- **ステータス**: in-progress（M3 完了・M4 待ち）
+- **ステータス**: in-progress（M4 完了・M5 待ち）
 - **作成日**: 2026-06-27 04:11
 - **関連コミット**: （M0 完了後に記入）
 
@@ -107,7 +107,7 @@ crop 基準比率。正本: [`expectations.json`](../../tools/stitch-golden/expe
 | **M1** | シーン欠落洗い出し | Catalog 全行・欠落シーンの PNG/ログ収集リスト | **done** |
 | **M2** | Scene Spec 具体化 | シーン別期待領域表・不変条件の golden 化 | **done** |
 | **M3** | 計測パイプライン強化 | expectations に partner/tab/scroll/wheel 中間値。シーン別 Vitest | **done** |
-| **M4** | 検出器統一 | 緑判定 1 系統（Rust/TS 同期）。partnerDetect 分離 | 待ち |
+| **M4** | 検出器統一 | 緑判定 1 系統（Rust/TS 同期）。partnerDetect 分離 | **done** |
 | **M5** | capture–stitch 責務分離 | wheel 用の二重緑走査廃止・IPC 契約 | 待ち |
 | **M6** | 既知バグを Spec 準拠で修正 | 登録ボタン・absdiff 257。R3.5d-5 実機クローズ | 待ち |
 
@@ -165,7 +165,7 @@ crop 基準比率。正本: [`expectations.json`](../../tools/stitch-golden/expe
 - [ ] M0〜M1: Catalog が全実機 Step をカバー（欠落行なし）
 - [ ] M2: 各シーンに期待領域 ratio 帯が Scene Spec 名付きで記載
 - [x] M3: シーン別 golden（partner / tabY / scrollStart / wheel）が Vitest で PASS
-- [ ] M4: 緑判定実装が **1 系統**（grep で HSV/RGB 重複なし）
+- [x] M4: 緑判定実装が **1 系統**（grep で HSV/RGB 重複なし）
 - [ ] M5: capture が stitch と矛盾する scroll 推定をしない
 - [ ] M6: R3.5d-5 実機 Step 4/6 + HOF/TRN 退行なし
 - [ ] REQ-stitch-rewrite R3.5d-5 / 親 REQ Phase 3 クローズ
@@ -208,6 +208,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\stitch-golden\measure-
 | 2026-06-27 06:06 | **M2 着手** — expectations `sceneSpec` スキーマ拡張、Catalog/REQ 同期 | ratio 定数を Scene Spec 名付き期待構造へ昇格 |
 | 2026-06-27 06:13 | **M2 完了** — 全7 case に `partnerBand`/`tabRow`/`scrollStart`/`wheel`、INV 対応表・シーン別期待領域表、measure-regions R0 計測を notes 反映 | `stitch:golden` 19+1 expected fail 維持。Vitest 駆動化は M3 |
 | 2026-06-27 07:14 | **M3 完了** — `expectations.ts` sceneSpec 必須化・legacy 同期検証・INV-1 メタ（FRD タイト帯）・Vitest `sceneSpec.*` 駆動 | `stitch:golden` 21+1 expected fail（`cf2a6a0`）。G-FRD-S-register `it.fails` 維持 |
+| 2026-06-27 08:01 | **M4 完了** — `partnerDetectCore.ts` 新設（register/release/absent + bandY）・`rgba.ts`/`constants.ts` 緑閾値正本化・tabDetect INV-2 配線・`capture.rs` RGB/タイトルバー同期 | `stitch:golden` 21+1 expected fail 維持。G-FRD-S-register tabY≈0.44 NG は M6 まで |
 
 ---
 

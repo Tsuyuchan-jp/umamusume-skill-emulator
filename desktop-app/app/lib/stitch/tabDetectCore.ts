@@ -1,17 +1,13 @@
 import {
   STITCH_L2_GREEN_SCORE_MIN,
   STITCH_L3_GREEN_SEG_MIN,
-  STITCH_PARTNER_GREEN_EXCLUDE_RATIO_END,
-  STITCH_PARTNER_GREEN_EXCLUDE_RATIO_START,
-  STITCH_PARTNER_GREEN_CENTER_GAP,
-  STITCH_PARTNER_GREEN_SIDE_MIN_SEG,
-  STITCH_PARTNER_GREEN_UNIFORM_MAX_SPREAD,
-  STITCH_PARTNER_GREEN_UNIFORM_MIN_SEG,
   STITCH_TAB_ROW_HEIGHT_RATIO,
   STITCH_TAB_ROW_Y_SCAN_STEP,
   type StitchLayout,
 } from "./constants";
-import { isTabGreenHsv, isTabGreenRgb, rgbToHsv, type RgbaImage } from "./rgba";
+import type { PartnerBandDetection } from "./partnerDetectCore";
+import { shouldExcludePartnerRegisterBand } from "./partnerDetectCore";
+import { isTabGreenRgb, type RgbaImage } from "./rgba";
 import type { StitchTab, TabRowInfo } from "./types";
 
 export interface GreenTabProfile {
@@ -22,7 +18,7 @@ export interface GreenTabProfile {
   maxSeg: number;
 }
 
-/** 1行分の緑タブプロファイル（HSV） */
+/** 1行分の緑タブプロファイル（RGBA 正本） */
 export function measureGreenTabProfileRgba(
   img: RgbaImage,
   tabY: number
@@ -70,34 +66,13 @@ export function measureGreenTabProfileRgba(
   return { l2Score, seg1, seg2, seg3, maxSeg: Math.max(seg1, seg2, seg3) };
 }
 
-/** 練習パートナー登録（緑横長ボタン）をタブ行と誤検出しないよう除外 */
-export function isPartnerGreenRegisterBand(
-  ratio: number,
-  profile: Pick<GreenTabProfile, "seg1" | "seg2" | "seg3" | "l2Score" | "maxSeg">
-): boolean {
-  if (
-    ratio < STITCH_PARTNER_GREEN_EXCLUDE_RATIO_START ||
-    ratio > STITCH_PARTNER_GREEN_EXCLUDE_RATIO_END
-  ) {
-    return false;
-  }
-
-  const minSeg = Math.min(profile.seg1, profile.seg2, profile.seg3);
-  const maxSeg = Math.max(profile.seg1, profile.seg2, profile.seg3);
-  const sideMin = Math.min(profile.seg1, profile.seg3);
-
-  // 横一色の緑帯（テキストなし等）
-  const uniform =
-    minSeg >= STITCH_PARTNER_GREEN_UNIFORM_MIN_SEG &&
-    maxSeg - minSeg <= STITCH_PARTNER_GREEN_UNIFORM_MAX_SPREAD;
-
-  // 登録ボタン: 左右は緑・中央は白文字で seg2 のみ低い
-  const registerWithLabel =
-    sideMin >= STITCH_PARTNER_GREEN_SIDE_MIN_SEG &&
-    profile.seg2 < sideMin - STITCH_PARTNER_GREEN_CENTER_GAP &&
-    profile.maxSeg >= STITCH_L3_GREEN_SEG_MIN;
-
-  return uniform || registerWithLabel;
+export interface ScanGreenTabRowOptions {
+  minL3Seg?: number;
+  minL2Score?: number;
+  /** INV-2: partnerBand 検出結果（register 帯を tab 走査から除外） */
+  partner?: PartnerBandDetection;
+  /** @deprecated partner を渡すこと。true のみの場合はプロファイルベース除外 */
+  excludePartnerGreen?: boolean;
 }
 
 /** 緑プロファイルでタブ行を走査 */
@@ -106,11 +81,12 @@ export function scanGreenTabRowRgba(
   startRatio: number,
   endRatio: number,
   mode: "l2" | "l3",
-  options?: { minL3Seg?: number; minL2Score?: number; excludePartnerGreen?: boolean }
+  options?: ScanGreenTabRowOptions
 ): TabRowInfo {
   const minL3Seg = options?.minL3Seg ?? STITCH_L3_GREEN_SEG_MIN;
   const minL2Score = options?.minL2Score ?? STITCH_L2_GREEN_SCORE_MIN;
-  const excludePartnerGreen = options?.excludePartnerGreen ?? false;
+  const partner = options?.partner;
+  const excludePartnerGreen = options?.excludePartnerGreen ?? partner != null;
   const cropHeight = img.height;
   let best: TabRowInfo = {
     tabCount: mode === "l2" ? 2 : 3,
@@ -125,7 +101,10 @@ export function scanGreenTabRowRgba(
     if (tabY + Math.floor(cropHeight * STITCH_TAB_ROW_HEIGHT_RATIO) >= cropHeight) continue;
 
     const p = measureGreenTabProfileRgba(img, tabY);
-    if (excludePartnerGreen && isPartnerGreenRegisterBand(ratio, p)) continue;
+    if (excludePartnerGreen) {
+      const partnerInput = partner ?? { variant: "absent" as const };
+      if (shouldExcludePartnerRegisterBand(ratio, p, partnerInput)) continue;
+    }
 
     if (mode === "l2") {
       if (p.l2Score < minL2Score) continue;
@@ -157,7 +136,6 @@ export function detectStitchTabFromRgba(
   const tabH = Math.max(4, Math.floor(cropHeight * STITCH_TAB_ROW_HEIGHT_RATIO));
   const segmentCount = tabCount ?? (layout === "L2" ? 2 : 3);
 
-  // 2タブ画面では 3 分割せず Skill 固定（R3.5b: TRN Inheritance 誤判定防止）
   if (segmentCount === 2 || layout === "L2") {
     return "Skill";
   }
@@ -176,9 +154,11 @@ export function detectStitchTabFromRgba(
     for (let y = tabRowY; y < tabRowY + tabH && y < img.height; y++) {
       for (let x = x0; x < x1; x++) {
         const i = (y * img.width + x) * 4;
-        const [h, s, v] = rgbToHsv(img.data[i], img.data[i + 1], img.data[i + 2]);
-        if (isTabGreenHsv(h, s, v)) {
-          greenSum += s;
+        const r = img.data[i];
+        const g = img.data[i + 1];
+        const b = img.data[i + 2];
+        if (isTabGreenRgb(r, g, b)) {
+          greenSum += g;
           count++;
         }
       }

@@ -42,6 +42,14 @@ const PARTNER_GREEN_UNIFORM_MIN_SEG: f32 = 0.35;
 const PARTNER_GREEN_UNIFORM_MAX_SPREAD: f32 = 0.12;
 const PARTNER_GREEN_SIDE_MIN_SEG: f32 = 0.35;
 const PARTNER_GREEN_CENTER_GAP: f32 = 0.06;
+/// rgba.ts / constants.ts STITCH_TAB_GREEN_* と同期（RGB 正本）
+const TAB_GREEN_G_MIN: u8 = 100;
+const TAB_GREEN_G_OVER_R: i16 = 30;
+const TAB_GREEN_G_OVER_B: i16 = 20;
+/// rgba.ts STITCH_TITLE_BAR_* と同期（OpenCV 半スケール HSV → Rust 0–360° / 0–1）
+const TITLE_BAR_H_MIN: f32 = 40.0;
+const TITLE_BAR_H_MAX: f32 = 120.0;
+const TITLE_BAR_S_MIN: f32 = 0.59;
 
 /// CropRect（findCropBounds 同系・frame 座標系）
 struct CropRect {
@@ -493,15 +501,17 @@ fn rgb_to_hsv(r: u8, g: u8, b: u8) -> (f32, f32, f32) {
     (h, s, v)
 }
 
-fn is_umamusume_green(r: u8, g: u8, b: u8) -> bool {
-    let (h, s, v) = rgb_to_hsv(r, g, b);
-    h >= 70.0 && h <= 170.0 && s >= 0.35 && v >= 0.35
+/// タブ・緑帯走査の正本（rgba.ts isTabGreenRgb / constants.ts STITCH_TAB_GREEN_*）
+fn is_tab_green_rgb(r: u8, g: u8, b: u8) -> bool {
+    g >= TAB_GREEN_G_MIN
+        && (g as i16) > (r as i16) + TAB_GREEN_G_OVER_R
+        && (g as i16) > (b as i16) + TAB_GREEN_G_OVER_B
 }
 
-/// cropCore findCropBounds 同系 — 緑タイトルバー検出
+/// cropCore findCropBounds 同系 — 緑タイトルバー検出（rgba.ts isTitleBarGreenHsv）
 fn is_title_bar_green(r: u8, g: u8, b: u8) -> bool {
     let (h, s, _v) = rgb_to_hsv(r, g, b);
-    h >= 40.0 && h <= 120.0 && s >= 0.59
+    h >= TITLE_BAR_H_MIN && h <= TITLE_BAR_H_MAX && s >= TITLE_BAR_S_MIN
 }
 
 fn find_crop_bounds(frame: &image::RgbImage) -> Option<CropRect> {
@@ -602,7 +612,7 @@ fn measure_green_tab_profile(
     for y in tab_y..tab_y + tab_h {
         for x in 0..crop_width {
             let pixel = frame.get_pixel(crop.x + x, crop.y + y);
-            let g = is_umamusume_green(pixel[0], pixel[1], pixel[2]);
+            let g = is_tab_green_rgb(pixel[0], pixel[1], pixel[2]);
 
             if x < (crop_width as f32 * 0.48).floor() as u32 {
                 left_t += 1;
@@ -663,7 +673,7 @@ fn measure_green_tab_profile(
     }
 }
 
-/// 練習パートナー登録（緑横長ボタン）— tabDetectCore isPartnerGreenRegisterBand 同系
+/// 練習パートナー登録（緑横長ボタン）— partnerDetectCore isPartnerGreenRegisterBand 同系
 fn is_partner_green_register_band(ratio: f32, profile: &GreenTabProfile) -> bool {
     if ratio < PARTNER_GREEN_EXCLUDE_RATIO_START || ratio > PARTNER_GREEN_EXCLUDE_RATIO_END {
         return false;
@@ -838,7 +848,7 @@ fn find_factor_header_bounds(frame: &image::RgbImage) -> (u32, u32, u32) {
 
         for x in 0..width {
             let pixel = frame.get_pixel(x, y);
-            if is_umamusume_green(pixel[0], pixel[1], pixel[2]) {
+            if is_tab_green_rgb(pixel[0], pixel[1], pixel[2]) {
                 if first_green.is_none() {
                     first_green = Some(x);
                 }
@@ -894,7 +904,7 @@ fn detect_green_history_bar(frame: &image::RgbImage, start_x: u32, end_x: u32) -
         for x in start_x..end_x {
             if x < width && y < height {
                 let pixel = frame.get_pixel(x, y);
-                if is_umamusume_green(pixel[0], pixel[1], pixel[2]) {
+                if is_tab_green_rgb(pixel[0], pixel[1], pixel[2]) {
                     green_count += 1;
                 }
             }

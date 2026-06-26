@@ -1,5 +1,14 @@
 /** RGBA バッファ向けピクセルアクセス（Node golden / OpenCV 共通ロジック用） */
 
+import {
+  STITCH_TAB_GREEN_G_MIN,
+  STITCH_TAB_GREEN_G_OVER_B,
+  STITCH_TAB_GREEN_G_OVER_R,
+  STITCH_TITLE_BAR_H_MAX,
+  STITCH_TITLE_BAR_H_MIN,
+  STITCH_TITLE_BAR_S_MIN,
+} from "./constants";
+
 export interface RgbaImage {
   data: Uint8Array;
   width: number;
@@ -31,15 +40,25 @@ export function rgbToHsv(r: number, g: number, b: number): [number, number, numb
   return [h / 2, s * 255, v * 255];
 }
 
-export function isTabGreenHsv(h: number, s: number, v: number): boolean {
-  return h >= 35 && h <= 85 && s >= 80 && v >= 80;
-}
-
-/** measure-regions.ps1 Test-TabGreen 相当（タブ行走査用） */
+/** タブ・緑帯走査の正本（RGB。measure-regions.ps1 Test-TabGreen 相当） */
 export function isTabGreenRgb(r: number, g: number, b: number): boolean {
-  return g >= 100 && g > r + 30 && g > b + 20;
+  return (
+    g >= STITCH_TAB_GREEN_G_MIN &&
+    g > r + STITCH_TAB_GREEN_G_OVER_R &&
+    g > b + STITCH_TAB_GREEN_G_OVER_B
+  );
 }
 
+/** タブ緑判定エイリアス（検出器は isTabGreenRgb のみ参照） */
+export const isTabGreen = isTabGreenRgb;
+
+/** 緑タイトルバー（crop 検出用・OpenCV 半スケール HSV） */
 export function isTitleBarGreenHsv(h: number, s: number, v: number): boolean {
-  return h >= 20 && h <= 60 && s >= 150;
+  return h >= STITCH_TITLE_BAR_H_MIN && h <= STITCH_TITLE_BAR_H_MAX && s >= STITCH_TITLE_BAR_S_MIN;
+}
+
+/** RGB からタイトルバー緑を判定 */
+export function isTitleBarGreenRgb(r: number, g: number, b: number): boolean {
+  const [h, s, v] = rgbToHsv(r, g, b);
+  return isTitleBarGreenHsv(h, s, v);
 }

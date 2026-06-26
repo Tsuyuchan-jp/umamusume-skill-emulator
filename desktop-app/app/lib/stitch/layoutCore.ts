@@ -3,11 +3,6 @@ import {
   STITCH_L2_HIGH_TAB_ROW_MIN_RATIO,
   STITCH_L2_VS_L3_PRIORITY_RATIO,
   STITCH_L3_BTN_TAB_ROW_MIN_RATIO,
-  STITCH_PARTNER_BTN_BRIGHTNESS,
-  STITCH_PARTNER_BTN_MAX_ROW_RATIO,
-  STITCH_PARTNER_BTN_MIN_WIDTH_RATIO,
-  STITCH_PARTNER_BTN_Y_END,
-  STITCH_PARTNER_BTN_Y_START,
   STITCH_TAB_ROW_HEIGHT_RATIO,
   STITCH_TAB_ROW_Y_SCAN_STEP,
   STITCH_TAB_SCAN_L2_END,
@@ -17,51 +12,17 @@ import {
   STITCH_TAB_SCAN_L3_END,
   STITCH_TAB_SCAN_L3_START,
 } from "./constants";
+import { detectPartnerBandRgba, shouldExcludePartnerRegisterBand } from "./partnerDetectCore";
 import type { RgbaImage } from "./rgba";
-import { scanGreenTabRowRgba, measureGreenTabProfileRgba, isPartnerGreenRegisterBand } from "./tabDetectCore";
+import {
+  measureGreenTabProfileRgba,
+  scanGreenTabRowRgba,
+} from "./tabDetectCore";
 import type { LayoutDetection, TabRowInfo } from "./types";
 
 const L3_UPPER_TAB_ROW_MAX_RATIO = 0.43;
 /** partner 帯あり時のタブ行走査上限（golden G-FRD tabRowRatio max と整合） */
 const L3_PARTNER_TAB_ROW_SCAN_END = 0.47;
-
-/** 「練習パートナー解除」帯（明るい横長ボタン・縦幅が狭い）の有無 */
-export function detectPartnerReleaseBandRgba(img: RgbaImage): boolean {
-  const cropWidth = img.width;
-  const cropHeight = img.height;
-  const yStart = Math.floor(cropHeight * STITCH_PARTNER_BTN_Y_START);
-  const yEnd = Math.floor(cropHeight * STITCH_PARTNER_BTN_Y_END);
-  const roiH = Math.max(1, yEnd - yStart);
-
-  const minBrightPixels = Math.floor(cropWidth * STITCH_PARTNER_BTN_MIN_WIDTH_RATIO);
-  const maxButtonRows = Math.max(2, Math.floor(cropHeight * STITCH_PARTNER_BTN_MAX_ROW_RATIO));
-
-  let runStart = -1;
-  let bestRun = 0;
-
-  for (let y = yStart; y < yStart + roiH && y < img.height; y++) {
-    let brightCount = 0;
-    for (let x = 0; x < cropWidth; x++) {
-      const i = (y * img.width + x) * 4;
-      const gray = Math.round(
-        0.299 * img.data[i] + 0.587 * img.data[i + 1] + 0.114 * img.data[i + 2]
-      );
-      if (gray >= STITCH_PARTNER_BTN_BRIGHTNESS) brightCount++;
-    }
-    const isBrightRow = brightCount >= minBrightPixels;
-    if (isBrightRow) {
-      if (runStart === -1) runStart = y - yStart;
-    } else if (runStart !== -1) {
-      bestRun = Math.max(bestRun, y - yStart - runStart);
-      runStart = -1;
-    }
-  }
-  if (runStart !== -1) {
-    bestRun = Math.max(bestRun, roiH - runStart);
-  }
-
-  return bestRun > 0 && bestRun <= maxButtonRows;
-}
 
 function isL3BtnTabRow(tabY: number, cropHeight: number): boolean {
   const ratio = tabY / cropHeight;
@@ -102,7 +63,10 @@ export function shouldPreferL2(
 }
 
 /** partner 帯あり: 期待 tabRow 帯 [0.385, 0.47] を優先してタブ行を選ぶ */
-function scanPartnerTabRowRgba(img: RgbaImage): TabRowInfo {
+function scanPartnerTabRowRgba(
+  img: RgbaImage,
+  partner: ReturnType<typeof detectPartnerBandRgba>
+): TabRowInfo {
   const cropHeight = img.height;
   const minSeg = 0.05;
   let bestInExpected: TabRowInfo | null = null;
@@ -118,7 +82,7 @@ function scanPartnerTabRowRgba(img: RgbaImage): TabRowInfo {
     const tabY = Math.floor(cropHeight * ratio);
     const p = measureGreenTabProfileRgba(img, tabY);
     if (p.maxSeg < minSeg) continue;
-    if (isPartnerGreenRegisterBand(ratio, p)) continue;
+    if (shouldExcludePartnerRegisterBand(ratio, p, partner)) continue;
 
     if (p.maxSeg > bestOverallScore) {
       bestOverallScore = p.maxSeg;
@@ -134,7 +98,6 @@ function scanPartnerTabRowRgba(img: RgbaImage): TabRowInfo {
     return bestInExpected;
   }
 
-  // 0.47 超の誤検出より、期待帯内の次善スコアを優先
   if (bestOverall && bestOverall.tabY / cropHeight > L3_PARTNER_TAB_ROW_SCAN_END) {
     return {
       tabCount: 3,
@@ -157,13 +120,16 @@ function scanPartnerTabRowRgba(img: RgbaImage): TabRowInfo {
 /** 初回フレームからレイアウトとタブ行を判定（R2 正本フロー） */
 export function detectLayoutAndTabRowRgba(img: RgbaImage): LayoutDetection {
   const cropHeight = img.height;
+  const partner = detectPartnerBandRgba(img);
+  const hasPartner = partner.variant !== "absent";
+  const scanOpts = { partner };
 
   const l3Row = scanGreenTabRowRgba(
     img,
     STITCH_TAB_SCAN_L3_START,
     STITCH_TAB_SCAN_L3_END,
     "l3",
-    { excludePartnerGreen: true }
+    scanOpts
   );
   const l2Row = scanGreenTabRowRgba(
     img,
@@ -176,10 +142,9 @@ export function detectLayoutAndTabRowRgba(img: RgbaImage): LayoutDetection {
     STITCH_TAB_SCAN_L3_BTN_START,
     STITCH_TAB_SCAN_L3_BTN_END,
     "l3",
-    { excludePartnerGreen: true }
+    scanOpts
   );
-  const hasPartner = detectPartnerReleaseBandRgba(img);
-  const partnerTabRow = hasPartner ? scanPartnerTabRowRgba(img) : l3BtnRow;
+  const partnerTabRow = hasPartner ? scanPartnerTabRowRgba(img, partner) : l3BtnRow;
   const effectiveL3BtnRow =
     hasPartner && partnerTabRow.found ? partnerTabRow : l3BtnRow;
   const preferL2 = shouldPreferL2(img, l2Row, l3Row, hasPartner, cropHeight);
@@ -227,4 +192,9 @@ export function detectLayoutAndTabRowRgba(img: RgbaImage): LayoutDetection {
       method: "fallback",
     },
   };
+}
+
+/** @deprecated partnerDetectCore.detectPartnerBandRgba を使用 */
+export function detectPartnerReleaseBandRgba(img: RgbaImage): boolean {
+  return detectPartnerBandRgba(img).variant === "release";
 }

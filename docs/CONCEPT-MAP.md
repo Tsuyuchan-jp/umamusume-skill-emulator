@@ -5,7 +5,7 @@
 >
 > 入口: [`DOCS-GUIDE.md`](DOCS-GUIDE.md)
 
-最終更新: 2026-06-27 07:57
+最終更新: 2026-06-27 08:01
 
 ---
 
@@ -101,7 +101,7 @@ crop 内（上→下）
 |------|--------|------|------|-----------|
 | Scene Model | シーンモデル | 概念 | 仕様→検出→ポリシーの方法論 | `REQ-stitch-scene-model.md` |
 | detector | 検出器 | 概念 | 画像から画面要素の位置・種類を測る部品 | REQ「検出器の目標責務分割」 |
-| partnerDetectCore | パートナー帯検出 | 処理・モジュール | register / release / absent を先に決める（M4 新設） | `partnerDetectCore.ts`（予定） |
+| partnerDetectCore | パートナー帯検出 | 処理・モジュール | register / release / absent を先に決める（M4） | `desktop-app/app/lib/stitch/partnerDetectCore.ts` |
 | green detection | 緑判定 | 概念＋識別子 | タブ・タイトルバー・partner の緑ピクセル閾値 | `rgba.ts`・`constants.ts` 正本 |
 | tabDetect | タブ検出 | 処理・モジュール | partnerDetect 結果を見てからタブ行を測る（INV-2） | `tabDetectCore.ts` 等 |
 | regionsCore | 領域検出 | 処理・モジュール | scrollStart 等を測る | `regionsCore.ts` |

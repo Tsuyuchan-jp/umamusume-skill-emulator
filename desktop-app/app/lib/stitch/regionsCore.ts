@@ -16,8 +16,9 @@ import {
   getLayoutHeaderRatio,
   type StitchLayout,
 } from "./constants";
-import { isTabGreenHsv, rgbToHsv, type RgbaImage } from "./rgba";
-import { isPartnerGreenRegisterBand } from "./tabDetectCore";
+import { detectPartnerBandRgba, shouldExcludePartnerRegisterBand } from "./partnerDetectCore";
+import type { RgbaImage } from "./rgba";
+import { measureGreenTabProfileRgba } from "./tabDetectCore";
 import type { ScrollStartResult } from "./types";
 
 /** frame0↔1 の absdiff で scrollStartY を検出（走査起点 = crop 上端） */
@@ -427,6 +428,7 @@ function detectScrollStartByGreenTab(
 ): number | null {
   const tabH = Math.max(4, Math.floor(cropHeight * STITCH_TAB_ROW_HEIGHT_RATIO));
   const margin = Math.max(1, Math.floor(cropHeight * STITCH_HEADER_TAB_BOTTOM_MARGIN_RATIO));
+  const partner = detectPartnerBandRgba(frame0);
 
   let bestY = -1;
   let bestScore = -1;
@@ -439,18 +441,9 @@ function detectScrollStartByGreenTab(
     const tabY = Math.floor(cropHeight * ratio);
     if (tabY + tabH >= cropHeight) continue;
 
-    const l2 = measureGreenTabProfile(frame0, cropWidth, tabY, tabH, cropHeight);
+    const l2 = measureGreenTabProfileRgba(frame0, tabY);
     const l3Score = Math.max(l2.seg1, l2.seg2, l2.seg3);
-    if (
-      isPartnerGreenRegisterBand(ratio, {
-        seg1: l2.seg1,
-        seg2: l2.seg2,
-        seg3: l2.seg3,
-        l2Score: l2.l2Score,
-        maxSeg: l3Score,
-      })
-    ) {
-      ratio += STITCH_TAB_ROW_Y_SCAN_STEP;
+    if (shouldExcludePartnerRegisterBand(ratio, { ...l2, maxSeg: l3Score }, partner)) {
       continue;
     }
 
@@ -474,50 +467,6 @@ function detectScrollStartByGreenTab(
 
   if (bestY < 0) return null;
   return bestY + tabH + margin;
-}
-
-function measureGreenTabProfile(
-  img: RgbaImage,
-  cropWidth: number,
-  tabY: number,
-  tabH: number,
-  _cropHeight: number
-): { l2Score: number; seg1: number; seg2: number; seg3: number } {
-  const seg3W = Math.floor(cropWidth / 3);
-  let leftG = 0;
-  let rightG = 0;
-  let leftT = 0;
-  let rightT = 0;
-  const segG = [0, 0, 0];
-  const segT = [0, 0, 0];
-
-  for (let y = tabY; y < tabY + tabH; y++) {
-    for (let x = 0; x < cropWidth; x++) {
-      const i = (y * img.width + x) * 4;
-      const [h, s, v] = rgbToHsv(img.data[i], img.data[i + 1], img.data[i + 2]);
-      const g = isTabGreenHsv(h, s, v);
-
-      if (x < Math.floor(cropWidth * 0.48)) {
-        leftT++;
-        if (g) leftG++;
-      } else if (x >= Math.floor(cropWidth * 0.52)) {
-        rightT++;
-        if (g) rightG++;
-      }
-
-      const si = x < seg3W ? 0 : x < seg3W * 2 ? 1 : 2;
-      segT[si]++;
-      if (g) segG[si]++;
-    }
-  }
-
-  const seg1 = segT[0] > 0 ? segG[0] / segT[0] : 0;
-  const seg2 = segT[1] > 0 ? segG[1] / segT[1] : 0;
-  const seg3 = segT[2] > 0 ? segG[2] / segT[2] : 0;
-  const l2Score =
-    (rightT > 0 ? rightG / rightT : 0) - (leftT > 0 ? leftG / leftT : 0);
-
-  return { l2Score, seg1, seg2, seg3 };
 }
 
 function rgbaGray(img: RgbaImage, x: number, y: number): number {

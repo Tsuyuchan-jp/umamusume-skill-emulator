@@ -1,5 +1,15 @@
 /** 結合パイプライン共通定数（REQ-stitch-rewrite 正本） */
 
+/** タブ緑ピクセル判定（measure-regions.ps1 Test-TabGreen / rgba.ts 正本） */
+export const STITCH_TAB_GREEN_G_MIN = 100;
+export const STITCH_TAB_GREEN_G_OVER_R = 30;
+export const STITCH_TAB_GREEN_G_OVER_B = 20;
+
+/** タイトルバー緑（OpenCV 半スケール HSV — cropCore / capture.rs 同期） */
+export const STITCH_TITLE_BAR_H_MIN = 20;
+export const STITCH_TITLE_BAR_H_MAX = 60;
+export const STITCH_TITLE_BAR_S_MIN = 150;
+
 export const STITCH_FOOTER_HEIGHT_RATIO = 0.15;
 export const STITCH_TAB_ROW_HEIGHT_RATIO = 0.035;
 export const STITCH_HEADER_TAB_BOTTOM_MARGIN_RATIO = 0.012;
