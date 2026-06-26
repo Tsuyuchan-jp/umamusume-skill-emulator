@@ -1,36 +1,40 @@
 # stitch モジュール（リライト中）
 
-設計正本: [`docs/tasks/REQ-stitch-rewrite.md`](../../../../docs/tasks/REQ-stitch-rewrite.md)
+設計正本: [`docs/tasks/REQ-stitch-rewrite.md`](../../../../docs/tasks/REQ-stitch-rewrite.md)  
+キャプチャ正本: [`capture.rs`](../../../src-tauri/src/capture.rs) の `AUTO_SCROLL_WHEEL_CLICKS`（**-4**）。契約は REQ「Capture–Stitch 契約」節。
 
 | Phase | 状態 |
 |-------|------|
-| R0 | golden 期待値・Vitest スモーク |
-| R1 | `regions.ts` scrollStartY absdiff 正本（`USE_STITCH_V2`） |
-| R2 | `layout.ts` / `tabDetect.ts` 分割・走査帯正本化 |
-| R3 | `compose.ts` / `scrollMatch.ts`・`stitch.ts` オーケストレータ・V2 ON |
-| **R3.5a** | **`shiftEstimate*`（SSD + median）** — scrollMatch 内部委譲・golden 15/15 |
-| R3.5b | layout L2 優先・tabDetect 2タブガード（TRN） |
-| R3.5c | 実機 Step 3–4–6 再検証 |
+| R0 | golden 期待値・Vitest スモーク **done** |
+| R1 | `regions.ts` scrollStartY absdiff 正本 **done** |
+| R2 | `layout.ts` / `tabDetect.ts` 分割・走査帯正本化 **done** |
+| R3 | `compose.ts` / `scrollMatch.ts`・`stitch.ts`・V2 ON **done** |
+| R3.5a | `shiftEstimate*`（SSD + median）**done** |
+| R3.5b | layout L2 優先・tabDetect 2タブガード **done** |
+| **R3.5c** | **-4 正本・shift 末端・golden・実機**（c-1 docs done、c-2〜実装待ち） |
+| R4 | postProcess 分離・TrainingInfo |
+| R5 | `opencvStitcher.ts` 削除 |
 
 ## shiftEstimate（R3.5a 正本）
 
-- **Step B**: スクロール帯 RGBA 列の全重なり SSD（`overlapAvgDiff`）。NCC 下端テンプレートは廃止
-- **Step C**: セッション `S*`（median）・外れ値 τ・高側誤ピーク時のアンカー再探索・末端 terminal / bound
-- `scrollMatch.ts` は `shiftEstimate.ts` へ委譲（`scrollMatchCore.ts` は非推奨・参照のみ）
+- **Step B**: スクロール帯 RGBA 列の全重なり SSD（`overlapAvgDiff`）
+- **Step C**: セッション `S*`（median）・外れ値 τ・末端 terminal / bound（**R3.5c-2 で bound 見直し**）
+- **R3.5c-3**: 重なり下限 `scrollRegionH − S` を帯比率で保証（定数は `constants.ts`）
+
+`scrollMatch.ts` は `shiftEstimate.ts` へ委譲。
 
 ## モジュール構成
 
 | ファイル | 責務 |
 |---------|------|
-| `constants.ts` | 走査帯・閾値・`STITCH_SHIFT_*` |
-| `layoutCore.ts` / `layout.ts` | layout / tabRow（RGBA + OpenCV 薄ラッパー） |
+| `constants.ts` | 走査帯・`STITCH_SHIFT_*` |
+| `layoutCore.ts` / `layout.ts` | layout / tabRow |
 | `tabDetectCore.ts` / `tabDetect.ts` | StitchTab |
-| `regionsCore.ts` / `regions.ts` | scrollStartY（RGBA 正本 + OpenCV 薄ラッパー） |
-| **`shiftEstimateCore.ts` / `shiftEstimate.ts`** | **全重なり SSD + セッション median（正本）** |
-| `scrollMatch.ts` | `estimateShiftFrames` への薄い委譲・`ScrollMatchResult` 互換 |
-| `scrollMatchCore.ts` | 旧 NCC 実装（非推奨・テスト参照用） |
-| `composeCore.ts` / `compose.ts` | REQ 正本合成式・S-2 バー隠し・余白トリム |
-| `stitch.ts` | オーケストレータ（`shiftEstimate: S*` ログ） |
+| `regionsCore.ts` / `regions.ts` | scrollStartY |
+| `shiftEstimateCore.ts` / `shiftEstimate.ts` | SSD + median（正本） |
+| `scrollMatch.ts` | 委譲・互換 API |
+| `composeCore.ts` / `compose.ts` | 合成式・S-2・S-5・trim |
+| `stitch.ts` | オーケストレータ |
 | `flags.ts` | `USE_STITCH_V2 = true` |
 
 ## 合成式（正本）
@@ -42,4 +46,4 @@
      + Footer(frameLast)
 ```
 
-公開 API: [`../opencvStitcher.ts`](../opencvStitcher.ts) は `stitch.ts` へ委譲（R5 で削除予定）
+公開 API: [`../opencvStitcher.ts`](../opencvStitcher.ts) → `stitch.ts`（R5 で削除予定）

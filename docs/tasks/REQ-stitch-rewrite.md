@@ -4,7 +4,7 @@
 > 親 REQ: [`REQ-auto-capture-multi-screen.md`](REQ-auto-capture-multi-screen.md)（Phase 1 パッチ完了・本 REQ で根本修正）。
 > 設計パック: [`auto-capture-design-pack/`](../../auto-capture-design-pack/)（golden / screenshots / logs）。
 
-- **ステータス**: in-progress（R0–R3.5b done・**R3.5c 待ち**・R4 待ち）
+- **ステータス**: in-progress（R0–R3.5b done・**R3.5c 設計確定（docs）**・実装待ち・R4 待ち）
 - **作成日**: 2026-06-26 08:13
 - **関連コミット**: `b01ceb3`（R2 残 scrollStart）、`47d5755`（R2 layout）、`1df1860`（R1）
 
@@ -76,6 +76,62 @@ Screen
 
 `scrollMats[0]` を header 誤分割を埋める用途で全貼りする方式は廃止。
 
+---
+
+## Capture–Stitch 契約（正本・2026-06-27 確定）
+
+> **キャプチャ（Rust）と結合（`stitch/`）の前提をここに集約する。** 新 REQ は起票せず、本節と Phase 表を更新する。
+
+### ホイールスクロール
+
+| 項目 | 正本 |
+|------|------|
+| 定数 | `AUTO_SCROLL_WHEEL_CLICKS`（`desktop-app/src-tauri/src/capture.rs`） |
+| 値 | **-4**（下方向・4 ノッチ） |
+| 1 ノッチ | Windows `WHEEL_DELTA` = 120 |
+| 履歴 | antigravity 初期 **-3** → 安定性重視で **-5** → 狭い scroll 帯での SSD 誤推定のため **-4 を正本採用**（2026-06-27） |
+
+実験コミット: `019a567`（-4 試行）。TRN 実機: 中間ペア `S*≈192` で安定、末端 bound のみ NG（`TRN-console-R3.5c-1`）。
+
+### 幾何: scrollRegion と shift の関係
+
+```
+scrollRegionH = footerStartY − scrollStartY   （crop 基準・layout 非依存）
+SSD 重なり高さ = scrollRegionH − scrollAmount
+```
+
+| layout 目安 | scrollStart 比率 | scrollRegion（crop≈900px） | -5 時 S≈240 の重なり | -4 時 S≈192 の重なり |
+|-------------|------------------|----------------------------|----------------------|----------------------|
+| HOF L3 | 0.36–0.46 | ≈360–400px | ≈120–160px（十分） | ≈170–210px |
+| TRN L2 | 0.48–0.54 | ≈270–300px | ≈30–60px（不足しやすい） | ≈80–110px |
+| FRD L3+Btn | 0.52–0.56 | ≈260–270px | ≈20–30px（26px 誤ピーク） | ≈70–80px |
+
+**原則**: `scrollAmount` が `scrollRegionH` に対して大きすぎると SSD の重なりが不足し、誤ピーク（187 / 26 等）が高スコアで採用される。ホイール -4 は **キャプチャ正本**、**shiftEstimate 側は重なり下限ガード**（R3.5c-3）で帯高さから構造的に守る。
+
+### セッション内 scrollAmount（-4 正本）
+
+| 経路 | S* 目安（ウィンドウ・-4） | 最終ペア |
+|------|---------------------------|----------|
+| HOF/CMP | ≈190–220 | S_last < 0.85·S* 可（terminal） |
+| TRN | ≈180–210（実測 192） | 同上。bound で最終フレーム破棄しないこと |
+| FRD | ≈170–210（帯が最狭） | std(S_k) 安定・26px 禁止帯 0 |
+
+旧 -5 時代の「scrollAmount≈240」は **HOF 向け参考値**。golden shift ゲートは R3.5c-4 で -4 実測に更新する。
+
+### 実機検証 Step（v2 パイプライン）
+
+| Step | 経路 | 状態（2026-06-27） |
+|------|------|-------------------|
+| 1 | G-HOF-S | R3 OK。R3.5c で -4 退行確認 |
+| 2 | G-CMP-S | スキップ可 |
+| 3 | G-TRN | R3.5b layout OK。**-4: 中間 OK・末端 bound NG** → R3.5c-2 |
+| 4 | G-FRD-S | R3.5a golden OK。実機未クローズ |
+| 5 | G-HOF-F | R3 OK |
+| 6 | G-FRD-F | 未 |
+| 7 | FS | R3.5c 後 |
+
+親 REQ [`REQ-auto-capture-multi-screen.md`](REQ-auto-capture-multi-screen.md) Phase 3 は **本 REQ R3.5c-5 完了でクローズ**。
+
 ### 構造化ログ
 
 ```typescript
@@ -100,9 +156,19 @@ interface StitchReport {
 | **R3** | compose 簡素化・旧 scrollMats 全貼り廃止・V2 配線 | **done** |
 | **R3.5a** | `shiftEstimate`（全重なり SSD + セッション median）— scrollMatch 置換 | **done** |
 | **R3.5b** | layout L2 優先・tabDetect 2タブガード（TRN） | **done** |
-| **R3.5c** | golden / 実機再検証クローズ（FRD/TRN） | draft |
+| **R3.5c** | **-4 正本・shift 末端・golden・実機クローズ**（下表） | **in-progress（docs 確定）** |
 | **R4** | postProcess 分離・TrainingInfo 別パス（旧 S-6） | draft |
 | **R5** | `opencvStitcher.ts` 削除・REQ done | draft |
+
+#### R3.5c サブ Phase（新 REQ 起票なし）
+
+| サブ | 内容 | 主な変更 | 状態 |
+|------|------|----------|------|
+| **c-1** | Capture–Stitch 契約・docs 同期 | 本 REQ・TODO・INDEX・README・親 REQ | **done（docs）** |
+| **c-2** | 末端 bound → terminal | `shiftEstimateCore.ts` | 待ち |
+| **c-3** | 重なり下限ガード | `shiftEstimateCore.ts`・`constants.ts` | 待ち |
+| **c-4** | golden shift 更新（-4） | `golden.test.ts`・`expectations.json` | 待ち |
+| **c-5** | 実機 Step 1/3/4/6 クローズ | ログ・親 REQ 検証表 | 待ち |
 
 **Phase 3 実機検証**（[`REQ-auto-capture-multi-screen.md`](REQ-auto-capture-multi-screen.md)）は **R1 完了後** に golden + 実機で再実施。旧「Header 144px」合格基準は **廃止**。
 
@@ -121,6 +187,17 @@ interface StitchReport {
 
 正本 JSON: [`tools/stitch-golden/expectations.json`](../../tools/stitch-golden/expectations.json)
 
+### Golden shift 期待（S*・crop スクロール帯・**-4 正本**）
+
+> R3.5c-4 で `expectations.json` / Vitest に反映。設計パック PNG が -5 時代の場合は `measureShiftFromFrames` で再計測して帯を確定する。
+
+| ID | layout | S* 帯（px・-4 目安） | 備考 |
+|----|--------|----------------------|------|
+| G-HOF-S | L3 | 180–220 | 旧 -5 実機≈240。帯広い |
+| G-TRN | L2 | 175–210 | 実機 -4: **192** 安定。ゲート新設 |
+| G-FRD-S | L3+Btn | 170–210 | std(S_k)<20・[22,32] 禁止帯 0 維持 |
+| G-CMP-S | L3 | 180–220 | HOF 同オーダー |
+
 ---
 
 ## スコープ
@@ -134,7 +211,7 @@ interface StitchReport {
 
 ### やらないこと
 
-- `capture.rs` 経路別プロファイル（親 REQ Phase 2 待ち）
+- `capture.rs` 経路別プロファイル（親 REQ Phase 2 待ち）— **ホイール定数（-4）の正本化は R3.5c スコープ**
 - `geminiOcr.ts` / WASM 変更
 - opencv.js 以外への移行（Rust 結合再実装等）
 
@@ -147,6 +224,7 @@ interface StitchReport {
 | R0 | `tools/stitch-golden/*`, `docs/tasks/REQ-stitch-rewrite.md`, `docs/TODO.md`, `docs/tasks/INDEX.md` |
 | R1+ | `desktop-app/app/lib/stitch/**`（R3: `compose.ts` / `scrollMatch.ts` / `stitch.ts`）, `opencvStitcher.ts`（段階委譲） |
 | R3.5 | `shiftEstimateCore.ts` / `shiftEstimate.ts`（`scrollMatch*` 置換またはラッパー差替）, `layoutCore.ts`（R3.5b）, golden 拡張 |
+| R3.5c | `capture.rs`（`AUTO_SCROLL_WHEEL_CLICKS` 正本化）, `shiftEstimateCore.ts`, `constants.ts`, `golden.test.ts`, `expectations.json` |
 | R1+ | `desktop-app/app/hooks/useCapture.ts`（StitchReport ログ任意） |
 
 ---
@@ -160,7 +238,7 @@ interface StitchReport {
 - [x] R3: stitched-OK 退行なし（HOF 実機 OK・golden compose スモーク）
 - [x] R3.5a: shiftEstimate 実装・HOF 退行なし・FRD scrollAmount 安定化
 - [x] R3.5b: G-TRN layout=L2 golden・tabDetect 2タブガード・HOF/FRD layout 退行なし
-- [ ] R3.5c: 実機 Step 3–4–6 再検証クローズ
+- [ ] R3.5c: 下記「R3.5c 完了条件」全項目
 - [ ] R4: TrainingInfo 別パス（G-FRD-I）
 - [ ] R5: `opencvStitcher.ts` 削除、親 REQ Phase 3 検証クローズ、TODO/INDEX 更新
 
@@ -181,8 +259,8 @@ npm run stitch:golden
 1. 対象タブを手動で開く（F-1）
 2. オートキャプチャ → 結合
 3. `StitchReport` の `scrollStartRatio` が golden 帯内
-4. score≥0.95、scrollAmount≈240（ウィンドウ）を維持
-5. 目視: タブ上右端非崩壊・スキル/因子全行
+4. `shiftEstimate: S*` が経路別 golden 帯内（**-4 正本**。旧「≈240」は HOF/-5 参考）
+5. 目視: タブ上右端非崩壊・スキル/因子全行・最下部まで（bound による欠けなし）
 
 ---
 
@@ -193,6 +271,8 @@ npm run stitch:golden
 | absdiff 失敗（FRD 低 score） | テンプレート優先 + confidence 低時 abort |
 | R1 で G-TRN 退行 | golden TRN を R1 ゲートに |
 | 旧 16% 合格基準の混在 | 本 REQ で scrollStartRatio に統一 |
+| 狭い scroll 帯 + 大きい S で SSD 誤推定 | ホイール **-4** + 重なり下限ガード（R3.5c-3） |
+| リスト末端で bound が最終フレーム破棄 | terminal 優先（R3.5c-2） |
 
 ---
 
@@ -307,7 +387,7 @@ npm run stitch:golden
 | 6 | G-FRD-F | **NG** | scrollAmount ばらつき・結合位置ずれ |
 | 7 | FS | スキップ | R3.5 後 |
 
-**結論**: REQ 合成式 + scrollStartY + compose は **HOF で実証済み**。FRD/TRN の NG は主に **`scrollMatch`（NCC 下端テンプレート）の誤推定**。キャプチャは毎回ホイール -5 固定であり、**同一セッション内の scrollAmount はほぼ一定であるべき**（最終フレームのみ短くてよい）。
+**結論**: REQ 合成式 + scrollStartY + compose は **HOF で実証済み**。FRD/TRN の NG は **shiftEstimate の誤推定**（狭い scroll 帯 + 旧 -5 の大きい S）が主因。**キャプチャ正本はホイール -4**（Capture–Stitch 契約）。同一セッション内 `scrollAmount` はほぼ一定（最終ペアのみ短くてよい・**bound 破棄は NG**）。
 
 ### 根本原因（技術）
 
@@ -377,9 +457,18 @@ score(S) = mean | prev[scrollStartY + S + y, x] - curr[scrollStartY + y, x] |
 |-------|------|--------|
 | **R3.5a** | shiftEstimateCore + stitch 配線。NCC 主経路廃止 | golden 退行なし、HOF 実機 scroll 安定、FRD 設計パックフレームで `std(S_k)` 低下 |
 | **R3.5b** | layout L2 優先、tabDetect 2タブ時は 3 分割しない | G-TRN layout hard、実機 Step 3 |
-| **R3.5c** | 実機 Step 3–4–6 再検証、Phase 3 残クローズ | 親 REQ 検証表更新 |
+| **R3.5c** | -4 正本・shift 末端・golden・実機クローズ | Step 1/3/4/6・親 REQ Phase 3 |
 
 **R4（postProcess / TrainingInfo）は R3.5c 完了後。**
+
+### R3.5c 完了条件
+
+- [x] c-1: Capture–Stitch 契約節・TODO/INDEX/README/親 REQ 同期（docs）
+- [ ] c-2: 最終ペア `score < SCORE_MIN` でも先行 S* 安定時は bound せず terminal / 最終フレーム compose に含める
+- [ ] c-3: `STITCH_SHIFT_MIN_OVERLAP_RATIO`（または同等）で `S ≤ scrollRegionH − minOverlap` を探索制約
+- [ ] c-4: G-TRN shift ゲート新設。HOF/FRD `S*` 帯を -4 実測で更新。`npm run stitch:golden` 全 PASS
+- [ ] c-5: 実機 Step 1 HOF / 3 TRN / 4 FRD-S / 6 FRD-F クローズ。親 REQ 検証表更新
+- [ ] `capture.rs` コメントを「正本 -4」に同期（実験コメント解消）
 
 ### R3.5a 完了条件（draft）
 
@@ -408,6 +497,7 @@ score(S) = mean | prev[scrollStartY + S + y, x] - curr[scrollStartY + y, x] |
 
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
+| 2026-06-27 01:01 | **R3.5c 設計確定（docs）** | ホイール **-4 を Capture–Stitch 正本**採用。TRN/FRD は scroll 帯が狭く -5+S≈240 で SSD 重なり不足が誤推定の主因。実機 -4: TRN 中間 S*≈192 OK・末端 bound NG。サブ Phase c-1〜c-5 を本 REQ に集約（新 REQ 起票なし）。親 Phase 3 は R3.5c-5 でクローズ |
 | 2026-06-27 00:02 | **R3.5b 完了** | `shouldPreferL2`（L2 vs L3 同行走査・TRN trnPattern）+ tabDetect 2タブガード。golden 17/17 PASS（G-TRN layout=L2/tab=Skill、G-HOF-S layout=L3 退行なし） |
 | 2026-06-26 23:12 | **R3.5a 完了** | `shiftEstimateCore` + `shiftEstimate` 配線。scrollMatch 委譲。golden 15/15（FRD std(S_k)<20・26px 禁止帯 0、HOF S*∈[200,280]）。高側 SSD 誤ピークは 2 ペア時 min アンカー + 再探索で解消 |
 | 2026-06-26 22:19 | **R3.5 ゼロベース設計** | R3 実機: HOF OK・FRD/TRN NG。scrollMatch NCC は HOF で偶然成功。正本は **全重なり SSD（Step B）+ median 一貫性（Step C）**。Phase: R3.5a shiftEstimate → R3.5b layout TRN → R3.5c 実機クローズ。R4 は R3.5 後 |
@@ -649,4 +739,49 @@ REQ R3.5a（設計レビュー承認済み）。scrollMatch NCC → shiftEstimat
 cd desktop-app
 npm run stitch:golden
 実機: G-HOF-S 退行なし → G-FRD-S
+```
+
+### R3.5c: -4 正本・shift 末端・golden — 実装起票（Agent mode）
+
+```
+@docs/PROJECT.md
+@docs/TODO.md
+@docs/tasks/REQ-stitch-rewrite.md
+@desktop-app/src-tauri/src/capture.rs
+@desktop-app/app/lib/stitch/shiftEstimateCore.ts
+@desktop-app/app/lib/stitch/constants.ts
+@desktop-app/app/lib/stitch/golden.test.ts
+@tools/stitch-golden/expectations.json
+@auto-capture-design-pack/logs/TRN-console-R3.5c-1.txt
+
+## チャット種別
+実装（Agent mode）
+
+## 背景
+REQ R3.5c 設計確定（docs 2026-06-27 01:01）。Capture–Stitch 契約: ホイール **-4 正本**。
+実機 TRN（-4）: 中間 S*≈192 安定・末端 bound で最下部欠け。コード実装は c-2〜c-5。
+
+## 着手時
+- TODO Backlog「R3.5c」→ 進行中、Get-Date で最終更新
+- 最初のコミットに TODO 含める
+
+## 実装（REQ「R3.5c サブ Phase」正本）
+1. c-2: shiftEstimateCore 末端 bound → terminal（最終フレーム破棄しない）
+2. c-3: STITCH_SHIFT_MIN_OVERLAP_RATIO 等・探索上界を scrollRegionH から導出
+3. c-4: golden G-TRN shift ゲート・HOF/FRD S* 帯 -4 更新
+4. capture.rs コメント「正本 -4」同期（値は既に -4 の想定）
+
+## 触らない
+- layout* / tabDetect* / regionsCore scrollStart
+- geminiOcr / WASM
+
+## 完了条件
+- [ ] REQ R3.5c チェックリスト c-2〜c-4
+- [ ] npm run stitch:golden 全 PASS
+- [ ] TODO・REQ 決定ログ・コミット（push しない）
+
+## 検証
+cd desktop-app
+npm run stitch:golden
+実機: TRN Step 3 → HOF Step 1 退行確認
 ```
