@@ -66,6 +66,9 @@ export const STITCH_PARTNER_GREEN_EXCLUDE_RATIO_END = 0.455;
 /** 3 分割がともに緑＝横一色の登録ボタンとみなす */
 export const STITCH_PARTNER_GREEN_UNIFORM_MIN_SEG = 0.35;
 export const STITCH_PARTNER_GREEN_UNIFORM_MAX_SPREAD = 0.12;
+/** 登録ボタン左右セグの最低緑率（中央は白文字で低くなる） */
+export const STITCH_PARTNER_GREEN_SIDE_MIN_SEG = 0.35;
+export const STITCH_PARTNER_GREEN_CENTER_GAP = 0.06;
 
 /** 最終フォールバック（レイアウト別固定比率） */
 export const STITCH_HEADER_HEIGHT_L2 = 0.5;

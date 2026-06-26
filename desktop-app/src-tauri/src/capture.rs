@@ -40,6 +40,8 @@ const PARTNER_GREEN_EXCLUDE_RATIO_START: f32 = 0.385;
 const PARTNER_GREEN_EXCLUDE_RATIO_END: f32 = 0.455;
 const PARTNER_GREEN_UNIFORM_MIN_SEG: f32 = 0.35;
 const PARTNER_GREEN_UNIFORM_MAX_SPREAD: f32 = 0.12;
+const PARTNER_GREEN_SIDE_MIN_SEG: f32 = 0.35;
+const PARTNER_GREEN_CENTER_GAP: f32 = 0.06;
 
 /// CropRect（findCropBounds 同系・frame 座標系）
 struct CropRect {
@@ -666,10 +668,20 @@ fn is_partner_green_register_band(ratio: f32, profile: &GreenTabProfile) -> bool
     if ratio < PARTNER_GREEN_EXCLUDE_RATIO_START || ratio > PARTNER_GREEN_EXCLUDE_RATIO_END {
         return false;
     }
+
     let min_seg = profile.seg1.min(profile.seg2).min(profile.seg3);
     let max_seg = profile.seg1.max(profile.seg2).max(profile.seg3);
-    min_seg >= PARTNER_GREEN_UNIFORM_MIN_SEG
-        && max_seg - min_seg <= PARTNER_GREEN_UNIFORM_MAX_SPREAD
+    let side_min = profile.seg1.min(profile.seg3);
+    let max_seg_field = profile.seg1.max(profile.seg2).max(profile.seg3);
+
+    let uniform = min_seg >= PARTNER_GREEN_UNIFORM_MIN_SEG
+        && max_seg - min_seg <= PARTNER_GREEN_UNIFORM_MAX_SPREAD;
+
+    let register_with_label = side_min >= PARTNER_GREEN_SIDE_MIN_SEG
+        && profile.seg2 < side_min - PARTNER_GREEN_CENTER_GAP
+        && max_seg_field >= L3_GREEN_SEG_MIN;
+
+    uniform || register_with_label
 }
 
 /// frame0 のみ・緑タブ走査 0.28–0.54（regionsCore detectScrollStartByGreenTab 同系）

@@ -18,7 +18,7 @@ import {
   STITCH_TAB_SCAN_L3_START,
 } from "./constants";
 import type { RgbaImage } from "./rgba";
-import { scanGreenTabRowRgba, measureGreenTabProfileRgba } from "./tabDetectCore";
+import { scanGreenTabRowRgba, measureGreenTabProfileRgba, isPartnerGreenRegisterBand } from "./tabDetectCore";
 import type { LayoutDetection, TabRowInfo } from "./types";
 
 const L3_UPPER_TAB_ROW_MAX_RATIO = 0.43;
@@ -118,6 +118,7 @@ function scanPartnerTabRowRgba(img: RgbaImage): TabRowInfo {
     const tabY = Math.floor(cropHeight * ratio);
     const p = measureGreenTabProfileRgba(img, tabY);
     if (p.maxSeg < minSeg) continue;
+    if (isPartnerGreenRegisterBand(ratio, p)) continue;
 
     if (p.maxSeg > bestOverallScore) {
       bestOverallScore = p.maxSeg;
@@ -161,7 +162,8 @@ export function detectLayoutAndTabRowRgba(img: RgbaImage): LayoutDetection {
     img,
     STITCH_TAB_SCAN_L3_START,
     STITCH_TAB_SCAN_L3_END,
-    "l3"
+    "l3",
+    { excludePartnerGreen: true }
   );
   const l2Row = scanGreenTabRowRgba(
     img,
@@ -173,7 +175,8 @@ export function detectLayoutAndTabRowRgba(img: RgbaImage): LayoutDetection {
     img,
     STITCH_TAB_SCAN_L3_BTN_START,
     STITCH_TAB_SCAN_L3_BTN_END,
-    "l3"
+    "l3",
+    { excludePartnerGreen: true }
   );
   const hasPartner = detectPartnerReleaseBandRgba(img);
   const partnerTabRow = hasPartner ? scanPartnerTabRowRgba(img) : l3BtnRow;

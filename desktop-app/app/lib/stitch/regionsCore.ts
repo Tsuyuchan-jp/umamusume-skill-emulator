@@ -440,12 +440,19 @@ function detectScrollStartByGreenTab(
     if (tabY + tabH >= cropHeight) continue;
 
     const l2 = measureGreenTabProfile(frame0, cropWidth, tabY, tabH, cropHeight);
-    if (isPartnerGreenRegisterBand(ratio, l2)) {
+    const l3Score = Math.max(l2.seg1, l2.seg2, l2.seg3);
+    if (
+      isPartnerGreenRegisterBand(ratio, {
+        seg1: l2.seg1,
+        seg2: l2.seg2,
+        seg3: l2.seg3,
+        l2Score: l2.l2Score,
+        maxSeg: l3Score,
+      })
+    ) {
       ratio += STITCH_TAB_ROW_Y_SCAN_STEP;
       continue;
     }
-
-    const l3Score = Math.max(l2.seg1, l2.seg2, l2.seg3);
 
     const l2Ok = l2.l2Score >= STITCH_L2_GREEN_SCORE_MIN;
     const l3Ok = l3Score >= STITCH_L3_GREEN_SEG_MIN;

@@ -3,6 +3,8 @@ import {
   STITCH_L3_GREEN_SEG_MIN,
   STITCH_PARTNER_GREEN_EXCLUDE_RATIO_END,
   STITCH_PARTNER_GREEN_EXCLUDE_RATIO_START,
+  STITCH_PARTNER_GREEN_CENTER_GAP,
+  STITCH_PARTNER_GREEN_SIDE_MIN_SEG,
   STITCH_PARTNER_GREEN_UNIFORM_MAX_SPREAD,
   STITCH_PARTNER_GREEN_UNIFORM_MIN_SEG,
   STITCH_TAB_ROW_HEIGHT_RATIO,
@@ -71,7 +73,7 @@ export function measureGreenTabProfileRgba(
 /** 練習パートナー登録（緑横長ボタン）をタブ行と誤検出しないよう除外 */
 export function isPartnerGreenRegisterBand(
   ratio: number,
-  profile: Pick<GreenTabProfile, "seg1" | "seg2" | "seg3">
+  profile: Pick<GreenTabProfile, "seg1" | "seg2" | "seg3" | "l2Score" | "maxSeg">
 ): boolean {
   if (
     ratio < STITCH_PARTNER_GREEN_EXCLUDE_RATIO_START ||
@@ -79,12 +81,23 @@ export function isPartnerGreenRegisterBand(
   ) {
     return false;
   }
+
   const minSeg = Math.min(profile.seg1, profile.seg2, profile.seg3);
   const maxSeg = Math.max(profile.seg1, profile.seg2, profile.seg3);
-  return (
+  const sideMin = Math.min(profile.seg1, profile.seg3);
+
+  // 横一色の緑帯（テキストなし等）
+  const uniform =
     minSeg >= STITCH_PARTNER_GREEN_UNIFORM_MIN_SEG &&
-    maxSeg - minSeg <= STITCH_PARTNER_GREEN_UNIFORM_MAX_SPREAD
-  );
+    maxSeg - minSeg <= STITCH_PARTNER_GREEN_UNIFORM_MAX_SPREAD;
+
+  // 登録ボタン: 左右は緑・中央は白文字で seg2 のみ低い
+  const registerWithLabel =
+    sideMin >= STITCH_PARTNER_GREEN_SIDE_MIN_SEG &&
+    profile.seg2 < sideMin - STITCH_PARTNER_GREEN_CENTER_GAP &&
+    profile.maxSeg >= STITCH_L3_GREEN_SEG_MIN;
+
+  return uniform || registerWithLabel;
 }
 
 /** 緑プロファイルでタブ行を走査 */
@@ -93,10 +106,11 @@ export function scanGreenTabRowRgba(
   startRatio: number,
   endRatio: number,
   mode: "l2" | "l3",
-  options?: { minL3Seg?: number; minL2Score?: number }
+  options?: { minL3Seg?: number; minL2Score?: number; excludePartnerGreen?: boolean }
 ): TabRowInfo {
   const minL3Seg = options?.minL3Seg ?? STITCH_L3_GREEN_SEG_MIN;
   const minL2Score = options?.minL2Score ?? STITCH_L2_GREEN_SCORE_MIN;
+  const excludePartnerGreen = options?.excludePartnerGreen ?? false;
   const cropHeight = img.height;
   let best: TabRowInfo = {
     tabCount: mode === "l2" ? 2 : 3,
@@ -111,7 +125,7 @@ export function scanGreenTabRowRgba(
     if (tabY + Math.floor(cropHeight * STITCH_TAB_ROW_HEIGHT_RATIO) >= cropHeight) continue;
 
     const p = measureGreenTabProfileRgba(img, tabY);
-    if (isPartnerGreenRegisterBand(ratio, p)) continue;
+    if (excludePartnerGreen && isPartnerGreenRegisterBand(ratio, p)) continue;
 
     if (mode === "l2") {
       if (p.l2Score < minL2Score) continue;
