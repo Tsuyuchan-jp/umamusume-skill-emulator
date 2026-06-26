@@ -5,7 +5,8 @@ Steam版・DMM版「ウマ娘 プリティーダービー」向けのレース�
 **現在のバージョン**: [`desktop-app/package.json`](./desktop-app/package.json) の `version`（表示例: アプリヘッダー左下の `v*`）
 
 更新履歴: [docs/CHANGELOG.md](./docs/CHANGELOG.md)  
-バージョン bump・リリース手順: [docs/RELEASE_BUILD.md](./docs/RELEASE_BUILD.md#バージョン管理)
+バージョン bump・リリース手順: [docs/RELEASE_BUILD.md](./docs/RELEASE_BUILD.md#バージョン管理)  
+**開発・Cursor 運用**: [docs/DOCS-GUIDE.md](./docs/DOCS-GUIDE.md)
 
 ## プロジェクト構成
 
@@ -140,6 +141,7 @@ npm run build:release-exe   # sync-version → build → tauri build
 
 ## 開発ルール
 
+- **docs 運用・進捗**: [docs/DOCS-GUIDE.md](./docs/DOCS-GUIDE.md) · [docs/TODO.md](./docs/TODO.md)
 - `.cursor/rules/`（Cursor Agent 用・正本）
 
 ## 廃止済み

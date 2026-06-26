@@ -6,7 +6,7 @@ alwaysApply: true
 
 # ドキュメント管理（日時記録）
 
-**docs 全体の地図（人間・AI 共通の入口）**: [`docs/README.md`](../../docs/README.md) — TODO / REQ / 永続正本の役割分担。
+**docs 全体の地図（人間・AI 共通の入口）**: [`docs/DOCS-GUIDE.md`](../../docs/DOCS-GUIDE.md) — TODO / REQ / 永続正本の役割分担。`docs/README.md` は同ガイドへの案内のみ。
 
 `docs/` 配下の Markdown で、更新タイミングを記録するときは **日付だけでなく時刻も含める**。
 

@@ -31,7 +31,7 @@ alwaysApply: true
 ## 進捗管理（TODO.md）
 
 - **正本**: `docs/TODO.md`（Backlog・進行中・完了・保留）
-- **docs 入口（運用地図）**: [`docs/README.md`](../../docs/README.md)
+- **docs 入口（運用地図）**: [`docs/DOCS-GUIDE.md`](../../docs/DOCS-GUIDE.md)
 - **着手時・完了時** の両方で TODO を更新し、最初/最後のコミットに含める
 - 詳細: `docs/TODO.md`「エージェント必須手順」、`.cursor/rules/docs-management.mdc`
 

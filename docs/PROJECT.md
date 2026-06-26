@@ -1,6 +1,6 @@
 # プロジェクト概要
 
-> **docs の入口（運用・永続正本・REQ の地図）**: [`docs/README.md`](README.md) — 迷ったらこちらを先に開く。
+> **docs の入口（運用・永続正本・REQ の地図）**: [`DOCS-GUIDE.md`](DOCS-GUIDE.md) — 迷ったらこちらを先に開く。
 > 本ファイルは **アプリ概要** と変わりにくい製品情報。進捗は [`docs/TODO.md`](TODO.md)。
 
 ## アプリ概要
@@ -173,7 +173,7 @@ npm run build:release-exe
 
 ## 関連ドキュメント
 
-- **docs 運用の入口（地図）**: [`docs/README.md`](README.md)
+- **docs 運用の入口（地図）**: [`DOCS-GUIDE.md`](DOCS-GUIDE.md)
 - 進捗・Todo: `docs/TODO.md`
 - **REQ 索引（全件カタログ）**: `docs/tasks/INDEX.md`
 - 更新履歴: `docs/CHANGELOG.md`
