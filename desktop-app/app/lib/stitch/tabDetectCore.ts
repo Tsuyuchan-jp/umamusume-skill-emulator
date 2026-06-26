@@ -1,6 +1,10 @@
 import {
   STITCH_L2_GREEN_SCORE_MIN,
   STITCH_L3_GREEN_SEG_MIN,
+  STITCH_PARTNER_GREEN_EXCLUDE_RATIO_END,
+  STITCH_PARTNER_GREEN_EXCLUDE_RATIO_START,
+  STITCH_PARTNER_GREEN_UNIFORM_MAX_SPREAD,
+  STITCH_PARTNER_GREEN_UNIFORM_MIN_SEG,
   STITCH_TAB_ROW_HEIGHT_RATIO,
   STITCH_TAB_ROW_Y_SCAN_STEP,
   type StitchLayout,
@@ -64,6 +68,25 @@ export function measureGreenTabProfileRgba(
   return { l2Score, seg1, seg2, seg3, maxSeg: Math.max(seg1, seg2, seg3) };
 }
 
+/** 練習パートナー登録（緑横長ボタン）をタブ行と誤検出しないよう除外 */
+export function isPartnerGreenRegisterBand(
+  ratio: number,
+  profile: Pick<GreenTabProfile, "seg1" | "seg2" | "seg3">
+): boolean {
+  if (
+    ratio < STITCH_PARTNER_GREEN_EXCLUDE_RATIO_START ||
+    ratio > STITCH_PARTNER_GREEN_EXCLUDE_RATIO_END
+  ) {
+    return false;
+  }
+  const minSeg = Math.min(profile.seg1, profile.seg2, profile.seg3);
+  const maxSeg = Math.max(profile.seg1, profile.seg2, profile.seg3);
+  return (
+    minSeg >= STITCH_PARTNER_GREEN_UNIFORM_MIN_SEG &&
+    maxSeg - minSeg <= STITCH_PARTNER_GREEN_UNIFORM_MAX_SPREAD
+  );
+}
+
 /** 緑プロファイルでタブ行を走査 */
 export function scanGreenTabRowRgba(
   img: RgbaImage,
@@ -88,6 +111,7 @@ export function scanGreenTabRowRgba(
     if (tabY + Math.floor(cropHeight * STITCH_TAB_ROW_HEIGHT_RATIO) >= cropHeight) continue;
 
     const p = measureGreenTabProfileRgba(img, tabY);
+    if (isPartnerGreenRegisterBand(ratio, p)) continue;
 
     if (mode === "l2") {
       if (p.l2Score < minL2Score) continue;

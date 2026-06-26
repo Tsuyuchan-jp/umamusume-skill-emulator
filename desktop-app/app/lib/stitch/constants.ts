@@ -60,6 +60,13 @@ export const STITCH_PARTNER_BTN_MIN_WIDTH_RATIO = 0.45;
 export const STITCH_PARTNER_BTN_BRIGHTNESS = 210;
 export const STITCH_PARTNER_BTN_MAX_ROW_RATIO = 0.045;
 
+/** 緑タブ走査から除外する練習パートナー登録ボタン帯（FRD L3+Btn・タブ行 0.47 より上） */
+export const STITCH_PARTNER_GREEN_EXCLUDE_RATIO_START = 0.385;
+export const STITCH_PARTNER_GREEN_EXCLUDE_RATIO_END = 0.455;
+/** 3 分割がともに緑＝横一色の登録ボタンとみなす */
+export const STITCH_PARTNER_GREEN_UNIFORM_MIN_SEG = 0.35;
+export const STITCH_PARTNER_GREEN_UNIFORM_MAX_SPREAD = 0.12;
+
 /** 最終フォールバック（レイアウト別固定比率） */
 export const STITCH_HEADER_HEIGHT_L2 = 0.5;
 export const STITCH_HEADER_HEIGHT_L3 = 0.16;

@@ -35,6 +35,11 @@ const TAB_ROW_HEIGHT_RATIO: f32 = 0.035;
 const TAB_BOTTOM_MARGIN_RATIO: f32 = 0.012;
 const L2_GREEN_SCORE_MIN: f32 = 0.45;
 const L3_GREEN_SEG_MIN: f32 = 0.15;
+/// 緑タブ走査から除外する練習パートナー登録ボタン帯（constants.ts 正本と同期）
+const PARTNER_GREEN_EXCLUDE_RATIO_START: f32 = 0.385;
+const PARTNER_GREEN_EXCLUDE_RATIO_END: f32 = 0.455;
+const PARTNER_GREEN_UNIFORM_MIN_SEG: f32 = 0.35;
+const PARTNER_GREEN_UNIFORM_MAX_SPREAD: f32 = 0.12;
 
 /// CropRect（findCropBounds 同系・frame 座標系）
 struct CropRect {
@@ -656,6 +661,17 @@ fn measure_green_tab_profile(
     }
 }
 
+/// 練習パートナー登録（緑横長ボタン）— tabDetectCore isPartnerGreenRegisterBand 同系
+fn is_partner_green_register_band(ratio: f32, profile: &GreenTabProfile) -> bool {
+    if ratio < PARTNER_GREEN_EXCLUDE_RATIO_START || ratio > PARTNER_GREEN_EXCLUDE_RATIO_END {
+        return false;
+    }
+    let min_seg = profile.seg1.min(profile.seg2).min(profile.seg3);
+    let max_seg = profile.seg1.max(profile.seg2).max(profile.seg3);
+    min_seg >= PARTNER_GREEN_UNIFORM_MIN_SEG
+        && max_seg - min_seg <= PARTNER_GREEN_UNIFORM_MAX_SPREAD
+}
+
 /// frame0 のみ・緑タブ走査 0.28–0.54（regionsCore detectScrollStartByGreenTab 同系）
 fn estimate_scroll_start_y_green_tab(frame: &image::RgbImage, crop: &CropRect) -> Option<u32> {
     let crop_h = crop.height;
@@ -674,6 +690,11 @@ fn estimate_scroll_start_y_green_tab(frame: &image::RgbImage, crop: &CropRect) -
         }
 
         let profile = measure_green_tab_profile(frame, crop, tab_y, tab_h);
+        if is_partner_green_register_band(ratio, &profile) {
+            ratio += GREEN_TAB_SCAN_STEP;
+            continue;
+        }
+
         let l3_score = profile.seg1.max(profile.seg2).max(profile.seg3);
 
         let l2_ok = profile.l2_score >= L2_GREEN_SCORE_MIN;

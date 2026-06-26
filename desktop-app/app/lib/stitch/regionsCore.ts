@@ -17,6 +17,7 @@ import {
   type StitchLayout,
 } from "./constants";
 import { isTabGreenHsv, rgbToHsv, type RgbaImage } from "./rgba";
+import { isPartnerGreenRegisterBand } from "./tabDetectCore";
 import type { ScrollStartResult } from "./types";
 
 /** frame0↔1 の absdiff で scrollStartY を検出（走査起点 = crop 上端） */
@@ -439,6 +440,11 @@ function detectScrollStartByGreenTab(
     if (tabY + tabH >= cropHeight) continue;
 
     const l2 = measureGreenTabProfile(frame0, cropWidth, tabY, tabH, cropHeight);
+    if (isPartnerGreenRegisterBand(ratio, l2)) {
+      ratio += STITCH_TAB_ROW_Y_SCAN_STEP;
+      continue;
+    }
+
     const l3Score = Math.max(l2.seg1, l2.seg2, l2.seg3);
 
     const l2Ok = l2.l2Score >= STITCH_L2_GREEN_SCORE_MIN;
