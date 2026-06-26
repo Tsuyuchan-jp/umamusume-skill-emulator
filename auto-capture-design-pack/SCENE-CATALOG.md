@@ -10,7 +10,8 @@
 
 | 列 | 意味 |
 |----|------|
-| golden | `auto-capture-design-pack/golden/` にフレーム PNG あり |
+| goldenPath | `auto-capture-design-pack/` からの相対パス（目標）。未収録は `—` |
+| expectations | `yes`（case あり）/ `no`（未登録）/ `R4`（スコープ外） |
 | 実機 Step | [`REQ-stitch-rewrite.md`](../docs/tasks/REQ-stitch-rewrite.md) 検証 Step |
 | 状態 | `ok` / `ng` / `欠落`（PNG 未収録）/ `要再検証` |
 
@@ -18,30 +19,37 @@
 
 ## シーン一覧
 
-| シーン ID | 経路 | タブ | partnerBand | layout 期待 | golden | 実機 Step | 状態 | 備考 |
-|-----------|------|------|-------------|-------------|--------|-----------|------|------|
-| G-HOF-S | HOF | Skill | absent | L3 | yes | 1 | ok | scrollStart≈0.44 |
-| G-HOF-F | HOF | 因子/継承 | absent | L3 | yes | 5 | ok | `golden/HOF/factor/frame_000.png` |
-| G-TRN | TRN | Skill | absent | L2 | yes | 3 | ok | tabY≈0.47 |
-| G-CMP-S | CMP | Skill | absent | L3 | yes | 2 skip | ok | `golden/CMP/skill/frame_000.png` |
-| G-FRD-S-release | FRD | Skill | **release**（灰・解除） | L3+Btn | yes | 4 | **ng** | アーモンドアイ: absdiff scrollStart≈0.29 誤検出。アストンマーチャン: ok |
-| G-FRD-S-register | FRD | Skill | **register**（緑・登録） | L3+Btn | **no** | 4 | **ng** | キタサンブラック等。Rust wheel=-4, tabY≈0.44 誤検出。**Catalog 欠落が主因** |
-| G-FRD-F | FRD | 因子 | release/absent | L3+Btn | yes | 6 | 要再検証 | R3.5d 狭帯 -3 後 |
-| G-FRD-I | FRD | 育成情報 | — | — | no | — | 欠落 | R4 スコープ |
+| シーン ID | 経路 | タブ | partnerBand | layout 期待 | goldenPath | expectations | 実機 Step | 状態 | 備考 |
+|-----------|------|------|-------------|-------------|------------|--------------|-----------|------|------|
+| G-HOF-S | HOF | Skill | absent | L3 | `golden/HOF/skill/frame_000.png` | yes | 1 | ok | scrollStart≈0.44 |
+| G-HOF-F | HOF | 因子/継承 | absent | L3 | `golden/HOF/factor/frame_000.png` | yes | 5 | ok | |
+| G-TRN | TRN | Skill | absent | L2 | `golden/TRN/frame_000.png` | yes | 3 | ok | tabY≈0.47 |
+| G-CMP-S | CMP | Skill | absent | L3 | `golden/CMP/skill/frame_000.png` | yes | 2 skip | ok | |
+| G-FRD-S-release | FRD | Skill | **release**（灰・解除） | L3+Btn | `golden/FRD/skill/frame_000.png` | yes | 4 | **ng** | アーモンドアイ: absdiff scrollStart≈0.29 誤検出。アストンマーチャン: ok |
+| G-FRD-S-register | FRD | Skill | **register**（緑・登録） | L3+Btn | `golden/FRD/skill-register/frame_000.png` | no | 4 | **欠落** | キタサンブラック等。Rust wheel=-4, tabY≈0.44 誤検出。**PNG 未収録が主因** |
+| G-FRD-F | FRD | 因子 | release/absent | L3+Btn | `golden/FRD/factor/frame_000.png` | yes | 6 | 要再検証 | R3.5d 狭帯 -3 後 |
+| G-FRD-I | FRD | 育成情報 | — | — | — | R4 | — | 欠落 | R4 スコープ・golden 不要 |
 
 ---
 
-## 欠落シーン（M1 収集タスク）
+## expectations ↔ Catalog 対応
 
-優先度順。**golden PNG** を追加してから expectations 化する。実機ログはチャット報告（[`PACK-GUIDE.md`](PACK-GUIDE.md)）。
+`tools/stitch-golden/expectations.json` の `cases[].id` と Catalog 行の対応。パスはいずれも **designPackRoot 相対**。
 
-| 優先 | シーン ID | 収集物 | 担当 Phase |
-|------|-----------|--------|-----------|
-| P0 | **G-FRD-S-register** | `golden/FRD/skill-register/frame_000.png` | M1 → M3 |
-| P1 | G-FRD-S-release（アーモンドアイ NG 再現） | f000+f001 を golden へ | M1 → M3 |
-| P2 | G-FRD-I | R4 着手時 | — |
+| Catalog シーン ID | expectations `cases[].id` | goldenPath（現状） | 整合 |
+|-------------------|---------------------------|-------------------|------|
+| G-HOF-S | G-HOF-S | `golden/HOF/skill/frame_000.png` | 一致 |
+| G-HOF-F | G-HOF-F | `golden/HOF/factor/frame_000.png` | 一致 |
+| G-TRN | G-TRN | `golden/TRN/frame_000.png` | 一致 |
+| G-CMP-S | G-CMP-S | `golden/CMP/skill/frame_000.png` | 一致 |
+| G-FRD-S-release | **G-FRD-S** | `golden/FRD/skill/frame_000.png` | **ID 不一致** — Phase B で expectations を `G-FRD-S-release` にリネーム、`golden/FRD/skill-release/` へ移行予定 |
+| G-FRD-S-register | （なし） | — | Phase C で case 追加予定 |
+| G-FRD-F | G-FRD-F | `golden/FRD/factor/frame_000.png` | 一致 |
+| G-FRD-I | — | — | R4 スコープ外 |
 
-### G-FRD-S-register 収集手順（ユーザー / 検証チャット）
+---
+
+## G-FRD-S-register 収集手順（ユーザー / 検証チャット）
 
 1. FRD スキル画面で **緑の「登録」ボタン**が見える状態（キタサンブラック等）
 2. 手動でスキルタブを開いた状態でオートキャプチャ 1 回
@@ -50,16 +58,24 @@
 
 ---
 
-## シーン別期待値メモ（M2 で expectations に移行）
+## NG サブケース期待値メモ（expectations 未登録分のみ）
 
-比率は **crop 基準**。帯は Scene Spec 名で管理（閾値は計測で更新）。
+比率は **crop 基準**。登録済みシーンの数値帯は → [`expectations.json`](../tools/stitch-golden/expectations.json) 参照。M2 で Scene Spec 名付き帯へ移行。
 
-| シーン ID | tabRowRatio | scrollStartRatio | scrollRegionH | wheel |
-|-----------|-------------|------------------|---------------|-------|
-| G-FRD-S-release（ok 例） | 0.46–0.48 | 0.52–0.56 | ≈275 | -3 |
-| G-FRD-S-register（期待） | 0.46–0.48（**0.44 は NG**） | 0.52–0.56 | ≈275 | -3 |
-| G-FRD-S-release（アーモンドアイ NG） | ≈0.47 | **0.29 は NG** | ≈275 | -3 |
-| G-HOF-S / G-TRN | 各 golden 参照 | 各 golden 参照 | ≥280 | -4 |
+| シーン ID | 事象 | tabRowRatio | scrollStartRatio | wheel |
+|-----------|------|-------------|------------------|-------|
+| G-FRD-S-register | キタサンブラック等（期待） | 0.46–0.48（**0.44 は NG**） | 0.52–0.56 | **-3**（**-4 は NG**） |
+| G-FRD-S-release | アーモンドアイ absdiff 誤検出 | ≈0.47 | **0.29 は NG**（期待 0.52–0.56） | -3 |
+
+---
+
+## Phase 境界（この Catalog 更新のスコープ）
+
+| Phase | 内容 | 本ファイルでの扱い |
+|-------|------|-------------------|
+| **A（完了）** | Catalog 正本化 — goldenPath・expectations 列、節統合 | 本更新 |
+| **B** | `G-FRD-S` → `G-FRD-S-release` リネーム、`golden/FRD/skill/` → `skill-release/` | 上表「整合」列参照 |
+| **C** | `G-FRD-S-register` の PNG 収録 + expectations case 追加 | 収集手順節参照 |
 
 ---
 
@@ -67,6 +83,6 @@
 
 1. 実機 NG を発見したら **新規シーン行を追加**（既存行の上書きだけにしない）
 2. `measure-regions.ps1` 出力で ratio を更新したら **日時**を決定ログ（REQ-stitch-scene-model）へ
-3. golden PNG を追加したら「golden」列を `yes` に
+3. golden PNG を追加したら `goldenPath` を実パスに更新し、`状態` を `ok` / `ng` / `要再検証` へ
 
-最終更新: 2026-06-27 05:12
+最終更新: 2026-06-27 05:24

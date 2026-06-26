@@ -178,6 +178,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\stitch-golden\measure-
 | 2026-06-27 04:11 | stitch 実装と **方法論 REQ を sibling 分離** | R3.5d を止めず、Catalog/検出器統一を並行ロードマップ化 |
 | 2026-06-27 04:11 | 着手条件: Catalog 未登録シーンは計測 Phase 先行 | golden 18/18 でも実機 NG（登録ボタン）の再発防止 |
 | 2026-06-27 04:11 | M0 完了 — REQ・SCENE-CATALOG・TODO/INDEX 同期 | ロードマップ正本をリポジトリに固定 |
+| 2026-06-27 05:24 | **M1 Phase A 完了** — SCENE-CATALOG に `goldenPath`・`expectations` 列、expectations 対応表、欠落表吸収、NG サブケースのみ残存、PACK-GUIDE 同期 | Catalog を正本化してから Phase B（golden/expectations リネーム）・Phase C（register case）へ |
 
 ---
 

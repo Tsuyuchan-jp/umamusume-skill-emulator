@@ -3,7 +3,7 @@
 > **オートキャプチャ結合の素材で迷ったらまずこのファイル。**
 > プロジェクト docs: [`docs/DOCS-GUIDE.md`](../docs/DOCS-GUIDE.md)
 
-最終更新: 2026-06-27 05:12
+最終更新: 2026-06-27 05:24
 
 ---
 
@@ -27,7 +27,7 @@
 
 | パス | 役割 |
 |------|------|
-| [`SCENE-CATALOG.md`](SCENE-CATALOG.md) | シーン ID・layout・partnerBand・実機状態の正本 |
+| [`SCENE-CATALOG.md`](SCENE-CATALOG.md) | シーン ID・layout・partnerBand・`goldenPath`・expectations 対応・実機状態の正本 |
 | [`golden/`](golden/) | オートキャプチャ生フレーム PNG（Vitest 入力） |
 | [`../tools/stitch-golden/expectations.json`](../tools/stitch-golden/expectations.json) | scrollStartRatio 等の数値期待値 |
 
@@ -47,9 +47,9 @@ golden/{経路}/{タブ}/frame_{NNN}.png
 | `golden/HOF/factor/frame_000.png` | G-HOF-F |
 | `golden/CMP/skill/frame_000.png` | G-CMP-S |
 | `golden/TRN/frame_000.png` | G-TRN |
-| `golden/FRD/skill/frame_000.png` | G-FRD-S（release/register 分割前） |
+| `golden/FRD/skill/frame_000.png` | G-FRD-S-release（Phase B で `skill-release/` へ移行予定） |
 | `golden/FRD/factor/frame_000.png` | G-FRD-F |
-| `golden/FRD/skill-register/frame_000.png` | G-FRD-S-register（M1 以降） |
+| `golden/FRD/skill-register/frame_000.png` | G-FRD-S-register（未収録。Catalog `goldenPath` 参照） |
 
 - 3 桁ゼロ埋め（`frame_000` 始まり）
 - `expectations.json` の `framePaths` は **designPackRoot からの相対パス**

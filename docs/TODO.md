@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-27 05:12
+最終更新: 2026-06-27 05:25
 
 ---
 
@@ -155,6 +155,7 @@
 
 ## 完了済み
 
+- [x] **Scene Model Catalog Phase A** — SCENE-CATALOG に goldenPath・expectations 列・対応表、欠落表吸収、NG サブケース整理、PACK-GUIDE 同期（2026-06-27 05:24 / コミット後記入）/ [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md) M1 Phase A
 - [x] **design-pack 整理** — logs/screenshots 削除・Vitest 参照 PNG を golden/ へ統合・PACK-GUIDE 2層化（2026-06-27 05:12 / `23cac9f`）
 - [x] **design-pack P0** — PACK-GUIDE 新設・README 案内板化・DOCS-GUIDE リンク（2026-06-27 04:48 / `11a6879`）/ [`PACK-GUIDE.md`](../auto-capture-design-pack/PACK-GUIDE.md)
 - [x] **オートキャプチャ結合 R3.5d 実装**（d-2〜d-4: frame0 帯推定・狭帯 -3 / 広帯 -4・FRD golden）— golden 18/18 PASS（2026-06-27 02:41 / `139c14e`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) — **d-5 実機はユーザー確認待ち**
