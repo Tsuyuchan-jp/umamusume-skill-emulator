@@ -96,7 +96,8 @@ interface StitchReport {
 |-------|------|------|
 | **R0** | REQ・golden 期待値・計測 CLI（`tools/stitch-golden/`） | **done** |
 | **R1** | `regions.ts`（absdiff 主経路）+ 旧 API 内部差替 | **done** |
-| **R2** | layout / tabDetect 整理・走査帯魔術削除 | **done**（G-FRD-S scrollStart は下記ログ参照） |
+| **R2** | layout / tabDetect 整理・走査帯魔術削除 | **done**（`47d5755`）。scrollStart 残 → **R2 残** |
+| **R2 残** | G-FRD-S scrollStart — `regionsCore` absdiff / scrollAmount（案A） | **承認済み・未着手** |
 | **R3** | compose 簡素化・旧 scrollMats 全貼り廃止 | draft |
 | **R4** | postProcess 分離・TrainingInfo 別パス（旧 S-6） | draft |
 | **R5** | `opencvStitcher.ts` 削除・REQ done | draft |
@@ -113,7 +114,7 @@ interface StitchReport {
 | G-HOF-F | HOF factor S0 | L3 | 0.36–0.51 | 計測 **0.495**（継承タブやや下） |
 | G-TRN | golden/TRN 4枚 | L2 | 0.48–0.54 | 計測 **0.515**（877 crop）。実機 464/900≈0.516 と整合 |
 | G-CMP-S | CMP skill S0 | L3 | 0.36–0.44 | |
-| G-FRD-S | FRD skill golden | L3+Btn | 0.46–0.52 | 下段タブ（R2 ゲート） |
+| G-FRD-S | FRD skill golden | L3+Btn | 0.46–0.52 | f000+f001。R2: layout/tabRow PASS。scrollStart: absdiff 失敗時 green-tab ≈0.545（目視 ≈0.55）。**期待帯と目視の差は R2 残で整合** |
 | G-FRD-F | FRD factor golden | L3+Btn | 0.46–0.52 | 練習パートナー解除帯 |
 
 正本 JSON: [`tools/stitch-golden/expectations.json`](../../tools/stitch-golden/expectations.json)
@@ -142,7 +143,7 @@ interface StitchReport {
 | Phase | ファイル |
 |-------|---------|
 | R0 | `tools/stitch-golden/*`, `docs/tasks/REQ-stitch-rewrite.md`, `docs/TODO.md`, `docs/tasks/INDEX.md` |
-| R1+ | `desktop-app/app/lib/stitch/**`, `desktop-app/app/lib/opencvStitcher.ts`（薄い re-export → 削除） |
+| R1+ | `desktop-app/app/lib/stitch/**`（R2 残は `regionsCore.ts` 中心）, `opencvStitcher.ts`（re-export） |
 | R1+ | `desktop-app/app/hooks/useCapture.ts`（StitchReport ログ任意） |
 
 ---
@@ -151,7 +152,8 @@ interface StitchReport {
 
 - [x] R0: golden 期待値 JSON + 計測 CLI + Vitest スモーク
 - [x] R1: G-TRN + G-HOF-S golden 合格（scrollStartRatio が期待帯内）
-- [x] R2: G-CMP-S golden 合格（layout hard + tabRow + scrollStart）。G-FRD-S layout/tabRow 合格・scrollStart は absdiff 未検出（既知）
+- [x] R2: G-CMP-S golden 合格（layout hard + tabRow + scrollStart）。G-FRD-S layout/tabRow 合格
+- [ ] R2 残: G-FRD-S scrollStartRatio 合格（absdiff 主経路 or 承認済み regionsCore 修正）
 - [ ] R3: stitched-OK 退行なし（目視 + SSIM 任意）
 - [ ] R4: TrainingInfo 別パス（G-FRD-I）
 - [ ] R5: `opencvStitcher.ts` 削除、親 REQ Phase 3 検証クローズ、TODO/INDEX 更新
@@ -188,10 +190,48 @@ npm run stitch:golden
 
 ---
 
+---
+
+## R2 残: G-FRD-S scrollStart（調査メモ）
+
+### 現象（R2 完了時点 `47d5755`）
+
+| 項目 | 結果 |
+|------|------|
+| G-FRD-S layout | L3+Btn PASS |
+| G-FRD-S tabRowRatio | PASS（partner 帯下タブ走査） |
+| G-FRD-S scrollStartRatio | **FAIL** — method=`green-tab`、ratio≈**0.545** |
+| absdiff 主経路 | golden `frame_000`+`frame_001` で静止境界未検出（scrollStartY=0 等） |
+| `estimateScrollAmount` | golden 上 ≈26px（実機ログ frame0→1 は ≈133px） |
+
+### ユーザー観察（2026-06-26）
+
+- FRD スキル画面: スクロール開始境界は **モーダル上端から目測 ≈0.55**
+- green-tab 副経路 ≈0.545 は **目視と整合**（副経路はおおむね成功）
+- **問題は absdiff 主経路が動いていないこと** → 案A（regionsCore 改善）で対応承認
+
+### 期待帯との関係
+
+- `expectations.json` G-FRD-S: scrollStartRatio **0.46–0.52**（R0 計測由来）
+- 目視 / green-tab: **≈0.55**
+- 着手時に **absdiff 修正後の計測値**で期待帯を維持するか **0.52–0.56 付近へ更新**するかを決定（変更時は `expectations.json` + `measure-regions.ps1` 監査とセット）
+
+### 承認済み方針（案A）
+
+1. **フレーム選定は変更しない** — `golden/FRD/skill/frame_000.png` + `frame_001.png` 固定
+2. **`regionsCore.ts`** — `estimateScrollAmount` 改善 and/or absdiff 前処理（本番 `opencvStitcher` S-4 absdiff scroll フォールバックと整合を検討）
+3. **副経路（green-tab）** — 目視 OK のため主目的ではない。主経路修正後もフォールバックとして維持
+4. **退行防止** — G-TRN / G-HOF-S scrollStart ゲート必須
+5. **R2 成果物は維持** — `layout*` / `tabDetect*` / 走査帯定数は変更しない（scrollStart 決定に layout/tabRow を使わない不変条件も維持）
+
+---
+
 ## 決定事項ログ
 
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
+| 2026-06-26 18:19 | **R2 残: 案A 承認** | G-FRD-S scrollStart は green-tab≈0.545（目視≈0.55）で副経路は妥当。absdiff 主経路未動作が問題。`regionsCore` 改善で対応。f001 固定維持 |
+| 2026-06-26 18:19 | **期待帯 0.46–0.52 vs 目視≈0.55** | 着手チャットで absdiff 修正後の計測を正本に期待帯を維持 or 更新を決定 |
 | 2026-06-26 08:13 | **REQ 起票・R0 着手** | 監査で 16%≠目視境界を確認。パッチ積み上げ限界 |
 | 2026-06-26 08:13 | **scrollStartY を absdiff 主経路に** | レイアウト非依存・HOF/TRN 共通 |
 | 2026-06-26 18:07 | **R2 実装完了（layout/tabDetect）** | 走査帯 0.28–0.48/0.52/0.38–0.54 正本化・8–16% 廃止・G-CMP-S PASS。G-FRD-S: layout L3+Btn + tabRow PASS、scrollStart は golden f000/f001 で absdiff 静止境界未検出→green-tab 0.545（期待帯外）。regionsCore 変更は R2 スコープ外のため別途要承認 |
@@ -202,31 +242,63 @@ npm run stitch:golden
 
 ## 実装チャット用プロンプト（新チャット先頭に貼る）
 
+### R2 残: G-FRD-S scrollStart（regionsCore・案A）
+
+```
+@docs/PROJECT.md
+@docs/TODO.md
+@docs/tasks/REQ-stitch-rewrite.md
+
+## チャット種別
+実装（Agent mode）
+
+## 背景
+REQ-stitch-rewrite **R2 残**。R2 layout/tabDetect は完了（`47d5755`）。
+G-FRD-S: layout L3+Btn + tabRow PASS。**scrollStart のみ FAIL**。
+
+## 承認済み方針（案A）
+- `regionsCore.ts` で scrollAmount 推定 / absdiff 主経路を改善（FRD golden 向け）
+- フレーム選定は変更しない: `golden/FRD/skill/frame_000.png` + `frame_001.png`
+- layout / tabDetect（R2）は触らない。scrollStart 決定に layout/tabRow を使わない不変条件維持
+- 副経路 green-tab ≈0.545 は目視≈0.55 と整合 → 主目的は absdiff 主経路の復活
+
+## 調査済み事実
+- absdiff: f000+f001 で静止境界未検出 → green-tab フォールバック
+- `estimateScrollAmount` ≈26px（実機ログ ≈133px）
+- golden 期待帯 scrollStartRatio: 0.46–0.52（expectations.json）
+- ユーザー目視: 境界 ≈0.55 → 期待帯との差は実装後計測で維持 or 更新を決定ログに記録
+
+## 着手時
+- TODO Backlog「G-FRD-S scrollStart」→ 進行中（1件）、フォーカス・最終更新（Get-Date）
+- 最初のコミットに TODO 含める
+
+## スコープ
+1. `stitch/regionsCore.ts` — estimateScrollAmount 改善、必要なら absdiff 前処理（opencvStitcher S-4 整合検討）
+2. `golden.test.ts` — G-FRD-S scrollStart 合格
+3. REQ 決定ログ・R2 残 Phase 完了更新
+
+## 触らない
+- `layout.ts` / `layoutCore.ts` / `tabDetect*` / `constants.ts` 走査帯
+- `compose.ts` / `capture.rs` / `geminiOcr.ts`
+- `USE_STITCH_V2`（false 維持）
+
+## 完了条件
+- [ ] G-FRD-S: scrollStartRatio∈[0.46,0.52]（または決定ログで更新した帯内）、method=absdiff 優先
+- [ ] G-TRN / G-HOF-S scrollStart 退行なし
+- [ ] G-FRD-S layout/tabRow 退行なし（R2 ゲート維持）
+- [ ] `npm run stitch:golden` 全 PASS
+- [ ] TODO 完了・REQ R2 残 done・コミット（push しない）
+
+## 検証
+cd desktop-app
+npm run stitch:golden
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\stitch-golden\measure-regions.ps1 -CaseId G-FRD-S
+```
+
+### （参考・旧 R1 プロンプト）
+
 ```
 ## タスク
 REQ-stitch-rewrite Phase R1: scrollStartY 正本パイプライン
-
-## 正本
-- docs/tasks/REQ-stitch-rewrite.md
-- docs/TODO.md Backlog（R1 次チャット）
-- tools/stitch-golden/expectations.json
-
-## 前提（監査済み）
-- HOF scrollStart ≈ crop 38–43%（旧 Header 144px/16% は目視境界ではない）
-- TRN scrollStart ≈ 48–54%（G-TRN OK / 0887fcd）
-- 現 opencvStitcher.ts は scrollMats[0] 全貼りで HOF が偶然動いている
-
-## R1 スコープ
-1. desktop-app/app/lib/stitch/regions.ts — frame0↔1 absdiff で scrollStartY
-2. stitch/stitch.ts オーケストレータ（compose は旧ロジック暫定流用可）
-3. opencvStitcher.ts から re-export（USE_STITCH_V2 flag 任意）
-4. tools/stitch-golden + npm run stitch:golden で G-TRN / G-HOF-S 期待帯確認
-
-## 触らない
-- capture.rs, geminiOcr.ts
-
-## 完了
-- G-TRN golden scrollStartRatio 合格
-- G-HOF-S golden scrollStartRatio 合格（0.36–0.44）
-- TODO / REQ 決定ログ更新 + コミット
+…（R1 完了済み）
 ```
