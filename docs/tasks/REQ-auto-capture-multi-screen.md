@@ -24,7 +24,7 @@
 |----|------|
 | **キャプチャ（`capture.rs`）** | **Generic 1本で全経路カバー済み**（設計パック全 Rust ログで末端到達）。経路別4プロファイル分岐は **Phase 1 では不要** |
 | **結合（`opencvStitcher.ts`）** | **本バグの所在**。TRN/FRD 等で NG。HOF/CMP は OK |
-| **TRN** | キャプチャ正常。Phase 1 実機 OK（`0887fcd`・**-5・旧パイプライン**）。**v2 + -4 は stitch R3.5c で再クローズ** |
+| **TRN** | キャプチャ正常。Phase 1 実機 OK（`0887fcd`・-5 旧）。**v2 + -4 実機 OK**（R3.5c `23ebab7`） |
 
 ### 方針決定（F-1〜F-5）
 
@@ -111,7 +111,7 @@
 | **1** | 結合修正 S-1〜S-5（`opencvStitcher.ts`） | **done** |
 | **1b** | 育成情報タブ S-6 | draft |
 | **2** | キャプチャ最小分岐（必要時のみ FactorScroll）・UI ヒント | draft |
-| **3** | 実機検証・フルスクリーン最小・docs クローズ | draft — **stitch [`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md) R3.5c-5 で本 REQ Phase 3 をクローズ** |
+| **3** | 実機検証・フルスクリーン最小・docs クローズ | draft — **stitch [`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md) R3.5d-5 で本 REQ Phase 3 をクローズ** |
 
 ---
 
@@ -162,7 +162,7 @@
 
 ## 検証手順（正本）
 
-> **Capture–Stitch 契約**（ホイール -4・shift 帯・実機 Step）は [`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md)「Capture–Stitch 契約」節が正本。本 REQ は経路別の合格イメージのみ。
+> **Capture–Stitch 契約**（**広帯 -4 / 狭帯 -3**・shift 帯・実機 Step）は [`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md)「Capture–Stitch 契約」節が正本。本 REQ は経路別の合格イメージのみ。
 
 **共通**: 対象タブを開く → オートキャプチャ → 結合プレビュー → 目視（＋任意 OCR）。
 
@@ -170,7 +170,7 @@
 
 | ID | データ | 合格 | 状態 |
 |----|--------|------|------|
-| G-TRN | `golden/TRN/` 4枚 + memo | スキル全行・タブ上右端非崩壊 | Phase 1 OK（2026-06-26・**-5 旧**）。**v2/-4 未クローズ** → stitch R3.5c |
+| G-TRN | `golden/TRN/` 4枚 + memo | スキル全行・タブ上右端非崩壊 | **v2/-4 実機 OK**（2026-06-27） |
 | G-HOF-S | `golden/` または実機 skill | stitched-OK 同等 | 未 |
 | G-HOF-F | HOF factor | 継承履歴手前・緑クロップ | 未 |
 | G-FRD-S | `golden/FRD/skill/` | NG→OK | 未 |
@@ -194,8 +194,8 @@
 | L2 header 比率のずれ | `tools/measure-stitch-layout.ps1` で計測・タブ行から動的算出 |
 | TrainingInfo はレイアウトが別 | Phase 1b で S-6 を分離 |
 | ウィンドウサイズ可変（F-5） | 比率ベース。ピクセル固定しない |
-| ホイール回数 | **正本 -4**（[`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md) Capture–Stitch 契約）。Phase 1 は -5 |
-| `capture.rs` 変更 | Phase 1 では結合のみ。ホイール定数は stitch R3.5c で正本化 |
+| ホイール回数 | **広帯 -4 / 狭帯 -3**（[`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md) R3.5d）。Phase 1 は -5 |
+| `capture.rs` 変更 | R3.5d: frame0 帯推定・ホイール 2 段 |
 
 ---
 
@@ -203,6 +203,7 @@
 
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
+| 2026-06-27 02:32 | **Phase 3 クローズは stitch R3.5d-5 に委譲** | HOF/TRN 実機 OK。FRD NG → 狭帯 -3（frame0 推定）。契約は stitch REQ に集約 |
 | 2026-06-27 01:01 | **Phase 3 クローズは stitch R3.5c-5 に委譲** | Capture–Stitch 契約（ホイール -4 等）は [`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md) に集約 |
 | 2026-06-25 07:25 | REQ 起票 | ユーザー要望 |
 | 2026-06-26 06:03 | **D1 完了・設計確定** | 設計パック分析。キャプチャ Generic 十分・結合が本丸 |

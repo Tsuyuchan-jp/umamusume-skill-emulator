@@ -88,8 +88,8 @@
 
 | REQ | ステータス | TODO掲載 | 備考 |
 |-----|-----------|---------|------|
-| [`REQ-auto-capture-multi-screen.md`](REQ-auto-capture-multi-screen.md) | draft | Backlog | Phase 1 done。Phase 3 は **stitch R3.5c-5** でクローズ予定 |
-| [`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md) | in-progress | Backlog R3.5c | R0–R3.5b **done**。R3.5c docs 確定・**-4 正本**・実装 c-2〜待ち |
+| [`REQ-auto-capture-multi-screen.md`](REQ-auto-capture-multi-screen.md) | draft | Backlog | Phase 1 done。Phase 3 は **stitch R3.5d-5** でクローズ予定 |
+| [`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md) | in-progress | Backlog **R3.5d** | R0–R3.5c **done**。R3.5d docs 確定・**狭帯 -3 / 広帯 -4** 実装待ち |
 
 ---
 

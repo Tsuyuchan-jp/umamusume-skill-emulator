@@ -1,7 +1,7 @@
 # stitch モジュール（リライト中）
 
 設計正本: [`docs/tasks/REQ-stitch-rewrite.md`](../../../../docs/tasks/REQ-stitch-rewrite.md)  
-キャプチャ正本: [`capture.rs`](../../../src-tauri/src/capture.rs) の `AUTO_SCROLL_WHEEL_CLICKS`（**-4**）。契約は REQ「Capture–Stitch 契約」節。
+キャプチャ正本: [`capture.rs`](../../../src-tauri/src/capture.rs) — **広帯 -4 / 狭帯 -3**（R3.5d・`scrollRegionH` しきい値 280px）。契約は REQ「Capture–Stitch 契約」節。
 
 | Phase | 状態 |
 |-------|------|
@@ -11,7 +11,8 @@
 | R3 | `compose.ts` / `scrollMatch.ts`・`stitch.ts`・V2 ON **done** |
 | R3.5a | `shiftEstimate*`（SSD + median）**done** |
 | R3.5b | layout L2 優先・tabDetect 2タブガード **done** |
-| **R3.5c** | **-4 正本・shift 末端・golden**（c-2〜c-4 done・c-5 実機待ち） |
+| R3.5c | -4・terminal・golden **done** |
+| **R3.5d** | **frame0 帯推定・狭帯 -3**（docs 確定・実装待ち） |
 | R4 | postProcess 分離・TrainingInfo |
 | R5 | `opencvStitcher.ts` 削除 |
 

@@ -4,13 +4,13 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-27 02:04
+最終更新: 2026-06-27 02:32
 
 ---
 
 ## 現在のフォーカス
 
-**P1** — オートキャプチャ結合 **R3.5c-5 実機検証**（Step 1/3/4/6）— c-2〜c-4 完了
+**P1** — オートキャプチャ結合 **R3.5d 実装**（frame0 帯推定・狭帯 -3 / 広帯 -4）— docs 確定済み
 
 ---
 
@@ -28,13 +28,14 @@
 
 ### P1 — 重要
 
-- [ ] **オートキャプチャ結合 R3.5c-5 実機検証**（Step 1 HOF / 3 TRN / 4 FRD-S / 6 FRD-F）
-  - 前提: c-2〜c-4 完了（golden 18/18 PASS）
-  - REQ: [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) R3.5c
-  - 参考ログ: `auto-capture-design-pack/logs/TRN-console-R3.5c-1.txt`
+- [ ] **オートキャプチャ結合 R3.5d 実装**（d-2〜d-5: Rust frame0 推定・ホイール 2 段・FRD golden・実機）
+  - 前提: R3.5c 完了（HOF-S/TRN/HOF-F 実機 OK・`23ebab7`）
+  - REQ: [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) R3.5d（**狭帯 -3 / 広帯 -4**・しきい値 280px）
+  - 実装プロンプト: 同 REQ 末尾「R3.5d 実装起票」
+  - 実機: Step 4 FRD-S / 6 FRD-F → Step 1 HOF-S / 3 TRN 退行確認
 
 - [ ] **オートキャプチャ結合リライト R4〜R5**（postProcess 分離・`opencvStitcher.ts` 削除）
-  - 前提: **R3.5c 完了後**
+  - 前提: **R3.5d 完了後**
   - REQ: [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 
 - [ ] **REQ-skill-data-fetch-fallback 実機検証クローズ（手順 3〜7）**
@@ -141,13 +142,14 @@
 
 ## 完了済み
 
-- [x] **オートキャプチャ結合 R3.5c 実装（c-2〜c-4）** — terminal 末端・狭帯重なりガード・golden 18/18 PASS（2026-06-27 01:49 / `8936945`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)（layout L2 優先・tabDetect 2タブガード）— golden 17/17 PASS（2026-06-27 00:02 / `5d98121`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
+- [x] **オートキャプチャ結合 R3.5c**（c-2〜c-5 一部 + 実機 HOF-S/TRN/HOF-F）— terminal・狭帯ガード・golden 18/18（2026-06-27 02:04 / `23ebab7`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
+- [x] **オートキャプチャ結合リライト R3.5b**（layout L2 優先・tabDetect 2タブガード）— golden 17/17 PASS（2026-06-27 00:02 / `5d98121`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 - [x] **オートキャプチャ結合リライト R3.5a**（shiftEstimate: SSD + median・scrollMatch 委譲）— golden 15/15 PASS（2026-06-26 23:12 / `76b3fc7`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 - [x] **オートキャプチャ結合リライト R3**（compose / scrollMatch・`USE_STITCH_V2=true`）— golden 12/12 PASS（2026-06-26 19:41 / `7fbf8b5`）。**実機**: HOF OK・FRD/TRN NG → R3.5 へ / [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 - [x] **オートキャプチャ結合リライト R2**（layout / tabDetect 整理・走査帯正本化）— G-CMP-S + G-FRD-S layout/tabRow PASS、G-FRD-S scrollStart 要フォロー（2026-06-26 18:07 / `47d5755`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 - [x] **オートキャプチャ結合リライト R1**（scrollStartY absdiff 正本・`USE_STITCH_V2`）— G-TRN/G-HOF-S golden PASS（2026-06-26 08:41 / `1df1860`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 - [x] **オートキャプチャ結合リライト R0（golden ハーネス）** — expectations.json・measure-regions.ps1・Vitest 5件 PASS・設計パック 6 golden PASS（2026-06-26 08:13 / `851d341`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
-- [x] **オートキャプチャ G-TRN 実機検証（Phase 1・旧パイプライン）** — L2/green-l2・Header 464px・scroll≈241・-5（2026-06-26 07:47 / `0887fcd`）。**v2 + -4 は R3.5c で再クローズ** / [`REQ-auto-capture-multi-screen.md`](tasks/REQ-auto-capture-multi-screen.md)
+- [x] **オートキャプチャ G-TRN 実機検証** — Phase 1（-5 旧 `0887fcd`）+ **v2/-4 実機 OK**（R3.5c `23ebab7`）/ [`REQ-auto-capture-multi-screen.md`](tasks/REQ-auto-capture-multi-screen.md)
 - [x] **オートキャプチャ Phase 1（結合修正 S-1〜S-5）** — StitchLayout/StitchTab・absdiff フォールバック・継承緑帯修正。`capture.rs` 未変更（2026-06-26 06:12 / `700d0b3`）/ [`REQ-auto-capture-multi-screen.md`](tasks/REQ-auto-capture-multi-screen.md) Phase 1 **done**
 - [x] **スキルデータ fetch フォールバック + シミュレーションエラー区別** — GitHub→AppData→同梱チェーン、`SkillDataFetchError`/`SimulationWorkerError` 区別、フォールバックトースト（2026-06-23 03:36 / `a5c04a0`）/ [`REQ-skill-data-fetch-fallback.md`](tasks/REQ-skill-data-fetch-fallback.md) **done**（実機検証: 手順 1〜2 OK、**3〜7 は Backlog 延期** 2026-06-25）
 - [x] **REQ 索引 INDEX.md 新設とロードマップ同期** — 全28件カタログ・`REQ-race-detail-graph.md` Phase 5 同期・`PROJECT.md` / rules 更新（2026-06-20 00:41 / `5d9dc0c`）
@@ -236,8 +238,8 @@
 ## 既知の問題・メモ
 
 - パレットのスキル一覧は **`umasimSkillDataList`（ローカル）正本** — `buildPaletteSkillOptions`。WASM sim は `fetchSkillData()`（GitHub 優先 → AppData → 同梱 `public/skill_data.txt`）
-- **オートキャプチャ Capture–Stitch 契約**: ホイール **-4 正本**（`capture.rs`）。狭い scroll 帯（TRN/FRD）では SSD 重なり不足が誤推定の主因。正本: [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)「Capture–Stitch 契約」
-- **オートキャプチャ結合 R3.5c-5**: Step1 HOF-S / Step3 TRN で末端 terminal が S* に上書き→重複。**fix: 短い実測シフトを採用**（`8936945` 後修正・再検証待ち）
+- **オートキャプチャ Capture–Stitch 契約**: **広帯 -4 / 狭帯 -3**（`scrollRegionH` しきい値 280px・R3.5d）。正本: [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)「Capture–Stitch 契約」
+- **オートキャプチャ結合 R3.5c**: HOF-S/TRN/HOF-F 実機 OK（`23ebab7`）。FRD-S/F は -4 で NG → R3.5d
 - **オートキャプチャ結合 R3.5b 完了**: layout L2 優先 + tabDetect 2タブガード。golden 17/17
 - **オートキャプチャ結合 R3.5 設計正本**: shiftEstimate（SSD + median）。詳細: [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) R3.5 節
 - **sim スキルデータ**: オンライン時 GitHub fetch + AppData キャッシュ。オフライン時は同梱/キャッシュで制限付き動作（フォールバック時トースト）
