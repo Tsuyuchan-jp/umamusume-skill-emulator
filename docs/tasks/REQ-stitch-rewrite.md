@@ -4,7 +4,7 @@
 > 親 REQ: [`REQ-auto-capture-multi-screen.md`](REQ-auto-capture-multi-screen.md)（Phase 1 パッチ完了・本 REQ で根本修正）。
 > 設計パック: [`auto-capture-design-pack/`](../../auto-capture-design-pack/)（golden / screenshots / logs）。
 
-- **ステータス**: in-progress（R0–R3 done・**R4 待ち**）
+- **ステータス**: in-progress（R0–R3 done・**R3.5 設計レビュー待ち**・R4 待ち）
 - **作成日**: 2026-06-26 08:13
 - **関連コミット**: `b01ceb3`（R2 残 scrollStart）、`47d5755`（R2 layout）、`1df1860`（R1）
 
@@ -98,6 +98,9 @@ interface StitchReport {
 | **R1** | `regions.ts`（absdiff 主経路）+ 旧 API 内部差替 | **done** |
 | **R2** | layout / tabDetect 整理・走査帯魔術削除 + G-FRD-S scrollStart | **done** |
 | **R3** | compose 簡素化・旧 scrollMats 全貼り廃止・V2 配線 | **done** |
+| **R3.5a** | `shiftEstimate`（全重なり SSD + セッション median）— scrollMatch 置換 | **draft**（設計レビュー待ち） |
+| **R3.5b** | layout L2 優先・tabDetect 2タブガード（TRN） | draft |
+| **R3.5c** | golden / 実機再検証クローズ（FRD/TRN） | draft |
 | **R4** | postProcess 分離・TrainingInfo 別パス（旧 S-6） | draft |
 | **R5** | `opencvStitcher.ts` 削除・REQ done | draft |
 
@@ -142,7 +145,8 @@ interface StitchReport {
 | Phase | ファイル |
 |-------|---------|
 | R0 | `tools/stitch-golden/*`, `docs/tasks/REQ-stitch-rewrite.md`, `docs/TODO.md`, `docs/tasks/INDEX.md` |
-| R1+ | `desktop-app/app/lib/stitch/**`（R3: `compose.ts` / `scrollMatch.ts` / `stitch.ts` 新設）, `opencvStitcher.ts`（段階委譲） |
+| R1+ | `desktop-app/app/lib/stitch/**`（R3: `compose.ts` / `scrollMatch.ts` / `stitch.ts`）, `opencvStitcher.ts`（段階委譲） |
+| R3.5 | `shiftEstimateCore.ts` / `shiftEstimate.ts`（`scrollMatch*` 置換またはラッパー差替）, `layoutCore.ts`（R3.5b）, golden 拡張 |
 | R1+ | `desktop-app/app/hooks/useCapture.ts`（StitchReport ログ任意） |
 
 ---
@@ -153,7 +157,10 @@ interface StitchReport {
 - [x] R1: G-TRN + G-HOF-S golden 合格（scrollStartRatio が期待帯内）
 - [x] R2: G-CMP-S golden 合格（layout hard + tabRow + scrollStart）。G-FRD-S layout/tabRow 合格
 - [x] R2 残: G-FRD-S scrollStartRatio 合格（absdiff 主経路・LOW 走査 + 小スクロール scan）
-- [x] R3: stitched-OK 退行なし（目視 + golden compose スモーク）
+- [x] R3: stitched-OK 退行なし（HOF 実機 OK・golden compose スモーク）
+- [ ] R3.5a: shiftEstimate 実装・HOF 退行なし・FRD scrollAmount 安定化
+- [ ] R3.5b: G-TRN layout=L2 実機・tabDetect 退行なし
+- [ ] R3.5c: 実機 Step 3–4–6 再検証クローズ
 - [ ] R4: TrainingInfo 別パス（G-FRD-I）
 - [ ] R5: `opencvStitcher.ts` 削除、親 REQ Phase 3 検証クローズ、TODO/INDEX 更新
 
@@ -284,11 +291,125 @@ npm run stitch:golden
 
 ---
 
+## R3.5: shiftEstimate 再設計（scrollMatch ゼロベース）
+
+> **正本**: 2026-06-26 実機検証 + 当チャットでのゼロベース設計レビュー。R4 着手前の **必須ゲート**。
+
+### R3 実機検証サマリ（2026-06-26 夕方）
+
+| Step | 経路 | 結果 | ログ上の特徴 |
+|------|------|------|-------------|
+| 1 | G-HOF-S | **OK** | scrollStart≈0.448、scrollAmount **240 前後で安定**、出力 Y≈2168 |
+| 2 | G-CMP-S | スキップ | — |
+| 3 | G-TRN | **NG** | **L3+Btn 誤判定**、`StitchTab=Inheritance`、scrollAmount **187/26/26/167** と乱れる |
+| 4 | G-FRD-S | **NG** | layout OK、scrollStart≈0.554 OK、scrollAmount **26 多発**、出力短い |
+| 5 | G-HOF-F | **OK** | 継承 S-5・scroll≈240 安定 |
+| 6 | G-FRD-F | **NG** | scrollAmount ばらつき・結合位置ずれ |
+| 7 | FS | スキップ | R3.5 後 |
+
+**結論**: REQ 合成式 + scrollStartY + compose は **HOF で実証済み**。FRD/TRN の NG は主に **`scrollMatch`（NCC 下端テンプレート）の誤推定**。キャプチャは毎回ホイール -5 固定であり、**同一セッション内の scrollAmount はほぼ一定であるべき**（最終フレームのみ短くてよい）。
+
+### 根本原因（技術）
+
+| 現象 | 原因 |
+|------|------|
+| HOF のみ scrollAmount≈240 で安定 | scrollRegion が広く、NCC が真のずれを拾えている **条件付き成功** |
+| FRD の scrollAmount=26 @ score 0.96+ | 下端 20% テンプレート NCC が **スキル1行分（≈26px）** の誤ピークを高信頼で採用。absdiff フォールバック未発動 |
+| 同一セッション内で 26/133/187 が交互 | フレームごとに **独立した誤マッチ**（ゲームのスクロールが毎回変わったわけではない） |
+| TRN の L3+Btn + Inheritance | `tabY≈0.47` が L3+Btn 閾値に抵触 + `l3Row` が `l2Row` より先に評価。3タブ分割で中央＝継承と誤判定 |
+
+**捨てる**: NCC 下端テンプレート主経路、フレーム独立推定、layout 依存の狭 ROI マッチ  
+**維持**: crop、regionsCore（scrollStartY）、REQ 合成式、compose、S-2/S-5/trim
+
+### 問題モデル（ゼロベース）
+
+連続フレームは crop 内で **リスト部分だけが剛体で上方向に平行移動**した画像。未知量はペアごとの縦シフト `S_k`（= overlap / scrollAmount）のみ。
+
+**前提（実機直感・capture 固定入力）**:
+
+- 同一セッション内 `S_0 ≈ S_1 ≈ … ≈ S*`（代表値）
+- 最終ペアのみ `S_last < S*` 可（リスト末端）
+
+### アルゴリズム正本
+
+#### Step A — 幾何（現行維持）
+
+- CropRect、`scrollStartY`（frame0↔1 absdiff LOW streak）、`footerStartY`（15%）
+- layout / tab は **合成・postProcess・ログ用**。scroll 推定 ROI を layout で狭めない
+
+#### Step B — ペアワイズ縦シフト（新: shiftEstimate）
+
+スクロール帯 `rows [scrollStartY, footerStartY)` について、隣接フレーム `prev` / `curr` ごとに:
+
+```
+score(S) = mean | prev[scrollStartY + S + y, x] - curr[scrollStartY + y, x] |
+           （y: 重なり全体、x: 内容列・例: 左80%・スクロールバー列除外）
+採用 S = argmin score(S)   （全重なり SSD / absdiff。NCC 主経路は廃止）
+探索: S ∈ [S_min, S_max]  例 S_min=40, S_max=H_strip-40
+```
+
+**現行 scrollMatch との差**: 下端 20% テンプレートではなく **重なり全体**で整合。`regionsCore` の scrollStart 決定と **同族の shift+diff**。
+
+#### Step C — セッション一貫性
+
+1. `S* = median(S_k)` をセッション代表とする  
+2. `|S_k - S*| > τ`（例 40px）→ 外れ値：代表近傍で Step B 再探索、または `S_k ← S*`  
+3. 最終ペアのみ: `S_last < 0.85·S*` かつ score 不良 → 末端打ち切り（HOF の 203px パターン）  
+4. 再探索後も score 不良 → bound（以降フレーム破棄）
+
+#### Step D〜F — 合成・後処理（R3 維持）
+
+- compose: REQ 正本合成式  
+- S-2 / S-5 / trimBottomWhitespace
+
+### モジュール対応
+
+| 現行 | R3.5 後 |
+|------|---------|
+| `scrollMatchCore.ts`（NCC） | **`shiftEstimateCore.ts`**（SSD + median） |
+| `scrollMatch.ts` | `shiftEstimate.ts` 薄ラッパー、または `scrollMatch` を内部委譲 |
+| `layoutCore.ts` | R3.5b: L2 優先・2タブガード |
+| `compose*` / `regions*` / `stitch.ts` | 基本維持（shift 入力元のみ差替） |
+
+### Phase 分割
+
+| Phase | 内容 | ゲート |
+|-------|------|--------|
+| **R3.5a** | shiftEstimateCore + stitch 配線。NCC 主経路廃止 | golden 退行なし、HOF 実機 scroll 安定、FRD 設計パックフレームで `std(S_k)` 低下 |
+| **R3.5b** | layout L2 優先、tabDetect 2タブ時は 3 分割しない | G-TRN layout hard、実機 Step 3 |
+| **R3.5c** | 実機 Step 3–4–6 再検証、Phase 3 残クローズ | 親 REQ 検証表更新 |
+
+**R4（postProcess / TrainingInfo）は R3.5c 完了後。**
+
+### R3.5a 完了条件（draft）
+
+- [ ] `scrollMatchCore` NCC 主経路を SSD 主経路に置換（または `shiftEstimateCore` 新設）
+- [ ] セッション median + 外れ値処理（Step C）実装
+- [ ] `npm run stitch:golden` 全 PASS（scrollStart/layout 退行なし）
+- [ ] compose スモーク: FRD フレーム列で overlap 合計・`std(S_k)` 閾値
+- [ ] HOF 実機: scrollAmount 240 前後維持、出力退行なし
+- [ ] ログ: `method=ssd`（または同等）、`S*` 代表値を出力
+
+### R3.5b 完了条件（draft）
+
+- [ ] G-TRN: `StitchLayout=L2`（golden + 実機）
+- [ ] `StitchTab` が 2タブ画面で Inheritance にならない
+- [ ] scrollStart / HOF / FRD 退行なし
+
+### 非エンジニア向け要約（Step B/C）
+
+- **Step B**: 2枚の写真を「透明シート」のようにずらし、**全体が一番きれいに重なる距離**を測る（一部だけ合わせない）  
+- **Step C**: 全ペアの距離は **だいたい同じはず**。26px のような明らかにおかしい値は **測り間違いとして直す**
+
+---
+
 ## 決定事項ログ
 
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
-| 2026-06-26 19:41 | **R3 完了** | A1+B2+C1 承認どおり `compose.ts`/`scrollMatch.ts` 新設・`regions.ts` 薄ラッパー化・`stitch.ts` オーケストレータ・`USE_STITCH_V2=true`。golden **12/12 PASS**（scrollStart + layout + compose スモーク）。設計パック目視: HOF/CMP skill stitched-OK 構造維持（scrollStartY≈40% 基準）、FRD/TRN は旧 16% header 廃止により重複・欠落が解消される見込み（旧 stitched-NG 参照） |
+| 2026-06-26 22:19 | **R3.5 ゼロベース設計** | R3 実機: HOF OK・FRD/TRN NG。scrollMatch NCC は HOF で偶然成功。正本は **全重なり SSD（Step B）+ median 一貫性（Step C）**。Phase: R3.5a shiftEstimate → R3.5b layout TRN → R3.5c 実機クローズ。R4 は R3.5 後 |
+| 2026-06-26 22:19 | **R3 実機検証記録** | Step1/5 OK。Step3 TRN: L3+Btn+Inheritance 誤判定。Step4/6 FRD: scrollAmount 26 多発。Step2/7 スキップ |
+| 2026-06-26 19:41 | **R3 完了** | A1+B2+C1 承認どおり compose/scrollMatch/stitch・`USE_STITCH_V2=true`。golden 12/12 PASS。FRD/TRN 実機 NG は scrollMatch が主因 → R3.5 へ |
 | 2026-06-26 19:37 | **R3 実装着手** | 設計レビュー承認（A1+B2+C1）。正本合成式・S-2 scrollStartY 基準・S-5/trim R3 含有 |
 | 2026-06-26 18:41 | **R2 残 完了** | `regionsCore`: S-4 scrollAmount + LOW streak 境界 + 小スクロール（<80px）/ 高 ratio 走査。G-FRD-S absdiff **0.554**、期待帯 **0.52–0.56** に更新（R0 単フレーム 0.46–0.52 は absdiff 計測と乖離） |
 | 2026-06-26 18:19 | **R2 残: 案A 承認** | G-FRD-S scrollStart は green-tab≈0.545（目視≈0.55）で副経路は妥当。absdiff 主経路未動作が問題。`regionsCore` 改善で対応。f001 固定維持 |
@@ -426,4 +547,103 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\stitch-golden\measure-
 ## タスク
 REQ-stitch-rewrite Phase R1: scrollStartY 正本パイプライン
 …（R1 完了済み）
+```
+
+### R3.5a: shiftEstimate — 設計レビュー起票（Ask mode）【次チャット推奨】
+
+```
+@docs/PROJECT.md
+@docs/TODO.md
+@docs/tasks/REQ-stitch-rewrite.md
+@desktop-app/app/lib/stitch/scrollMatchCore.ts
+@desktop-app/app/lib/stitch/scrollMatch.ts
+@desktop-app/app/lib/stitch/stitch.ts
+@desktop-app/app/lib/stitch/regionsCore.ts
+@desktop-app/app/lib/stitch/composeCore.ts
+@auto-capture-design-pack/logs/FRD-skill-console.txt
+@auto-capture-design-pack/logs/TRN-console.txt
+
+## チャット種別
+設計レビュー（Ask mode）
+
+## 進め方（重要）
+- このチャットでは **コード変更・ファイル編集・コミットを一切しない**
+- REQ R3.5 節を正本とし、現状整理 → 詳細設計 → 定数・閾値 → リスク → 検証 → Agent 用プロンプト まで提示
+- 私が「承認」「修正」「見送り」のいずれかを返すまで、実装に進まない
+
+## 背景
+REQ-stitch-rewrite **R3 完了**（`7fbf8b5`）。golden 12/12 PASS だが **実機 NG**:
+- G-HOF-S / G-HOF-F: OK（scrollAmount≈240 安定）
+- G-FRD-S / G-FRD-F: NG（scrollAmount=26 多発・結合位置ずれ）
+- G-TRN: NG（L3+Btn 誤判定は R3.5b。本 Phase は scrollMatch のみ）
+
+**ゼロベース結論（REQ R3.5 節）**: 現行 `scrollMatchCore` の NCC 下端テンプレートを廃止し、
+**Step B** 全重なり SSD 縦シフト + **Step C** セッション median 一貫性 に置換する。
+
+## 今回決めたいこと（R3.5a スコープ）
+1. `shiftEstimateCore.ts` API（入力: スクロール帯 RGBA 列、出力: overlaps[] + S* + per-frame metadata）
+2. SSD 探索範囲 `S_min` / `S_max`、内容列マスク（スクロールバー除外 80% 等）
+3. Step C: median `S*`、外れ値閾値 τ、末端フレーム例外、bound 判定
+4. `scrollMatch.ts` との統合（置換 vs 内部委譲・ログ互換）
+5. golden 拡張案（FRD 連番フレームで `std(S_k)` / 26px 連発 NG）
+6. HOF 退行防止（240 前後維持のゲート）
+
+## 触らないこと（R3.5a）
+- `layoutCore.ts` / `tabDetect*`（→ R3.5b）
+- `compose*` / `regionsCore` scrollStart ロジック
+- `capture.rs` / `geminiOcr.ts`
+
+## 実機参考ログ（R3・ウィンドウ）
+- HOF OK: scrollStart≈0.448、scrollAmount 240×5 + 203
+- FRD NG: scrollStart≈0.554 OK、scrollAmount 26 多発、Y≈1248（旧設計パック≈1409）
+- TRN NG: scrollAmount 187/26/26/167（layout 修正は R3.5b）
+
+## 報告形式
+1. 現状 scrollMatch の失敗モード整理
+2. shiftEstimate 詳細アルゴリズム（疑似コード可）
+3. 定数表（初期値 + 調整方針）
+4. モジュール構成・ファイル一覧
+5. golden / 実機検証計画
+6. リスク（HOF 退行・性能・フルスクリーン）
+7. 実装チャット用完成プロンプト（Agent mode 1ブロック）
+
+## 完了条件（設計レビュー）
+- R3.5a の API・閾値・テストゲートが文書化されている
+- Agent mode 実装プロンプトがそのまま貼れる
+```
+
+### R3.5a: shiftEstimate — 実装起票（Agent mode・設計レビュー承認後）
+
+```
+@docs/PROJECT.md
+@docs/TODO.md
+@docs/tasks/REQ-stitch-rewrite.md
+@desktop-app/app/lib/stitch/scrollMatchCore.ts
+@desktop-app/app/lib/stitch/scrollMatch.ts
+@desktop-app/app/lib/stitch/stitch.ts
+@desktop-app/app/lib/stitch/golden.test.ts
+@desktop-app/app/lib/stitch/goldenMeasure.ts
+
+## チャット種別
+実装（Agent mode）
+
+## 背景
+REQ R3.5a（設計レビュー承認済み）。scrollMatch NCC → shiftEstimate（SSD + median）。
+
+## 着手時
+- TODO Backlog「R3.5a shiftEstimate」→ 進行中、`最終更新:` Get-Date
+- 最初のコミットに TODO 含める
+
+## 実装
+（設計レビューで確定した API・閾値に従う。REQ R3.5 節 Step B/C 正本）
+
+## 完了条件
+- [ ] REQ R3.5a チェックリスト全項目
+- [ ] npm run stitch:golden 全 PASS
+- [ ] TODO 完了・コミット（push しない）
+
+## 検証
+cd desktop-app
+npm run stitch:golden
+実機: G-HOF-S 退行なし → G-FRD-S
 ```

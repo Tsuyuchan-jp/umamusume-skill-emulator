@@ -8,6 +8,12 @@
 | R1 | `regions.ts` scrollStartY absdiff 正本（`USE_STITCH_V2`） |
 | R2 | `layout.ts` / `tabDetect.ts` 分割・走査帯正本化 |
 | R3 | `compose.ts` / `scrollMatch.ts`・`stitch.ts` オーケストレータ・V2 ON |
+| R3.5 | **`shiftEstimate*`（SSD + median）** — scrollMatch 置換予定。正本: REQ R3.5 節 |
+
+## 既知の課題（R3 実機 → R3.5）
+
+- `scrollMatchCore` NCC 下端テンプレートは **HOF のみ安定**（FRD: scrollAmount=26 誤マッチ）
+- 次: 全重なり SSD + セッション median（Step B/C）
 
 ## モジュール構成（R3）
 
