@@ -33,6 +33,11 @@ export const STITCH_TAB_ROW_Y_SCAN_STEP = 0.01;
 export const STITCH_L2_GREEN_SCORE_MIN = 0.45;
 export const STITCH_L3_GREEN_SEG_MIN = 0.15;
 
+/** R3.5b: L2 vs L3 同行走査時の L2 優先（l2Score > maxSeg * ratio） */
+export const STITCH_L2_VS_L3_PRIORITY_RATIO = 0.85;
+/** R3.5b: TRN 等・partner なし高タブ行の L2 判定下限 */
+export const STITCH_L2_HIGH_TAB_ROW_MIN_RATIO = 0.44;
+
 /** layout / tabDetect 走査帯（measure-regions.ps1 正本と同期） */
 export const STITCH_TAB_SCAN_L3_START = 0.28;
 export const STITCH_TAB_SCAN_L3_END = 0.48;

@@ -55,7 +55,8 @@ export async function stitchImages(
     cropWidth,
     cropHeight,
     layout,
-    tabRow.tabY
+    tabRow.tabY,
+    tabRow.tabCount
   );
 
   if (tabRow.method === "fallback") {

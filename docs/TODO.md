@@ -4,13 +4,13 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-26 23:12
+最終更新: 2026-06-27 00:02
 
 ---
 
 ## 現在のフォーカス
 
-**P1** — オートキャプチャ結合リライト **R3.5b**（layout L2 優先・TRN tabDetect）
+**P1** — オートキャプチャ結合リライト **R3.5c**（実機再検証クローズ）
 
 ---
 
@@ -28,10 +28,7 @@
 
 ### P1 — 重要
 
-- [ ] **オートキャプチャ結合リライト R3.5b〜c**（layout L2 優先・実機再検証）
-  - REQ: [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) R3.5b/c
-  - 前提: R3.5a 完了
-
+- [ ] **オートキャプチャ結合リライト R3.5c**（golden / 実機再検証クローズ・FRD/TRN Step 3–6）
 - [ ] **オートキャプチャ結合リライト R4〜R5**（postProcess 分離・`opencvStitcher.ts` 削除）
   - 前提: **R3.5c 完了後**
   - REQ: [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
@@ -148,6 +145,7 @@
 
 ## 完了済み
 
+- [x] **オートキャプチャ結合リライト R3.5b**（layout L2 優先・tabDetect 2タブガード）— golden 17/17 PASS（2026-06-27 00:02 / コミット後更新）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 - [x] **オートキャプチャ結合リライト R3.5a**（shiftEstimate: SSD + median・scrollMatch 委譲）— golden 15/15 PASS（2026-06-26 23:12 / `76b3fc7`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 - [x] **オートキャプチャ結合リライト R3**（compose / scrollMatch・`USE_STITCH_V2=true`）— golden 12/12 PASS（2026-06-26 19:41 / `7fbf8b5`）。**実機**: HOF OK・FRD/TRN NG → R3.5 へ / [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 - [x] **オートキャプチャ結合リライト R2**（layout / tabDetect 整理・走査帯正本化）— G-CMP-S + G-FRD-S layout/tabRow PASS、G-FRD-S scrollStart 要フォロー（2026-06-26 18:07 / `47d5755`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
@@ -243,7 +241,7 @@
 
 - パレットのスキル一覧は **`umasimSkillDataList`（ローカル）正本** — `buildPaletteSkillOptions`。WASM sim は `fetchSkillData()`（GitHub 優先 → AppData → 同梱 `public/skill_data.txt`）
 - **オートキャプチャ結合 R3.5 設計正本**: scrollMatch NCC 廃止 → **shiftEstimate（SSD + median）**。実機 NG は scrollAmount 誤推定が主因。詳細: [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) R3.5 節
-- **オートキャプチャ結合 R3.5a 完了**: shiftEstimate（SSD + median）・golden 15/15。**次: R3.5b** layout TRN
+- **オートキャプチャ結合 R3.5b 完了**: layout L2 優先（`shouldPreferL2`）+ tabDetect 2タブガード。golden 17/17。**次: R3.5c** 実機再検証
 - **sim スキルデータ**: オンライン時 GitHub fetch + AppData キャッシュ。オフライン時は同梱/キャッシュで制限付き動作（フォールバック時トースト）
 - **REQ-skill-data-fetch-fallback 実機検証**: 手順 1〜2 確認済み。手順 3〜7（同梱のみ・fetch 全滅・Worker 区別・回帰）は P1 Backlog — 後日クローズ予定（2026-06-25）
 - **将来（案B・Backlog）**: `skill_data.txt` を自前 GitHub に置き fetch 一本化 → extract→push でユーザー再配布を減らす方針。sim 定義と UI 一覧を同一 JSON に揃える

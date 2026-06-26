@@ -1,4 +1,7 @@
 import {
+  STITCH_L2_GREEN_SCORE_MIN,
+  STITCH_L2_HIGH_TAB_ROW_MIN_RATIO,
+  STITCH_L2_VS_L3_PRIORITY_RATIO,
   STITCH_L3_BTN_TAB_ROW_MIN_RATIO,
   STITCH_PARTNER_BTN_BRIGHTNESS,
   STITCH_PARTNER_BTN_MAX_ROW_RATIO,
@@ -16,7 +19,7 @@ import {
 } from "./constants";
 import type { RgbaImage } from "./rgba";
 import { scanGreenTabRowRgba, measureGreenTabProfileRgba } from "./tabDetectCore";
-import type { LayoutDetection } from "./types";
+import type { LayoutDetection, TabRowInfo } from "./types";
 
 const L3_UPPER_TAB_ROW_MAX_RATIO = 0.43;
 /** partner 帯あり時のタブ行走査上限（golden G-FRD tabRowRatio max と整合） */
@@ -68,6 +71,34 @@ function isL3BtnTabRow(tabY: number, cropHeight: number): boolean {
 function isPartnerTabRowSeparated(l3RowTabY: number, l3BtnTabY: number, cropHeight: number): boolean {
   const minSep = Math.max(4, Math.floor(cropHeight * STITCH_TAB_ROW_HEIGHT_RATIO * 0.5));
   return l3BtnTabY > l3RowTabY + minSep;
+}
+
+/** l3Row が先にヒットしても L2 タブ行を優先すべきか（R3.5b: TRN 誤 L3+Btn 防止） */
+export function shouldPreferL2(
+  img: RgbaImage,
+  l2Row: TabRowInfo,
+  l3Row: TabRowInfo,
+  hasPartner: boolean,
+  cropHeight: number
+): boolean {
+  if (!l2Row.found) return false;
+
+  const pL2 = measureGreenTabProfileRgba(img, l2Row.tabY);
+  if (pL2.l2Score < STITCH_L2_GREEN_SCORE_MIN) return false;
+
+  if (!l3Row.found) return true;
+
+  const pL3 = measureGreenTabProfileRgba(img, l3Row.tabY);
+  const l2Wins = pL2.l2Score > pL3.maxSeg * STITCH_L2_VS_L3_PRIORITY_RATIO;
+  const yTol = Math.max(4, Math.floor(cropHeight * STITCH_TAB_ROW_HEIGHT_RATIO * 0.5));
+  const sameRowL2 =
+    Math.abs(l3Row.tabY - l2Row.tabY) <= yTol && l2Wins;
+  const trnPattern =
+    !hasPartner &&
+    l2Row.tabY / cropHeight >= STITCH_L2_HIGH_TAB_ROW_MIN_RATIO &&
+    l2Wins;
+
+  return sameRowL2 || trnPattern;
 }
 
 /** partner 帯あり: 期待 tabRow 帯 [0.385, 0.47] を優先してタブ行を選ぶ */
@@ -148,6 +179,11 @@ export function detectLayoutAndTabRowRgba(img: RgbaImage): LayoutDetection {
   const partnerTabRow = hasPartner ? scanPartnerTabRowRgba(img) : l3BtnRow;
   const effectiveL3BtnRow =
     hasPartner && partnerTabRow.found ? partnerTabRow : l3BtnRow;
+  const preferL2 = shouldPreferL2(img, l2Row, l3Row, hasPartner, cropHeight);
+
+  if (preferL2 && l2Row.found) {
+    return { layout: "L2", tabRow: l2Row };
+  }
 
   if (l3Row.found) {
     if (
@@ -157,7 +193,7 @@ export function detectLayoutAndTabRowRgba(img: RgbaImage): LayoutDetection {
     ) {
       return { layout: "L3+Btn", tabRow: effectiveL3BtnRow };
     }
-    if (isL3BtnTabRow(l3Row.tabY, cropHeight)) {
+    if (isL3BtnTabRow(l3Row.tabY, cropHeight) && !preferL2) {
       return { layout: "L3+Btn", tabRow: l3Row };
     }
     return { layout: "L3", tabRow: l3Row };
@@ -172,7 +208,7 @@ export function detectLayoutAndTabRowRgba(img: RgbaImage): LayoutDetection {
   }
 
   if (l3BtnRow.found) {
-    if (isL3BtnTabRow(l3BtnRow.tabY, cropHeight)) {
+    if (isL3BtnTabRow(l3BtnRow.tabY, cropHeight) && !preferL2) {
       return { layout: "L3+Btn", tabRow: l3BtnRow };
     }
     return { layout: "L3", tabRow: l3BtnRow };

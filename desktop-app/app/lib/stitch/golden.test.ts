@@ -210,6 +210,30 @@ describe.skipIf(!isDesignPackPresent())("stitch golden R1 scrollStartRatio (absd
   }, 60_000);
 });
 
+describe.skipIf(!isDesignPackPresent())("stitch golden R3.5b layout + tabDetect", () => {
+  const packRoot = getDesignPackRoot();
+
+  it("G-TRN: layout=L2, tabRowRatio∈[0.44,0.50], tab=Skill", async () => {
+    const c = getGoldenCase("G-TRN")!;
+    const framePath = c.framePaths[0]!;
+
+    const measured = await measureLayoutFromFrame(packRoot, framePath);
+    expect(measured.layout, `layout=${measured.layout}`).toBe("L2");
+    expect(
+      measured.tabRowRatio,
+      `tabRowRatio=${measured.tabRowRatio.toFixed(4)} method=${measured.tabRowMethod}`
+    ).toBeGreaterThanOrEqual(0.44);
+    expect(measured.tabRowRatio).toBeLessThanOrEqual(0.5);
+    expect(measured.tab, `tab=${measured.tab}`).toBe("Skill");
+  }, 60_000);
+
+  it("G-HOF-S: layout=L3（退行ゲート）", async () => {
+    const c = getGoldenCase("G-HOF-S")!;
+    const measured = await measureLayoutFromFrame(packRoot, c.framePaths[0]!);
+    expect(measured.layout, `layout=${measured.layout}`).toBe("L3");
+  }, 60_000);
+});
+
 describe.skipIf(!isDesignPackPresent())("stitch golden R2 layout + scrollStartRatio", () => {
   const packRoot = getDesignPackRoot();
 

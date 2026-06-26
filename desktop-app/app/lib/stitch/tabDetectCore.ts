@@ -111,12 +111,19 @@ export function scanGreenTabRowRgba(
 export function detectStitchTabFromRgba(
   img: RgbaImage,
   layout: StitchLayout,
-  tabRowY: number
+  tabRowY: number,
+  tabCount?: number
 ): StitchTab {
   const cropWidth = img.width;
   const cropHeight = img.height;
   const tabH = Math.max(4, Math.floor(cropHeight * STITCH_TAB_ROW_HEIGHT_RATIO));
-  const segmentCount = layout === "L2" ? 2 : 3;
+  const segmentCount = tabCount ?? (layout === "L2" ? 2 : 3);
+
+  // 2タブ画面では 3 分割せず Skill 固定（R3.5b: TRN Inheritance 誤判定防止）
+  if (segmentCount === 2 || layout === "L2") {
+    return "Skill";
+  }
+
   const segWidth = Math.floor(cropWidth / segmentCount);
 
   let bestSeg = 0;
@@ -144,10 +151,6 @@ export function detectStitchTabFromRgba(
       bestGreen = avg;
       bestSeg = seg;
     }
-  }
-
-  if (layout === "L2") {
-    return bestSeg >= 1 ? "Skill" : "Skill";
   }
 
   if (bestSeg === 1) return "Inheritance";

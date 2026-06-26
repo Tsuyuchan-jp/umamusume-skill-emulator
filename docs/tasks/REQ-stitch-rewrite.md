@@ -4,7 +4,7 @@
 > 親 REQ: [`REQ-auto-capture-multi-screen.md`](REQ-auto-capture-multi-screen.md)（Phase 1 パッチ完了・本 REQ で根本修正）。
 > 設計パック: [`auto-capture-design-pack/`](../../auto-capture-design-pack/)（golden / screenshots / logs）。
 
-- **ステータス**: in-progress（R0–R3.5a done・**R3.5b 待ち**・R4 待ち）
+- **ステータス**: in-progress（R0–R3.5b done・**R3.5c 待ち**・R4 待ち）
 - **作成日**: 2026-06-26 08:13
 - **関連コミット**: `b01ceb3`（R2 残 scrollStart）、`47d5755`（R2 layout）、`1df1860`（R1）
 
@@ -99,7 +99,7 @@ interface StitchReport {
 | **R2** | layout / tabDetect 整理・走査帯魔術削除 + G-FRD-S scrollStart | **done** |
 | **R3** | compose 簡素化・旧 scrollMats 全貼り廃止・V2 配線 | **done** |
 | **R3.5a** | `shiftEstimate`（全重なり SSD + セッション median）— scrollMatch 置換 | **done** |
-| **R3.5b** | layout L2 優先・tabDetect 2タブガード（TRN） | draft |
+| **R3.5b** | layout L2 優先・tabDetect 2タブガード（TRN） | **done** |
 | **R3.5c** | golden / 実機再検証クローズ（FRD/TRN） | draft |
 | **R4** | postProcess 分離・TrainingInfo 別パス（旧 S-6） | draft |
 | **R5** | `opencvStitcher.ts` 削除・REQ done | draft |
@@ -159,7 +159,7 @@ interface StitchReport {
 - [x] R2 残: G-FRD-S scrollStartRatio 合格（absdiff 主経路・LOW 走査 + 小スクロール scan）
 - [x] R3: stitched-OK 退行なし（HOF 実機 OK・golden compose スモーク）
 - [x] R3.5a: shiftEstimate 実装・HOF 退行なし・FRD scrollAmount 安定化
-- [ ] R3.5b: G-TRN layout=L2 実機・tabDetect 退行なし
+- [x] R3.5b: G-TRN layout=L2 golden・tabDetect 2タブガード・HOF/FRD layout 退行なし
 - [ ] R3.5c: 実機 Step 3–4–6 再検証クローズ
 - [ ] R4: TrainingInfo 別パス（G-FRD-I）
 - [ ] R5: `opencvStitcher.ts` 削除、親 REQ Phase 3 検証クローズ、TODO/INDEX 更新
@@ -392,9 +392,10 @@ score(S) = mean | prev[scrollStartY + S + y, x] - curr[scrollStartY + y, x] |
 
 ### R3.5b 完了条件（draft）
 
-- [ ] G-TRN: `StitchLayout=L2`（golden + 実機）
-- [ ] `StitchTab` が 2タブ画面で Inheritance にならない
-- [ ] scrollStart / HOF / FRD 退行なし
+- [x] G-TRN: `StitchLayout=L2`（golden hard assert）
+- [x] `StitchTab` が 2タブ画面で Inheritance にならない（golden G-TRN tab=Skill）
+- [x] scrollStart / HOF / FRD 退行なし（golden 17/17 PASS）
+- [ ] G-TRN 実機 Step 3（R3.5c でクローズ可）
 
 ### 非エンジニア向け要約（Step B/C）
 
@@ -407,6 +408,7 @@ score(S) = mean | prev[scrollStartY + S + y, x] - curr[scrollStartY + y, x] |
 
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
+| 2026-06-27 00:02 | **R3.5b 完了** | `shouldPreferL2`（L2 vs L3 同行走査・TRN trnPattern）+ tabDetect 2タブガード。golden 17/17 PASS（G-TRN layout=L2/tab=Skill、G-HOF-S layout=L3 退行なし） |
 | 2026-06-26 23:12 | **R3.5a 完了** | `shiftEstimateCore` + `shiftEstimate` 配線。scrollMatch 委譲。golden 15/15（FRD std(S_k)<20・26px 禁止帯 0、HOF S*∈[200,280]）。高側 SSD 誤ピークは 2 ペア時 min アンカー + 再探索で解消 |
 | 2026-06-26 22:19 | **R3.5 ゼロベース設計** | R3 実機: HOF OK・FRD/TRN NG。scrollMatch NCC は HOF で偶然成功。正本は **全重なり SSD（Step B）+ median 一貫性（Step C）**。Phase: R3.5a shiftEstimate → R3.5b layout TRN → R3.5c 実機クローズ。R4 は R3.5 後 |
 | 2026-06-26 22:19 | **R3 実機検証記録** | Step1/5 OK。Step3 TRN: L3+Btn+Inheritance 誤判定。Step4/6 FRD: scrollAmount 26 多発。Step2/7 スキップ |

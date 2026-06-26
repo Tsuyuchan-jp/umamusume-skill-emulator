@@ -45,12 +45,13 @@ export function detectStitchTab(
   cropWidth: number,
   cropHeight: number,
   layout: StitchLayout,
-  tabRowY?: number
+  tabRowY?: number,
+  tabCount?: number
 ): StitchTab {
-  const tabY =
-    tabRowY ??
-    detectStitchLayoutAndTabRow(croppedMat, cv, cropWidth, cropHeight).tabRow.tabY;
+  const layoutResult = detectStitchLayoutAndTabRow(croppedMat, cv, cropWidth, cropHeight);
+  const tabY = tabRowY ?? layoutResult.tabRow.tabY;
+  const count = tabCount ?? layoutResult.tabRow.tabCount;
 
   const rgba = matToRgba(croppedMat, cv, cropWidth, cropHeight);
-  return detectStitchTabFromRgba(rgba, layout, tabY);
+  return detectStitchTabFromRgba(rgba, layout, tabY, count);
 }
