@@ -4,7 +4,7 @@
 > アプリの製品仕様・技術概要は [`PROJECT.md`](PROJECT.md)。**進捗・要件・運用の地図はここ。**
 > リポジトリ全体の紹介は [ルート `README.md`](../README.md)（別ファイル）。
 
-最終更新: 2026-06-27 06:56
+最終更新: 2026-06-27 06:52
 
 ---
 
@@ -162,7 +162,7 @@ Get-Date -Format "yyyy-MM-dd HH:mm"
 | 用語・概念の意味を残す？ | **`CONCEPT-MAP.md`**（`.cursor/rules/concept-map.mdc` で更新トリガー） |
 | 1回きりの作業の手順・Phase？ | **REQ** |
 | 今週やるかどうか？ | **TODO** Backlog |
-| チャットの貼り付け型？ | **CHAT_TEMPLATE** に追記。Phase 別の完成プロンプトは **`chat-prompts/`** |
+| チャットの貼り付け型？ | **CHAT_TEMPLATE** に追記 |
 | AI に毎回守らせたい短いルール？ | **`.cursor/rules/*.mdc`**（短く。詳細は doc へリンク） |
 
 **避けること**: 同じ内容を PROJECT / REQ / DOCS-GUIDE に3重コピーする。
@@ -179,6 +179,5 @@ Get-Date -Format "yyyy-MM-dd HH:mm"
 | 進捗 | `docs/TODO.md` |
 | アプリ概要 | `docs/PROJECT.md` |
 | チャット起票 | `docs/CHAT_TEMPLATE.md` |
-| 完成プロンプト（コピー用） | `docs/chat-prompts/`（例: Scene Model M3） |
 | REQ 一覧 | `docs/tasks/INDEX.md` |
 | リリース | `docs/RELEASE_BUILD.md` |
