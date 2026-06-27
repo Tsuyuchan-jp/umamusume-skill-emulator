@@ -616,6 +616,7 @@ score(S) = mean | prev[scrollStartY + S + y, x] - curr[scrollStartY + y, x] |
 
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
+| 2026-06-28 00:47 | **R4a 実機退行ゲート クローズ** — Step 1 G-HOF-S・3 G-TRN・4a/4b G-FRD-S-release/register・5 G-HOF-F・6 G-FRD-F（S-5 継承履歴カット）いずれも退行なし | ユーザー tauri dev 確認。postProcess 分離後の本番パイプライン |
 | 2026-06-28 00:39 | **R4a 完了** — `postProcess/*` 新設（Core/OpenCv/applyPostProcess）。compose は合成式のみ。`stitch.ts` は compose → applyPostProcess。TrainingInfo は Skill 同経路＋警告維持。G-FRD-I は R4b へ | 設計レビュー案 A 承認どおり。golden 25/25 PASS。CONCEPT-MAP: 新概念なし（`0b549f5`） |
 | 2026-06-28 00:11 | **G-HOF-S terminal 微探索 実機クローズ** — 長リスト Frame 8→9 raw=82→final=28 terminal・二重なし。G-TRN・G-FRD-S-release/register 退行なし | ユーザー tauri dev 確認。SCENE-CATALOG 同期 |
 | 2026-06-27 23:54 | **G-HOF-S terminal 微探索 + NO_SCROLL skip 実装** — `STITCH_SHIFT_TERMINAL_*` 定数3件・最終ペア [0,40) 微探索・terminal 経路のみ skip。Vitest 4件 + golden 25/25 PASS | 設計レビュー案 A 承認どおり。`coarseIsTerminalShortScroll` ガードで FRD golden 退行回避。TRN 119px は diff 非採用で R3.5c-2 維持 |

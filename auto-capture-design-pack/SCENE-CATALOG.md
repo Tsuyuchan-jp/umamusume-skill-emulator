@@ -21,13 +21,13 @@
 
 | シーン ID | 経路 | タブ | partnerBand | layout 期待 | goldenPath | expectations | 実機 Step | 状態 | 備考 |
 |-----------|------|------|-------------|-------------|------------|--------------|-----------|------|------|
-| G-HOF-S | HOF | Skill | absent | L3 | `golden/HOF/skill/frame_000.png` | yes | 1 | ok | terminal 微探索 OK（2026-06-28）— 長リスト Frame 8→9 raw=82→final=28 terminal・二重なし。wheel=-4 |
-| G-HOF-F | HOF | 因子/継承 | absent | L3 | `golden/HOF/factor/frame_000.png` | yes | 5 | ok | |
-| G-TRN | TRN | Skill | absent | L2 | `golden/TRN/frame_000.png` | yes | 3 | ok | terminal 微探索退行なし（2026-06-28）。wheel=-4 |
+| G-HOF-S | HOF | Skill | absent | L3 | `golden/HOF/skill/frame_000.png` | yes | 1 | ok | R4a postProcess 退行なし（2026-06-28）。terminal 微探索・wheel=-4 |
+| G-HOF-F | HOF | 因子/継承 | absent | L3 | `golden/HOF/factor/frame_000.png` | yes | 5 | ok | R4a postProcess 退行なし（2026-06-28） |
+| G-TRN | TRN | Skill | absent | L2 | `golden/TRN/frame_000.png` | yes | 3 | ok | R4a postProcess 退行なし（2026-06-28）。wheel=-4 |
 | G-CMP-S | CMP | Skill | absent | L3 | `golden/CMP/skill/frame_000.png` | yes | 2 skip | ok | |
-| G-FRD-S-release | FRD | Skill | **release**（灰・解除） | L3+Btn | `golden/FRD/skill-release/frame_000.png` | yes | 4 | **ok** | terminal 微探索退行なし（2026-06-28）。wheel=-3 |
-| G-FRD-S-register | FRD | Skill | **register**（緑・登録） | L3+Btn | `golden/FRD/skill-register/frame_000.png` | yes | 4 | **ok** | terminal 微探索退行なし（2026-06-28）。wheel=-3 |
-| G-FRD-F | FRD | 因子/継承 | release/absent | L3+Btn | `golden/FRD/factor/frame_000.png` | yes | 6 | **ok** | M6c Step 6 実機 OK（`StitchTab=Inheritance`・wheel=-3・scrollStart≈0.546・継承履歴緑ライン Y=2778） |
+| G-FRD-S-release | FRD | Skill | **release**（灰・解除） | L3+Btn | `golden/FRD/skill-release/frame_000.png` | yes | 4 | **ok** | R4a postProcess 退行なし（2026-06-28）。wheel=-3 |
+| G-FRD-S-register | FRD | Skill | **register**（緑・登録） | L3+Btn | `golden/FRD/skill-register/frame_000.png` | yes | 4 | **ok** | R4a postProcess 退行なし（2026-06-28）。wheel=-3 |
+| G-FRD-F | FRD | 因子/継承 | release/absent | L3+Btn | `golden/FRD/factor/frame_000.png` | yes | 6 | **ok** | R4a postProcess 退行なし（2026-06-28）— S-5 継承履歴カット OK。wheel=-3 |
 | G-FRD-I | FRD | 育成情報 | — | — | — | R4b | — | 欠落 | R4b / Phase 1b スコープ・golden 不要 |
 
 ---
