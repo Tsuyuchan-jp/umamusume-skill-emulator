@@ -21,13 +21,13 @@
 
 | シーン ID | 経路 | タブ | partnerBand | layout 期待 | goldenPath | expectations | 実機 Step | 状態 | 備考 |
 |-----------|------|------|-------------|-------------|------------|--------------|-----------|------|------|
-| G-HOF-S | HOF | Skill | absent | L3 | `golden/HOF/skill/frame_000.png` | yes | 1 | ok | scrollStart≈0.44 |
+| G-HOF-S | HOF | Skill | absent | L3 | `golden/HOF/skill/frame_000.png` | yes | 1 | ok | M6c Step1 退行なし（wheel=-4・scrollStart≈0.441） |
 | G-HOF-F | HOF | 因子/継承 | absent | L3 | `golden/HOF/factor/frame_000.png` | yes | 5 | ok | |
-| G-TRN | TRN | Skill | absent | L2 | `golden/TRN/frame_000.png` | yes | 3 | ok | tabY≈0.47 |
+| G-TRN | TRN | Skill | absent | L2 | `golden/TRN/frame_000.png` | yes | 3 | ok | M6c Step3 退行なし（wheel=-4・tabY≈0.47） |
 | G-CMP-S | CMP | Skill | absent | L3 | `golden/CMP/skill/frame_000.png` | yes | 2 skip | ok | |
-| G-FRD-S-release | FRD | Skill | **release**（灰・解除） | L3+Btn | `golden/FRD/skill-release/frame_000.png` | yes | 4 | **ng** | アーモンドアイ: absdiff scrollStart≈0.29 誤検出。アストンマーチャン: ok |
-| G-FRD-S-register | FRD | Skill | **register**（緑・登録） | L3+Btn | `golden/FRD/skill-register/frame_000.png` | yes | 4 | 要再検証 | M6c 4b: tabY/wheel/scrollStart OK。StitchTab が TrainingInfo と誤検出（上書きで結合 OK）— TODO P2 |
-| G-FRD-F | FRD | 因子 | release/absent | L3+Btn | `golden/FRD/factor/frame_000.png` | yes | 6 | **ng** | M6c 6: wheel/scrollStart OK。継承履歴未カット—StitchTab=Skill（Inheritance 要） |
+| G-FRD-S-release | FRD | Skill | **release**（灰・解除） | L3+Btn | `golden/FRD/skill-release/frame_000.png` | yes | 4 | **ok** | M6c 4a 実機 OK（wheel=-3・scrollStart≈0.546）。golden はアーモンドアイ収録 |
+| G-FRD-S-register | FRD | Skill | **register**（緑・登録） | L3+Btn | `golden/FRD/skill-register/frame_000.png` | yes | 4 | **ok** | M6c 4b 結合 OK。StitchTab 誤検出は既知（P2・スキル結合は成功） |
+| G-FRD-F | FRD | 因子/継承 | release/absent | L3+Btn | `golden/FRD/factor/frame_000.png` | yes | 6 | **ng** | M6c 6: wheel/scrollStart OK。継承履歴未カット—`StitchTab=Skill`（Inheritance 要・P2 ブロッカー） |
 | G-FRD-I | FRD | 育成情報 | — | — | — | R4 | — | 欠落 | R4 スコープ・golden 不要 |
 
 ---
@@ -82,8 +82,10 @@ INV 対応・計測メモ: [`REQ-stitch-scene-model.md`](../docs/tasks/REQ-stitc
 
 | シーン ID | 事象 | 備考 |
 |-----------|------|------|
-| G-FRD-S-register | tabRow・wheel・scrollStart は M6 実機 OK。StitchTab が TrainingInfo と誤検出（`stitch.ts` 上書きで結合 OK） | TODO P2・`detectStitchTabFromRgba` に partner 除外未配線 |
-| G-FRD-S-release | アーモンドアイ absdiff scrollStart≈0.29 | 期待 0.52–0.56 外。M6 |
+| G-FRD-S-register | StitchTab が TrainingInfo と誤検出 | スキル結合は OK（4b）。`detectStitchTabFromRgba` 未配線 — TODO P2 |
+| G-FRD-F | 継承タブで継承履歴緑バー以下が未カット | Step 6 NG。`StitchTab=Skill` 上書きで S-5 スキップ — TODO P2（M6c ブロッカー） |
+
+~~G-FRD-S-release scrollStart≈0.29~~ — **M6b/M6c 4a で実機解消**（2026-06-27）。
 
 アーモンドアイ用 **別 golden 行**（PNG 未収録）は M2 設計メモのみ。収録は別タスク。
 
@@ -97,7 +99,7 @@ INV 対応・計測メモ: [`REQ-stitch-scene-model.md`](../docs/tasks/REQ-stitc
 | **B** | `G-FRD-S` → `G-FRD-S-release` リネーム、`golden/FRD/skill-release/` 移行 | 完了 |
 | **C** | `G-FRD-S-register` の PNG 収録 + expectations case 追加 | 完了 |
 | **M2** | Scene Spec 期待構造化 — `sceneSpec` フィールド・Catalog/REQ 同期 | **完了** |
-| **M6** | register の tabY/wheel 修正 → `it.fails` テストを通常 assert に昇格 | 未着手 |
+| **M6** | M6a/M6b 完了・M6c 実機（4a/4b/1/3 OK・6 NG） | **実機進行中** — Step 6 StitchTab 修正待ち |
 
 ---
 
@@ -107,4 +109,4 @@ INV 対応・計測メモ: [`REQ-stitch-scene-model.md`](../docs/tasks/REQ-stitc
 2. `measure-regions.ps1` 出力で ratio を更新したら **日時**を決定ログ（REQ-stitch-scene-model）へ
 3. golden PNG を追加したら `goldenPath` を実パスに更新し、`状態` を `ok` / `ng` / `要再検証` へ
 
-最終更新: 2026-06-27 06:13
+最終更新: 2026-06-27 21:12
