@@ -88,7 +88,7 @@
 
 | REQ | ステータス | TODO掲載 | 備考 |
 |-----|-----------|---------|------|
-| [`REQ-auto-capture-multi-screen.md`](REQ-auto-capture-multi-screen.md) | draft | Backlog | Phase 1 done。Phase 3 は **stitch R3.5d-5** でクローズ予定 |
+| [`REQ-auto-capture-multi-screen.md`](REQ-auto-capture-multi-screen.md) | draft | Backlog | Phase 1 + **1b done**（S-6・G-FRD-I 実機 2026-06-28）。Phase 3 は stitch R3.5d-5 でクローズ済み |
 | [`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md) | in-progress | Backlog **R3.5d** | R0–R3.5d 実装 done。**d-5 実機**保留 |
 | [`REQ-stitch-scene-model.md`](REQ-stitch-scene-model.md) | in-progress | 進行中 **M1** | シーンモデル正本化ロードマップ。Catalog: `SCENE-CATALOG.md` |
 

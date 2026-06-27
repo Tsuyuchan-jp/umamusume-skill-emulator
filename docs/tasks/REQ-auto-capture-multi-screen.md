@@ -63,7 +63,7 @@
 |----|------|------|
 | **Skill** | スキル一覧 | テンプレートマッチ縦結合（現行ベース） |
 | **Inheritance** | 継承因子一覧 | スキル結合＋緑履歴バークロップ規則の整理 |
-| **TrainingInfo** | 育成情報（戦績等） | Phase 1b: 別結合パス（S-6） |
+| **TrainingInfo** | 育成情報（戦績等） | S-6 配線（Skill 同型・[`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md) R4b **done**） |
 
 **判定優先順（結合側）**:
 
@@ -83,7 +83,7 @@
 | **S-3** | L2 はタブ行から動的 header（≈50%）、L3 は 16% 維持 | 設計パック計測・実機 G-TRN。**→ 監査後 [`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md) で scrollStartY 正本化（L3 16% 廃止予定）** |
 | **S-4** | `score<0.85` または `scrollAmount<=0` 時 **absdiff 縦シフトフォールバック** | FRD 低 score |
 | **S-5** | `StitchTab.Inheritance` の緑帯クロップ（因子ヘッダー誤検出 Y≈504 回避） | FRD-factor ログ |
-| **S-6** | `StitchTab.TrainingInfo` 別結合パス | FRD-info NG（Phase 1b） |
+| **S-6** | `StitchTab.TrainingInfo` S-6 配線（stitch オーケストレーション） | **done**（R4b `51c5a29`・G-FRD-I 実機クローズ 2026-06-28） |
 
 定数は `opencvStitcher.ts` 先頭に集約。マジックナンバーを経路名で散らさない。
 
@@ -109,7 +109,7 @@
 |-------|------|------|
 | **D1** | 設計レビュー・設計パック | **done** |
 | **1** | 結合修正 S-1〜S-5（`opencvStitcher.ts`） | **done** |
-| **1b** | 育成情報タブ S-6 | draft |
+| **1b** | 育成情報タブ S-6 | **done**（R4b・G-FRD-I 実機クローズ 2026-06-28） |
 | **2** | キャプチャ最小分岐（必要時のみ FactorScroll）・UI ヒント | draft |
 | **3** | 実機検証・フルスクリーン最小・docs クローズ | draft — **stitch [`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md) R3.5d-5 で本 REQ Phase 3 をクローズ** |
 
@@ -154,7 +154,7 @@
 - [x] G-TRN: `golden/TRN/` + memo 合格条件（**実機検証クローズ** 2026-06-26 07:47）
 - [ ] G-FRD-S / G-FRD-F: FRD skill・継承 NG 解消（実機/GOLDEN 要確認）
 - [ ] G-HOF / G-CMP: ウィンドウ＋フルスクリーン HOF skill 回帰（実機要確認）
-- [ ] Phase 1b: FRD-info（育成情報）結合
+- [x] Phase 1b: FRD-info（育成情報）結合 — **実機クローズ**（G-FRD-I・退行ゲート 2026-06-28）
 - [ ] 実機検証手順を本 REQ に追記（Phase 3）
 - [ ] REQ `done`、TODO 完了済み、INDEX 更新
 
@@ -175,7 +175,7 @@
 | G-HOF-F | HOF factor | 継承履歴手前・緑クロップ | 未 |
 | G-FRD-S | `golden/FRD/skill/` | NG→OK | 未 |
 | G-FRD-F | `golden/FRD/factor/` | 因子＋履歴 | 未 |
-| G-FRD-I | `golden/FRD/info/` | 戦績末尾（Phase 1b） | Phase 1b |
+| G-FRD-I | `golden/FRD/info/` | 戦績末尾・`StitchTab=TrainingInfo` | **実機 OK**（2026-06-28）。golden PNG 未収録 |
 | G-CMP | CMP skill/factor/info OK 回帰 | 退行なし | 未 |
 
 ### フルスクリーン（最小）
@@ -192,7 +192,7 @@
 | リスク | 対策 |
 |--------|------|
 | L2 header 比率のずれ | `tools/measure-stitch-layout.ps1` で計測・タブ行から動的算出 |
-| TrainingInfo はレイアウトが別 | Phase 1b で S-6 を分離 |
+| TrainingInfo はレイアウトが別 | R4b S-6 で stitch 配線完了（実機 OK） |
 | ウィンドウサイズ可変（F-5） | 比率ベース。ピクセル固定しない |
 | ホイール回数 | **広帯 -4 / 狭帯 -3**（[`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md) R3.5d）。Phase 1 は -5 |
 | `capture.rs` 変更 | R3.5d: frame0 帯推定・ホイール 2 段 |
@@ -203,6 +203,7 @@
 
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
+| 2026-06-28 03:16 | **Phase 1b 実機クローズ** — G-FRD-I `StitchTab=TrainingInfo`・S-6・退行ゲート全 OK。実装は [`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md) R4b | ユーザー再検証。golden PNG は別タスク |
 | 2026-06-27 02:32 | **Phase 3 クローズは stitch R3.5d-5 に委譲** | HOF/TRN 実機 OK。FRD NG → 狭帯 -3（frame0 推定）。契約は stitch REQ に集約 |
 | 2026-06-27 01:01 | **Phase 3 クローズは stitch R3.5c-5 に委譲** | Capture–Stitch 契約（ホイール -4 等）は [`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md) に集約 |
 | 2026-06-25 07:25 | REQ 起票 | ユーザー要望 |
