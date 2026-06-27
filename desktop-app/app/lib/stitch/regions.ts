@@ -3,7 +3,7 @@
 import type { StitchLayout } from "./constants";
 import { matToRgba } from "./opencvRgba";
 import { detectScrollStartYFromRgba } from "./regionsCore";
-import type { ScrollStartResult } from "./types";
+import type { ScrollStartResult, TabRowInfo } from "./types";
 
 export type { ScrollStartResult } from "./types";
 export { detectScrollStartYFromRgba, detectScrollStartYFromFrame0Rgba } from "./regionsCore";
@@ -15,9 +15,10 @@ export function detectScrollStartY(
   cv: any,
   cropWidth: number,
   cropHeight: number,
-  layout: StitchLayout
+  layout: StitchLayout,
+  tabRow?: TabRowInfo
 ): ScrollStartResult {
   const f0 = matToRgba(frame0, cv, cropWidth, cropHeight);
   const f1 = matToRgba(frame1, cv, cropWidth, cropHeight);
-  return detectScrollStartYFromRgba(f0, f1, layout);
+  return detectScrollStartYFromRgba(f0, f1, layout, tabRow);
 }

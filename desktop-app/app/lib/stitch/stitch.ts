@@ -1,7 +1,7 @@
 // @ts-nocheck
 
 import { findCropBounds } from "./crop";
-import { STITCH_FOOTER_HEIGHT_RATIO, getLayoutHeaderRatio } from "./constants";
+import { STITCH_FOOTER_HEIGHT_RATIO, STITCH_HEADER_TAB_BOTTOM_MARGIN_RATIO, STITCH_TAB_ROW_HEIGHT_RATIO, getLayoutHeaderRatio } from "./constants";
 import { detectStitchLayoutAndTabRow } from "./layout";
 import { detectStitchTab } from "./tabDetect";
 import { detectScrollStartY } from "./regions";
@@ -77,7 +77,8 @@ export async function stitchImages(
     cv,
     cropWidth,
     cropHeight,
-    layout
+    layout,
+    tabRow
   );
   const scrollStartY = regions.scrollStartY;
   const footerHeight = Math.floor(cropHeight * STITCH_FOOTER_HEIGHT_RATIO);
@@ -180,7 +181,8 @@ function resolveScrollStartY(
   cv: any,
   cropWidth: number,
   cropHeight: number,
-  layout: import("./constants").StitchLayout
+  layout: import("./constants").StitchLayout,
+  tabRow: import("./types").TabRowInfo
 ): ScrollStartResult {
   if (croppedMats.length >= 2) {
     const result = detectScrollStartY(
@@ -189,7 +191,8 @@ function resolveScrollStartY(
       cv,
       cropWidth,
       cropHeight,
-      layout
+      layout,
+      tabRow
     );
     console.log(
       `scrollStartY: y=${result.scrollStartY}px ratio=${result.ratio.toFixed(3)} method=${result.method} confidence=${result.confidence}`
@@ -199,7 +202,13 @@ function resolveScrollStartY(
 
   console.warn("scrollStartY: 単一フレームのためレイアウト比率フォールバック");
   const ratio = getLayoutHeaderRatio(layout);
-  const scrollStartY = Math.floor(cropHeight * ratio);
+  let scrollStartY = Math.floor(cropHeight * ratio);
+  if (tabRow.found) {
+    const tabH = Math.max(4, Math.floor(cropHeight * STITCH_TAB_ROW_HEIGHT_RATIO));
+    const marginPx = Math.max(1, Math.floor(cropHeight * STITCH_HEADER_TAB_BOTTOM_MARGIN_RATIO));
+    const inv1MinY = tabRow.tabY + tabH + marginPx;
+    scrollStartY = Math.max(inv1MinY, scrollStartY);
+  }
   return {
     scrollStartY,
     ratio: scrollStartY / cropHeight,

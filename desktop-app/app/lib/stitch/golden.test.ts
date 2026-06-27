@@ -382,4 +382,31 @@ describe.skipIf(!isDesignPackPresent())("stitch golden R2 layout + scrollStart (
       `tabRowRatio=${layoutMeasured.tabRowRatio.toFixed(4)} method=${layoutMeasured.tabRowMethod} band=${c.sceneSpec.tabRow.min}-${c.sceneSpec.tabRow.max}`
     ).toBe(true);
   }, 60_000);
+
+  it("G-FRD-S-register scrollStart ∈ sceneSpec.scrollStart（INV-1）", async () => {
+    const c = getGoldenCase("G-FRD-S-register")!;
+    const framePaths = [c.framePaths[0]!, c.framePaths[1]!];
+    for (const rel of framePaths) {
+      expect(existsSync(join(packRoot, rel)), `missing ${rel}`).toBe(true);
+    }
+
+    const layoutMeasured = await measureLayoutFromFrame(packRoot, framePaths[0]!);
+    const scrollMeasured = await measureScrollStartFromFrames(
+      packRoot,
+      framePaths,
+      c.layout
+    );
+    expect(
+      isRatioInBand(scrollMeasured.scrollStartRatio, c.sceneSpec.scrollStart),
+      `scrollStartRatio=${scrollMeasured.scrollStartRatio.toFixed(4)} method=${scrollMeasured.method} band=${c.sceneSpec.scrollStart.min}-${c.sceneSpec.scrollStart.max}`
+    ).toBe(true);
+    expect(
+      satisfiesInv1Measured(
+        layoutMeasured.tabRowRatio,
+        scrollMeasured.scrollStartRatio,
+        exp.tabBottomMarginRatio
+      ),
+      `INV-1: tabY=${layoutMeasured.tabRowRatio.toFixed(4)} scrollStart=${scrollMeasured.scrollStartRatio.toFixed(4)}`
+    ).toBe(true);
+  }, 60_000);
 });

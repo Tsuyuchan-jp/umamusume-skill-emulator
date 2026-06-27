@@ -110,7 +110,7 @@
       "tabRowRatio": { "min": 0.46, "max": 0.48 },
       "legacyHeaderRatio": 0.16,
       "shiftRepresentative": { "min": 120, "max": 160 },
-      "notes": "golden Vitest 計測 tabRow≈0.44（Scene Spec 帯外・INV-2 違反）。measure-regions R0: tabRow≈0.41 scrollStart≈0.46。実機 NG: wheel=-4（期待 -3）。M6 で partnerDetect 修正後に it.fails 昇格"
+      "notes": "M6a: tabRow∈0.46–0.48（INV-2 充足）。M6b: scrollStart∈0.52–0.56（INV-1 ガード）。実機 wheel=-4 は M6c 検証待ち"
     },
     {
       "id": "G-FRD-F",

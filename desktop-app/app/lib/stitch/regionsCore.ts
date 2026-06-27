@@ -19,18 +19,34 @@ import {
 import { detectPartnerBandRgba, shouldExcludePartnerRegisterBand } from "./partnerDetectCore";
 import type { RgbaImage } from "./rgba";
 import { measureGreenTabProfileRgba } from "./tabDetectCore";
-import type { ScrollStartResult } from "./types";
+import type { ScrollStartResult, TabRowInfo } from "./types";
+
+/** INV-1: scrollStartY は tabRow 下端 + margin より下（tabRow 検出済み時のみ適用） */
+function computeInv1MinY(cropHeight: number, tabRow: TabRowInfo): number {
+  const tabH = Math.max(4, Math.floor(cropHeight * STITCH_TAB_ROW_HEIGHT_RATIO));
+  const marginPx = Math.max(1, Math.floor(cropHeight * STITCH_HEADER_TAB_BOTTOM_MARGIN_RATIO));
+  return tabRow.tabY + tabH + marginPx;
+}
 
 /** frame0↔1 の absdiff で scrollStartY を検出（走査起点 = crop 上端） */
 export function detectScrollStartYFromRgba(
   frame0: RgbaImage,
   frame1: RgbaImage,
-  layout: StitchLayout
+  layout: StitchLayout,
+  tabRow?: TabRowInfo
 ): ScrollStartResult {
   const cropWidth = frame0.width;
   const cropHeight = frame0.height;
+  const inv1MinY =
+    tabRow?.found === true ? computeInv1MinY(cropHeight, tabRow) : null;
 
-  const absdiff = detectScrollStartByAbsdiff(frame0, frame1, cropWidth, cropHeight);
+  const absdiff = detectScrollStartByAbsdiff(
+    frame0,
+    frame1,
+    cropWidth,
+    cropHeight,
+    inv1MinY
+  );
   if (absdiff !== null) {
     return {
       scrollStartY: absdiff,
@@ -40,7 +56,12 @@ export function detectScrollStartYFromRgba(
     };
   }
 
-  const greenTab = detectScrollStartByGreenTab(frame0, cropWidth, cropHeight);
+  const greenTab = detectScrollStartByGreenTab(
+    frame0,
+    cropWidth,
+    cropHeight,
+    inv1MinY
+  );
   if (greenTab !== null) {
     return {
       scrollStartY: greenTab,
@@ -51,7 +72,10 @@ export function detectScrollStartYFromRgba(
   }
 
   const ratio = getLayoutHeaderRatio(layout);
-  const scrollStartY = Math.floor(cropHeight * ratio);
+  let scrollStartY = Math.floor(cropHeight * ratio);
+  if (inv1MinY !== null) {
+    scrollStartY = Math.max(inv1MinY, scrollStartY);
+  }
   return {
     scrollStartY,
     ratio: scrollStartY / cropHeight,
@@ -71,7 +95,8 @@ function detectScrollStartByAbsdiff(
   frame0: RgbaImage,
   frame1: RgbaImage,
   cropWidth: number,
-  cropHeight: number
+  cropHeight: number,
+  inv1MinY: number | null
 ): number | null {
   const footerHeight = Math.floor(cropHeight * STITCH_FOOTER_HEIGHT_RATIO);
   const workHeight = cropHeight - footerHeight;
@@ -79,6 +104,8 @@ function detectScrollStartByAbsdiff(
 
   const minStatic = Math.floor(cropHeight * 0.15);
   const maxStatic = Math.floor(cropHeight * 0.62);
+  const scanMinStatic =
+    inv1MinY !== null ? Math.max(minStatic, inv1MinY) : minStatic;
 
   const primaryScroll = estimateScrollAmount(frame0, frame1, cropWidth, workHeight);
   const primaryY = detectScrollStartByLowStreak(
@@ -89,16 +116,33 @@ function detectScrollStartByAbsdiff(
     primaryScroll
   );
   const primaryRatio = primaryY !== null ? primaryY / cropHeight : -1;
+  const inv1Rejected =
+    inv1MinY !== null && primaryY !== null && primaryY <= inv1MinY;
 
   const needScan =
     primaryScroll < STITCH_SMALL_SCROLL_AMOUNT_THRESHOLD ||
     primaryY === null ||
+    inv1Rejected ||
     primaryY < minStatic ||
     primaryY > maxStatic ||
     primaryRatio > STITCH_SCROLL_START_SCAN_RATIO_HIGH;
 
   if (!needScan && primaryY !== null) {
     return primaryY;
+  }
+
+  // INV-1 違反が tab 高さ 1 行以内のわずかな不足なら scan で高め候補を拾わず absdiff primary を維持
+  if (inv1Rejected && primaryY !== null && inv1MinY !== null) {
+    const tabH = Math.max(4, Math.floor(cropHeight * STITCH_TAB_ROW_HEIGHT_RATIO));
+    const inv1Shortfall = inv1MinY - primaryY;
+    if (
+      inv1Shortfall <= tabH &&
+      primaryY >= minStatic &&
+      primaryY <= maxStatic &&
+      primaryRatio <= STITCH_SCROLL_START_SCAN_RATIO_HIGH
+    ) {
+      return primaryY;
+    }
   }
 
   const scanMaxRatio =
@@ -112,7 +156,7 @@ function detectScrollStartByAbsdiff(
     cropWidth,
     cropHeight,
     workHeight,
-    minStatic,
+    scanMinStatic,
     maxStatic,
     scanMaxRatio,
     primaryScroll < STITCH_SMALL_SCROLL_AMOUNT_THRESHOLD ? "small-scroll" : "high-ratio"
@@ -424,7 +468,8 @@ function computeTemplateNcc(
 function detectScrollStartByGreenTab(
   frame0: RgbaImage,
   cropWidth: number,
-  cropHeight: number
+  cropHeight: number,
+  inv1MinY: number | null = null
 ): number | null {
   const tabH = Math.max(4, Math.floor(cropHeight * STITCH_TAB_ROW_HEIGHT_RATIO));
   const margin = Math.max(1, Math.floor(cropHeight * STITCH_HEADER_TAB_BOTTOM_MARGIN_RATIO));
@@ -466,7 +511,9 @@ function detectScrollStartByGreenTab(
   }
 
   if (bestY < 0) return null;
-  return bestY + tabH + margin;
+  const scrollStartY = bestY + tabH + margin;
+  if (inv1MinY !== null && scrollStartY <= inv1MinY) return null;
+  return scrollStartY;
 }
 
 /** frame0 のみ・緑タブ走査（capture wheel 用・M5 stitch 正本） */

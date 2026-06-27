@@ -109,7 +109,7 @@ crop 基準比率。正本: [`expectations.json`](../../tools/stitch-golden/expe
 | **M3** | 計測パイプライン強化 | expectations に partner/tab/scroll/wheel 中間値。シーン別 Vitest | **done** |
 | **M4** | 検出器統一 | 緑判定 1 系統（Rust/TS 同期）。partnerDetect 分離 | **done** |
 | **M5** | capture–stitch 責務分離 | wheel 用の二重緑走査廃止・IPC 契約 | **done** |
-| **M6** | 既知バグを Spec 準拠で修正 | 登録ボタン・absdiff 257。R3.5d-5 実機クローズ | in-progress（M6a done・M6b 待ち） |
+| **M6** | 既知バグを Spec 準拠で修正 | 登録ボタン・absdiff 257。R3.5d-5 実機クローズ | in-progress（M6a/M6b done・M6c 待ち） |
 
 **依存**: M0 → M1 → M2 → M3 が並行可能な部分あり。M4 は M2+M3 推奨。M6 は M4 以降が安全だが **M1 完了後**なら登録ボタン用 PNG 追加と並行可。
 
@@ -211,6 +211,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\stitch-golden\measure-
 | 2026-06-27 08:01 | **M4 完了** — `partnerDetectCore.ts` 新設（register/release/absent + bandY）・`rgba.ts`/`constants.ts` 緑閾値正本化・tabDetect INV-2 配線・`capture.rs` RGB/タイトルバー同期 | `stitch:golden` 21+1 expected fail 維持。G-FRD-S-register tabY≈0.44 NG は M6 まで |
 | 2026-06-27 08:11 | **M5 完了** — `wheelCore.ts` / `captureWheel.ts` 新設・`capture_frame0_preview` IPC・Rust 緑タブ走査廃止・`reason=stitch_*` ログ | `stitch:golden` 21+1 expected fail 維持。wheel 正本は stitch のみ |
 | 2026-06-27 17:35 | **M6a 完了（INV-2）** — `partnerDetectCore` bandTop/bandBottom 幾何帯・centerDominantRegister プロファイル・release/register 同居時 register 優先・`layoutCore` register 時 partnerTabRow 正本・`golden.test` it.fails 昇格（tabRow のみ） | `stitch:golden` 22/22 PASS（`556a503`）。scrollStart は M6b（INV-1） |
+| 2026-06-27 18:56 | **M6b 完了（INV-1）** — `regionsCore` tabRow 配線・inv1MinY 棄却・境界付近は primary 維持・大きな違反は scan/green-tab・layout-ratio max(inv1MinY)・G-FRD-S-register scrollStart assert | `stitch:golden` 23/23 PASS。アーモンドアイ golden は PNG 待ち（別チャット） |
 
 ---
 

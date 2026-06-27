@@ -79,7 +79,8 @@ export async function measureScrollStartFromFrames(
   const frame1Full = await loadPngRgba(join(packRoot, framePaths[1]));
   const frame1 = cropRgba(frame1Full, cropRect);
 
-  const result = detectScrollStartYFromRgba(frame0, frame1, layout);
+  const { tabRow } = detectLayoutAndTabRowRgba(frame0);
+  const result = detectScrollStartYFromRgba(frame0, frame1, layout, tabRow);
 
   return {
     crop: cropRect,
@@ -117,7 +118,8 @@ export async function measureShiftFromFrames(
     frames.push(cropRgba(full, cropRect));
   }
 
-  const scroll = detectScrollStartYFromRgba(frames[0]!, frames[1]!, layout);
+  const { tabRow } = detectLayoutAndTabRowRgba(frames[0]!);
+  const scroll = detectScrollStartYFromRgba(frames[0]!, frames[1]!, layout, tabRow);
   const footerHeight = Math.floor(cropRect.height * STITCH_FOOTER_HEIGHT_RATIO);
   const footerStartY = cropRect.height - footerHeight;
   const scrollRegionH = footerStartY - scroll.scrollStartY;
@@ -168,7 +170,8 @@ export async function measureComposeFromFrames(
     frames.push(cropRgba(full, cropRect));
   }
 
-  const scroll = detectScrollStartYFromRgba(frames[0]!, frames[1]!, layout);
+  const { tabRow } = detectLayoutAndTabRowRgba(frames[0]!);
+  const scroll = detectScrollStartYFromRgba(frames[0]!, frames[1]!, layout, tabRow);
   const footerHeight = Math.floor(cropRect.height * STITCH_FOOTER_HEIGHT_RATIO);
   const footerStartY = cropRect.height - footerHeight;
   const scrollRegionH = footerStartY - scroll.scrollStartY;

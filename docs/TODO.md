@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-27 17:35
+最終更新: 2026-06-27 18:56
 
 ---
 
@@ -16,7 +16,7 @@
 
 ## 現在のフォーカス
 
-**P1** — **Scene Model M6b**（INV-1: absdiff）+ R3.5d 実機（保留）
+**P1** — **Scene Model M6c**（R3.5d 実機検証）+ オートキャプチャ改善
 
 ---
 
@@ -34,8 +34,8 @@
 
 ### P1 — 重要
 
-- [ ] **Scene Model M6b**（INV-1: absdiff / アーモンドアイ）+ **M6c**（R3.5d-5 実機）
-  - 前提: M6a 完了
+- [ ] **Scene Model M6c**（R3.5d-5 実機検証クローズ）
+  - 前提: M6b 完了
   - REQ: [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
 
 - [ ] **オートキャプチャ時のスクロール用カーソル位置をやや下方へ**
@@ -157,6 +157,7 @@
 
 ## 完了済み
 
+- [x] **Scene Model M6b** — INV-1: scrollStart ガード・G-FRD-S-register scrollStart assert・golden 23/23（2026-06-27 18:56）/ [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md) — アーモンドアイ golden は PNG 待ち
 - [x] **Scene Model M6a** — INV-2: partner register 幾何帯除外・centerDominant 検出・layoutCore partnerTabRow 正本化・golden 22/22（2026-06-27 17:35 / `556a503`）/ [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
 - [x] **Scene Model M5** — wheelCore・capture_frame0_preview IPC・Rust 緑タブ走査廃止・reason=stitch_*（2026-06-27 08:11 / `ba18bc3`）/ [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
 - [x] **Scene Model M4** — partnerDetectCore・緑判定 rgba 正本化・tabDetect INV-2 配線・capture.rs 閾値同期（2026-06-27 08:01 / `40bcbca`）/ [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
