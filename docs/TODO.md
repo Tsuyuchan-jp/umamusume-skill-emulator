@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-27 22:09
+最終更新: 2026-06-27 22:11
 
 ---
 
@@ -16,18 +16,13 @@
 
 ## 現在のフォーカス
 
-**P1** — **オートキャプチャ時のスクロール用カーソル位置をやや下方へ**（実装中）
+**P1** — **オートキャプチャ結合リライト R4〜R5**（Backlog 先頭候補）
 
 ---
 
 ## 進行中
 
-- [ ] **オートキャプチャ時のスクロール用カーソル位置をやや下方へ**
-  - 症状: ホイール入力のカーソル位置がスクロールエリア上端ギリギリになり、**FRD-S** 等でスクロールが不安定
-  - 目標: カーソルをスクロールエリア上端より少し下に置き、他画面（HOF/TRN/CMP 等）へ退行させない
-  - 触る想定: `src-tauri/src/capture.rs`（`target_client_y` / `scroll_window_input`）
-  - 注意: **実機検証はユーザー確認待ち**（FRD-S + HOF/TRN 退行）
-  - 関連: `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)` R3.5d
+（なし）
 
 ## 次にやること（Backlog）
 
@@ -154,7 +149,7 @@
 
 ## 完了済み
 
-- [x] **Scene Model M6c** — R3.5d-5 実機検証クローズ（4a/4b/1/3/6 全 OK・StitchTab 修正後 Step 6 再 OK）（2026-06-27 21:54 / `ef7beda`）/ [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
+- [x] **オートキャプチャ時のスクロール用カーソル位置をやや下方へ** — `capture.rs` 帯上端 + max(56px, 62%帯高)。golden 25/25 PASS。**FRD-S / HOF/TRN 実機はユーザー確認待ち**（2026-06-27 22:11）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) — R3.5d-5 実機検証クローズ（4a/4b/1/3/6 全 OK・StitchTab 修正後 Step 6 再 OK）（2026-06-27 21:54 / `ef7beda`）/ [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
 - [x] **オートキャプチャ結合 R3.5d 実機検証クローズ**（d-5: FRD Step 4/6・HOF/TRN 退行なし）（2026-06-27 21:54 / `ef7beda`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 - [x] **Scene Model M6b** — INV-1: scrollStart ガード・G-FRD-S-register scrollStart assert・golden 23/23（2026-06-27 18:56 / `dccf6b3`）/ [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md) — アーモンドアイ golden は PNG 待ち
 - [x] **Scene Model M6a** — INV-2: partner register 幾何帯除外・centerDominant 検出・layoutCore partnerTabRow 正本化・golden 22/22（2026-06-27 17:35 / `556a503`）/ [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)

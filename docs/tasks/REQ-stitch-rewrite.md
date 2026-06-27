@@ -583,6 +583,7 @@ score(S) = mean | prev[scrollStartY + S + y, x] - curr[scrollStartY + y, x] |
 
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
+| 2026-06-27 22:11 | **スクロール用カーソル Y** — `target_client_y` = 帯上端 + max(**56px**, **62%** 帯高)（旧=中点 50%）。golden **25/25 PASS**。HOF/TRN/CMP は広帯内のため **退行想定なし**。**FRD-S 実機はユーザー確認待ち** | 狭帯 FRD で上端ギリギリのホイール入力が不安定になりうる |
 | 2026-06-27 21:54 | **R3.5d d-5 実機クローズ** — G-FRD-F Step 6 OK（`StitchTab=Inheritance`・継承履歴緑ライン Y=2778）。4a/4b/1/3 退行なし | StitchTab 修正（`4c6029e`）後。M6c 完了 |
 | 2026-06-27 21:04 | **M6c 実機 Step 1・3 退行なし** | HOF-S wheel=-4・TRN L2 wheel=-4。R3.5d 広帯退行ゲート OK。M6c は Step 6（継承履歴カット）のみ NG で未クローズ |
 | 2026-06-27 20:26 | **M6c 実機 Step 6 NG（G-FRD-F / 継承）** | 結合・wheel=-3 OK。下部トリム NG: `StitchTab=Skill`（TrainingInfo 誤検出→上書き）で S-5 `cropAtInheritanceHistoryBar` スキップ。4b と同根の tabDetect 問題 |

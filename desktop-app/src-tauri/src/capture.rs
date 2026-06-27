@@ -28,6 +28,11 @@ struct WheelDecision {
     reason: String,
 }
 
+/// ホイール入力カーソルをスクロール帯上端から離す最小 px（狭帯 FRD で上端ギリギリを避ける）
+const SCROLL_CURSOR_TOP_MARGIN_PX: i32 = 56;
+/// スクロール帯内での Y 位置（上端=0・下端=1）。旧中点 0.5 よりやや下（FRD 安定化・HOF/TRN 帯内に留まる）
+const SCROLL_CURSOR_BAND_RATIO: f32 = 0.62;
+
 /// タブ緑ピクセル判定（因子ヘッダー・継承履歴バー用・rgba.ts 正本と同期）
 const TAB_GREEN_G_MIN: u8 = 100;
 const TAB_GREEN_G_OVER_R: i16 = 30;
@@ -719,10 +724,25 @@ pub async fn start_auto_scroll_capture_session(
     // スクロールのアンカーとなるマウス座標（画面全体に対する絶対座標）を計算
     let target_client_x = (factor_start_x + factor_end_x) as i32 / 2;
     // スクロールエリアはヘッダー（header_y）からウィンドウ下部90%（client_height * 0.90）まで続く。
-    // その「ど真ん中」をターゲットとする。
+    // ホイールは帯の上端ギリギリだと FRD 等で不安定になりうるため、上端マージンと帯比率の大きい方を採用。
     let scroll_area_start_y = header_y as i32;
     let scroll_area_end_y = (game_window.client_height as f32 * 0.90) as i32;
-    let target_client_y = (scroll_area_start_y + scroll_area_end_y) / 2;
+    let scroll_band_h = (scroll_area_end_y - scroll_area_start_y).max(1);
+    let from_ratio =
+        scroll_area_start_y + (scroll_band_h as f32 * SCROLL_CURSOR_BAND_RATIO) as i32;
+    let from_margin = scroll_area_start_y + SCROLL_CURSOR_TOP_MARGIN_PX;
+    let target_client_y = from_ratio
+        .max(from_margin)
+        .min(scroll_area_end_y.saturating_sub(8));
+    println!(
+        "[Rust] スクロール用カーソル: Y={} (帯 {}–{} 高さ {}px margin={} ratio={})",
+        target_client_y,
+        scroll_area_start_y,
+        scroll_area_end_y,
+        scroll_band_h,
+        SCROLL_CURSOR_TOP_MARGIN_PX,
+        SCROLL_CURSOR_BAND_RATIO
+    );
 
     let absolute_target_x = game_window.client_x + target_client_x;
     let absolute_target_y = game_window.client_y + target_client_y;
