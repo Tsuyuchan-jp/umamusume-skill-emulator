@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-27 22:53
+最終更新: 2026-06-27 23:21
 
 ---
 
@@ -16,7 +16,7 @@
 
 ## 現在のフォーカス
 
-**P1** — **オートキャプチャ結合リライト R4〜R5**（Backlog 先頭候補）
+**P1** — **G-HOF-S 末端 terminal 誤結合**（設計レビュー起票・Ask mode）
 
 ---
 
@@ -33,6 +33,13 @@
 （完了 — 下記「完了済み」参照）
 
 ### P1 — 重要
+
+- [ ] **G-HOF-S 末端 terminal 誤結合（scrollAmount=135）**
+  - 症状: 10 フレームキャプチャの **Frame 8→9** で `method=terminal`・`scrollAmount=135`（S*=192）。最下部スキル行が **二重結合**
+  - 仮説: 実スクロールは数 px〜数十 px なのに SSD が 135px を採用（`STITCH_SHIFT_S_MIN=40` 未満未探索）。R3.5c-2 terminal は S* 上書きしない設計
+  - 触る想定: `shiftEstimateCore.ts`（terminal 微探索 / duplicate ガード）、必要なら `capture.rs` 停止判定
+  - 関連: `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)` R3.5c-2・`2b272bd` カーソル修正とは別件
+  - **次**: Ask mode 設計レビュー → 承認後 Agent 実装
 
 - [ ] **オートキャプチャ結合リライト R4〜R5**（postProcess 分離・`opencvStitcher.ts` 削除）
   - 前提: **R3.5d 完了後**
@@ -149,7 +156,7 @@
 
 ## 完了済み
 
-- [x] **オートキャプチャ・スクロール用カーソル位置** — Y: 帯上端 + max(56px, 62%帯高)（`1ac4742`）。X: **crop 中心**（`cropCore` 同系・`2b272bd`。幾何中心 `a3b8fcd` は実機 NG で差し替え）。golden 25/25。**実機クローズ（Y）**: G-FRD-S-register/release・G-HOF-S・G-TRN（`a3b8fcd`）。**X 再検証待ち** / [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
+- [x] **オートキャプチャ・スクロール用カーソル位置** — Y: 帯上端 + max(56px, 62%帯高)（`1ac4742`）。X: crop 中心（`cropCore` 同系・`2b272bd`。幾何中心 `a3b8fcd` は実機 NG で差し替え）。golden 25/25。**実機クローズ**: G-FRD-S-register/release・G-HOF-S・G-TRN・Y/X とも OK（2026-06-27 23:21 / `2b272bd`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 - [x] **Scene Model M6c** — R3.5d-5 実機検証クローズ（4a/4b/1/3/6 全 OK・StitchTab 修正後 Step 6 再 OK）（2026-06-27 21:54 / `ef7beda`）/ [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
 - [x] **オートキャプチャ結合 R3.5d 実機検証クローズ**（d-5: FRD Step 4/6・HOF/TRN 退行なし）（2026-06-27 21:54 / `ef7beda`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 - [x] **Scene Model M6b** — INV-1: scrollStart ガード・G-FRD-S-register scrollStart assert・golden 23/23（2026-06-27 18:56 / `dccf6b3`）/ [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md) — アーモンドアイ golden は PNG 待ち

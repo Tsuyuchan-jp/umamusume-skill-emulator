@@ -591,6 +591,8 @@ score(S) = mean | prev[scrollStartY + S + y, x] - curr[scrollStartY + y, x] |
 
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
+| 2026-06-27 23:21 | **スクロール用カーソル X 実機クローズ** — crop 中心（`2b272bd`）。G-FRD-S-register/release・G-HOF-S・G-TRN 退行なし | ユーザー tauri dev 確認。幾何中心 `a3b8fcd` は NG 済み |
+| 2026-06-27 23:21 | **G-HOF-S 末端 terminal 誤結合（実機 NG 記録）** — Frame 8→9: `scrollAmount=135`・`method=terminal`・score=0.939（S*=192）。最下部スキル行二重。設計レビュー待ち | カーソル修正とは別件。長いスキルリスト末端で再現 |
 | 2026-06-27 22:53 | **スクロール用カーソル X 修正** — 幾何中心（O(1)）は **実機 NG**（ウィンドウ全体中央へオフセット）。**crop 中心**（`findCropBounds` 同系・frame0 上端 30% 1 回走査）に変更。失敗時 factor 中点 | 幾何 fallback は UI 左寄せウィンドウで stitch crop と不一致 |
 | 2026-06-27 22:41 | **スクロール用カーソル Y 実機クローズ** — G-FRD-S-register/release・G-HOF-S・G-TRN 退行なし・Y 下方 OK | ユーザー tauri dev 確認 |
 | 2026-06-27 22:11 | **スクロール用カーソル Y** — `target_client_y` = 帯上端 + max(**56px**, **62%** 帯高)（旧=中点 50%）。golden **25/25 PASS** | 狭帯 FRD で上端ギリギリのホイール入力が不安定になりうる |
