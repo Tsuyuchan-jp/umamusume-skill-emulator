@@ -6,15 +6,17 @@
 
 本番アプリ（`desktop-app`）は **複数のデータファイル** を同時に使います。更新漏れがあると、表示は正しくてもシミュレーションや OCR マッチングがずれることがあります。
 
-| データ | 出力先 | 更新方法 | 本番での役割 |
-|--------|--------|----------|-------------|
-| `skillRarityData.ts` | `desktop-app/app/lib/` | `master.mdb` → `extract_rarity_from_mdb.js` | スキル一覧の色分け（金・緑など） |
-| `umasimSkillData.ts` | `desktop-app/app/lib/` | `extract_umasim_skill_data.js` | **OCR 後のスキル名→ID 変換**（`fuzzyMatcher.ts`） |
-| `skill_data.txt` | `desktop-app/public/` | `extract_umasim_skill_data.js`（`umasimSkillData.ts` と同時生成） | **WASM 同梱フォールバック**（オフライン・fetch 失敗時） |
-| `skill_data.txt` | GitHub + AppData キャッシュ | 実行時 fetch（`umaemuAdapter.ts`） | **WASM エンジン初期化**（オンライン時は最新優先） |
-| `race.js` / `*.wasm` | `desktop-app/public/umaemu/` | umasim `:race` ビルド → 手動コピー（[手順 7](#7-racejs--wasm-エンジンの更新)） | **レースシミュレーション本体**（`worker.js` 経由） |
-| `trackData.ts` | `desktop-app/app/lib/` | **手動編集** | コース選択 UI・レース条件の ID 変換 |
-| `race_presets.json` | `desktop-app/public/` | **手動編集** | レース条件プリセット |
+
+| データ                  | 出力先                          | 更新方法                                                        | 本番での役割                                  |
+| -------------------- | ---------------------------- | ----------------------------------------------------------- | --------------------------------------- |
+| `skillRarityData.ts` | `desktop-app/app/lib/`       | `master.mdb` → `extract_rarity_from_mdb.js`                 | スキル一覧の色分け（金・緑など）                        |
+| `umasimSkillData.ts` | `desktop-app/app/lib/`       | `extract_umasim_skill_data.js`                              | **OCR 後のスキル名→ID 変換**（`fuzzyMatcher.ts`） |
+| `skill_data.txt`     | `desktop-app/public/`        | `extract_umasim_skill_data.js`（`umasimSkillData.ts` と同時生成）  | **WASM 同梱フォールバック**（オフライン・fetch 失敗時）     |
+| `skill_data.txt`     | GitHub + AppData キャッシュ       | 実行時 fetch（`umaemuAdapter.ts`）                               | **WASM エンジン初期化**（オンライン時は最新優先）           |
+| `race.js` / `*.wasm` | `desktop-app/public/umaemu/` | umasim `:race` ビルド → 手動コピー（[手順 7](#7-racejs--wasm-エンジンの更新)） | **レースシミュレーション本体**（`worker.js` 経由）       |
+| `trackData.ts`       | `desktop-app/app/lib/`       | **手動編集**                                                    | コース選択 UI・レース条件の ID 変換                   |
+| `race_presets.json`  | `desktop-app/public/`        | **手動編集**                                                    | レース条件プリセット                              |
+
 
 ### 重要: 二重管理になっている部分
 
@@ -22,7 +24,7 @@
 - **シミュレーション本体（オンライン）** → 実行時に GitHub から取得する `skill_data.txt`（成功時 AppData にキャッシュ）
 - **シミュレーション本体（オフライン）** → 同梱 `desktop-app/public/skill_data.txt` または AppData キャッシュ
 
-ゲーム更新後は **`extract-umasim-skills` を必ず実行**し、`umasimSkillData.ts` と `public/skill_data.txt` を同時更新してください。ネットワーク接続時は実行時 fetch でも umasim 側の最新が反映されます。オフライン環境では、取得した `skill_data.txt` をローカル引数で渡して更新してください。
+ゲーム更新後は `**extract-umasim-skills` を必ず実行**し、`umasimSkillData.ts` と `public/skill_data.txt` を同時更新してください。ネットワーク接続時は実行時 fetch でも umasim 側の最新が反映されます。オフライン環境では、取得した `skill_data.txt` をローカル引数で渡して更新してください。
 
 ---
 
@@ -162,11 +164,13 @@ node tools/mdb-extractor/extract_umasim_skill_data.js path/to/skill_data.txt
 
 #### 使わないもの（混同注意）
 
-| 対象 | 用途 | 本アプリとの関係 |
-|------|------|------------------|
-| `build_wasm.bat` | `:compose` モジュール用（`wasm.js` を `docs/race/` へコピー） | **使用しない** — 出力は Compose UI 付き `wasm.js` |
-| GitHub Releases の `umasim.zip` | umasim **デスクトップアプリ**配布 | **使用しない** — レース WASM エンジンとは別物 |
-| `docs/race/wasm.js`（umasim リポジトリ内） | Compose ベースのレースエミュレータ Web UI | **使用しない** — 本アプリはヘッドレス `race.js` を使用 |
+
+| 対象                                 | 用途                                               | 本アプリとの関係                                |
+| ---------------------------------- | ------------------------------------------------ | --------------------------------------- |
+| `build_wasm.bat`                   | `:compose` モジュール用（`wasm.js` を `docs/race/` へコピー） | **使用しない** — 出力は Compose UI 付き `wasm.js` |
+| GitHub Releases の `umasim.zip`     | umasim **デスクトップアプリ**配布                           | **使用しない** — レース WASM エンジンとは別物           |
+| `docs/race/wasm.js`（umasim リポジトリ内） | Compose ベースのレースエミュレータ Web UI                     | **使用しない** — 本アプリはヘッドレス `race.js` を使用    |
+
 
 #### umasim のビルド
 
@@ -193,12 +197,14 @@ dir race\build\dist\wasmJs\productionExecutable\
 
 想定される主なファイル:
 
-| ファイル | 必須 | 説明 |
-|----------|------|------|
-| `race.js` | ✅ | webpack バンドル。`self.race` として `initializeEngine` / `runSimulation` を公開 |
-| `race.js.map` | 推奨 | ソースマップ（デバッグ用） |
-| `*.wasm`（ハッシュ名） | ✅ | Kotlin/Wasm バイナリ。ビルドごとにファイル名が変わることがある |
-| `index.html` 等 | ❌ | コピー不要 |
+
+| ファイル            | 必須  | 説明                                                                    |
+| --------------- | --- | --------------------------------------------------------------------- |
+| `race.js`       | ✅   | webpack バンドル。`self.race` として `initializeEngine` / `runSimulation` を公開 |
+| `race.js.map`   | 推奨  | ソースマップ（デバッグ用）                                                         |
+| `*.wasm`（ハッシュ名） | ✅   | Kotlin/Wasm バイナリ。ビルドごとにファイル名が変わることがある                                 |
+| `index.html` 等  | ❌   | コピー不要                                                                 |
+
 
 #### 本リポジトリへのコピー
 
@@ -234,11 +240,13 @@ dir desktop-app\public\umaemu\*.wasm
 
 エンジン（`race.js`）とスキルマスタは **別経路** で管理されています。
 
-| データ | 更新方法 | 役割 |
-|--------|----------|------|
-| `race.js` / `*.wasm` | 手順 7（本節） | レース計算ロジック |
-| `skill_data.txt` | 実行時 GitHub 取得（[手順 4](#4-wasm-エンジンの-skill_datatxt実行時自動)） | エンジン初期化時のスキル定義 |
+
+| データ                  | 更新方法                                                                            | 役割               |
+| -------------------- | ------------------------------------------------------------------------------- | ---------------- |
+| `race.js` / `*.wasm` | 手順 7（本節）                                                                        | レース計算ロジック        |
+| `skill_data.txt`     | 実行時 GitHub 取得（[手順 4](#4-wasm-エンジンの-skill_datatxt実行時自動)）                         | エンジン初期化時のスキル定義   |
 | `umasimSkillData.ts` | `npm run extract-umasim-skills`（[手順 3](#3-umasimskilldatats-の更新ocr-マッチング本番で重要)） | OCR スキル名 → ID 変換 |
+
 
 エンジン更新時は、併せて次を実行することを推奨します:
 
@@ -266,10 +274,12 @@ npm run tauri dev
 
 ## npm スクリプト一覧（desktop-app）
 
-| コマンド | スクリプト | 入力 |
-|----------|-----------|------|
-| `npm run extract-skill-info` | `extract_rarity_from_mdb.js` | `master.mdb`（ルート） |
+
+| コマンド                            | スクリプト                          | 入力                                      |
+| ------------------------------- | ------------------------------ | --------------------------------------- |
+| `npm run extract-skill-info`    | `extract_rarity_from_mdb.js`   | `master.mdb`（ルート）                       |
 | `npm run extract-umasim-skills` | `extract_umasim_skill_data.js` | umasim `skill_data.txt`（ネットワーク or ローカル） |
+
 
 > いずれも `desktop-app/` から実行できます。パスはスクリプト内でリポジトリルート基準に解決されます。
 
@@ -277,10 +287,13 @@ npm run tauri dev
 
 ## トラブルシューティング
 
-| 症状 | 疑わしい原因 | 対処 |
-|------|-------------|------|
-| 新スキルが OCR 後に空欄になる | `umasimSkillData.ts` が古い | `npm run extract-umasim-skills` |
-| スキル色がずれる | `skillRarityData.ts` が古い | `npm run extract-skill-info`（要 `master.mdb`） |
-| シミュレーションだけ失敗 | `race.js` が古い / ネットワーク | [手順 7（race.js / WASM エンジンの更新）](#7-racejs--wasm-エンジンの更新) を参照 |
-| 新コースが選べない | `trackData.ts` 未更新 | 手順 5 で追記 |
-| `extract-skill-info` が失敗 | `master.mdb` 未配置 | ルートに配置して再実行 |
+
+| 症状                       | 疑わしい原因                   | 対処                                                          |
+| ------------------------ | ------------------------ | ----------------------------------------------------------- |
+| 新スキルが OCR 後に空欄になる        | `umasimSkillData.ts` が古い | `npm run extract-umasim-skills`                             |
+| スキル色がずれる                 | `skillRarityData.ts` が古い | `npm run extract-skill-info`（要 `master.mdb`）                |
+| シミュレーションだけ失敗             | `race.js` が古い / ネットワーク   | [手順 7（race.js / WASM エンジンの更新）](#7-racejs--wasm-エンジンの更新) を参照 |
+| 新コースが選べない                | `trackData.ts` 未更新       | 手順 5 で追記                                                    |
+| `extract-skill-info` が失敗 | `master.mdb` 未配置         | ルートに配置して再実行                                                 |
+
+

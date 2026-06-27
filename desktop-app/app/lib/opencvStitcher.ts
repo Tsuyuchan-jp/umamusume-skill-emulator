@@ -8,7 +8,7 @@ export type { StitchTab } from "./stitch/types";
 export {
   detectStitchLayout,
   detectStitchLayoutAndTabRow,
-} from "./stitch/layout";
+} from "./stitch/layoutOpenCv";
 export { detectStitchTab } from "./stitch/tabDetect";
 export type { LayoutDetection } from "./stitch/types";
 

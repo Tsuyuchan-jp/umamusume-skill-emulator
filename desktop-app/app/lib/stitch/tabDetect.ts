@@ -1,7 +1,7 @@
 // @ts-nocheck
 
 import { STITCH_TAB_ROW_HEIGHT_RATIO, type StitchLayout } from "./constants";
-import { detectStitchLayoutAndTabRow } from "./layout";
+import { detectStitchLayoutAndTabRow } from "./layoutOpenCv";
 import { matToRgba } from "./opencvRgba";
 import { detectStitchTabFromRgba, measureGreenTabProfileRgba, scanGreenTabRowRgba } from "./tabDetectCore";
 import type { StitchTab, TabRowInfo } from "./types";

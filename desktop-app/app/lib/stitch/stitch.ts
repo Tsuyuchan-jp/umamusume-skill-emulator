@@ -2,7 +2,7 @@
 
 import { findCropBounds } from "./crop";
 import { STITCH_FOOTER_HEIGHT_RATIO, STITCH_HEADER_TAB_BOTTOM_MARGIN_RATIO, STITCH_TAB_ROW_HEIGHT_RATIO, getLayoutHeaderRatio } from "./constants";
-import { detectStitchLayoutAndTabRow } from "./layout";
+import { detectStitchLayoutAndTabRow } from "./layoutOpenCv";
 import { detectStitchTab } from "./tabDetect";
 import { detectScrollStartY } from "./regions";
 import { matchScrollFrames } from "./scrollMatch";

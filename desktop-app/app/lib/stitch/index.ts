@@ -8,7 +8,7 @@ export {
   detectStitchLayout,
   detectStitchLayoutAndTabRow,
   detectLayoutAndTabRowRgba,
-} from "./layout";
+} from "./layoutOpenCv";
 export { detectStitchTab, detectStitchTabFromRgba } from "./tabDetect";
 export type { ScrollStartResult, CropRect, StitchReport, StitchTab, TabRowInfo, LayoutDetection } from "./types";
 export type { StitchLayout } from "./constants";
