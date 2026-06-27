@@ -157,7 +157,7 @@
 
 ## 完了済み
 
-- [x] **Scene Model M6a** — INV-2: partner register 幾何帯除外・centerDominant 検出・layoutCore partnerTabRow 正本化・golden 22/22（2026-06-27 17:35 / コミット後記入）/ [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
+- [x] **Scene Model M6a** — INV-2: partner register 幾何帯除外・centerDominant 検出・layoutCore partnerTabRow 正本化・golden 22/22（2026-06-27 17:35 / `556a503`）/ [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
 - [x] **Scene Model M5** — wheelCore・capture_frame0_preview IPC・Rust 緑タブ走査廃止・reason=stitch_*（2026-06-27 08:11 / `ba18bc3`）/ [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
 - [x] **Scene Model M4** — partnerDetectCore・緑判定 rgba 正本化・tabDetect INV-2 配線・capture.rs 閾値同期（2026-06-27 08:01 / `40bcbca`）/ [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
 - [x] **Scene Model M3** — expectations sceneSpec 必須・Vitest 駆動・INV-1 メタ（FRD タイト帯）（2026-06-27 07:14 / `cf2a6a0`）/ [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)

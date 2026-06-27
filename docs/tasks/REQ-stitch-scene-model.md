@@ -210,7 +210,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\stitch-golden\measure-
 | 2026-06-27 07:14 | **M3 完了** — `expectations.ts` sceneSpec 必須化・legacy 同期検証・INV-1 メタ（FRD タイト帯）・Vitest `sceneSpec.*` 駆動 | `stitch:golden` 21+1 expected fail（`cf2a6a0`）。G-FRD-S-register `it.fails` 維持 |
 | 2026-06-27 08:01 | **M4 完了** — `partnerDetectCore.ts` 新設（register/release/absent + bandY）・`rgba.ts`/`constants.ts` 緑閾値正本化・tabDetect INV-2 配線・`capture.rs` RGB/タイトルバー同期 | `stitch:golden` 21+1 expected fail 維持。G-FRD-S-register tabY≈0.44 NG は M6 まで |
 | 2026-06-27 08:11 | **M5 完了** — `wheelCore.ts` / `captureWheel.ts` 新設・`capture_frame0_preview` IPC・Rust 緑タブ走査廃止・`reason=stitch_*` ログ | `stitch:golden` 21+1 expected fail 維持。wheel 正本は stitch のみ |
-| 2026-06-27 17:35 | **M6a 完了（INV-2）** — `partnerDetectCore` bandTop/bandBottom 幾何帯・centerDominantRegister プロファイル・release/register 同居時 register 優先・`layoutCore` register 時 partnerTabRow 正本・`golden.test` it.fails 昇格（tabRow のみ） | `stitch:golden` 22/22 PASS。scrollStart は M6b（INV-1） |
+| 2026-06-27 17:35 | **M6a 完了（INV-2）** — `partnerDetectCore` bandTop/bandBottom 幾何帯・centerDominantRegister プロファイル・release/register 同居時 register 優先・`layoutCore` register 時 partnerTabRow 正本・`golden.test` it.fails 昇格（tabRow のみ） | `stitch:golden` 22/22 PASS（`556a503`）。scrollStart は M6b（INV-1） |
 
 ---
 
