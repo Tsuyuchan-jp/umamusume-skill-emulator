@@ -34,12 +34,137 @@ const SCROLL_CURSOR_TOP_MARGIN_PX: i32 = 56;
 const SCROLL_CURSOR_BAND_RATIO: f32 = 0.62;
 /// ゲーム UI パネル幅（高さ × 9:16）— stitch `cropCore` フォールバックと同系
 const UI_PANEL_ASPECT_WIDTH_RATIO: f32 = 0.5625;
+/// 緑タイトルバー HSV（stitch `constants.ts` / `rgba.ts` 正本・半スケール H）
+const TITLE_BAR_H_MIN: f32 = 20.0;
+const TITLE_BAR_H_MAX: f32 = 60.0;
+const TITLE_BAR_S_MIN: f32 = 150.0;
 
-/// スクロール用カーソル X（クライアント座標）。パネルをウィンドウ中央に置いたときの幾何中心（O(1)・追加走査なし）。
-fn scroll_panel_center_client_x(client_width: i32, client_height: i32) -> i32 {
-    let ui_width = (client_height as f32 * UI_PANEL_ASPECT_WIDTH_RATIO) as i32;
-    let panel_left = ((client_width - ui_width) / 2).max(0);
-    panel_left + ui_width / 2
+struct CropRect {
+    x: u32,
+    y: u32,
+    width: u32,
+    height: u32,
+}
+
+fn rgb_to_hsv(r: u8, g: u8, b: u8) -> (f32, f32, f32) {
+    let rn = r as f32 / 255.0;
+    let gn = g as f32 / 255.0;
+    let bn = b as f32 / 255.0;
+    let max = rn.max(gn).max(bn);
+    let min = rn.min(gn).min(bn);
+    let d = max - min;
+    let mut h = 0.0f32;
+    if d != 0.0 {
+        h = if max == rn {
+            ((gn - bn) / d) % 6.0
+        } else if max == gn {
+            (bn - rn) / d + 2.0
+        } else {
+            (rn - gn) / d + 4.0
+        } * 60.0;
+        if h < 0.0 {
+            h += 360.0;
+        }
+    }
+    let s = if max == 0.0 { 0.0 } else { d / max };
+    (h / 2.0, s * 255.0, max * 255.0)
+}
+
+fn is_title_bar_green_rgb(r: u8, g: u8, b: u8) -> bool {
+    let (h, s, _v) = rgb_to_hsv(r, g, b);
+    h >= TITLE_BAR_H_MIN && h <= TITLE_BAR_H_MAX && s >= TITLE_BAR_S_MIN
+}
+
+/// stitch `findCropBoundsFromRgba` 同系 — 緑タイトルバーから UI パネル矩形
+fn find_crop_bounds_from_frame(frame: &image::RgbImage) -> Option<CropRect> {
+    let width = frame.width();
+    let height = frame.height();
+    let search_height = (height as f32 * 0.30) as u32;
+
+    let mut max_detected_width = 0u32;
+    let mut widest_left_x = 0u32;
+    let mut widest_right_x = 0u32;
+
+    for y in 0..search_height.min(height) {
+        let mut first_x: Option<u32> = None;
+        let mut last_x = 0u32;
+        for x in 0..width {
+            let pixel = frame.get_pixel(x, y);
+            if is_title_bar_green_rgb(pixel[0], pixel[1], pixel[2]) {
+                if first_x.is_none() {
+                    first_x = Some(x);
+                }
+                last_x = x;
+            }
+        }
+        if let Some(first) = first_x {
+            let current_width = last_x - first + 1;
+            if current_width > max_detected_width {
+                max_detected_width = current_width;
+                widest_left_x = first;
+                widest_right_x = last_x;
+            }
+        }
+    }
+
+    let mut header_y = None;
+    for y in 0..search_height.min(height) {
+        let mut first_x: Option<u32> = None;
+        let mut last_x = 0u32;
+        for x in 0..width {
+            let pixel = frame.get_pixel(x, y);
+            if is_title_bar_green_rgb(pixel[0], pixel[1], pixel[2]) {
+                if first_x.is_none() {
+                    first_x = Some(x);
+                }
+                last_x = x;
+            }
+        }
+        if let Some(first) = first_x {
+            let current_width = last_x - first + 1;
+            if current_width as f32 >= max_detected_width as f32 * 0.95 {
+                header_y = Some(y);
+                break;
+            }
+        }
+    }
+
+    if header_y.is_none() || max_detected_width < 100 {
+        return None;
+    }
+
+    let start_y = header_y.unwrap();
+    let ui_width = widest_right_x - widest_left_x + 1;
+    let mut ui_height = (ui_width as f32 / UI_PANEL_ASPECT_WIDTH_RATIO) as u32;
+    if start_y + ui_height > height {
+        ui_height = height - start_y;
+    }
+
+    Some(CropRect {
+        x: widest_left_x,
+        y: start_y,
+        width: ui_width,
+        height: ui_height,
+    })
+}
+
+/// スクロール用カーソル X — crop 中心（stitch 正本）。失敗時は factor 緑帯中点。
+fn scroll_cursor_client_x(
+    crop: Option<&CropRect>,
+    factor_start_x: u32,
+    factor_end_x: u32,
+) -> (i32, &'static str) {
+    if let Some(crop) = crop {
+        (
+            crop.x as i32 + crop.width as i32 / 2,
+            "crop_center",
+        )
+    } else {
+        (
+            ((factor_start_x + factor_end_x) / 2) as i32,
+            "factor_mid_fallback",
+        )
+    }
 }
 
 /// タブ緑ピクセル判定（因子ヘッダー・継承履歴バー用・rgba.ts 正本と同期）
@@ -731,9 +856,21 @@ pub async fn start_auto_scroll_capture_session(
     };
 
     // スクロールのアンカーとなるマウス座標（画面全体に対する絶対座標）を計算
-    // X: UI パネル幾何中心（factor 緑帯中点は左端ノイズで HOF/FRD-release が左寄りになりうるため使わない）
-    let target_client_x =
-        scroll_panel_center_client_x(game_window.client_width, game_window.client_height);
+    // X: stitch cropCore と同系の緑タイトルバー検出 → crop 中心（幾何 fallback はウィンドウ全体中央になり得るため使わない）
+    let frame0_ref = prev_frame.as_ref().expect("frame0");
+    let crop_bounds = find_crop_bounds_from_frame(frame0_ref);
+    if let Some(ref crop) = crop_bounds {
+        println!(
+            "[Rust] crop 検出: x={} y={} {}x{} (中心 X={})",
+            crop.x,
+            crop.y,
+            crop.width,
+            crop.height,
+            crop.x as i32 + crop.width as i32 / 2
+        );
+    }
+    let (target_client_x, cursor_x_method) =
+        scroll_cursor_client_x(crop_bounds.as_ref(), factor_start_x, factor_end_x);
     let factor_mid_x = (factor_start_x + factor_end_x) as i32 / 2;
     // スクロールエリアはヘッダー（header_y）からウィンドウ下部90%（client_height * 0.90）まで続く。
     // ホイールは帯の上端ギリギリだと FRD 等で不安定になりうるため、上端マージンと帯比率の大きい方を採用。
@@ -747,8 +884,9 @@ pub async fn start_auto_scroll_capture_session(
         .max(from_margin)
         .min(scroll_area_end_y.saturating_sub(8));
     println!(
-        "[Rust] スクロール用カーソル: X={} (UI中心 factor帯 {}–{} 中点 {}), Y={} (帯 {}–{} 高さ {}px margin={} ratio={})",
+        "[Rust] スクロール用カーソル: X={} ({}) factor帯 {}–{} 中点 {}, Y={} (帯 {}–{} 高さ {}px margin={} ratio={})",
         target_client_x,
+        cursor_x_method,
         factor_start_x,
         factor_end_x,
         factor_mid_x,

@@ -114,7 +114,7 @@ Screen
 | 軸 | 正本 | 備考 |
 |----|------|------|
 | **Y** | 因子ヘッダー Y（`find_factor_header_bounds`）＋帯内 max(56px, 62%帯高) | 狭帯 FRD 安定化 |
-| **X** | **UI パネル幹何中心**（`clientH×0.5625` をウィンドウ中央配置・cropCore fallback 同系） | O(1)。factor 緑帯中点は左端ノイズで HOF/FRD-release が左寄りになりうるためホイール X には使わない |
+| **X** | **crop 中心**（frame0 で緑タイトルバー走査・`cropCore` 同系） | 1 回/セッション。幾何 fallback（ウィンドウ中央）は UI 左寄せ配置で外れるため **不採用**。crop 失敗時のみ factor 中点 |
 | factor 緑帯 X | `find_factor_header_bounds` の start/end | **継承履歴バー早期終了**の走査幅のみ |
 
 ### TS frame0 推定（M5 正本）
@@ -591,7 +591,7 @@ score(S) = mean | prev[scrollStartY + S + y, x] - curr[scrollStartY + y, x] |
 
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
-| 2026-06-27 22:41 | **スクロール用カーソル X** — `target_client_x` = **UI パネル幹何中心**（`clientH×0.5625` を中央配置・cropCore fallback 同系・**O(1)**）。factor 緑帯中点は継承履歴検出のみ。HOF/FRD-release の左寄りは factor 左端ノイズが原因 | 追加ピクセル走査なし。findCropBounds 相当は frame0 二重走査になるため見送り |
+| 2026-06-27 22:53 | **スクロール用カーソル X 修正** — 幾何中心（O(1)）は **実機 NG**（ウィンドウ全体中央へオフセット）。**crop 中心**（`findCropBounds` 同系・frame0 上端 30% 1 回走査）に変更。失敗時 factor 中点 | 幾何 fallback は UI 左寄せウィンドウで stitch crop と不一致 |
 | 2026-06-27 22:41 | **スクロール用カーソル Y 実機クローズ** — G-FRD-S-register/release・G-HOF-S・G-TRN 退行なし・Y 下方 OK | ユーザー tauri dev 確認 |
 | 2026-06-27 22:11 | **スクロール用カーソル Y** — `target_client_y` = 帯上端 + max(**56px**, **62%** 帯高)（旧=中点 50%）。golden **25/25 PASS** | 狭帯 FRD で上端ギリギリのホイール入力が不安定になりうる |
 | 2026-06-27 21:54 | **R3.5d d-5 実機クローズ** — G-FRD-F Step 6 OK（`StitchTab=Inheritance`・継承履歴緑ライン Y=2778）。4a/4b/1/3 退行なし | StitchTab 修正（`4c6029e`）後。M6c 完了 |
