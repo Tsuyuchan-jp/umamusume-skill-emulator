@@ -578,7 +578,7 @@ score(S) = mean | prev[scrollStartY + S + y, x] - curr[scrollStartY + y, x] |
 
 **Vitest**: `shiftEstimateCore.test.ts` — 合成 RGBA で coarse 誤ピーク → micro≈0 → skip。golden PNG 差し替えなし。
 
-**実機**: G-HOF-S 長リスト OK 後 `SCENE-CATALOG.md` 更新。
+**実機**: G-HOF-S 長リスト・G-TRN・G-FRD-S-release/register 退行なし（2026-06-28 クローズ）。
 
 ### R3.5d 完了条件
 
@@ -615,7 +615,8 @@ score(S) = mean | prev[scrollStartY + S + y, x] - curr[scrollStartY + y, x] |
 
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
-| 2026-06-27 23:54 | **G-HOF-S terminal 微探索 + NO_SCROLL skip 実装** — `STITCH_SHIFT_TERMINAL_*` 定数3件・最終ペア [0,40) 微探索・terminal 経路のみ skip。Vitest 4件 + golden 25/25 PASS。**実機 OK 待ち** | 設計レビュー案 A 承認どおり。`coarseIsTerminalShortScroll` ガードで FRD golden 退行回避。TRN 119px は diff 非採用で R3.5c-2 維持 |
+| 2026-06-28 00:11 | **G-HOF-S terminal 微探索 実機クローズ** — 長リスト Frame 8→9 raw=82→final=28 terminal・二重なし。G-TRN・G-FRD-S-release/register 退行なし | ユーザー tauri dev 確認。SCENE-CATALOG 同期 |
+| 2026-06-27 23:54 | **G-HOF-S terminal 微探索 + NO_SCROLL skip 実装** — `STITCH_SHIFT_TERMINAL_*` 定数3件・最終ペア [0,40) 微探索・terminal 経路のみ skip。Vitest 4件 + golden 25/25 PASS | 設計レビュー案 A 承認どおり。`coarseIsTerminalShortScroll` ガードで FRD golden 退行回避。TRN 119px は diff 非採用で R3.5c-2 維持 |
 | 2026-06-27 23:21 | **スクロール用カーソル X 実機クローズ** — crop 中心（`2b272bd`）。G-FRD-S-register/release・G-HOF-S・G-TRN 退行なし | ユーザー tauri dev 確認。幾何中心 `a3b8fcd` は NG 済み |
 | 2026-06-27 23:21 | **G-HOF-S 末端 terminal 誤結合（実機 NG 記録）** — Frame 8→9: `scrollAmount=135`・`method=terminal`・score=0.939（S*=192）。最下部スキル行二重。設計レビュー待ち | カーソル修正とは別件。長いスキルリスト末端で再現 |
 | 2026-06-27 22:53 | **スクロール用カーソル X 修正** — 幾何中心（O(1)）は **実機 NG**（ウィンドウ全体中央へオフセット）。**crop 中心**（`findCropBounds` 同系・frame0 上端 30% 1 回走査）に変更。失敗時 factor 中点 | 幾何 fallback は UI 左寄せウィンドウで stitch crop と不一致 |

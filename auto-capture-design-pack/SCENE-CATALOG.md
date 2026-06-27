@@ -21,12 +21,12 @@
 
 | シーン ID | 経路 | タブ | partnerBand | layout 期待 | goldenPath | expectations | 実機 Step | 状態 | 備考 |
 |-----------|------|------|-------------|-------------|------------|--------------|-----------|------|------|
-| G-HOF-S | HOF | Skill | absent | L3 | `golden/HOF/skill/frame_000.png` | yes | 1 | ok | M6c Step1 退行なし（wheel=-4・scrollStart≈0.441） |
+| G-HOF-S | HOF | Skill | absent | L3 | `golden/HOF/skill/frame_000.png` | yes | 1 | ok | terminal 微探索 OK（2026-06-28）— 長リスト Frame 8→9 raw=82→final=28 terminal・二重なし。wheel=-4 |
 | G-HOF-F | HOF | 因子/継承 | absent | L3 | `golden/HOF/factor/frame_000.png` | yes | 5 | ok | |
-| G-TRN | TRN | Skill | absent | L2 | `golden/TRN/frame_000.png` | yes | 3 | ok | M6c Step3 退行なし（wheel=-4・tabY≈0.47） |
+| G-TRN | TRN | Skill | absent | L2 | `golden/TRN/frame_000.png` | yes | 3 | ok | terminal 微探索退行なし（2026-06-28）。wheel=-4 |
 | G-CMP-S | CMP | Skill | absent | L3 | `golden/CMP/skill/frame_000.png` | yes | 2 skip | ok | |
-| G-FRD-S-release | FRD | Skill | **release**（灰・解除） | L3+Btn | `golden/FRD/skill-release/frame_000.png` | yes | 4 | **ok** | M6c 4a 実機 OK（wheel=-3・scrollStart≈0.546）。golden はアーモンドアイ収録 |
-| G-FRD-S-register | FRD | Skill | **register**（緑・登録） | L3+Btn | `golden/FRD/skill-register/frame_000.png` | yes | 4 | **ok** | M6c 4b 実機 OK（wheel=-3）。StitchTab 修正済み（`4c6029e`） |
+| G-FRD-S-release | FRD | Skill | **release**（灰・解除） | L3+Btn | `golden/FRD/skill-release/frame_000.png` | yes | 4 | **ok** | terminal 微探索退行なし（2026-06-28）。wheel=-3 |
+| G-FRD-S-register | FRD | Skill | **register**（緑・登録） | L3+Btn | `golden/FRD/skill-register/frame_000.png` | yes | 4 | **ok** | terminal 微探索退行なし（2026-06-28）。wheel=-3 |
 | G-FRD-F | FRD | 因子/継承 | release/absent | L3+Btn | `golden/FRD/factor/frame_000.png` | yes | 6 | **ok** | M6c Step 6 実機 OK（`StitchTab=Inheritance`・wheel=-3・scrollStart≈0.546・継承履歴緑ライン Y=2778） |
 | G-FRD-I | FRD | 育成情報 | — | — | — | R4 | — | 欠落 | R4 スコープ・golden 不要 |
 
@@ -112,4 +112,4 @@ INV 対応・計測メモ: [`REQ-stitch-scene-model.md`](../docs/tasks/REQ-stitc
 3. golden PNG を追加したら `goldenPath` を実パスに更新し、`状態` を `ok` / `ng` / `要再検証` へ
 4. **実機 Step を docs に記録したら** 該当行を **同一コミットで** 更新する（全 Step 完了を待たない）。手順の正本: [`DOCS-GUIDE.md`](../docs/DOCS-GUIDE.md)「永続正本同期表」capture 行
 
-最終更新: 2026-06-27 21:54
+最終更新: 2026-06-28 00:11

@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-27 23:54
+最終更新: 2026-06-28 00:11
 
 ---
 
@@ -16,7 +16,7 @@
 
 ## 現在のフォーカス
 
-**P1** — **G-HOF-S 末端 terminal 実機 OK 待ち**（微探索実装済み）
+**P1** — **オートキャプチャ結合 R4〜R5**（postProcess 分離・次 Backlog）
 
 ---
 
@@ -149,7 +149,7 @@
 
 ## 完了済み
 
-- [x] **G-HOF-S 末端 terminal 微探索 + NO_SCROLL skip** — `shiftEstimateCore` 最終ペア [0,40) 微探索・terminal 経路 skip。Vitest 4件 + golden 25/25 PASS。**実機 OK 待ち**（G-HOF-S 長リスト → G-TRN → G-FRD-S）（2026-06-27 23:54 / `d914c3b`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) R3.5c-2 拡張
+- [x] **G-HOF-S 末端 terminal 微探索 + NO_SCROLL skip** — 最終ペア [0,40) 微探索・terminal 経路 skip/terminal 採用。Vitest 4件 + golden 25/25。**実機クローズ**: G-HOF-S 長リスト（Frame 8→9 raw=82→final=28 terminal）・G-TRN・G-FRD-S-release/register 退行なし（2026-06-28 00:11 / `d914c3b`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) R3.5c-2 拡張
 - [x] **オートキャプチャ・スクロール用カーソル位置** — Y: 帯上端 + max(56px, 62%帯高)（`1ac4742`）。X: crop 中心（`cropCore` 同系・`2b272bd`。幾何中心 `a3b8fcd` は実機 NG で差し替え）。golden 25/25。**実機クローズ**: G-FRD-S-register/release・G-HOF-S・G-TRN・Y/X とも OK（2026-06-27 23:21 / `2b272bd`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 - [x] **Scene Model M6c** — R3.5d-5 実機検証クローズ（4a/4b/1/3/6 全 OK・StitchTab 修正後 Step 6 再 OK）（2026-06-27 21:54 / `ef7beda`）/ [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
 - [x] **オートキャプチャ結合 R3.5d 実機検証クローズ**（d-5: FRD Step 4/6・HOF/TRN 退行なし）（2026-06-27 21:54 / `ef7beda`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
