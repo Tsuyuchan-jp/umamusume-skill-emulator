@@ -18,10 +18,10 @@ describe("stitch golden expectations (R0)", () => {
   it("expectations.json が読み込める", () => {
     const exp = loadStitchGoldenExpectations();
     expect(exp.version).toBe(1);
-    expect(exp.cases.length).toBe(7);
+    expect(exp.cases.length).toBe(8);
   });
 
-  it("全7 case: sceneSpec 必須・スキーマ・legacy 同期", () => {
+  it("全8 case: sceneSpec 必須・スキーマ・legacy 同期", () => {
     const exp = loadStitchGoldenExpectations();
     const errors = validateAllGoldenCaseSceneSpecs(exp);
     expect(errors, errors.join("\n")).toEqual([]);
@@ -210,6 +210,56 @@ describe.skipIf(!isDesignPackPresent())("stitch golden R3.5a shiftEstimate", () 
       `outputHeight=${measured.outputHeight}`
     ).toBeGreaterThan(1300);
   }, 120_000);
+
+  it("G-FRD-I frame_000..007: std(S_k)<25, min(S_k)>80, [22,32] 禁止帯 0件", async () => {
+    const c = getGoldenCase("G-FRD-I")!;
+    const framePaths = Array.from({ length: 8 }, (_, i) =>
+      `golden/FRD/info/frame_${String(i).padStart(3, "0")}.png`
+    );
+    for (const rel of framePaths) {
+      expect(existsSync(join(packRoot, rel)), `missing ${rel}`).toBe(true);
+    }
+
+    const measured = await measureShiftFromFrames(packRoot, framePaths, c.layout);
+    const overlaps = measured.overlaps;
+    expect(overlaps.length).toBeGreaterThanOrEqual(6);
+
+    if (c.shiftRepresentative) {
+      expect(
+        measured.representative,
+        `S*=${measured.representative} overlaps=${overlaps.join(",")}`
+      ).toBeGreaterThanOrEqual(c.shiftRepresentative.min);
+      expect(measured.representative).toBeLessThanOrEqual(c.shiftRepresentative.max);
+    }
+
+    const sStd = stdDev(overlaps);
+    // terminal 末端ペア（144→84）で std≈21。release 同型 <20 では不足のため <25
+    expect(sStd).toBeLessThan(25);
+    expect(Math.min(...overlaps), `min(S_k)=${Math.min(...overlaps)}`).toBeGreaterThan(80);
+
+    const forbidden = overlaps.filter((s) => s >= 22 && s <= 32);
+    expect(
+      forbidden.length,
+      `26px 禁止帯ヒット: ${forbidden.join(",")}`
+    ).toBe(0);
+  }, 120_000);
+
+  it("G-FRD-I compose: overlapSum>700, outputHeight>1300", async () => {
+    const c = getGoldenCase("G-FRD-I")!;
+    const framePaths = Array.from({ length: 8 }, (_, i) =>
+      `golden/FRD/info/frame_${String(i).padStart(3, "0")}.png`
+    );
+
+    const measured = await measureComposeFromFrames(packRoot, framePaths, c.layout);
+    expect(
+      measured.overlapSum,
+      `overlapSum=${measured.overlapSum}`
+    ).toBeGreaterThan(700);
+    expect(
+      measured.outputHeight,
+      `outputHeight=${measured.outputHeight}`
+    ).toBeGreaterThan(1300);
+  }, 120_000);
 });
 
 describe.skipIf(!isDesignPackPresent())("stitch golden design pack paths", () => {
@@ -311,6 +361,13 @@ describe.skipIf(!isDesignPackPresent())("stitch golden R3.5b layout + tabDetect 
     expect(measured.layout, `layout=${measured.layout}`).toBe("L3+Btn");
     expect(measured.tab, `tab=${measured.tab}`).toBe("Inheritance");
   }, 60_000);
+
+  it("G-FRD-I: tab=TrainingInfo（育成情報タブ・S-6 経路）", async () => {
+    const c = getGoldenCase("G-FRD-I")!;
+    const measured = await measureLayoutFromFrame(packRoot, c.framePaths[0]!);
+    expect(measured.layout, `layout=${measured.layout}`).toBe("L3+Btn");
+    expect(measured.tab, `tab=${measured.tab}`).toBe("TrainingInfo");
+  }, 60_000);
 });
 
 describe.skipIf(!isDesignPackPresent())("stitch golden R2 layout + scrollStart (sceneSpec 正本)", () => {
@@ -405,6 +462,39 @@ describe.skipIf(!isDesignPackPresent())("stitch golden R2 layout + scrollStart (
     }
 
     const layoutMeasured = await measureLayoutFromFrame(packRoot, framePaths[0]!);
+    const scrollMeasured = await measureScrollStartFromFrames(
+      packRoot,
+      framePaths,
+      c.layout
+    );
+    expect(
+      isRatioInBand(scrollMeasured.scrollStartRatio, c.sceneSpec.scrollStart),
+      `scrollStartRatio=${scrollMeasured.scrollStartRatio.toFixed(4)} method=${scrollMeasured.method} band=${c.sceneSpec.scrollStart.min}-${c.sceneSpec.scrollStart.max}`
+    ).toBe(true);
+    expect(
+      satisfiesInv1Measured(
+        layoutMeasured.tabRowRatio,
+        scrollMeasured.scrollStartRatio,
+        exp.tabBottomMarginRatio
+      ),
+      `INV-1: tabY=${layoutMeasured.tabRowRatio.toFixed(4)} scrollStart=${scrollMeasured.scrollStartRatio.toFixed(4)}`
+    ).toBe(true);
+  }, 60_000);
+
+  it("G-FRD-I layout=L3+Btn, tabRow/scrollStart ∈ sceneSpec（INV-2/INV-1）", async () => {
+    const c = getGoldenCase("G-FRD-I")!;
+    const framePaths = [c.framePaths[0]!, c.framePaths[1]!];
+    for (const rel of framePaths) {
+      expect(existsSync(join(packRoot, rel)), `missing ${rel}`).toBe(true);
+    }
+
+    const layoutMeasured = await measureLayoutFromFrame(packRoot, framePaths[0]!);
+    expect(layoutMeasured.layout, `layout=${layoutMeasured.layout}`).toBe("L3+Btn");
+    expect(
+      isRatioInBand(layoutMeasured.tabRowRatio, c.sceneSpec.tabRow),
+      `tabRowRatio=${layoutMeasured.tabRowRatio.toFixed(4)} method=${layoutMeasured.tabRowMethod} band=${c.sceneSpec.tabRow.min}-${c.sceneSpec.tabRow.max}`
+    ).toBe(true);
+
     const scrollMeasured = await measureScrollStartFromFrames(
       packRoot,
       framePaths,

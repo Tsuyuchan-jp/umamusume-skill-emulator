@@ -128,6 +128,26 @@
       "legacyHeaderRatio": 0.16,
       "shiftRepresentative": { "min": 120, "max": 160 },
       "notes": "measure-regions R0: tabRow≈0.50 scrollStart≈0.55（R0 緑走査は Vitest 帯とずれ）。練習パートナー解除帯あり。R3.5d 狭帯 -3"
+    },
+    {
+      "id": "G-FRD-I",
+      "label": "フレンド・育成情報タブ",
+      "layout": "L3+Btn",
+      "framePaths": [
+        "golden/FRD/info/frame_000.png",
+        "golden/FRD/info/frame_001.png"
+      ],
+      "sceneSpec": {
+        "partnerBand": { "variant": "register" },
+        "tabRow": { "min": 0.46, "max": 0.48 },
+        "scrollStart": { "min": 0.52, "max": 0.56 },
+        "wheel": -3
+      },
+      "scrollStartRatio": { "min": 0.52, "max": 0.56 },
+      "tabRowRatio": { "min": 0.46, "max": 0.48 },
+      "legacyHeaderRatio": 0.16,
+      "shiftRepresentative": { "min": 120, "max": 160 },
+      "notes": "R4b: tabRow≈0.462 scrollStart≈0.546（Vitest/green-tab 正本）。S*≈144（狭帯 -3）。frame_000..007 利用可。measure-regions R0 は partner register 未対応で FAIL 想定（G-FRD-S-register 同型）"
     }
   ]
 }

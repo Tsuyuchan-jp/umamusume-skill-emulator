@@ -28,7 +28,7 @@
 | G-FRD-S-release | FRD | Skill | **release**（灰・解除） | L3+Btn | `golden/FRD/skill-release/frame_000.png` | yes | 4 | **ok** | R4a postProcess 退行なし（2026-06-28）。wheel=-3 |
 | G-FRD-S-register | FRD | Skill | **register**（緑・登録） | L3+Btn | `golden/FRD/skill-register/frame_000.png` | yes | 4 | **ok** | R4a postProcess 退行なし（2026-06-28）。wheel=-3 |
 | G-FRD-F | FRD | 因子/継承 | release/absent | L3+Btn | `golden/FRD/factor/frame_000.png` | yes | 6 | **ok** | R4a postProcess 退行なし（2026-06-28）— S-5 継承履歴カット OK。wheel=-3 |
-| G-FRD-I | FRD | 育成情報 | release/absent | L3+Btn | `golden/FRD/info/` | no | 7（Phase 1b） | **ok** | **実機クローズ**（2026-06-28）— `StitchTab=TrainingInfo`・S-6・退行ゲート全 OK。PNG 未収録 |
+| G-FRD-I | FRD | 育成情報 | **register**（緑・登録） | L3+Btn | `golden/FRD/info/frame_000.png` | yes | 7（Phase 1b） | **ok** | **golden 登録完了**（2026-06-28）— `StitchTab=TrainingInfo`・S-6・wheel=-3 |
 
 ---
 
@@ -45,7 +45,7 @@
 | G-FRD-S-release | G-FRD-S-release | `golden/FRD/skill-release/frame_000.png` | 一致 |
 | G-FRD-S-register | G-FRD-S-register | `golden/FRD/skill-register/frame_000.png` | 一致 |
 | G-FRD-F | G-FRD-F | `golden/FRD/factor/frame_000.png` | 一致 |
-| G-FRD-I | — | `golden/FRD/info/` | PNG 未収録（収集手順は下記） |
+| G-FRD-I | G-FRD-I | `golden/FRD/info/frame_000.png` | 一致 |
 
 ---
 
@@ -84,6 +84,7 @@
 | G-FRD-S-release | release | 0.39–0.47 | 0.52–0.56 | -3 |
 | G-FRD-S-register | register | 0.46–0.48 | 0.52–0.56 | -3 |
 | G-FRD-F | release | 0.39–0.47 | 0.46–0.52 | -3 |
+| G-FRD-I | register | 0.46–0.48 | 0.52–0.56 | -3 |
 
 INV 対応・計測メモ: [`REQ-stitch-scene-model.md`](../docs/tasks/REQ-stitch-scene-model.md)「シーン別期待領域表」。
 
@@ -125,4 +126,4 @@ INV 対応・計測メモ: [`REQ-stitch-scene-model.md`](../docs/tasks/REQ-stitc
 3. golden PNG を追加したら `goldenPath` を実パスに更新し、`状態` を `ok` / `ng` / `要再検証` へ
 4. **実機 Step を docs に記録したら** 該当行を **同一コミットで** 更新する（全 Step 完了を待たない）。手順の正本: [`DOCS-GUIDE.md`](../docs/DOCS-GUIDE.md)「永続正本同期表」capture 行
 
-最終更新: 2026-06-28 03:16
+最終更新: 2026-06-28 03:34

@@ -655,6 +655,7 @@ score(S) = mean | prev[scrollStartY + S + y, x] - curr[scrollStartY + y, x] |
 
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
+| 2026-06-28 03:34 | **G-FRD-I golden 登録完了** — expectations case 8件目・Vitest 29/29・`golden/FRD/info/frame_000..007` 収録。Vitest 計測: tabRow≈0.462・scrollStart≈0.546・S*≈144。measure-regions R0 は partner register 未対応で FAIL（G-FRD-S-register 同型・Vitest が正本）。CONCEPT-MAP: 新概念なし | PNG 配置済み。stitch アルゴリズム変更なし |
 | 2026-06-28 03:16 | **G-FRD-I 実機クローズ確定** — `StitchTab=TrainingInfo` ログ確認。退行ゲート G-HOF-S / G-TRN / G-FRD-S / G-HOF-F / G-FRD-F 全 OK。R4b・親 REQ Phase 1b 実機完了 | ユーザー再検証。次: `golden/FRD/info/` PNG 収録 |
 | 2026-06-28 01:16 | **G-FRD-I / HOF 育成情報 実機クローズ** — 結合・OCR OK。HOF: `StitchTab=TrainingInfo`・S-6 ログ OK。FRD: 成果物 OK だがログ `StitchTab=Inheritance` — `shouldRepickWithoutTrainingSeg` が register 帯で右端強緑を無条件棄却していたため dominance 判定に統一（`b8963da`） | ユーザー実機ログ。golden 25/25 退行なし |
 | 2026-06-28 01:04 | **R4b 完了** — TrainingInfo 上書き削除・S-6 経路ログ。golden 25/25 PASS。G-FRD-I PNG 未収録のため expectations 未追加。CONCEPT-MAP: 新概念なし（`51c5a29`） | 案 A 実装。G-FRD-I 実機はユーザー確認待ち。親 REQ Phase 1b は実機 OK 後 |
