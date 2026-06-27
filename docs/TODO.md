@@ -149,7 +149,7 @@
 
 ## 完了済み
 
-- [x] **オートキャプチャ・スクロール用カーソル位置** — Y: 帯上端 + max(56px, 62%帯高)（`1ac4742`）。X: **crop 中心**（`cropCore` 同系・frame0 1 回走査。幾何中心 `a3b8fcd` は実機 NG で差し替え）。golden 25/25。**実機クローズ（Y）**: G-FRD-S-register/release・G-HOF-S・G-TRN（2026-06-27 22:41 / `a3b8fcd`）。**X 再検証待ち** / [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
+- [x] **オートキャプチャ・スクロール用カーソル位置** — Y: 帯上端 + max(56px, 62%帯高)（`1ac4742`）。X: **crop 中心**（`cropCore` 同系・`2b272bd`。幾何中心 `a3b8fcd` は実機 NG で差し替え）。golden 25/25。**実機クローズ（Y）**: G-FRD-S-register/release・G-HOF-S・G-TRN（`a3b8fcd`）。**X 再検証待ち** / [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 - [x] **Scene Model M6c** — R3.5d-5 実機検証クローズ（4a/4b/1/3/6 全 OK・StitchTab 修正後 Step 6 再 OK）（2026-06-27 21:54 / `ef7beda`）/ [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
 - [x] **オートキャプチャ結合 R3.5d 実機検証クローズ**（d-5: FRD Step 4/6・HOF/TRN 退行なし）（2026-06-27 21:54 / `ef7beda`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 - [x] **Scene Model M6b** — INV-1: scrollStart ガード・G-FRD-S-register scrollStart assert・golden 23/23（2026-06-27 18:56 / `dccf6b3`）/ [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md) — アーモンドアイ golden は PNG 待ち
