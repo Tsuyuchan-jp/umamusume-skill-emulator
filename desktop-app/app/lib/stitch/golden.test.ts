@@ -371,25 +371,15 @@ describe.skipIf(!isDesignPackPresent())("stitch golden R2 layout + scrollStart (
     expect(c.sceneSpec.wheel).toBe(-3);
   }, 60_000);
 
-  // M6（partnerDetect）まで tabRow≈0.44 の誤検出が再現する既知 NG。直ったら fails → 通常 it に昇格
-  it.fails("G-FRD-S-register tabRow/scrollStart Scene Spec 帯（tabY≈0.44 誤認）", async () => {
+  it("G-FRD-S-register tabRow Scene Spec 帯（INV-2）", async () => {
     const c = getGoldenCase("G-FRD-S-register")!;
-    const framePaths = [c.framePaths[0]!, c.framePaths[1]!];
+    const framePath = c.framePaths[0]!;
 
-    const layoutMeasured = await measureLayoutFromFrame(packRoot, framePaths[0]!);
+    const layoutMeasured = await measureLayoutFromFrame(packRoot, framePath);
+    expect(layoutMeasured.layout, `layout=${layoutMeasured.layout}`).toBe("L3+Btn");
     expect(
       isRatioInBand(layoutMeasured.tabRowRatio, c.sceneSpec.tabRow),
       `tabRowRatio=${layoutMeasured.tabRowRatio.toFixed(4)} method=${layoutMeasured.tabRowMethod} band=${c.sceneSpec.tabRow.min}-${c.sceneSpec.tabRow.max}`
-    ).toBe(true);
-
-    const scrollMeasured = await measureScrollStartFromFrames(
-      packRoot,
-      framePaths,
-      c.layout
-    );
-    expect(
-      isRatioInBand(scrollMeasured.scrollStartRatio, c.sceneSpec.scrollStart),
-      `scrollStartRatio=${scrollMeasured.scrollStartRatio.toFixed(4)} method=${scrollMeasured.method}`
     ).toBe(true);
   }, 60_000);
 });

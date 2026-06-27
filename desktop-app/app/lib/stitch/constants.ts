@@ -82,7 +82,13 @@ export const STITCH_PARTNER_GREEN_UNIFORM_MIN_SEG = 0.35;
 export const STITCH_PARTNER_GREEN_UNIFORM_MAX_SPREAD = 0.12;
 /** 登録ボタン左右セグの最低緑率（中央は白文字で低くなる） */
 export const STITCH_PARTNER_GREEN_SIDE_MIN_SEG = 0.35;
+/** 登録ボタン中央優勢パターン: 左右が低緑の上限 */
+export const STITCH_PARTNER_GREEN_REGISTER_SIDE_MAX_SEG = 0.15;
+/** 登録ボタン中央優勢パターン: 中央セグの最低緑率 */
+export const STITCH_PARTNER_GREEN_CENTER_DOMINANT_MIN_SEG = 0.6;
 export const STITCH_PARTNER_GREEN_CENTER_GAP = 0.06;
+/** register 帯の tab 走査除外マージン（bandY ± tabRowHeight ± margin） */
+export const STITCH_PARTNER_REGISTER_EXCLUDE_MARGIN_RATIO = 0.006;
 
 /** 最終フォールバック（レイアウト別固定比率） */
 export const STITCH_HEADER_HEIGHT_L2 = 0.5;

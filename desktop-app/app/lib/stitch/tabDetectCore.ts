@@ -103,7 +103,7 @@ export function scanGreenTabRowRgba(
     const p = measureGreenTabProfileRgba(img, tabY);
     if (excludePartnerGreen) {
       const partnerInput = partner ?? { variant: "absent" as const };
-      if (shouldExcludePartnerRegisterBand(ratio, p, partnerInput)) continue;
+      if (shouldExcludePartnerRegisterBand(ratio, p, partnerInput, cropHeight)) continue;
     }
 
     if (mode === "l2") {

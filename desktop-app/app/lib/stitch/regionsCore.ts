@@ -443,7 +443,7 @@ function detectScrollStartByGreenTab(
 
     const l2 = measureGreenTabProfileRgba(frame0, tabY);
     const l3Score = Math.max(l2.seg1, l2.seg2, l2.seg3);
-    if (shouldExcludePartnerRegisterBand(ratio, { ...l2, maxSeg: l3Score }, partner)) {
+    if (shouldExcludePartnerRegisterBand(ratio, { ...l2, maxSeg: l3Score }, partner, cropHeight)) {
       continue;
     }
 

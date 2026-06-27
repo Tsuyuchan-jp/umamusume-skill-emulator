@@ -62,7 +62,7 @@ export function shouldPreferL2(
   return sameRowL2 || trnPattern;
 }
 
-/** partner 帯あり: 期待 tabRow 帯 [0.385, 0.47] を優先してタブ行を選ぶ */
+/** partner 帯あり: 期待 tabRow 帯を優先してタブ行を選ぶ */
 function scanPartnerTabRowRgba(
   img: RgbaImage,
   partner: ReturnType<typeof detectPartnerBandRgba>
@@ -74,15 +74,21 @@ function scanPartnerTabRowRgba(
   let bestOverall: TabRowInfo | null = null;
   let bestOverallScore = -1;
 
+  const registerTabScanStart =
+    partner.variant === "register" && partner.bandRatio != null
+      ? partner.bandRatio + STITCH_TAB_ROW_HEIGHT_RATIO * 0.5
+      : STITCH_L3_BTN_TAB_ROW_MIN_RATIO;
+  const scanStart = Math.max(STITCH_L3_BTN_TAB_ROW_MIN_RATIO, registerTabScanStart);
+
   for (
-    let ratio = STITCH_L3_BTN_TAB_ROW_MIN_RATIO;
+    let ratio = scanStart;
     ratio <= STITCH_TAB_SCAN_L3_END;
     ratio += STITCH_TAB_ROW_Y_SCAN_STEP
   ) {
     const tabY = Math.floor(cropHeight * ratio);
     const p = measureGreenTabProfileRgba(img, tabY);
     if (p.maxSeg < minSeg) continue;
-    if (shouldExcludePartnerRegisterBand(ratio, p, partner)) continue;
+    if (shouldExcludePartnerRegisterBand(ratio, p, partner, cropHeight)) continue;
 
     if (p.maxSeg > bestOverallScore) {
       bestOverallScore = p.maxSeg;
@@ -145,6 +151,12 @@ export function detectLayoutAndTabRowRgba(img: RgbaImage): LayoutDetection {
     scanOpts
   );
   const partnerTabRow = hasPartner ? scanPartnerTabRowRgba(img, partner) : l3BtnRow;
+
+  // INV-2: register 時は partnerTabRow を tabRow 正本（l3Row@登録ボタン誤認経路を回避）
+  if (partner.variant === "register" && partnerTabRow.found) {
+    return { layout: "L3+Btn", tabRow: partnerTabRow };
+  }
+
   const effectiveL3BtnRow =
     hasPartner && partnerTabRow.found ? partnerTabRow : l3BtnRow;
   const preferL2 = shouldPreferL2(img, l2Row, l3Row, hasPartner, cropHeight);
