@@ -27,7 +27,7 @@
 | G-CMP-S | CMP | Skill | absent | L3 | `golden/CMP/skill/frame_000.png` | yes | 2 skip | ok | |
 | G-FRD-S-release | FRD | Skill | **release**（灰・解除） | L3+Btn | `golden/FRD/skill-release/frame_000.png` | yes | 4 | **ng** | アーモンドアイ: absdiff scrollStart≈0.29 誤検出。アストンマーチャン: ok |
 | G-FRD-S-register | FRD | Skill | **register**（緑・登録） | L3+Btn | `golden/FRD/skill-register/frame_000.png` | yes | 4 | 要再検証 | M6c 4b: tabY/wheel/scrollStart OK。StitchTab が TrainingInfo と誤検出（上書きで結合 OK）— TODO P2 |
-| G-FRD-F | FRD | 因子 | release/absent | L3+Btn | `golden/FRD/factor/frame_000.png` | yes | 6 | 要再検証 | R3.5d 狭帯 -3 後 |
+| G-FRD-F | FRD | 因子 | release/absent | L3+Btn | `golden/FRD/factor/frame_000.png` | yes | 6 | **ng** | M6c 6: wheel/scrollStart OK。継承履歴未カット—StitchTab=Skill（Inheritance 要） |
 | G-FRD-I | FRD | 育成情報 | — | — | — | R4 | — | 欠落 | R4 スコープ・golden 不要 |
 
 ---

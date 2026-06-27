@@ -198,6 +198,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\stitch-golden\measure-
 
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
+| 2026-06-27 20:26 | **M6c 実機 Step 6 NG（G-FRD-F）** | 継承タブ・wheel=-3/scrollStart OK だが継承履歴緑バー以下未カット。`TrainingInfo` 誤検出→`Skill` 上書きで `cropAtInheritanceHistoryBar` 未実行。P2 StitchTab 修正が M6c ブロッカー |
 | 2026-06-27 20:19 | **M6c 実機 4b: アクティブタブ誤検出を既知の問題に登録** | スキルタブ選択中に `detectStitchTabFromRgba`→TrainingInfo。M6a INV-2 は tabRow Y 走査のみ。`stitch.ts` 上書きで結合 OK だが検出は誤り。TODO P2・R4 前修正候補 |
 | 2026-06-27 04:11 | **REQ-stitch-scene-model 起票**（M0） | 場当たり修正の構造原因を Phase 化。ワーキングメモリ外の正本が必要 |
 | 2026-06-27 04:11 | stitch 実装と **方法論 REQ を sibling 分離** | R3.5d を止めず、Catalog/検出器統一を並行ロードマップ化 |

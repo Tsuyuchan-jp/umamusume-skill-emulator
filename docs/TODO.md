@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-27 20:19
+最終更新: 2026-06-27 20:26
 
 ---
 
@@ -16,17 +16,18 @@
 
 ## 現在のフォーカス
 
-**P1** — **Scene Model M6c**（R3.5d 実機検証・4a/4b OK / Step 6・1・3 待ち）
+**P1** — **Scene Model M6c**（Step 6 NG・M6c 未クローズ / Step 1・3 退行待ち）
 
 ---
 
 ## 進行中
 
-- [ ] **Scene Model M6c**（R3.5d-5 実機検証クローズ）
+- [ ] **Scene Model M6c**（R3.5d-5 実機検証クローズ）— **未クローズ**
   - 前提: M6b 完了
   - REQ: [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
-  - 実機進捗: **4a OK**・**4b OK**（結合）/ Step 6・1・3 待ち
-  - メモ: 4b でアクティブタブ誤検出（下記既知の問題）— M6c 結合判定は OK
+  - 実機進捗: **4a OK**・**4b OK**（スキル結合）・**6 NG** / Step **1・3** 未
+  - **Step 6 NG**: 継承履歴緑バー以下が未カット。`StitchTab=Skill`（TrainingInfo 誤検出→上書き）のため `cropAtInheritanceHistoryBar` 未実行
+  - 修正: P2 Backlog「StitchTab 誤検出」— **M6c スコープ外**
 
 ## 次にやること（Backlog）
 
@@ -80,14 +81,14 @@
 
 ### P2 — 改善・アイデア
 
-- [ ] **FRD-S register 時のアクティブタブ誤検出（StitchTab）**
-  - 症状: **スキルタブ選択中**なのに `detectStitchTabFromRgba` が **TrainingInfo（3番目）** と判定。Console に「育成情報タブは Phase 1 未対応…」警告
-  - 原因候補: M6a INV-2 は **tabRow の Y 走査**のみ partner register 除外。**アクティブタブの3分割判定**には未配線。register 緑が右セグメントに混入しうる
-  - 現状: `stitch.ts` が TrainingInfo→Skill 上書きのため **結合は成功**（M6c 4b 実機 OK）。検出自体は誤り
-  - 目標: partner register 帯をアクティブタブ走査から除外、または FRD-S で左タブ優先
-  - 触る想定: `tabDetectCore.ts`（`detectStitchTabFromRgba`）・`stitch.ts` 呼び出し
-  - 注意: **M6c スコープ外**。R4 G-FRD-I（真の育成情報タブ）前に修正推奨。実機検証必須（register + 継承タブ退行）
-  - 関連: `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)` INV-2 拡張候補
+- [ ] **FRD アクティブタブ誤検出（StitchTab）— 4b / 6 実機 NG 要因**
+  - 症状 A（4b register）: **スキルタブ選択中**なのに `detectStitchTabFromRgba`→**TrainingInfo**。`stitch.ts` 上書きで結合は OK
+  - 症状 B（6 継承・G-FRD-F）: **継承タブ選択中**も同警告→`StitchTab=Skill`。**継承履歴緑バー以下が未カット**（`cropAtInheritanceHistoryBar` は `tab===Inheritance` のみ）
+  - 原因候補: M6a INV-2 は tabRow **Y 走査**のみ。アクティブタブ3分割に partner 除外未配線。`TrainingInfo`→`Skill` 一律上書きが継承 postProcess を潰す
+  - 目標: `detectStitchTabFromRgba` 修正 + 上書き方針見直し（継承タブで Inheritance を維持）
+  - 触る想定: `tabDetectCore.ts`・`stitch.ts`
+  - 注意: **M6c ブロッカー**（Step 6 必須）。実機: FRD-S register・FRD 継承・HOF 継承退行
+  - 関連: `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)` INV-2 拡張
 
 - [ ] **オートキャプチャ結合画像のディスク非保存オプション**
   - 現状: オートキャプチャ完了後 `useCapture` が OpenCV で結合し、`saveFolder` 指定時は Rust `save_stitched_image`、未指定時はブラウザダウンロードへ保存。Rust 側 `capture.rs` もフレーム PNG を一時ディレクトリに書き込み
@@ -281,8 +282,8 @@
 - **オートキャプチャ Capture–Stitch 契約**: **広帯 -4 / 狭帯 -3**（`scrollRegionH` しきい値 280px）。**M5**: wheel は stitch（TS）正本・Rust IPC 受信。正本: `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)`「Capture–Stitch 契約」
 - **Scene Model ロードマップ**: `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)` 起票（M0 done）。Catalog: `[SCENE-CATALOG.md](../auto-capture-design-pack/SCENE-CATALOG.md)`。素材運用: `[PACK-GUIDE.md](../auto-capture-design-pack/PACK-GUIDE.md)`
 - **stitch `layoutOpenCv.ts`**: 旧 `layout.ts` は Next.js 16 の `app/` 予約名衝突でリネーム（`0fac03e`）。正本は `layoutCore.ts`。ビルド失敗時は `[RELEASE_BUILD.md](RELEASE_BUILD.md)` トラブルシュート
-- **FRD-S register・アクティブタブ誤検出（2026-06-27 M6c 4b 実機）**: スキルタブが緑なのに `detectStitchTabFromRgba` が TrainingInfo（3分割の右端）と判定。`stitch.ts` の TrainingInfo→Skill 上書きで結合は OK。**G-FRD-I シーン誤認ではない**（内部 StitchTab  enum）。修正は P2 Backlog・INV-2 のアクティブタブ層への拡張候補
-- **オートキャプチャ結合 R3.5d**: d-2〜d-4 完了。**M6c 実機進行中**（4a/4b OK）
+- **FRD StitchTab 誤検出（2026-06-27 M6c）**: 4b register は上書きで結合 OK。6 継承（G-FRD-F）は `StitchTab=Skill` のまま **継承履歴カット未実行で NG**。修正は P2 Backlog（M6c ブロッカー）
+- **オートキャプチャ結合 R3.5d**: d-2〜d-4 完了。**M6c 実機: 4a/4b OK・6 NG**（1/3 退行未）
 - **オートキャプチャ結合 R3.5b 完了**: layout L2 優先 + tabDetect 2タブガード。golden 17/17
 - **オートキャプチャ結合 R3.5 設計正本**: shiftEstimate（SSD + median）。詳細: `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)` R3.5 節
 - **sim スキルデータ**: オンライン時 GitHub fetch + AppData キャッシュ。オフライン時は同梱/キャッシュで制限付き動作（フォールバック時トースト）

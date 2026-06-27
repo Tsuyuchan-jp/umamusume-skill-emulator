@@ -570,6 +570,7 @@ score(S) = mean | prev[scrollStartY + S + y, x] - curr[scrollStartY + y, x] |
 
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
+| 2026-06-27 20:26 | **M6c 実機 Step 6 NG（G-FRD-F / 継承）** | 結合・wheel=-3 OK。下部トリム NG: `StitchTab=Skill`（TrainingInfo 誤検出→上書き）で S-5 `cropAtInheritanceHistoryBar` スキップ。4b と同根の tabDetect 問題 |
 | 2026-06-27 20:19 | **M6c 実機 4b: StitchTab 誤検出（TrainingInfo）を記録** | FRD-S register・スキルタブ緑選択中に3分割右端が勝つ。`stitch.ts` が Skill に上書きし結合 OK。`detectStitchTabFromRgba` に partner 除外未配線（INV-2 ギャップ）。TODO P2・R4 前修正 |
 | 2026-06-27 19:56 | **`layout.ts` → `layoutOpenCv.ts` リネーム**（docs 追従） | Next.js 16 が `app/` 配下の `layout.ts` をルートレイアウトと誤認し `next build` が失敗。アルゴリズム正本は `layoutCore.ts` 不変。`page.ts` / `route.ts` 等の予約名も `app/lib/` では使わない |
 | 2026-06-27 08:11 | **M5 Capture–Stitch IPC** — wheel 導出を `wheelCore.ts` 正本化。`capture_frame0_preview` → TS `deriveCaptureWheel` → `start_auto_scroll_capture_session` 引数。Rust 緑タブ走査削除。`reason=stitch_narrow_band` 等 | R3.5d Rust 推定は履歴化。破壊変更: `start_auto_scroll_capture_session` に wheel 3 引数必須 |
