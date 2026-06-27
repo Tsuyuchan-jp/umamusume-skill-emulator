@@ -638,7 +638,7 @@ score(S) = mean | prev[scrollStartY + S + y, x] - curr[scrollStartY + y, x] |
 - [x] `stitch.ts` が TrainingInfo を Skill に上書きせず S-6 経路を通す
 - [x] `npm run stitch:golden` 全 PASS（25/25・G-FRD-I 未追加のため件数不変）
 - [x] SCENE-CATALOG: G-FRD-I 収集手順追記
-- [ ] **G-FRD-I 実機 OK**（ユーザー確認待ち — stitch 配線は完了）
+- [x] **G-FRD-I 実機 OK** — 結合・OCR OK（2026-06-28）。StitchTab ログ誤検出は `tabDetectCore` 修正
 - [ ] 親 REQ Phase 1b チェックは G-FRD-I 実機 OK 後に同期
 
 ### 実機検証（ユーザー担当）
@@ -655,6 +655,7 @@ score(S) = mean | prev[scrollStartY + S + y, x] - curr[scrollStartY + y, x] |
 
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
+| 2026-06-28 01:16 | **G-FRD-I / HOF 育成情報 実機クローズ** — 結合・OCR OK。HOF: `StitchTab=TrainingInfo`・S-6 ログ OK。FRD: 成果物 OK だがログ `StitchTab=Inheritance` — `shouldRepickWithoutTrainingSeg` が register 帯で右端強緑を無条件棄却していたため dominance 判定に統一 | ユーザー実機ログ。結合は Skill 同型 postProcess で退行なし |
 | 2026-06-28 01:04 | **R4b 完了** — TrainingInfo 上書き削除・S-6 経路ログ。golden 25/25 PASS。G-FRD-I PNG 未収録のため expectations 未追加。CONCEPT-MAP: 新概念なし（`51c5a29`） | 案 A 実装。G-FRD-I 実機はユーザー確認待ち。親 REQ Phase 1b は実機 OK 後 |
 | 2026-06-28 01:03 | **R4b 設計レビュー承認（案 A）** — TrainingInfo 上書き削除・Skill 同型経路（scrollStart/shift/compose/postProcess）。compose/shift/tabDetect は触らない。案 B は実機 NG 時のみ | Ask mode 設計レビュー。M6c 退行ゲート全 Step クローズ後の配線先行 |
 | 2026-06-28 00:47 | **R4a 実機退行ゲート クローズ** — Step 1 G-HOF-S・3 G-TRN・4a/4b G-FRD-S-release/register・5 G-HOF-F・6 G-FRD-F（S-5 継承履歴カット）いずれも退行なし | ユーザー tauri dev 確認。postProcess 分離後の本番パイプライン |

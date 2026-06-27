@@ -232,15 +232,23 @@ function pickBestActiveTabSegment(scores: readonly number[]): number {
 function shouldRepickWithoutTrainingSeg(
   scores: readonly number[],
   bestSeg: number,
-  partner?: PartnerBandDetection
+  _partner?: PartnerBandDetection
 ): boolean {
   if (bestSeg !== 2 || scores.length < 3) return false;
-  if (partner?.variant === "register") return true;
 
   const win = scores[2] ?? 0;
-  if (win <= 0) return false;
+  if (win <= ACTIVE_TAB_MIN_GREEN_RATIO) return false;
+
   const runnerUp = Math.max(scores[0] ?? 0, scores[1] ?? 0);
-  return (win - runnerUp) / win < ACTIVE_TAB_TRAINING_SEG_WEAK_DOMINANCE;
+  const dominanceRatio = win > 0 ? (win - runnerUp) / win : 0;
+
+  // 右端が明確に緑なら本物の育成情報タブ（FRD-I 実機）。register 帯があっても棄却しない
+  if (dominanceRatio >= ACTIVE_TAB_TRAINING_SEG_WEAK_DOMINANCE) {
+    return false;
+  }
+
+  // 弱優勢の右端のみ棄却（register 汚染・スキルタブ誤検出）
+  return true;
 }
 
 function stitchTabFromSegmentIndex(bestSeg: number): StitchTab {
