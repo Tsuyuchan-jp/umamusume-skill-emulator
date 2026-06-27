@@ -42,6 +42,12 @@ export const STITCH_SHIFT_REFINE_WINDOW = 24;
 export const STITCH_SHIFT_SCORE_SCALE = 128;
 export const STITCH_SHIFT_SCORE_MIN = 0.85;
 export const STITCH_SHIFT_TERMINAL_RATIO = 0.85;
+/** 最終ペア微探索上限 [0, MICRO_MAX) — STITCH_SHIFT_S_MIN 未満を探索 */
+export const STITCH_SHIFT_TERMINAL_MICRO_MAX = STITCH_SHIFT_S_MIN;
+/** この値以下の微探索 S は overlap=0（skip） */
+export const STITCH_SHIFT_TERMINAL_NO_SCROLL_MAX = 25;
+/** microAvgDiff < coarseAvgDiff * WIN_RATIO で micro 採用 */
+export const STITCH_SHIFT_TERMINAL_MICRO_WIN_RATIO = 0.98;
 export const STITCH_SHIFT_COARSE_STEP = 1;
 
 /** absdiff 失敗時の広帯タブ緑走査（regions.ts 正本・layout 走査帯とは別用途） */

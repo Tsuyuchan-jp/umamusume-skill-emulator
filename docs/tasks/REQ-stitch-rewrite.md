@@ -556,6 +556,30 @@ score(S) = mean | prev[scrollStartY + S + y, x] - curr[scrollStartY + y, x] |
 - [x] c-5: 実機 Step 1/3/5 OK（HOF-S・TRN・HOF-F）。Step 4/6 FRD NG → R3.5d
 - [x] `capture.rs` コメントを「正本 -4」に同期（R3.5d で 2 段表記へ更新予定）
 
+#### R3.5c-2 拡張: terminal 微探索 + NO_SCROLL skip（2026-06-27）
+
+**症状**: G-HOF-S 長リスト Frame 8→9 — `method=terminal`・`scrollAmount=135`（S*=192）。実スクロール≈0 なのに `STITCH_SHIFT_S_MIN=40` 未満未探索で periodic SSD 誤ピーク。R3.5c-2 は coarse を terminal として盲信するため二重結合。
+
+**採用（案 A）**:
+
+| 定数 | 値 | 意味 |
+|------|-----|------|
+| `STITCH_SHIFT_TERMINAL_MICRO_MAX` | 40（=S_MIN） | 最終ペア微探索上限 [0, 40) |
+| `STITCH_SHIFT_TERMINAL_NO_SCROLL_MAX` | 25 | 以下なら overlap=0（skip） |
+| `STITCH_SHIFT_TERMINAL_MICRO_WIN_RATIO` | 0.98 | micro 採用: microAvgDiff < coarse×0.98 |
+
+**アルゴリズム**（`shiftEstimateCore.ts`・最終ペアのみ）:
+
+1. `coarseIsTerminalShortScroll`（coarse S < 0.85·S*・session 安定）のときのみ微探索
+2. `searchBestShift` を S∈[0, MICRO_MAX) step=1
+3. micro 採用 → microS∈[26,39] は terminal（S* 上書きなし）／microS≤25 かつ terminal 経路 → **skip**（overlap=0）
+4. micro 非採用 → 従来 R3.5c-2（TRN 119px 等の正当短シフト維持）
+5. bound ではなく skip（Frame 9 は footer 用に残る）
+
+**Vitest**: `shiftEstimateCore.test.ts` — 合成 RGBA で coarse 誤ピーク → micro≈0 → skip。golden PNG 差し替えなし。
+
+**実機**: G-HOF-S 長リスト OK 後 `SCENE-CATALOG.md` 更新。
+
 ### R3.5d 完了条件
 
 - [x] d-1: Capture–Stitch 契約（2 段ホイール）・TODO/INDEX/README/親 REQ 同期（docs）
@@ -591,6 +615,7 @@ score(S) = mean | prev[scrollStartY + S + y, x] - curr[scrollStartY + y, x] |
 
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
+| 2026-06-27 23:54 | **G-HOF-S terminal 微探索 + NO_SCROLL skip 実装** — `STITCH_SHIFT_TERMINAL_*` 定数3件・最終ペア [0,40) 微探索・terminal 経路のみ skip。Vitest 4件 + golden 25/25 PASS。**実機 OK 待ち** | 設計レビュー案 A 承認どおり。`coarseIsTerminalShortScroll` ガードで FRD golden 退行回避。TRN 119px は diff 非採用で R3.5c-2 維持 |
 | 2026-06-27 23:21 | **スクロール用カーソル X 実機クローズ** — crop 中心（`2b272bd`）。G-FRD-S-register/release・G-HOF-S・G-TRN 退行なし | ユーザー tauri dev 確認。幾何中心 `a3b8fcd` は NG 済み |
 | 2026-06-27 23:21 | **G-HOF-S 末端 terminal 誤結合（実機 NG 記録）** — Frame 8→9: `scrollAmount=135`・`method=terminal`・score=0.939（S*=192）。最下部スキル行二重。設計レビュー待ち | カーソル修正とは別件。長いスキルリスト末端で再現 |
 | 2026-06-27 22:53 | **スクロール用カーソル X 修正** — 幾何中心（O(1)）は **実機 NG**（ウィンドウ全体中央へオフセット）。**crop 中心**（`findCropBounds` 同系・frame0 上端 30% 1 回走査）に変更。失敗時 factor 中点 | 幾何 fallback は UI 左寄せウィンドウで stitch crop と不一致 |

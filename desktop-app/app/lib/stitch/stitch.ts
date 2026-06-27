@@ -113,7 +113,13 @@ export async function stitchImages(
         `スコアが低すぎます(${fm.score.toFixed(3)}) かつ スクロール後退。バウンドと判断し、Frame ${fm.index + 1} 以降を破棄します。`
       );
     } else if (fm.method === "skip") {
-      console.warn(`スクロール量が0以下です。Frame ${fm.index + 1} はスキップします。`);
+      if (fm.rawScrollAmount !== undefined && fm.rawScrollAmount > 0) {
+        console.warn(
+          `Frame ${fm.index} -> ${fm.index + 1}: terminal micro skip（coarse=${fm.rawScrollAmount}px）`
+        );
+      } else {
+        console.warn(`スクロール量が0以下です。Frame ${fm.index + 1} はスキップします。`);
+      }
     } else if (
       fm.rawScrollAmount !== undefined &&
       fm.rawScrollAmount !== fm.scrollAmount

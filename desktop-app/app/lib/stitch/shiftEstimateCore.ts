@@ -9,6 +9,9 @@ import {
   STITCH_SHIFT_S_MIN,
   STITCH_SHIFT_SCORE_MIN,
   STITCH_SHIFT_SCORE_SCALE,
+  STITCH_SHIFT_TERMINAL_MICRO_MAX,
+  STITCH_SHIFT_TERMINAL_MICRO_WIN_RATIO,
+  STITCH_SHIFT_TERMINAL_NO_SCROLL_MAX,
   STITCH_SHIFT_TERMINAL_RATIO,
 } from "./constants";
 import type { RgbaImage } from "./rgba";
@@ -227,6 +230,28 @@ function shouldRefineAroundAnchor(
   return max - anchor > outlierTau / 2;
 }
 
+function microShiftOpts(opts: ResolvedShiftOptions): ResolvedShiftOptions {
+  return { ...opts, sMin: 0 };
+}
+
+function shouldAdoptMicroShift(
+  microAvgDiff: number,
+  coarseAvgDiff: number
+): boolean {
+  return (
+    microAvgDiff < coarseAvgDiff * STITCH_SHIFT_TERMINAL_MICRO_WIN_RATIO
+  );
+}
+
+function shouldTerminalMicroSkip(
+  microS: number,
+  microAdopted: boolean,
+  coarseIsTerminalShortScroll: boolean
+): boolean {
+  if (!microAdopted || !coarseIsTerminalShortScroll) return false;
+  return microS <= STITCH_SHIFT_TERMINAL_NO_SCROLL_MAX;
+}
+
 /** 全スクロール帯フレームの overlap 列を算出（Step B + Step C） */
 export function estimateShiftFramesRgba(
   strips: RgbaImage[],
@@ -285,6 +310,13 @@ export function estimateShiftFramesRgba(
       method = "ssd-refined";
     }
 
+    const contentWidth = Math.floor(prev.width * opts.contentWidthRatio);
+    const coarseScrollAmount = scrollAmount;
+    const coarseAvgDiff =
+      coarseScrollAmount > 0
+        ? overlapAvgDiff(prev, curr, coarseScrollAmount, contentWidth)
+        : Infinity;
+
     const priorAmounts = refinedPairs
       .slice(0, i)
       .map((p) => p.scrollAmount)
@@ -295,12 +327,49 @@ export function estimateShiftFramesRgba(
       priorAmounts.every((s) => Math.abs(s - representative) <= opts.outlierTau);
 
     // リスト末端: 短い実測シフトは S* で補正せず raw/refined を採用（R3.5c-2）
-    const isTerminalShortScroll =
-      isLast &&
+    const coarseIsTerminalShortScroll =
       sessionStable &&
       representative > 0 &&
-      scrollAmount > 0 &&
-      scrollAmount < opts.terminalRatio * representative;
+      coarseScrollAmount > 0 &&
+      coarseScrollAmount < opts.terminalRatio * representative;
+
+    let isTerminalShortScroll =
+      isLast && coarseIsTerminalShortScroll;
+
+    // 最終ペア: terminal 経路のみ [0, MICRO_MAX) 微探索（G-HOF-S 135px 誤結合対策）
+    if (isLast && coarseScrollAmount > 0 && coarseIsTerminalShortScroll) {
+      const micro = searchBestShift(
+        prev,
+        curr,
+        microShiftOpts(opts),
+        0,
+        STITCH_SHIFT_TERMINAL_MICRO_MAX - 1
+      );
+      const microS = micro.scrollAmount;
+      const microAdopted = shouldAdoptMicroShift(micro.avgDiff, coarseAvgDiff);
+
+      if (microAdopted) {
+        if (
+          microS >= STITCH_SHIFT_TERMINAL_NO_SCROLL_MAX + 1 &&
+          microS < STITCH_SHIFT_TERMINAL_MICRO_MAX
+        ) {
+          scrollAmount = microS;
+          score = micro.score;
+          method = "terminal";
+          isTerminalShortScroll = true;
+        } else if (shouldTerminalMicroSkip(microS, true, coarseIsTerminalShortScroll)) {
+          frames.push({
+            index: i,
+            scrollAmount: 0,
+            score: micro.score,
+            method: "skip",
+            rawScrollAmount: coarseScrollAmount,
+          });
+          overlaps.push(0);
+          continue;
+        }
+      }
+    }
 
     if (
       !isTerminalShortScroll &&
@@ -309,14 +378,12 @@ export function estimateShiftFramesRgba(
       Math.abs(scrollAmount - representative) > opts.outlierTau
     ) {
       scrollAmount = representative;
-      const contentWidth = Math.floor(prev.width * opts.contentWidthRatio);
       const avgDiff = overlapAvgDiff(prev, curr, scrollAmount, contentWidth);
       score = avgDiffToScore(avgDiff, opts.scoreScale);
       method = "median-corrected";
     }
 
-    if (isTerminalShortScroll) {
-      const contentWidth = Math.floor(prev.width * opts.contentWidthRatio);
+    if (isTerminalShortScroll && method !== "terminal") {
       const avgDiff = overlapAvgDiff(prev, curr, scrollAmount, contentWidth);
       score = avgDiffToScore(avgDiff, opts.scoreScale);
       method = "terminal";
