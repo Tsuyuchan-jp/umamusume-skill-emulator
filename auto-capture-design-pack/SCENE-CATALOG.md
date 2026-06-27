@@ -28,7 +28,7 @@
 | G-FRD-S-release | FRD | Skill | **release**（灰・解除） | L3+Btn | `golden/FRD/skill-release/frame_000.png` | yes | 4 | **ok** | terminal 微探索退行なし（2026-06-28）。wheel=-3 |
 | G-FRD-S-register | FRD | Skill | **register**（緑・登録） | L3+Btn | `golden/FRD/skill-register/frame_000.png` | yes | 4 | **ok** | terminal 微探索退行なし（2026-06-28）。wheel=-3 |
 | G-FRD-F | FRD | 因子/継承 | release/absent | L3+Btn | `golden/FRD/factor/frame_000.png` | yes | 6 | **ok** | M6c Step 6 実機 OK（`StitchTab=Inheritance`・wheel=-3・scrollStart≈0.546・継承履歴緑ライン Y=2778） |
-| G-FRD-I | FRD | 育成情報 | — | — | — | R4 | — | 欠落 | R4 スコープ・golden 不要 |
+| G-FRD-I | FRD | 育成情報 | — | — | — | R4b | — | 欠落 | R4b / Phase 1b スコープ・golden 不要 |
 
 ---
 
@@ -45,7 +45,7 @@
 | G-FRD-S-release | G-FRD-S-release | `golden/FRD/skill-release/frame_000.png` | 一致 |
 | G-FRD-S-register | G-FRD-S-register | `golden/FRD/skill-register/frame_000.png` | 一致 |
 | G-FRD-F | G-FRD-F | `golden/FRD/factor/frame_000.png` | 一致 |
-| G-FRD-I | — | — | R4 スコープ外 |
+| G-FRD-I | — | — | R4b スコープ外 |
 
 ---
 

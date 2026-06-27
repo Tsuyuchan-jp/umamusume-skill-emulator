@@ -12,8 +12,9 @@
 | R3.5a | `shiftEstimate*`（SSD + median）**done** |
 | R3.5b | layout L2 優先・tabDetect 2タブガード **done** |
 | R3.5c | -4・terminal・golden **done** |
-| **R3.5d** | **frame0 帯推定・狭帯 -3**（docs 確定・実装待ち） |
-| R4 | postProcess 分離・TrainingInfo |
+| **R3.5d** | **frame0 帯推定・狭帯 -3** **done** |
+| **R4a** | postProcess 分離・compose 純化 **done** |
+| R4b | TrainingInfo / S-6 |
 | R5 | `opencvStitcher.ts` 削除 |
 
 ## shiftEstimate（R3.5a 正本）
@@ -34,8 +35,10 @@
 | `regionsCore.ts` / `regions.ts` | scrollStartY |
 | `shiftEstimateCore.ts` / `shiftEstimate.ts` | SSD + median（正本） |
 | `scrollMatch.ts` | 委譲・互換 API |
-| `composeCore.ts` / `compose.ts` | 合成式・S-2・S-5・trim |
-| `stitch.ts` | オーケストレータ |
+| `composeCore.ts` / `compose.ts` | REQ 正本合成式のみ |
+| `postProcess/postProcessCore.ts` / `postProcessOpenCv.ts` | S-2 バー隠し・trim・S-5（RGBA / Mat 正本） |
+| `postProcess/applyPostProcess.ts` | タブ別後処理ルーティング |
+| `stitch.ts` | オーケストレータ（compose → postProcess） |
 | `flags.ts` | `USE_STITCH_V2 = true` |
 
 ## 合成式（正本）

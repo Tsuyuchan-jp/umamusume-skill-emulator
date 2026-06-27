@@ -101,7 +101,7 @@ export const STITCH_HEADER_HEIGHT_L2 = 0.5;
 export const STITCH_HEADER_HEIGHT_L3 = 0.16;
 export const STITCH_HEADER_HEIGHT_L3_BTN = 0.24;
 
-/** postProcess 余白トリム（R3 compose 正本） */
+/** postProcess 余白トリム */
 export const STITCH_WHITESPACE_STD_THRESHOLD = 20;
 
 /** 継承タブ S-5: 緑履歴バー検出 */

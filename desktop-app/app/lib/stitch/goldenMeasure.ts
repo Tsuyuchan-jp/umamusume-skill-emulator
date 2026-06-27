@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { STITCH_FOOTER_HEIGHT_RATIO } from "./constants";
 import { cropRgba, findCropBoundsOrFallback } from "./cropCore";
 import { composeStitchedRgba } from "./composeCore";
+import { applyPostProcessRgba } from "./postProcess";
 import { detectLayoutAndTabRowRgba } from "./layoutCore";
 import { detectPartnerBandRgba } from "./partnerDetectCore";
 import { detectScrollStartYFromRgba } from "./regionsCore";
@@ -197,11 +198,18 @@ export async function measureComposeFromFrames(
     overlaps,
   });
 
+  const processed = applyPostProcessRgba("Skill", {
+    image: composed.image,
+    scrollStartY: scroll.scrollStartY,
+    scrollContentBottomY: composed.scrollContentBottomY,
+    scrollRegionH,
+  });
+
   return {
     crop: cropRect,
     scrollStartY: scroll.scrollStartY,
     scrollStartRatio: scroll.ratio,
-    outputHeight: composed.image.height,
+    outputHeight: processed.image.height,
     overlapSum: overlaps.reduce((a, b) => a + b, 0),
     frameCount: composeFrames.length,
   };

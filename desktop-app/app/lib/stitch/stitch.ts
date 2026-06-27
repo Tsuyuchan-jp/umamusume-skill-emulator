@@ -8,11 +8,8 @@ import { detectPartnerBandRgba } from "./partnerDetectCore";
 import { matToRgba } from "./opencvRgba";
 import { detectScrollStartY } from "./regions";
 import { matchScrollFrames } from "./scrollMatch";
-import {
-  composeStitchedImage,
-  cropAtInheritanceHistoryBar,
-  trimBottomWhitespaceMat,
-} from "./compose";
+import { composeStitchedImage } from "./compose";
+import { applyPostProcess } from "./postProcess";
 import type { ScrollStartResult } from "./types";
 
 export async function stitchImages(
@@ -147,31 +144,19 @@ export async function stitchImages(
     cropHeight,
     overlaps: overlapsForCompose,
     cv,
-    skipTrim: tab === "Inheritance",
   });
 
-  let outputMat = composed.finalMat;
-  let cropped = composed.trimmed;
-  const scrollContentBottomY = composed.scrollContentBottomY;
+  const processed = applyPostProcess(tab, {
+    finalMat: composed.finalMat,
+    cv,
+    cropWidth,
+    scrollStartY,
+    scrollContentBottomY: composed.scrollContentBottomY,
+    scrollRegionH,
+  });
 
-  if (tab === "Inheritance") {
-    const inheritCrop = cropAtInheritanceHistoryBar(
-      composed.finalMat,
-      cv,
-      scrollStartY,
-      scrollRegionH
-    );
-    if (inheritCrop.cropped) {
-      outputMat = inheritCrop.outputMat;
-      cropped = true;
-    } else {
-      const trim = trimBottomWhitespaceMat(composed.finalMat, cv, scrollContentBottomY);
-      if (trim.cropped) {
-        outputMat = trim.outputMat;
-        cropped = true;
-      }
-    }
-  }
+  const outputMat = processed.outputMat;
+  const cropped = processed.cropped;
 
   const canvas = document.createElement("canvas");
   canvas.width = outputMat.cols;

@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-28 00:11
+最終更新: 2026-06-28 00:39
 
 ---
 
@@ -16,7 +16,7 @@
 
 ## 現在のフォーカス
 
-**P1** — **オートキャプチャ結合 R4〜R5**（postProcess 分離・次 Backlog）
+**P1** — **オートキャプチャ結合 R4b**（TrainingInfo / S-6・次 Backlog）
 
 ---
 
@@ -34,9 +34,13 @@
 
 ### P1 — 重要
 
-- [ ] **オートキャプチャ結合リライト R4〜R5**（postProcess 分離・`opencvStitcher.ts` 削除）
-  - 前提: **R3.5d 完了後**
-  - REQ: `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)`
+- [ ] **オートキャプチャ結合リライト R4b**（TrainingInfo / S-6・G-FRD-I）
+  - 前提: **R4a 完了後**
+  - REQ: `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)` R4b
+
+- [ ] **オートキャプチャ結合リライト R5**（`opencvStitcher.ts` 削除）
+  - 前提: **R4b 完了後**
+  - REQ: `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)` R5
 
 - [ ] **REQ-skill-data-fetch-fallback 実機検証クローズ（手順 3〜7）**
   - 背景: 実装・docs 完了済み（`a5c04a0`）。**手順 1〜2 は OK**（オンライン sim・オフライン AppData フォールバック＋警告トースト）。**手順 3〜7 は未実施** — 後日実施
@@ -149,6 +153,7 @@
 
 ## 完了済み
 
+- [x] **オートキャプチャ結合リライト R4a**（postProcess 分離・compose 純化）— golden 25/25 + postProcess Vitest 2件 PASS（2026-06-28 00:39 / コミット待ち）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) R4a
 - [x] **G-HOF-S 末端 terminal 微探索 + NO_SCROLL skip** — 最終ペア [0,40) 微探索・terminal 経路 skip/terminal 採用。Vitest 4件 + golden 25/25。**実機クローズ**: G-HOF-S 長リスト（Frame 8→9 raw=82→final=28 terminal）・G-TRN・G-FRD-S-release/register 退行なし（2026-06-28 00:11 / `d914c3b`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) R3.5c-2 拡張
 - [x] **オートキャプチャ・スクロール用カーソル位置** — Y: 帯上端 + max(56px, 62%帯高)（`1ac4742`）。X: crop 中心（`cropCore` 同系・`2b272bd`。幾何中心 `a3b8fcd` は実機 NG で差し替え）。golden 25/25。**実機クローズ**: G-FRD-S-register/release・G-HOF-S・G-TRN・Y/X とも OK（2026-06-27 23:21 / `2b272bd`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 - [x] **Scene Model M6c** — R3.5d-5 実機検証クローズ（4a/4b/1/3/6 全 OK・StitchTab 修正後 Step 6 再 OK）（2026-06-27 21:54 / `ef7beda`）/ [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)

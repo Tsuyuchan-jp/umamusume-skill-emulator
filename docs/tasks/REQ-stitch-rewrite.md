@@ -5,7 +5,7 @@
 > **方法論・持続可能性**: sibling [`REQ-stitch-scene-model.md`](REQ-stitch-scene-model.md)（Scene Spec / Catalog / 検出器統一ロードマップ）。
 > 設計パック: [`auto-capture-design-pack/`](../../auto-capture-design-pack/)（golden / [`SCENE-CATALOG.md`](../../auto-capture-design-pack/SCENE-CATALOG.md) / [`PACK-GUIDE.md`](../../auto-capture-design-pack/PACK-GUIDE.md)）。
 
-- **ステータス**: in-progress（R0–R3.5c 実装 done・**R3.5d 設計確定（docs）**・c-5 一部実機 OK・R4 待ち）
+- **ステータス**: in-progress（R0–R3.5d・**R4a done**・R4b/R5 待ち）
 - **作成日**: 2026-06-26 08:13
 - **関連コミット**: `b01ceb3`（R2 残 scrollStart）、`47d5755`（R2 layout）、`1df1860`（R1）
 
@@ -216,7 +216,8 @@ interface StitchReport {
 | **R3.5b** | layout L2 優先・tabDetect 2タブガード（TRN） | **done** |
 | **R3.5c** | **-4・shift 末端・golden**（下表） | **done（c-5 一部: HOF/TRN OK・FRD は R3.5d へ）** |
 | **R3.5d** | **frame0 帯推定・狭帯 -3 / 広帯 -4・FRD 実機**（下表） | **done**（d-5 実機クローズ 2026-06-27） |
-| **R4** | postProcess 分離・TrainingInfo 別パス（旧 S-6） | draft |
+| **R4a** | postProcess 分離・compose 純化 | **done** |
+| **R4b** | TrainingInfo 別パス（旧 S-6・G-FRD-I） | draft |
 | **R5** | `opencvStitcher.ts` 削除・REQ done | draft |
 
 #### R3.5c サブ Phase（新 REQ 起票なし）
@@ -325,7 +326,7 @@ interface StitchReport {
 - [x] R3.5b: G-TRN layout=L2 golden・tabDetect 2タブガード・HOF/FRD layout 退行なし
 - [ ] R3.5c: 下記「R3.5c 完了条件」— c-5 は HOF/TRN/HOF-F OK、FRD は R3.5d へ委譲
 - [ ] R3.5d: 下記「R3.5d 完了条件」全項目
-- [ ] R4: TrainingInfo 別パス（G-FRD-I）
+- [ ] R4b: TrainingInfo 別パス（G-FRD-I）
 - [ ] R5: `opencvStitcher.ts` 削除、親 REQ Phase 3 検証クローズ、TODO/INDEX 更新
 
 ---
@@ -615,6 +616,7 @@ score(S) = mean | prev[scrollStartY + S + y, x] - curr[scrollStartY + y, x] |
 
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
+| 2026-06-28 00:34 | **R4a 完了** — `postProcess/*` 新設（Core/OpenCv/applyPostProcess）。compose は合成式のみ。`stitch.ts` は compose → applyPostProcess。TrainingInfo は Skill 同経路＋警告維持。G-FRD-I は R4b へ | 設計レビュー案 A 承認どおり。golden 25/25 PASS。CONCEPT-MAP: 新概念なし |
 | 2026-06-28 00:11 | **G-HOF-S terminal 微探索 実機クローズ** — 長リスト Frame 8→9 raw=82→final=28 terminal・二重なし。G-TRN・G-FRD-S-release/register 退行なし | ユーザー tauri dev 確認。SCENE-CATALOG 同期 |
 | 2026-06-27 23:54 | **G-HOF-S terminal 微探索 + NO_SCROLL skip 実装** — `STITCH_SHIFT_TERMINAL_*` 定数3件・最終ペア [0,40) 微探索・terminal 経路のみ skip。Vitest 4件 + golden 25/25 PASS | 設計レビュー案 A 承認どおり。`coarseIsTerminalShortScroll` ガードで FRD golden 退行回避。TRN 119px は diff 非採用で R3.5c-2 維持 |
 | 2026-06-27 23:21 | **スクロール用カーソル X 実機クローズ** — crop 中心（`2b272bd`）。G-FRD-S-register/release・G-HOF-S・G-TRN 退行なし | ユーザー tauri dev 確認。幾何中心 `a3b8fcd` は NG 済み |
