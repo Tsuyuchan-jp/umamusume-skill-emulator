@@ -655,7 +655,7 @@ score(S) = mean | prev[scrollStartY + S + y, x] - curr[scrollStartY + y, x] |
 
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
-| 2026-06-28 01:04 | **R4b 完了** — TrainingInfo 上書き削除・S-6 経路ログ。golden 25/25 PASS。G-FRD-I PNG 未収録のため expectations 未追加。CONCEPT-MAP: 新概念なし | 案 A 実装。G-FRD-I 実機はユーザー確認待ち。親 REQ Phase 1b は実機 OK 後 |
+| 2026-06-28 01:04 | **R4b 完了** — TrainingInfo 上書き削除・S-6 経路ログ。golden 25/25 PASS。G-FRD-I PNG 未収録のため expectations 未追加。CONCEPT-MAP: 新概念なし（`51c5a29`） | 案 A 実装。G-FRD-I 実機はユーザー確認待ち。親 REQ Phase 1b は実機 OK 後 |
 | 2026-06-28 01:03 | **R4b 設計レビュー承認（案 A）** — TrainingInfo 上書き削除・Skill 同型経路（scrollStart/shift/compose/postProcess）。compose/shift/tabDetect は触らない。案 B は実機 NG 時のみ | Ask mode 設計レビュー。M6c 退行ゲート全 Step クローズ後の配線先行 |
 | 2026-06-28 00:47 | **R4a 実機退行ゲート クローズ** — Step 1 G-HOF-S・3 G-TRN・4a/4b G-FRD-S-release/register・5 G-HOF-F・6 G-FRD-F（S-5 継承履歴カット）いずれも退行なし | ユーザー tauri dev 確認。postProcess 分離後の本番パイプライン |
 | 2026-06-28 00:39 | **R4a 完了** — `postProcess/*` 新設（Core/OpenCv/applyPostProcess）。compose は合成式のみ。`stitch.ts` は compose → applyPostProcess。TrainingInfo は Skill 同経路＋警告維持。G-FRD-I は R4b へ | 設計レビュー案 A 承認どおり。golden 25/25 PASS。CONCEPT-MAP: 新概念なし（`0b549f5`） |
