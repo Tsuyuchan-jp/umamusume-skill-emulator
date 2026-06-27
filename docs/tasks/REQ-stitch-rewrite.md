@@ -293,6 +293,19 @@ interface StitchReport {
 
 ---
 
+## 永続正本同期（エージェント必須）
+
+> 共通: [`DOCS-GUIDE.md`](../DOCS-GUIDE.md)「永続正本同期表」capture 行。Scene Model 詳細は [`REQ-stitch-scene-model.md`](REQ-stitch-scene-model.md)「永続正本同期」。
+
+| トリガー | 更新先 |
+|----------|--------|
+| 実機 Step を docs に記録（OK/NG） | [`SCENE-CATALOG.md`](../../auto-capture-design-pack/SCENE-CATALOG.md) — 状態・備考・NG サブケース（差分同期可） |
+| Capture–Stitch 契約・wheel 変更 | 本 REQ「Capture–Stitch 契約」節 |
+| R3.5d / Phase 完了 | 本 REQ 決定ログ・実機 Step 表・`TODO.md` |
+| golden 期待値変更 | `expectations.json` + `golden.test.ts` |
+
+---
+
 ## 完了条件
 
 - [x] R0: golden 期待値 JSON + 計測 CLI + Vitest スモーク

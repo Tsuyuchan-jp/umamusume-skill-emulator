@@ -4,7 +4,7 @@
 > アプリの製品仕様・技術概要は [`PROJECT.md`](PROJECT.md)。**進捗・要件・運用の地図はここ。**
 > リポジトリ全体の紹介は [ルート `README.md`](../README.md)（別ファイル）。
 
-最終更新: 2026-06-27 07:03
+最終更新: 2026-06-27 21:24
 
 ---
 
@@ -73,6 +73,51 @@ REQ が `done` になっても、**ここを更新し続ける**。
 
 ※ Capture–Stitch の契約が REQ 内にあるのは歴史的経緯。永続化は [`REQ-stitch-scene-model`](tasks/REQ-stitch-scene-model.md) M2 以降で `docs/CAPTURE-STITCH.md` 新設予定。
 
+---
+
+## 永続正本同期表（エージェント必須）
+
+> **起票プロンプトに毎回書く必要はない。** 着手 REQ の「永続正本同期」節があればそちらを優先し、無ければ本表の **ドメイン行** を適用する。
+> 人間が「Catalog を更新して」と明示しなくても、下表のトリガーが起きたら **同一コミット内** で同期する。
+
+### 全ドメイン共通
+
+| トリガー | 更新先 |
+|----------|--------|
+| 着手（コード・設定変更） | [`TODO.md`](TODO.md) 進行中・フォーカス・`最終更新:` |
+| 完了・Phase 完了 | TODO 完了済み、REQ `done` / 決定ログ、[`INDEX.md`](tasks/INDEX.md)（該当時） |
+| 新用語・概念の初出（会話に残す価値あり） | [`CONCEPT-MAP.md`](CONCEPT-MAP.md)（`.cursor/rules/concept-map.mdc`） |
+| バージョン bump・リリース | [`CHANGELOG.md`](CHANGELOG.md)、[`RELEASE_BUILD.md`](RELEASE_BUILD.md) 手順 |
+
+### ドメイン別
+
+| ドメイン | いつ同期するか | 更新する永続正本 |
+|----------|----------------|------------------|
+| **capture / stitch**（オートキャプチャ・自動結合） | **実機 Step を docs に記録したとき**（OK/NG どちらも。全 Step 完了を待たない） | [`SCENE-CATALOG.md`](../auto-capture-design-pack/SCENE-CATALOG.md) — 該当シーンの `状態`・備考・NG サブケース・`最終更新:` |
+| | golden PNG 追加・リネーム・expectations 変更 | [`expectations.json`](../tools/stitch-golden/expectations.json) + Catalog `goldenPath` + [`PACK-GUIDE.md`](../auto-capture-design-pack/PACK-GUIDE.md)（運用変更時） |
+| | Capture–Stitch 契約・wheel 段の変更 | [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)「Capture–Stitch 契約」節（または将来 `CAPTURE-STITCH.md`） |
+| | Phase / マイルストーン（M6 等） | 対象 REQ 決定ログ + Catalog Phase 行 |
+| **graph**（レース詳細グラフ等） | Phase 完了・実機検証クローズ | 対象 REQ + 親ロードマップ REQ。CONCEPT-MAP は新用語時のみ |
+| **OCR / sim**（エミュレーター・スキルデータ） | fetch 経路・フォールバック・Worker 区別の変更 | 関連 REQ、`UPDATE_SKILLS.md`（データ更新手順）。**Catalog は触らない** |
+| **UI/UX** | 配布物・レイアウト仕様の永続化が必要なとき | 対象 REQ。リリース時は CHANGELOG / RELEASE_BUILD |
+
+### エージェント手順（完了コミット前）
+
+1. [`TODO.md`](TODO.md) で着手タスクとリンク REQ を特定する
+2. REQ に **「永続正本同期」** 節があればそちらを読む（[`REQ-TEMPLATE.md`](tasks/REQ-TEMPLATE.md) 参照）
+3. 無ければ本表のドメイン行を適用する
+4. 今回の作業で触れたトリガーに対応する正本が未更新なら、**完了報告の前に** 更新してコミットに含める
+
+### 起票プロンプトとの関係
+
+| チャット種別 | プロンプトに書くこと |
+|-------------|-------------------|
+| グラフ / OCR / UI / 汎用実装 | 通常は `TODO` + REQ のみ。**Catalog 等の詳細手順は書かない** |
+| キャプチャ実装・計測 | `TODO` + REQ + `SCENE-CATALOG`（`@` 添付は従来どおり） |
+| キャプチャ実機検証 | 上記 + **1行**: `永続正本同期: DOCS-GUIDE「永続正本同期表」capture 行に従う` |
+
+---
+
 ### Cursor 自動ルール（`.cursor/rules/`）
 
 エージェントが **毎チャット自動参照** する。人間は概要だけここで把握し、詳細は各 `.mdc` を開く。
@@ -80,7 +125,7 @@ REQ が `done` になっても、**ここを更新し続ける**。
 | ルール | 内容 |
 |--------|------|
 | `git-commit.mdc` | 毎作業コミット必須 |
-| `docs-management.mdc` | TODO / REQ / 日時形式・INDEX 更新 |
+| `docs-management.mdc` | TODO / REQ / 日時形式・INDEX 更新・**永続正本同期表**（DOCS-GUIDE 参照） |
 | `communication.mdc` | 読者プロフィール・説明の順序（全チャット） |
 | `concept-map.mdc` | CONCEPT-MAP 更新トリガー |
 | `development.mdc` | プロジェクト構成・リリースビルド・触らない領域 |
@@ -96,7 +141,7 @@ REQ が `done` になっても、**ここを更新し続ける**。
 | **役割** | その Phase を **完遂するためのチケット**（スコープ・完了条件・決定ログ） |
 | **正本か？** | **いいえ** — 仕様の正本は③の永続 doc + コード。REQ は作業記録 |
 
-**REQ 完了時の必須チェック**: Scene Spec や契約が REQ だけに残っていないか → 永続正本へ写してから `done`。
+**REQ 完了時の必須チェック**: Scene Spec や契約が REQ だけに残っていないか → 永続正本へ写してから `done`。同期の詳細は上記 **「永続正本同期表」**。
 
 ---
 
@@ -127,9 +172,10 @@ REQ が `done` になっても、**ここを更新し続ける**。
 
 1. `@docs/TODO.md` を読む
 2. 対象を **進行中** に移す（最大1件）。`最終更新:` を `Get-Date` で更新
-3. `@docs/tasks/REQ-（対象）.md` を読む
-4. ドメイン永続正本があれば `@`（例: キャプチャ結合 → `SCENE-CATALOG.md`）
-5. 完了前にコミット。TODO 完了済み・REQ `done`・INDEX 更新
+3. `@docs/tasks/REQ-（対象）.md` を読む（**「永続正本同期」** 節があれば優先）
+4. ドメイン永続正本は **永続正本同期表** または REQ 同期節に従う（キャプチャ実装・計測では `@SCENE-CATALOG` を添付）
+5. **完了コミット前**に、触れたトリガーに対応する正本が同期済みか確認する
+6. 完了前にコミット。TODO 完了済み・REQ `done`・INDEX 更新
 
 ### チャット起票の `@` 目安
 

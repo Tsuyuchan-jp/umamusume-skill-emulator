@@ -160,6 +160,19 @@ crop 基準比率。正本: [`expectations.json`](../../tools/stitch-golden/expe
 
 ---
 
+## 永続正本同期（エージェント必須）
+
+> 共通: [`DOCS-GUIDE.md`](../DOCS-GUIDE.md)「永続正本同期表」capture 行。
+
+| トリガー | 更新先 |
+|----------|--------|
+| 実機 Step を docs に記録（OK/NG） | [`SCENE-CATALOG.md`](../../auto-capture-design-pack/SCENE-CATALOG.md) — 該当シーン `状態`・備考・NG サブケース・`最終更新:`（**全 Step 完了を待たない**） |
+| golden / expectations 変更 | `expectations.json` + Catalog `goldenPath` + [`PACK-GUIDE.md`](../../auto-capture-design-pack/PACK-GUIDE.md)（運用変更時） |
+| Phase 完了（M0〜M6） | 本 REQ 決定ログ + Catalog Phase 行 + `TODO.md` |
+| 新シーン ID・会話用語 | Catalog 新規行 + `CONCEPT-MAP.md`（`concept-map.mdc`） |
+
+---
+
 ## 完了条件（シリーズ全体）
 
 - [ ] M0〜M1: Catalog が全実機 Step をカバー（欠落行なし）
