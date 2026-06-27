@@ -69,11 +69,7 @@ export async function stitchImages(
   }
 
   if (tab === "TrainingInfo") {
-    console.warn(
-      "育成情報タブは Phase 1 未対応です。スキル結合パスで処理します（Phase 1b / S-6）。"
-    );
-    // 強い右端セグ優勢のみ到達（継承・スキル誤検出は detectStitchTabFromRgba で救済済み）
-    tab = "Skill";
+    console.log("育成情報タブ — S-6 経路（Skill 同型）");
   }
 
   const regions = resolveScrollStartY(

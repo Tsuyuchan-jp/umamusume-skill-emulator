@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-28 00:47
+最終更新: 2026-06-28 01:04
 
 ---
 
@@ -16,7 +16,7 @@
 
 ## 現在のフォーカス
 
-**P1** — **オートキャプチャ結合 R4b**（TrainingInfo / S-6・次 Backlog）
+**P1** — **オートキャプチャ結合 R5**（`opencvStitcher.ts` 削除・次 Backlog）
 
 ---
 
@@ -33,10 +33,6 @@
 （完了 — 下記「完了済み」参照）
 
 ### P1 — 重要
-
-- [ ] **オートキャプチャ結合リライト R4b**（TrainingInfo / S-6・G-FRD-I）
-  - 前提: **R4a 完了後**
-  - REQ: `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)` R4b
 
 - [ ] **オートキャプチャ結合リライト R5**（`opencvStitcher.ts` 削除）
   - 前提: **R4b 完了後**
@@ -153,6 +149,7 @@
 
 ## 完了済み
 
+- [x] **オートキャプチャ結合リライト R4b**（TrainingInfo S-6 配線）— golden 25/25 PASS。**G-FRD-I 実機はユーザー確認待ち**（2026-06-28 01:04 / コミット後ハッシュ）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) R4b
 - [x] **オートキャプチャ結合リライト R4a**（postProcess 分離・compose 純化）— golden 25/25 + postProcess Vitest 2件 PASS。**実機クローズ**: Step 1 G-HOF-S・3 G-TRN・4a/4b G-FRD-S・5 G-HOF-F・6 G-FRD-F（S-5）退行なし（2026-06-28 00:47 / `0b549f5`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) R4a
 - [x] **G-HOF-S 末端 terminal 微探索 + NO_SCROLL skip** — 最終ペア [0,40) 微探索・terminal 経路 skip/terminal 採用。Vitest 4件 + golden 25/25。**実機クローズ**: G-HOF-S 長リスト（Frame 8→9 raw=82→final=28 terminal）・G-TRN・G-FRD-S-release/register 退行なし（2026-06-28 00:11 / `d914c3b`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) R3.5c-2 拡張
 - [x] **オートキャプチャ・スクロール用カーソル位置** — Y: 帯上端 + max(56px, 62%帯高)（`1ac4742`）。X: crop 中心（`cropCore` 同系・`2b272bd`。幾何中心 `a3b8fcd` は実機 NG で差し替え）。golden 25/25。**実機クローズ**: G-FRD-S-register/release・G-HOF-S・G-TRN・Y/X とも OK（2026-06-27 23:21 / `2b272bd`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)

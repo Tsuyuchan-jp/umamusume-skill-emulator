@@ -28,7 +28,7 @@
 | G-FRD-S-release | FRD | Skill | **release**（灰・解除） | L3+Btn | `golden/FRD/skill-release/frame_000.png` | yes | 4 | **ok** | R4a postProcess 退行なし（2026-06-28）。wheel=-3 |
 | G-FRD-S-register | FRD | Skill | **register**（緑・登録） | L3+Btn | `golden/FRD/skill-register/frame_000.png` | yes | 4 | **ok** | R4a postProcess 退行なし（2026-06-28）。wheel=-3 |
 | G-FRD-F | FRD | 因子/継承 | release/absent | L3+Btn | `golden/FRD/factor/frame_000.png` | yes | 6 | **ok** | R4a postProcess 退行なし（2026-06-28）— S-5 継承履歴カット OK。wheel=-3 |
-| G-FRD-I | FRD | 育成情報 | — | — | — | R4b | — | 欠落 | R4b / Phase 1b スコープ・golden 不要 |
+| G-FRD-I | FRD | 育成情報 | release/absent | L3+Btn | `golden/FRD/info/` | no | 7（Phase 1b） | 欠落 | R4b S-6 配線完了・PNG 未収録・実機 OK 待ち |
 
 ---
 
@@ -45,7 +45,7 @@
 | G-FRD-S-release | G-FRD-S-release | `golden/FRD/skill-release/frame_000.png` | 一致 |
 | G-FRD-S-register | G-FRD-S-register | `golden/FRD/skill-register/frame_000.png` | 一致 |
 | G-FRD-F | G-FRD-F | `golden/FRD/factor/frame_000.png` | 一致 |
-| G-FRD-I | — | — | R4b スコープ外 |
+| G-FRD-I | — | `golden/FRD/info/` | PNG 未収録（収集手順は下記） |
 
 ---
 
@@ -55,6 +55,19 @@
 2. 手動でスキルタブを開いた状態でオートキャプチャ 1 回
 3. チャットに `[Capture]` 行と `StitchLayout=...` 行を貼る（NG 時）
 4. `frame_000` を `golden/FRD/skill-register/` に commit（`frame_001` 以降は scrollStart テスト用に推奨）
+
+---
+
+## G-FRD-I 収集手順（ユーザー / 検証チャット）
+
+1. FRD 画面で **育成情報タブ**を手動で開く（戦績一覧が見える状態）
+2. リスト末尾（最下部の戦績行）まで届くようオートキャプチャ 1 回
+3. チャットに `[Capture]` 行と `StitchLayout=...` / `StitchTab=TrainingInfo` 行を貼る（NG 時）
+4. 結合画像を目視 — 戦績末尾まで欠けなく、OCR 可能なこと
+5. `frame_000` を `golden/FRD/info/` に commit（`frame_001` 以降は scrollStart テスト用に推奨）
+6. PNG 追加後: `measure-regions.ps1 -CaseId G-FRD-I` → `expectations.json` case 追加 → `golden.test.ts` に `tab=TrainingInfo` assert
+
+**退行ゲート**（実機）: G-HOF-S / G-TRN / G-FRD-S-release・register / G-HOF-F / G-FRD-F
 
 ---
 
@@ -112,4 +125,4 @@ INV 対応・計測メモ: [`REQ-stitch-scene-model.md`](../docs/tasks/REQ-stitc
 3. golden PNG を追加したら `goldenPath` を実パスに更新し、`状態` を `ok` / `ng` / `要再検証` へ
 4. **実機 Step を docs に記録したら** 該当行を **同一コミットで** 更新する（全 Step 完了を待たない）。手順の正本: [`DOCS-GUIDE.md`](../docs/DOCS-GUIDE.md)「永続正本同期表」capture 行
 
-最終更新: 2026-06-28 00:11
+最終更新: 2026-06-28 01:03

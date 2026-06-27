@@ -5,7 +5,7 @@
 > **方法論・持続可能性**: sibling [`REQ-stitch-scene-model.md`](REQ-stitch-scene-model.md)（Scene Spec / Catalog / 検出器統一ロードマップ）。
 > 設計パック: [`auto-capture-design-pack/`](../../auto-capture-design-pack/)（golden / [`SCENE-CATALOG.md`](../../auto-capture-design-pack/SCENE-CATALOG.md) / [`PACK-GUIDE.md`](../../auto-capture-design-pack/PACK-GUIDE.md)）。
 
-- **ステータス**: in-progress（R0–R3.5d・**R4a done**・R4b/R5 待ち）
+- **ステータス**: in-progress（R0–R3.5d・R4a/R4b done・R5 待ち）
 - **作成日**: 2026-06-26 08:13
 - **関連コミット**: `b01ceb3`（R2 残 scrollStart）、`47d5755`（R2 layout）、`1df1860`（R1）
 
@@ -217,7 +217,7 @@ interface StitchReport {
 | **R3.5c** | **-4・shift 末端・golden**（下表） | **done（c-5 一部: HOF/TRN OK・FRD は R3.5d へ）** |
 | **R3.5d** | **frame0 帯推定・狭帯 -3 / 広帯 -4・FRD 実機**（下表） | **done**（d-5 実機クローズ 2026-06-27） |
 | **R4a** | postProcess 分離・compose 純化 | **done** |
-| **R4b** | TrainingInfo 別パス（旧 S-6・G-FRD-I） | draft |
+| **R4b** | TrainingInfo S-6 配線（G-FRD-I） | **done** |
 | **R5** | `opencvStitcher.ts` 削除・REQ done | draft |
 
 #### R3.5c サブ Phase（新 REQ 起票なし）
@@ -326,7 +326,7 @@ interface StitchReport {
 - [x] R3.5b: G-TRN layout=L2 golden・tabDetect 2タブガード・HOF/FRD layout 退行なし
 - [ ] R3.5c: 下記「R3.5c 完了条件」— c-5 は HOF/TRN/HOF-F OK、FRD は R3.5d へ委譲
 - [ ] R3.5d: 下記「R3.5d 完了条件」全項目
-- [ ] R4b: TrainingInfo 別パス（G-FRD-I）
+- [x] R4b: TrainingInfo S-6 配線（下記「R4b 完了条件」— **G-FRD-I 実機はユーザー確認待ち**）
 - [ ] R5: `opencvStitcher.ts` 削除、親 REQ Phase 3 検証クローズ、TODO/INDEX 更新
 
 ---
@@ -612,10 +612,51 @@ score(S) = mean | prev[scrollStartY + S + y, x] - curr[scrollStartY + y, x] |
 
 ---
 
+---
+
+## R4b: TrainingInfo S-6 配線（G-FRD-I）
+
+> **正本**: 設計レビュー案 A 承認（2026-06-28）。S-6 = 別モジュールではなく **オーケストレーション分岐**（TrainingInfo を Skill に上書きせず postProcess ルートへ）。合成・shift アルゴリズムは Skill 同型。
+
+### スコープ
+
+**やること**
+
+- `stitch.ts`: TrainingInfo → Skill 強制上書きを **削除**
+- `StitchTab=TrainingInfo` 時は scrollStart / shiftEstimate / compose / applyPostProcess（S-2 → trim）を Skill と同経路で実行
+- SCENE-CATALOG: G-FRD-I 収集手順追記
+- PNG 既存時のみ: expectations + golden.test 追加
+
+**やらないこと**
+
+- `compose*` / `shiftEstimateCore` / `tabDetectCore` 変更（実機 NG まで）
+- 案 B（scrollStart 帯・postProcess 差分）— 実機 NG 時のみ別チャット
+- `opencvStitcher.ts` 削除（R5）
+
+### 完了条件
+
+- [x] `stitch.ts` が TrainingInfo を Skill に上書きせず S-6 経路を通す
+- [x] `npm run stitch:golden` 全 PASS（25/25・G-FRD-I 未追加のため件数不変）
+- [x] SCENE-CATALOG: G-FRD-I 収集手順追記
+- [ ] **G-FRD-I 実機 OK**（ユーザー確認待ち — stitch 配線は完了）
+- [ ] 親 REQ Phase 1b チェックは G-FRD-I 実機 OK 後に同期
+
+### 実機検証（ユーザー担当）
+
+| シーン | 確認内容 |
+|--------|----------|
+| G-FRD-I | FRD 育成情報タブ — `StitchTab=TrainingInfo`・戦績末尾まで結合・OCR 可能 |
+| 退行 | G-HOF-S / G-TRN / G-FRD-S-release・register / G-HOF-F / G-FRD-F |
+| NG 時 | scrollStartRatio, S*, 目視症状を決定ログへ — 案 B 用別チャット |
+
+---
+
 ## 決定事項ログ
 
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
+| 2026-06-28 01:04 | **R4b 完了** — TrainingInfo 上書き削除・S-6 経路ログ。golden 25/25 PASS。G-FRD-I PNG 未収録のため expectations 未追加。CONCEPT-MAP: 新概念なし | 案 A 実装。G-FRD-I 実機はユーザー確認待ち。親 REQ Phase 1b は実機 OK 後 |
+| 2026-06-28 01:03 | **R4b 設計レビュー承認（案 A）** — TrainingInfo 上書き削除・Skill 同型経路（scrollStart/shift/compose/postProcess）。compose/shift/tabDetect は触らない。案 B は実機 NG 時のみ | Ask mode 設計レビュー。M6c 退行ゲート全 Step クローズ後の配線先行 |
 | 2026-06-28 00:47 | **R4a 実機退行ゲート クローズ** — Step 1 G-HOF-S・3 G-TRN・4a/4b G-FRD-S-release/register・5 G-HOF-F・6 G-FRD-F（S-5 継承履歴カット）いずれも退行なし | ユーザー tauri dev 確認。postProcess 分離後の本番パイプライン |
 | 2026-06-28 00:39 | **R4a 完了** — `postProcess/*` 新設（Core/OpenCv/applyPostProcess）。compose は合成式のみ。`stitch.ts` は compose → applyPostProcess。TrainingInfo は Skill 同経路＋警告維持。G-FRD-I は R4b へ | 設計レビュー案 A 承認どおり。golden 25/25 PASS。CONCEPT-MAP: 新概念なし（`0b549f5`） |
 | 2026-06-28 00:11 | **G-HOF-S terminal 微探索 実機クローズ** — 長リスト Frame 8→9 raw=82→final=28 terminal・二重なし。G-TRN・G-FRD-S-release/register 退行なし | ユーザー tauri dev 確認。SCENE-CATALOG 同期 |
