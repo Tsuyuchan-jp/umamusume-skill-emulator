@@ -7,7 +7,7 @@
 |-------|------|
 | R0 | golden 期待値・Vitest スモーク **done** |
 | R1 | `regions.ts` scrollStartY absdiff 正本 **done** |
-| R2 | `layout.ts` / `tabDetect.ts` 分割・走査帯正本化 **done** |
+| R2 | `layoutOpenCv.ts` / `tabDetect.ts` 分割・走査帯正本化 **done** |
 | R3 | `compose.ts` / `scrollMatch.ts`・`stitch.ts`・V2 ON **done** |
 | R3.5a | `shiftEstimate*`（SSD + median）**done** |
 | R3.5b | layout L2 優先・tabDetect 2タブガード **done** |
@@ -29,7 +29,7 @@
 | ファイル | 責務 |
 |---------|------|
 | `constants.ts` | 走査帯・`STITCH_SHIFT_*` |
-| `layoutCore.ts` / `layout.ts` | layout / tabRow |
+| `layoutCore.ts` / `layoutOpenCv.ts` | layout / tabRow（正本は Core。OpenCv は Mat 橋渡し） |
 | `tabDetectCore.ts` / `tabDetect.ts` | StitchTab |
 | `regionsCore.ts` / `regions.ts` | scrollStartY |
 | `shiftEstimateCore.ts` / `shiftEstimate.ts` | SSD + median（正本） |
@@ -48,3 +48,7 @@
 ```
 
 公開 API: [`../opencvStitcher.ts`](../opencvStitcher.ts) → `stitch.ts`（R5 で削除予定）
+
+## `app/` 配下のファイル名（Next.js）
+
+`app/lib/stitch/` に **`layout.ts` / `page.ts` / `route.ts`** 等の [予約名](https://nextjs.org/docs/app/api-reference/file-conventions) を置くと、Next.js がルート用ファイルと誤認し本番ビルドが失敗する。結合モジュールは `layoutOpenCv.ts` のように予約名を避ける（2026-06-27・`0fac03e`）。

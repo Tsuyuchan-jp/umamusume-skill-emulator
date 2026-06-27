@@ -126,6 +126,27 @@ npm run tauri build
 
 ---
 
+## トラブルシュート（next build）
+
+### `LayoutConfig<"/lib/stitch">` / `Property 'default' is missing`
+
+**原因**: `app/` 配下に Next.js の [予約ファイル名](https://nextjs.org/docs/app/api-reference/file-conventions)（`layout.ts` / `page.ts` / `route.ts` 等）がある。例: 旧 `app/lib/stitch/layout.ts` が `/lib/stitch` ルートのレイアウトと誤認された（2026-06-27）。
+
+**対処**:
+
+1. 該当ファイルを予約名以外にリネーム（結合モジュールは **`layoutOpenCv.ts`** が正本）
+2. 古い型キャッシュを削除して再ビルド:
+
+```powershell
+cd desktop-app
+Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
+npm run build
+```
+
+詳細: [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) 決定事項ログ（2026-06-27 19:56）。
+
+---
+
 ## 関連
 
 - プロジェクト概要・配布方針: `docs/PROJECT.md`

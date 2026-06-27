@@ -50,7 +50,8 @@ Screen
 |-----------|------|
 | `stitch/crop.ts` | findCropBounds |
 | `stitch/regions.ts` | **scrollStartY 決定（主: frame0↔1 absdiff）** |
-| `stitch/layout.ts` | L2 / L3 / L3+Btn 分類（regions から導出） |
+| `stitch/layoutCore.ts` | L2 / L3 / L3+Btn 分類（正本・RGBA） |
+| `stitch/layoutOpenCv.ts` | OpenCV Mat 橋渡し（`layoutCore` の薄いラッパ。旧 `layout.ts`） |
 | `stitch/tabDetect.ts` | StitchTab（Skill / Inheritance / TrainingInfo） |
 | `stitch/scrollMatch.ts` | テンプレートマッチ + absdiff フォールバック |
 | `stitch/compose.ts` | 縦合成（frame0 静止部 + 差分追記のみ） |
@@ -569,6 +570,7 @@ score(S) = mean | prev[scrollStartY + S + y, x] - curr[scrollStartY + y, x] |
 
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
+| 2026-06-27 19:56 | **`layout.ts` → `layoutOpenCv.ts` リネーム**（docs 追従） | Next.js 16 が `app/` 配下の `layout.ts` をルートレイアウトと誤認し `next build` が失敗。アルゴリズム正本は `layoutCore.ts` 不変。`page.ts` / `route.ts` 等の予約名も `app/lib/` では使わない |
 | 2026-06-27 08:11 | **M5 Capture–Stitch IPC** — wheel 導出を `wheelCore.ts` 正本化。`capture_frame0_preview` → TS `deriveCaptureWheel` → `start_auto_scroll_capture_session` 引数。Rust 緑タブ走査削除。`reason=stitch_narrow_band` 等 | R3.5d Rust 推定は履歴化。破壊変更: `start_auto_scroll_capture_session` に wheel 3 引数必須 |
 | 2026-06-27 02:41 | **R3.5d d-2〜d-4 実装完了** | `capture.rs`: frame0 crop 同系・緑タブ走査 0.28–0.54・scrollRegionH 推定・狭帯 -3 / 広帯 -4・構造化ログ。FRD `shiftRepresentative` 120–160。golden 18/18 PASS。d-5 実機はユーザー確認待ち |
 | 2026-06-27 02:32 | **R3.5d 設計確定（docs）** | 実機: HOF-S/TRN/HOF-F OK（-4）。FRD-S/F NG（-4・重なり ≈70–80px 不足）。-5 は採用しない。**案3**: frame0 で scrollRegionH 推定、狭帯 **-3** / 広帯 **-4**（しきい値 280px・失敗時 -4）。layout 名 3 段より帯高さ 2 段。推定オーバーヘッドは 1 回・≈0.1–0.3s |
@@ -640,7 +642,7 @@ REQ-stitch-rewrite **R0–R2 完了**（`b01ceb3`）。scrollStart / layout / ta
 
 ## 触らないこと（設計上も変更提案に含めない）
 - capture.rs / geminiOcr.ts / WASM
-- layout.ts / tabDetect.ts / constants.ts 走査帯（R2 正本維持）
+- layoutOpenCv.ts / tabDetect.ts / constants.ts 走査帯（R2 正本維持）
 
 ## 報告形式（CHAT_TEMPLATE.md 準拠）
 1. 現状整理 — データの流れ（crop → header → scrollMats → 合成）
@@ -694,7 +696,7 @@ G-FRD-S: layout L3+Btn + tabRow PASS。**scrollStart のみ FAIL**。
 3. REQ 決定ログ・R2 残 Phase 完了更新
 
 ## 触らない
-- `layout.ts` / `layoutCore.ts` / `tabDetect*` / `constants.ts` 走査帯
+- `layoutOpenCv.ts` / `layoutCore.ts` / `tabDetect*` / `constants.ts` 走査帯
 - `compose.ts` / `capture.rs` / `geminiOcr.ts`
 - `USE_STITCH_V2`（false 維持）
 

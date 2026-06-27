@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-27 18:56
+最終更新: 2026-06-27 19:56
 
 ---
 
@@ -271,6 +271,7 @@
 - パレットのスキル一覧は `**umasimSkillDataList`（ローカル）正本** — `buildPaletteSkillOptions`。WASM sim は `fetchSkillData()`（GitHub 優先 → AppData → 同梱 `public/skill_data.txt`）
 - **オートキャプチャ Capture–Stitch 契約**: **広帯 -4 / 狭帯 -3**（`scrollRegionH` しきい値 280px）。**M5**: wheel は stitch（TS）正本・Rust IPC 受信。正本: `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)`「Capture–Stitch 契約」
 - **Scene Model ロードマップ**: `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)` 起票（M0 done）。Catalog: `[SCENE-CATALOG.md](../auto-capture-design-pack/SCENE-CATALOG.md)`。素材運用: `[PACK-GUIDE.md](../auto-capture-design-pack/PACK-GUIDE.md)`
+- **stitch `layoutOpenCv.ts`**: 旧 `layout.ts` は Next.js 16 の `app/` 予約名衝突でリネーム（`0fac03e`）。正本は `layoutCore.ts`。ビルド失敗時は `[RELEASE_BUILD.md](RELEASE_BUILD.md)` トラブルシュート
 - **オートキャプチャ結合 R3.5d**: d-2〜d-4 完了。**d-5 実機**は保留（6de25ad 未検証）。Scene Model M6 で Spec 準拠修正予定
 - **オートキャプチャ結合 R3.5b 完了**: layout L2 優先 + tabDetect 2タブガード。golden 17/17
 - **オートキャプチャ結合 R3.5 設計正本**: shiftEstimate（SSD + median）。詳細: `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)` R3.5 節
