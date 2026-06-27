@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-27 19:56
+最終更新: 2026-06-27 20:19
 
 ---
 
@@ -16,13 +16,17 @@
 
 ## 現在のフォーカス
 
-**P1** — **Scene Model M6c**（R3.5d 実機検証）+ オートキャプチャ改善
+**P1** — **Scene Model M6c**（R3.5d 実機検証・4a/4b OK / Step 6・1・3 待ち）
 
 ---
 
 ## 進行中
 
-（なし）
+- [ ] **Scene Model M6c**（R3.5d-5 実機検証クローズ）
+  - 前提: M6b 完了
+  - REQ: [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
+  - 実機進捗: **4a OK**・**4b OK**（結合）/ Step 6・1・3 待ち
+  - メモ: 4b でアクティブタブ誤検出（下記既知の問題）— M6c 結合判定は OK
 
 ## 次にやること（Backlog）
 
@@ -33,10 +37,6 @@
 （完了 — 下記「完了済み」参照）
 
 ### P1 — 重要
-
-- [ ] **Scene Model M6c**（R3.5d-5 実機検証クローズ）
-  - 前提: M6b 完了
-  - REQ: [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
 
 - [ ] **オートキャプチャ時のスクロール用カーソル位置をやや下方へ**
   - 症状: ホイール入力のカーソル位置がスクロールエリア上端ギリギリになり、**FRD-S** 等でスクロールが不安定
@@ -79,6 +79,15 @@
 （Phase 5 完了。上記ほか P1 候補は Backlog 追加時にここへ）
 
 ### P2 — 改善・アイデア
+
+- [ ] **FRD-S register 時のアクティブタブ誤検出（StitchTab）**
+  - 症状: **スキルタブ選択中**なのに `detectStitchTabFromRgba` が **TrainingInfo（3番目）** と判定。Console に「育成情報タブは Phase 1 未対応…」警告
+  - 原因候補: M6a INV-2 は **tabRow の Y 走査**のみ partner register 除外。**アクティブタブの3分割判定**には未配線。register 緑が右セグメントに混入しうる
+  - 現状: `stitch.ts` が TrainingInfo→Skill 上書きのため **結合は成功**（M6c 4b 実機 OK）。検出自体は誤り
+  - 目標: partner register 帯をアクティブタブ走査から除外、または FRD-S で左タブ優先
+  - 触る想定: `tabDetectCore.ts`（`detectStitchTabFromRgba`）・`stitch.ts` 呼び出し
+  - 注意: **M6c スコープ外**。R4 G-FRD-I（真の育成情報タブ）前に修正推奨。実機検証必須（register + 継承タブ退行）
+  - 関連: `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)` INV-2 拡張候補
 
 - [ ] **オートキャプチャ結合画像のディスク非保存オプション**
   - 現状: オートキャプチャ完了後 `useCapture` が OpenCV で結合し、`saveFolder` 指定時は Rust `save_stitched_image`、未指定時はブラウザダウンロードへ保存。Rust 側 `capture.rs` もフレーム PNG を一時ディレクトリに書き込み
@@ -272,7 +281,8 @@
 - **オートキャプチャ Capture–Stitch 契約**: **広帯 -4 / 狭帯 -3**（`scrollRegionH` しきい値 280px）。**M5**: wheel は stitch（TS）正本・Rust IPC 受信。正本: `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)`「Capture–Stitch 契約」
 - **Scene Model ロードマップ**: `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)` 起票（M0 done）。Catalog: `[SCENE-CATALOG.md](../auto-capture-design-pack/SCENE-CATALOG.md)`。素材運用: `[PACK-GUIDE.md](../auto-capture-design-pack/PACK-GUIDE.md)`
 - **stitch `layoutOpenCv.ts`**: 旧 `layout.ts` は Next.js 16 の `app/` 予約名衝突でリネーム（`0fac03e`）。正本は `layoutCore.ts`。ビルド失敗時は `[RELEASE_BUILD.md](RELEASE_BUILD.md)` トラブルシュート
-- **オートキャプチャ結合 R3.5d**: d-2〜d-4 完了。**d-5 実機**は保留（6de25ad 未検証）。Scene Model M6 で Spec 準拠修正予定
+- **FRD-S register・アクティブタブ誤検出（2026-06-27 M6c 4b 実機）**: スキルタブが緑なのに `detectStitchTabFromRgba` が TrainingInfo（3分割の右端）と判定。`stitch.ts` の TrainingInfo→Skill 上書きで結合は OK。**G-FRD-I シーン誤認ではない**（内部 StitchTab  enum）。修正は P2 Backlog・INV-2 のアクティブタブ層への拡張候補
+- **オートキャプチャ結合 R3.5d**: d-2〜d-4 完了。**M6c 実機進行中**（4a/4b OK）
 - **オートキャプチャ結合 R3.5b 完了**: layout L2 優先 + tabDetect 2タブガード。golden 17/17
 - **オートキャプチャ結合 R3.5 設計正本**: shiftEstimate（SSD + median）。詳細: `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)` R3.5 節
 - **sim スキルデータ**: オンライン時 GitHub fetch + AppData キャッシュ。オフライン時は同梱/キャッシュで制限付き動作（フォールバック時トースト）

@@ -26,7 +26,7 @@
 | G-TRN | TRN | Skill | absent | L2 | `golden/TRN/frame_000.png` | yes | 3 | ok | tabY≈0.47 |
 | G-CMP-S | CMP | Skill | absent | L3 | `golden/CMP/skill/frame_000.png` | yes | 2 skip | ok | |
 | G-FRD-S-release | FRD | Skill | **release**（灰・解除） | L3+Btn | `golden/FRD/skill-release/frame_000.png` | yes | 4 | **ng** | アーモンドアイ: absdiff scrollStart≈0.29 誤検出。アストンマーチャン: ok |
-| G-FRD-S-register | FRD | Skill | **register**（緑・登録） | L3+Btn | `golden/FRD/skill-register/frame_000.png` | yes | 4 | **ng** | golden/実機とも tabY≈0.44・wheel=-4。frame_000〜007 収録済み |
+| G-FRD-S-register | FRD | Skill | **register**（緑・登録） | L3+Btn | `golden/FRD/skill-register/frame_000.png` | yes | 4 | 要再検証 | M6c 4b: tabY/wheel/scrollStart OK。StitchTab が TrainingInfo と誤検出（上書きで結合 OK）— TODO P2 |
 | G-FRD-F | FRD | 因子 | release/absent | L3+Btn | `golden/FRD/factor/frame_000.png` | yes | 6 | 要再検証 | R3.5d 狭帯 -3 後 |
 | G-FRD-I | FRD | 育成情報 | — | — | — | R4 | — | 欠落 | R4 スコープ・golden 不要 |
 
@@ -82,7 +82,7 @@ INV 対応・計測メモ: [`REQ-stitch-scene-model.md`](../docs/tasks/REQ-stitc
 
 | シーン ID | 事象 | 備考 |
 |-----------|------|------|
-| G-FRD-S-register | tabRow 計測≈0.44（期待 0.46–0.48 外）・wheel=-4 | Vitest `it.fails` で再現。M6 修正 |
+| G-FRD-S-register | tabRow・wheel・scrollStart は M6 実機 OK。StitchTab が TrainingInfo と誤検出（`stitch.ts` 上書きで結合 OK） | TODO P2・`detectStitchTabFromRgba` に partner 除外未配線 |
 | G-FRD-S-release | アーモンドアイ absdiff scrollStart≈0.29 | 期待 0.52–0.56 外。M6 |
 
 アーモンドアイ用 **別 golden 行**（PNG 未収録）は M2 設計メモのみ。収録は別タスク。

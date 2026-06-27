@@ -56,7 +56,7 @@ Screen
 | ID | 条件 | 違反時 |
 |----|------|--------|
 | INV-1 | `scrollStartY > tabRow.bottom + margin` | absdiff / green-tab 結果を棄却し副経路へ |
-| INV-2 | `partnerBand.register` の Y 帯は `tabRow` と混同しない | partner 検出を先に確定し tab 走査へ入力 |
+| INV-2 | `partnerBand.register` の Y 帯は `tabRow` と混同しない | partner 検出を先に確定し tab 走査へ入力。**注**: M6a は tabRow **Y 走査**のみ。アクティブタブ（StitchTab）3分割は未配線（M6c 4b 既知の問題・TODO P2） |
 | INV-3 | `scrollRegionH` の wheel 段は **1セッション固定**（帯高さ 2 段。layout 名では決めない） | [`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md) R3.5d 正本 |
 
 ### 不変条件 ↔ expectations フィールド対応（M2）
@@ -198,6 +198,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\stitch-golden\measure-
 
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
+| 2026-06-27 20:19 | **M6c 実機 4b: アクティブタブ誤検出を既知の問題に登録** | スキルタブ選択中に `detectStitchTabFromRgba`→TrainingInfo。M6a INV-2 は tabRow Y 走査のみ。`stitch.ts` 上書きで結合 OK だが検出は誤り。TODO P2・R4 前修正候補 |
 | 2026-06-27 04:11 | **REQ-stitch-scene-model 起票**（M0） | 場当たり修正の構造原因を Phase 化。ワーキングメモリ外の正本が必要 |
 | 2026-06-27 04:11 | stitch 実装と **方法論 REQ を sibling 分離** | R3.5d を止めず、Catalog/検出器統一を並行ロードマップ化 |
 | 2026-06-27 04:11 | 着手条件: Catalog 未登録シーンは計測 Phase 先行 | golden 18/18 でも実機 NG（登録ボタン）の再発防止 |
