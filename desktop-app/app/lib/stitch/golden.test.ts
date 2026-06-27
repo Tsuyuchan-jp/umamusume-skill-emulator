@@ -297,6 +297,20 @@ describe.skipIf(!isDesignPackPresent())("stitch golden R3.5b layout + tabDetect 
     const measured = await measureLayoutFromFrame(packRoot, c.framePaths[0]!);
     expect(measured.layout, `layout=${measured.layout}`).toBe("L3");
   }, 60_000);
+
+  it("G-FRD-S-register: tab=Skill（INV-2 アクティブタブ・register 除外）", async () => {
+    const c = getGoldenCase("G-FRD-S-register")!;
+    const measured = await measureLayoutFromFrame(packRoot, c.framePaths[0]!);
+    expect(measured.layout, `layout=${measured.layout}`).toBe("L3+Btn");
+    expect(measured.tab, `tab=${measured.tab}`).toBe("Skill");
+  }, 60_000);
+
+  it("G-FRD-F: tab=Inheritance（継承タブ・弱優勢再判定）", async () => {
+    const c = getGoldenCase("G-FRD-F")!;
+    const measured = await measureLayoutFromFrame(packRoot, c.framePaths[0]!);
+    expect(measured.layout, `layout=${measured.layout}`).toBe("L3+Btn");
+    expect(measured.tab, `tab=${measured.tab}`).toBe("Inheritance");
+  }, 60_000);
 });
 
 describe.skipIf(!isDesignPackPresent())("stitch golden R2 layout + scrollStart (sceneSpec 正本)", () => {

@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-27 21:04
+最終更新: 2026-06-27 21:46
 
 ---
 
@@ -26,7 +26,8 @@
   - 前提: M6b 完了
   - REQ: [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
   - 実機進捗: **4a OK**・**4b OK**・**1 OK**・**3 OK**（退行なし）・**6 NG**
-  - **ブロッカー**: Step 6 — 継承履歴未カット（`StitchTab` 誤検出→Skill 上書き）。P2 Backlog 修正後に再検証
+  - **StitchTab 修正完了**（`tabDetectCore` INV-2 拡張・`stitch.ts` partner 配線）— **Step 6 実機再検証待ち**
+  - 旧ブロッカー: Step 6 — 継承履歴未カット（`StitchTab` 誤検出→Skill 上書き）
 
 ## 次にやること（Backlog）
 
@@ -80,13 +81,11 @@
 
 ### P2 — 改善・アイデア
 
-- [ ] **FRD アクティブタブ誤検出（StitchTab）— 4b / 6 実機 NG 要因**
+- [x] **FRD アクティブタブ誤検出（StitchTab）— 4b / 6 実機 NG 要因**（コード修正済み・**Step 6 実機再 OK 待ち**）
   - 症状 A（4b register）: **スキルタブ選択中**なのに `detectStitchTabFromRgba`→**TrainingInfo**。`stitch.ts` 上書きで結合は OK
   - 症状 B（6 継承・G-FRD-F）: **継承タブ選択中**も同警告→`StitchTab=Skill`。**継承履歴緑バー以下が未カット**（`cropAtInheritanceHistoryBar` は `tab===Inheritance` のみ）
-  - 原因候補: M6a INV-2 は tabRow **Y 走査**のみ。アクティブタブ3分割に partner 除外未配線。`TrainingInfo`→`Skill` 一律上書きが継承 postProcess を潰す
-  - 目標: `detectStitchTabFromRgba` 修正 + 上書き方針見直し（継承タブで Inheritance を維持）
-  - 触る想定: `tabDetectCore.ts`・`stitch.ts`
-  - 注意: **M6c ブロッカー**（Step 6 必須）。実機: FRD-S register・FRD 継承・HOF 継承退行
+  - 対応: `tabDetectCore` partner 配線・register 帯下端より下の再走査・緑比率スコア・右端弱優勢再判定。`stitch.ts` は partner 渡し（継承は検出側で維持）
+  - golden: `G-FRD-S-register` tab=Skill・`G-FRD-F` tab=Inheritance assert 追加（25/25 PASS）
   - 関連: `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)` INV-2 拡張
 
 - [ ] **オートキャプチャ結合画像のディスク非保存オプション**

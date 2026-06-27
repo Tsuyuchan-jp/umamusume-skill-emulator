@@ -4,12 +4,15 @@ import { STITCH_TAB_ROW_HEIGHT_RATIO, type StitchLayout } from "./constants";
 import { detectStitchLayoutAndTabRow } from "./layoutOpenCv";
 import { matToRgba } from "./opencvRgba";
 import { detectStitchTabFromRgba, measureGreenTabProfileRgba, scanGreenTabRowRgba } from "./tabDetectCore";
+import type { PartnerBandDetection } from "./partnerDetectCore";
+import { detectPartnerBandRgba } from "./partnerDetectCore";
 import type { StitchTab, TabRowInfo } from "./types";
 
 export {
   detectStitchTabFromRgba,
   measureGreenTabProfileRgba,
   scanGreenTabRowRgba,
+  type DetectStitchTabOptions,
 } from "./tabDetectCore";
 
 /** OpenCV Mat 向け緑タブプロファイル */
@@ -46,12 +49,14 @@ export function detectStitchTab(
   cropHeight: number,
   layout: StitchLayout,
   tabRowY?: number,
-  tabCount?: number
+  tabCount?: number,
+  partner?: PartnerBandDetection
 ): StitchTab {
   const layoutResult = detectStitchLayoutAndTabRow(croppedMat, cv, cropWidth, cropHeight);
   const tabY = tabRowY ?? layoutResult.tabRow.tabY;
   const count = tabCount ?? layoutResult.tabRow.tabCount;
 
   const rgba = matToRgba(croppedMat, cv, cropWidth, cropHeight);
-  return detectStitchTabFromRgba(rgba, layout, tabY, count);
+  const partnerDetect = partner ?? detectPartnerBandRgba(rgba);
+  return detectStitchTabFromRgba(rgba, layout, tabY, count, { partner: partnerDetect });
 }

@@ -4,6 +4,8 @@ import { findCropBounds } from "./crop";
 import { STITCH_FOOTER_HEIGHT_RATIO, STITCH_HEADER_TAB_BOTTOM_MARGIN_RATIO, STITCH_TAB_ROW_HEIGHT_RATIO, getLayoutHeaderRatio } from "./constants";
 import { detectStitchLayoutAndTabRow } from "./layoutOpenCv";
 import { detectStitchTab } from "./tabDetect";
+import { detectPartnerBandRgba } from "./partnerDetectCore";
+import { matToRgba } from "./opencvRgba";
 import { detectScrollStartY } from "./regions";
 import { matchScrollFrames } from "./scrollMatch";
 import {
@@ -43,6 +45,9 @@ export async function stitchImages(
   const cropHeight = cropRect.height;
   const croppedMats = mats.map((mat) => mat.roi(cropRect));
 
+  const rgba0 = matToRgba(croppedMats[0], cv, cropWidth, cropHeight);
+  const partner = detectPartnerBandRgba(rgba0);
+
   const { layout, tabRow } = detectStitchLayoutAndTabRow(
     croppedMats[0],
     cv,
@@ -56,7 +61,8 @@ export async function stitchImages(
     cropHeight,
     layout,
     tabRow.tabY,
-    tabRow.tabCount
+    tabRow.tabCount,
+    partner
   );
 
   if (tabRow.method === "fallback") {
@@ -69,6 +75,7 @@ export async function stitchImages(
     console.warn(
       "育成情報タブは Phase 1 未対応です。スキル結合パスで処理します（Phase 1b / S-6）。"
     );
+    // 強い右端セグ優勢のみ到達（継承・スキル誤検出は detectStitchTabFromRgba で救済済み）
     tab = "Skill";
   }
 

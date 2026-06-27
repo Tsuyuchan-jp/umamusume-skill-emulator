@@ -1,6 +1,7 @@
 import {
   STITCH_L2_GREEN_SCORE_MIN,
   STITCH_L3_GREEN_SEG_MIN,
+  STITCH_PARTNER_REGISTER_EXCLUDE_MARGIN_RATIO,
   STITCH_TAB_ROW_HEIGHT_RATIO,
   STITCH_TAB_ROW_Y_SCAN_STEP,
   type StitchLayout,
@@ -124,12 +125,137 @@ export function scanGreenTabRowRgba(
   return best;
 }
 
+export interface DetectStitchTabOptions {
+  /** INV-2: partnerBand 検出結果（register 時の右セグ汚染除外） */
+  partner?: PartnerBandDetection;
+}
+
+/** 右端セグ（育成情報位置）の優勢が register 汚染または弱優勢とみなす比率差 */
+const ACTIVE_TAB_TRAINING_SEG_WEAK_DOMINANCE = 0.2;
+/** アクティブタブ再走査: セグ内緑ピクセル比率の最低値 */
+const ACTIVE_TAB_MIN_GREEN_RATIO = 0.03;
+/** アクティブタブ Y 再走査ステップ（px） */
+const ACTIVE_TAB_Y_SCAN_STEP_PX = 2;
+
+/** タブ行を横分割し、各セグの緑ピクセル比率を返す */
+function measureActiveTabSegmentRatios(
+  img: RgbaImage,
+  tabRowY: number,
+  tabH: number,
+  segmentCount: number,
+  cropWidth: number
+): number[] {
+  const segWidth = Math.floor(cropWidth / segmentCount);
+  const ratios: number[] = [];
+
+  for (let seg = 0; seg < segmentCount; seg++) {
+    const x0 = seg * segWidth;
+    const x1 = seg === segmentCount - 1 ? cropWidth : (seg + 1) * segWidth;
+    let greenCount = 0;
+    let total = 0;
+
+    for (let y = tabRowY; y < tabRowY + tabH && y < img.height; y++) {
+      for (let x = x0; x < x1; x++) {
+        total++;
+        const i = (y * img.width + x) * 4;
+        const r = img.data[i];
+        const g = img.data[i + 1];
+        const b = img.data[i + 2];
+        if (isTabGreenRgb(r, g, b)) {
+          greenCount++;
+        }
+      }
+    }
+
+    ratios.push(total > 0 ? greenCount / total : 0);
+  }
+
+  return ratios;
+}
+
+/** 最優勢セグと次点の緑比率差（アクティブタブ行の判別力） */
+function measureActiveTabRowDiscrimination(ratios: readonly number[]): number {
+  const sorted = [...ratios].sort((a, b) => b - a);
+  if ((sorted[0] ?? 0) < ACTIVE_TAB_MIN_GREEN_RATIO) return -1;
+  return (sorted[0] ?? 0) - (sorted[1] ?? 0);
+}
+
+/**
+ * INV-2 拡張: partner register 帯下端より下へずらし、
+ * tabRowY 付近で緑が弱いときはタブ行帯内を下方向再走査する。
+ */
+function resolveActiveTabScanY(
+  img: RgbaImage,
+  tabRowY: number,
+  tabH: number,
+  segmentCount: number,
+  cropWidth: number,
+  cropHeight: number,
+  partner?: PartnerBandDetection
+): number {
+  let yMin = tabRowY;
+  if (partner?.variant === "register" && partner.bandBottom != null) {
+    const margin = Math.max(1, Math.floor(cropHeight * STITCH_PARTNER_REGISTER_EXCLUDE_MARGIN_RATIO));
+    yMin = Math.max(yMin, partner.bandBottom + margin);
+  }
+
+  const yMax = Math.min(cropHeight - tabH - 1, tabRowY + Math.max(tabH * 2, 8));
+  let bestY = yMin;
+  let bestDisc = -1;
+
+  for (let y = yMin; y <= yMax; y += ACTIVE_TAB_Y_SCAN_STEP_PX) {
+    const ratios = measureActiveTabSegmentRatios(img, y, tabH, segmentCount, cropWidth);
+    const disc = measureActiveTabRowDiscrimination(ratios);
+    if (disc > bestDisc) {
+      bestDisc = disc;
+      bestY = y;
+    }
+  }
+
+  return bestY;
+}
+
+function pickBestActiveTabSegment(scores: readonly number[]): number {
+  let bestSeg = 0;
+  let bestScore = scores[0] ?? 0;
+  for (let seg = 1; seg < scores.length; seg++) {
+    const score = scores[seg] ?? 0;
+    if (score > bestScore) {
+      bestScore = score;
+      bestSeg = seg;
+    }
+  }
+  return bestSeg;
+}
+
+/** 右端セグ勝利が partner register 汚染または誤検出（弱優勢）か */
+function shouldRepickWithoutTrainingSeg(
+  scores: readonly number[],
+  bestSeg: number,
+  partner?: PartnerBandDetection
+): boolean {
+  if (bestSeg !== 2 || scores.length < 3) return false;
+  if (partner?.variant === "register") return true;
+
+  const win = scores[2] ?? 0;
+  if (win <= 0) return false;
+  const runnerUp = Math.max(scores[0] ?? 0, scores[1] ?? 0);
+  return (win - runnerUp) / win < ACTIVE_TAB_TRAINING_SEG_WEAK_DOMINANCE;
+}
+
+function stitchTabFromSegmentIndex(bestSeg: number): StitchTab {
+  if (bestSeg === 1) return "Inheritance";
+  if (bestSeg === 2) return "TrainingInfo";
+  return "Skill";
+}
+
 /** アクティブタブ（緑ハイライト位置）から StitchTab を判定 */
 export function detectStitchTabFromRgba(
   img: RgbaImage,
   layout: StitchLayout,
   tabRowY: number,
-  tabCount?: number
+  tabCount?: number,
+  options?: DetectStitchTabOptions
 ): StitchTab {
   const cropWidth = img.width;
   const cropHeight = img.height;
@@ -140,38 +266,28 @@ export function detectStitchTabFromRgba(
     return "Skill";
   }
 
-  const segWidth = Math.floor(cropWidth / segmentCount);
+  const partner = options?.partner;
+  const scanY = resolveActiveTabScanY(
+    img,
+    tabRowY,
+    tabH,
+    segmentCount,
+    cropWidth,
+    cropHeight,
+    partner
+  );
+  const scores = measureActiveTabSegmentRatios(
+    img,
+    scanY,
+    tabH,
+    segmentCount,
+    cropWidth
+  );
+  let bestSeg = pickBestActiveTabSegment(scores);
 
-  let bestSeg = 0;
-  let bestGreen = 0;
-
-  for (let seg = 0; seg < segmentCount; seg++) {
-    const x0 = seg * segWidth;
-    const x1 = seg === segmentCount - 1 ? cropWidth : (seg + 1) * segWidth;
-    let greenSum = 0;
-    let count = 0;
-
-    for (let y = tabRowY; y < tabRowY + tabH && y < img.height; y++) {
-      for (let x = x0; x < x1; x++) {
-        const i = (y * img.width + x) * 4;
-        const r = img.data[i];
-        const g = img.data[i + 1];
-        const b = img.data[i + 2];
-        if (isTabGreenRgb(r, g, b)) {
-          greenSum += g;
-          count++;
-        }
-      }
-    }
-
-    const avg = count > 0 ? greenSum / count : 0;
-    if (avg > bestGreen) {
-      bestGreen = avg;
-      bestSeg = seg;
-    }
+  if (shouldRepickWithoutTrainingSeg(scores, bestSeg, partner)) {
+    bestSeg = (scores[0] ?? 0) >= (scores[1] ?? 0) ? 0 : 1;
   }
 
-  if (bestSeg === 1) return "Inheritance";
-  if (bestSeg === 2) return "TrainingInfo";
-  return "Skill";
+  return stitchTabFromSegmentIndex(bestSeg);
 }

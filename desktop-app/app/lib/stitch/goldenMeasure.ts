@@ -4,6 +4,7 @@ import { STITCH_FOOTER_HEIGHT_RATIO } from "./constants";
 import { cropRgba, findCropBoundsOrFallback } from "./cropCore";
 import { composeStitchedRgba } from "./composeCore";
 import { detectLayoutAndTabRowRgba } from "./layoutCore";
+import { detectPartnerBandRgba } from "./partnerDetectCore";
 import { detectScrollStartYFromRgba } from "./regionsCore";
 import { estimateShiftFramesRgba } from "./shiftEstimateCore";
 import { detectStitchTabFromRgba } from "./tabDetectCore";
@@ -50,7 +51,10 @@ export async function measureLayoutFromFrame(
   const frame = cropRgba(frameFull, cropRect);
 
   const { layout, tabRow } = detectLayoutAndTabRowRgba(frame);
-  const tab = detectStitchTabFromRgba(frame, layout, tabRow.tabY);
+  const partner = detectPartnerBandRgba(frame);
+  const tab = detectStitchTabFromRgba(frame, layout, tabRow.tabY, tabRow.tabCount, {
+    partner,
+  });
 
   return {
     crop: cropRect,

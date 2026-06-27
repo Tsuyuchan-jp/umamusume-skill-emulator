@@ -56,7 +56,7 @@ Screen
 | ID | 条件 | 違反時 |
 |----|------|--------|
 | INV-1 | `scrollStartY > tabRow.bottom + margin` | absdiff / green-tab 結果を棄却し副経路へ |
-| INV-2 | `partnerBand.register` の Y 帯は `tabRow` と混同しない | partner 検出を先に確定し tab 走査へ入力。**注**: M6a は tabRow **Y 走査**のみ。アクティブタブ（StitchTab）3分割は未配線（M6c 4b 既知の問題・TODO P2） |
+| INV-2 | `partnerBand.register` の Y 帯は `tabRow` と混同しない | partner 検出を先に確定し tab 走査へ入力。**M6a**: tabRow **Y 走査**。**M6c**: アクティブタブ（StitchTab）3分割にも partner 配線（register 帯下端より下の再走査・右端弱優勢再判定） |
 | INV-3 | `scrollRegionH` の wheel 段は **1セッション固定**（帯高さ 2 段。layout 名では決めない） | [`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md) R3.5d 正本 |
 
 ### 不変条件 ↔ expectations フィールド対応（M2）
@@ -211,6 +211,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\stitch-golden\measure-
 
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
+| 2026-06-27 21:46 | **M6c StitchTab 修正（コード）** — `detectStitchTabFromRgba` に partner 配線・register 帯下端より下の Y 再走査・緑比率スコア・右端弱優勢時 seg0/1 再判定。`stitch.ts` partner 渡し。golden `G-FRD-S-register` tab=Skill・`G-FRD-F` tab=Inheritance assert | Step 6 実機 NG のコード側ブロッカー解消。実機 Step 6 再 OK は別チャット |
 | 2026-06-27 21:04 | **M6c 実機 Step 1・3 退行なし** | G-HOF-S: wheel=-4・scrollStart≈0.441。G-TRN: wheel=-4・L2・scrollStart≈0.522。Step 6 NG のみで M6c 未クローズ |
 | 2026-06-27 20:26 | **M6c 実機 Step 6 NG（G-FRD-F）** | 継承タブ・wheel=-3/scrollStart OK だが継承履歴緑バー以下未カット。`TrainingInfo` 誤検出→`Skill` 上書きで `cropAtInheritanceHistoryBar` 未実行。P2 StitchTab 修正が M6c ブロッカー |
 | 2026-06-27 20:19 | **M6c 実機 4b: アクティブタブ誤検出を既知の問題に登録** | スキルタブ選択中に `detectStitchTabFromRgba`→TrainingInfo。M6a INV-2 は tabRow Y 走査のみ。`stitch.ts` 上書きで結合 OK だが検出は誤り。TODO P2・R4 前修正候補 |
