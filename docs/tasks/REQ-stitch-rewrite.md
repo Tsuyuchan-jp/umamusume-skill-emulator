@@ -109,6 +109,14 @@ Screen
 
 実験: `019a567`（-4）、`23ebab7`（terminal 実測シフト）。TRN/HOF-S 実機 -4 クローズ（2026-06-27）。
 
+### スクロール用カーソル（Rust・2026-06-27）
+
+| 軸 | 正本 | 備考 |
+|----|------|------|
+| **Y** | 因子ヘッダー Y（`find_factor_header_bounds`）＋帯内 max(56px, 62%帯高) | 狭帯 FRD 安定化 |
+| **X** | **UI パネル幹何中心**（`clientH×0.5625` をウィンドウ中央配置・cropCore fallback 同系） | O(1)。factor 緑帯中点は左端ノイズで HOF/FRD-release が左寄りになりうるためホイール X には使わない |
+| factor 緑帯 X | `find_factor_header_bounds` の start/end | **継承履歴バー早期終了**の走査幅のみ |
+
 ### TS frame0 推定（M5 正本）
 
 ```
@@ -583,7 +591,9 @@ score(S) = mean | prev[scrollStartY + S + y, x] - curr[scrollStartY + y, x] |
 
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
-| 2026-06-27 22:11 | **スクロール用カーソル Y** — `target_client_y` = 帯上端 + max(**56px**, **62%** 帯高)（旧=中点 50%）。golden **25/25 PASS**。HOF/TRN/CMP は広帯内のため **退行想定なし**。**FRD-S 実機はユーザー確認待ち** | 狭帯 FRD で上端ギリギリのホイール入力が不安定になりうる |
+| 2026-06-27 22:41 | **スクロール用カーソル X** — `target_client_x` = **UI パネル幹何中心**（`clientH×0.5625` を中央配置・cropCore fallback 同系・**O(1)**）。factor 緑帯中点は継承履歴検出のみ。HOF/FRD-release の左寄りは factor 左端ノイズが原因 | 追加ピクセル走査なし。findCropBounds 相当は frame0 二重走査になるため見送り |
+| 2026-06-27 22:41 | **スクロール用カーソル Y 実機クローズ** — G-FRD-S-register/release・G-HOF-S・G-TRN 退行なし・Y 下方 OK | ユーザー tauri dev 確認 |
+| 2026-06-27 22:11 | **スクロール用カーソル Y** — `target_client_y` = 帯上端 + max(**56px**, **62%** 帯高)（旧=中点 50%）。golden **25/25 PASS** | 狭帯 FRD で上端ギリギリのホイール入力が不安定になりうる |
 | 2026-06-27 21:54 | **R3.5d d-5 実機クローズ** — G-FRD-F Step 6 OK（`StitchTab=Inheritance`・継承履歴緑ライン Y=2778）。4a/4b/1/3 退行なし | StitchTab 修正（`4c6029e`）後。M6c 完了 |
 | 2026-06-27 21:04 | **M6c 実機 Step 1・3 退行なし** | HOF-S wheel=-4・TRN L2 wheel=-4。R3.5d 広帯退行ゲート OK。M6c は Step 6（継承履歴カット）のみ NG で未クローズ |
 | 2026-06-27 20:26 | **M6c 実機 Step 6 NG（G-FRD-F / 継承）** | 結合・wheel=-3 OK。下部トリム NG: `StitchTab=Skill`（TrainingInfo 誤検出→上書き）で S-5 `cropAtInheritanceHistoryBar` スキップ。4b と同根の tabDetect 問題 |

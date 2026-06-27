@@ -32,6 +32,15 @@ struct WheelDecision {
 const SCROLL_CURSOR_TOP_MARGIN_PX: i32 = 56;
 /// スクロール帯内での Y 位置（上端=0・下端=1）。旧中点 0.5 よりやや下（FRD 安定化・HOF/TRN 帯内に留まる）
 const SCROLL_CURSOR_BAND_RATIO: f32 = 0.62;
+/// ゲーム UI パネル幅（高さ × 9:16）— stitch `cropCore` フォールバックと同系
+const UI_PANEL_ASPECT_WIDTH_RATIO: f32 = 0.5625;
+
+/// スクロール用カーソル X（クライアント座標）。パネルをウィンドウ中央に置いたときの幾何中心（O(1)・追加走査なし）。
+fn scroll_panel_center_client_x(client_width: i32, client_height: i32) -> i32 {
+    let ui_width = (client_height as f32 * UI_PANEL_ASPECT_WIDTH_RATIO) as i32;
+    let panel_left = ((client_width - ui_width) / 2).max(0);
+    panel_left + ui_width / 2
+}
 
 /// タブ緑ピクセル判定（因子ヘッダー・継承履歴バー用・rgba.ts 正本と同期）
 const TAB_GREEN_G_MIN: u8 = 100;
@@ -722,7 +731,10 @@ pub async fn start_auto_scroll_capture_session(
     };
 
     // スクロールのアンカーとなるマウス座標（画面全体に対する絶対座標）を計算
-    let target_client_x = (factor_start_x + factor_end_x) as i32 / 2;
+    // X: UI パネル幾何中心（factor 緑帯中点は左端ノイズで HOF/FRD-release が左寄りになりうるため使わない）
+    let target_client_x =
+        scroll_panel_center_client_x(game_window.client_width, game_window.client_height);
+    let factor_mid_x = (factor_start_x + factor_end_x) as i32 / 2;
     // スクロールエリアはヘッダー（header_y）からウィンドウ下部90%（client_height * 0.90）まで続く。
     // ホイールは帯の上端ギリギリだと FRD 等で不安定になりうるため、上端マージンと帯比率の大きい方を採用。
     let scroll_area_start_y = header_y as i32;
@@ -735,7 +747,11 @@ pub async fn start_auto_scroll_capture_session(
         .max(from_margin)
         .min(scroll_area_end_y.saturating_sub(8));
     println!(
-        "[Rust] スクロール用カーソル: Y={} (帯 {}–{} 高さ {}px margin={} ratio={})",
+        "[Rust] スクロール用カーソル: X={} (UI中心 factor帯 {}–{} 中点 {}), Y={} (帯 {}–{} 高さ {}px margin={} ratio={})",
+        target_client_x,
+        factor_start_x,
+        factor_end_x,
+        factor_mid_x,
         target_client_y,
         scroll_area_start_y,
         scroll_area_end_y,
