@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-27 20:26
+最終更新: 2026-06-27 21:04
 
 ---
 
@@ -16,7 +16,7 @@
 
 ## 現在のフォーカス
 
-**P1** — **Scene Model M6c**（Step 6 NG・M6c 未クローズ / Step 1・3 退行待ち）
+**P1** — **Scene Model M6c**（Step 6 NG のみ未解決・StitchTab 修正待ち）
 
 ---
 
@@ -25,9 +25,8 @@
 - [ ] **Scene Model M6c**（R3.5d-5 実機検証クローズ）— **未クローズ**
   - 前提: M6b 完了
   - REQ: [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
-  - 実機進捗: **4a OK**・**4b OK**（スキル結合）・**6 NG** / Step **1・3** 未
-  - **Step 6 NG**: 継承履歴緑バー以下が未カット。`StitchTab=Skill`（TrainingInfo 誤検出→上書き）のため `cropAtInheritanceHistoryBar` 未実行
-  - 修正: P2 Backlog「StitchTab 誤検出」— **M6c スコープ外**
+  - 実機進捗: **4a OK**・**4b OK**・**1 OK**・**3 OK**（退行なし）・**6 NG**
+  - **ブロッカー**: Step 6 — 継承履歴未カット（`StitchTab` 誤検出→Skill 上書き）。P2 Backlog 修正後に再検証
 
 ## 次にやること（Backlog）
 
@@ -283,7 +282,7 @@
 - **Scene Model ロードマップ**: `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)` 起票（M0 done）。Catalog: `[SCENE-CATALOG.md](../auto-capture-design-pack/SCENE-CATALOG.md)`。素材運用: `[PACK-GUIDE.md](../auto-capture-design-pack/PACK-GUIDE.md)`
 - **stitch `layoutOpenCv.ts`**: 旧 `layout.ts` は Next.js 16 の `app/` 予約名衝突でリネーム（`0fac03e`）。正本は `layoutCore.ts`。ビルド失敗時は `[RELEASE_BUILD.md](RELEASE_BUILD.md)` トラブルシュート
 - **FRD StitchTab 誤検出（2026-06-27 M6c）**: 4b register は上書きで結合 OK。6 継承（G-FRD-F）は `StitchTab=Skill` のまま **継承履歴カット未実行で NG**。修正は P2 Backlog（M6c ブロッカー）
-- **オートキャプチャ結合 R3.5d**: d-2〜d-4 完了。**M6c 実機: 4a/4b OK・6 NG**（1/3 退行未）
+- **オートキャプチャ結合 R3.5d**: d-2〜d-4 完了。**M6c 実機: 4a/4b/1/3 OK・6 NG**（StitchTab 修正待ち）
 - **オートキャプチャ結合 R3.5b 完了**: layout L2 優先 + tabDetect 2タブガード。golden 17/17
 - **オートキャプチャ結合 R3.5 設計正本**: shiftEstimate（SSD + median）。詳細: `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)` R3.5 節
 - **sim スキルデータ**: オンライン時 GitHub fetch + AppData キャッシュ。オフライン時は同梱/キャッシュで制限付き動作（フォールバック時トースト）
