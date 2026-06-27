@@ -5,7 +5,7 @@
 >
 > **作業ロードマップ**（完了後はアーカイブ）。永続仕様は [`DOCS-GUIDE.md`](../DOCS-GUIDE.md) の永続正本一覧・[`SCENE-CATALOG.md`](../../auto-capture-design-pack/SCENE-CATALOG.md) を参照。
 
-- **ステータス**: in-progress（M5 完了・M6 待ち）
+- **ステータス**: in-progress（M6 完了・シリーズクローズ待ち）
 - **作成日**: 2026-06-27 04:11
 - **関連コミット**: （M0 完了後に記入）
 
@@ -109,7 +109,7 @@ crop 基準比率。正本: [`expectations.json`](../../tools/stitch-golden/expe
 | **M3** | 計測パイプライン強化 | expectations に partner/tab/scroll/wheel 中間値。シーン別 Vitest | **done** |
 | **M4** | 検出器統一 | 緑判定 1 系統（Rust/TS 同期）。partnerDetect 分離 | **done** |
 | **M5** | capture–stitch 責務分離 | wheel 用の二重緑走査廃止・IPC 契約 | **done** |
-| **M6** | 既知バグを Spec 準拠で修正 | 登録ボタン・absdiff 257。R3.5d-5 実機クローズ | in-progress（M6a/M6b done・M6c 待ち） |
+| **M6** | 既知バグを Spec 準拠で修正 | 登録ボタン・absdiff 257。R3.5d-5 実機クローズ | **done** |
 
 **依存**: M0 → M1 → M2 → M3 が並行可能な部分あり。M4 は M2+M3 推奨。M6 は M4 以降が安全だが **M1 完了後**なら登録ボタン用 PNG 追加と並行可。
 
@@ -180,7 +180,7 @@ crop 基準比率。正本: [`expectations.json`](../../tools/stitch-golden/expe
 - [x] M3: シーン別 golden（partner / tabY / scrollStart / wheel）が Vitest で PASS
 - [x] M4: 緑判定実装が **1 系統**（grep で HSV/RGB 重複なし）
 - [x] M5: capture が stitch と矛盾する scroll 推定をしない
-- [ ] M6: R3.5d-5 実機 Step 4/6 + HOF/TRN 退行なし
+- [x] M6: R3.5d-5 実機 Step 4/6 + HOF/TRN 退行なし
 - [ ] REQ-stitch-rewrite R3.5d-5 / 親 REQ Phase 3 クローズ
 - [ ] TODO・INDEX・決定ログ更新
 
@@ -211,6 +211,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\stitch-golden\measure-
 
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
+| 2026-06-27 21:54 | **M6c 実機 Step 6 OK（G-FRD-F）** — `StitchTab=Inheritance`・wheel=-3・scrollStart≈0.546・S*=144・継承履歴緑ライン Y=2778。M6c / R3.5d-5 実機クローズ | StitchTab 修正（`4c6029e`）後の再検証。4a/4b/1/3/6 全 OK |
 | 2026-06-27 21:46 | **M6c StitchTab 修正（コード）** — `detectStitchTabFromRgba` に partner 配線・register 帯下端より下の Y 再走査・緑比率スコア・右端弱優勢時 seg0/1 再判定。`stitch.ts` partner 渡し。golden `G-FRD-S-register` tab=Skill・`G-FRD-F` tab=Inheritance assert | Step 6 実機 NG のコード側ブロッカー解消。実機 Step 6 再 OK は別チャット |
 | 2026-06-27 21:04 | **M6c 実機 Step 1・3 退行なし** | G-HOF-S: wheel=-4・scrollStart≈0.441。G-TRN: wheel=-4・L2・scrollStart≈0.522。Step 6 NG のみで M6c 未クローズ |
 | 2026-06-27 20:26 | **M6c 実機 Step 6 NG（G-FRD-F）** | 継承タブ・wheel=-3/scrollStart OK だが継承履歴緑バー以下未カット。`TrainingInfo` 誤検出→`Skill` 上書きで `cropAtInheritanceHistoryBar` 未実行。P2 StitchTab 修正が M6c ブロッカー |

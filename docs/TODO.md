@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-27 21:46
+最終更新: 2026-06-27 21:54
 
 ---
 
@@ -16,18 +16,13 @@
 
 ## 現在のフォーカス
 
-**P1** — **Scene Model M6c**（Step 6 NG のみ未解決・StitchTab 修正待ち）
+**P1** — **オートキャプチャ時のスクロール用カーソル位置**（Backlog 先頭候補）
 
 ---
 
 ## 進行中
 
-- [ ] **Scene Model M6c**（R3.5d-5 実機検証クローズ）— **未クローズ**
-  - 前提: M6b 完了
-  - REQ: [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
-  - 実機進捗: **4a OK**・**4b OK**・**1 OK**・**3 OK**（退行なし）・**6 NG**
-  - **StitchTab 修正完了**（`tabDetectCore` INV-2 拡張・`stitch.ts` partner 配線）— **Step 6 実機再検証待ち**
-  - 旧ブロッカー: Step 6 — 継承履歴未カット（`StitchTab` 誤検出→Skill 上書き）
+（なし）
 
 ## 次にやること（Backlog）
 
@@ -45,10 +40,6 @@
   - 触る想定: `src-tauri/src/capture.rs`（`target_client_y` / `estimate_scroll_start_y_green_tab` / `scroll_window_input`）
   - 注意: **実機検証必須**（FRD-S + 既存経路退行）。R3.5d 実機検証と合わせて確認可
   - 関連: `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)` R3.5d
-
-- [ ] **オートキャプチャ結合 R3.5d 実機検証クローズ**（d-5: FRD Step 4/6・HOF/TRN 退行）
-  - 前提: d-2〜d-4 実装完了
-  - REQ: `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)` R3.5d-5
 
 - [ ] **オートキャプチャ結合リライト R4〜R5**（postProcess 分離・`opencvStitcher.ts` 削除）
   - 前提: **R3.5d 完了後**
@@ -165,6 +156,8 @@
 
 ## 完了済み
 
+- [x] **Scene Model M6c** — R3.5d-5 実機検証クローズ（4a/4b/1/3/6 全 OK・StitchTab 修正後 Step 6 再 OK）（2026-06-27 21:54 / `COMMIT`）/ [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
+- [x] **オートキャプチャ結合 R3.5d 実機検証クローズ**（d-5: FRD Step 4/6・HOF/TRN 退行なし）（2026-06-27 21:54 / `COMMIT`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)
 - [x] **Scene Model M6b** — INV-1: scrollStart ガード・G-FRD-S-register scrollStart assert・golden 23/23（2026-06-27 18:56 / `dccf6b3`）/ [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md) — アーモンドアイ golden は PNG 待ち
 - [x] **Scene Model M6a** — INV-2: partner register 幾何帯除外・centerDominant 検出・layoutCore partnerTabRow 正本化・golden 22/22（2026-06-27 17:35 / `556a503`）/ [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
 - [x] **Scene Model M5** — wheelCore・capture_frame0_preview IPC・Rust 緑タブ走査廃止・reason=stitch_*（2026-06-27 08:11 / `ba18bc3`）/ [`REQ-stitch-scene-model.md`](tasks/REQ-stitch-scene-model.md)
@@ -280,8 +273,8 @@
 - **オートキャプチャ Capture–Stitch 契約**: **広帯 -4 / 狭帯 -3**（`scrollRegionH` しきい値 280px）。**M5**: wheel は stitch（TS）正本・Rust IPC 受信。正本: `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)`「Capture–Stitch 契約」
 - **Scene Model ロードマップ**: `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)` 起票（M0 done）。Catalog: `[SCENE-CATALOG.md](../auto-capture-design-pack/SCENE-CATALOG.md)`。素材運用: `[PACK-GUIDE.md](../auto-capture-design-pack/PACK-GUIDE.md)`
 - **stitch `layoutOpenCv.ts`**: 旧 `layout.ts` は Next.js 16 の `app/` 予約名衝突でリネーム（`0fac03e`）。正本は `layoutCore.ts`。ビルド失敗時は `[RELEASE_BUILD.md](RELEASE_BUILD.md)` トラブルシュート
-- **FRD StitchTab 誤検出（2026-06-27 M6c）**: 4b register は上書きで結合 OK。6 継承（G-FRD-F）は `StitchTab=Skill` のまま **継承履歴カット未実行で NG**。修正は P2 Backlog（M6c ブロッカー）
-- **オートキャプチャ結合 R3.5d**: d-2〜d-4 完了。**M6c 実機: 4a/4b/1/3 OK・6 NG**（StitchTab 修正待ち）
+- **FRD StitchTab 誤検出**: **解消**（`4c6029e` 修正・M6c Step 6 実機 OK: `StitchTab=Inheritance`・継承履歴緑ライン Y=2778）
+- **オートキャプチャ結合 R3.5d**: **d-5 実機クローズ**（4a/4b/1/3/6 全 OK・HOF/TRN 退行なし）
 - **オートキャプチャ結合 R3.5b 完了**: layout L2 優先 + tabDetect 2タブガード。golden 17/17
 - **オートキャプチャ結合 R3.5 設計正本**: shiftEstimate（SSD + median）。詳細: `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)` R3.5 節
 - **sim スキルデータ**: オンライン時 GitHub fetch + AppData キャッシュ。オフライン時は同梱/キャッシュで制限付き動作（フォールバック時トースト）

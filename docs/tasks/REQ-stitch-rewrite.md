@@ -207,7 +207,7 @@ interface StitchReport {
 | **R3.5a** | `shiftEstimate`（全重なり SSD + セッション median）— scrollMatch 置換 | **done** |
 | **R3.5b** | layout L2 優先・tabDetect 2タブガード（TRN） | **done** |
 | **R3.5c** | **-4・shift 末端・golden**（下表） | **done（c-5 一部: HOF/TRN OK・FRD は R3.5d へ）** |
-| **R3.5d** | **frame0 帯推定・狭帯 -3 / 広帯 -4・FRD 実機**（下表） | **in-progress（d-2〜d-4 done・d-5 実機待ち）** |
+| **R3.5d** | **frame0 帯推定・狭帯 -3 / 広帯 -4・FRD 実機**（下表） | **done**（d-5 実機クローズ 2026-06-27） |
 | **R4** | postProcess 分離・TrainingInfo 別パス（旧 S-6） | draft |
 | **R5** | `opencvStitcher.ts` 削除・REQ done | draft |
 
@@ -229,7 +229,7 @@ interface StitchReport {
 | **d-2** | Rust frame0 帯推定 | `capture.rs`（緑タブ走査・scrollRegionH） | **done** |
 | **d-3** | ホイール 2 段配線 | `capture.rs`（-3 / -4 セッション固定） | **done** |
 | **d-4** | stitch golden（FRD -3） | `expectations.json`・`golden.test.ts` | **done** |
-| **d-5** | 実機 FRD + 退行確認 | Step 4/6・HOF/TRN 退行ゲート | 待ち（ユーザー実機） |
+| **d-5** | 実機 FRD + 退行確認 | Step 4/6・HOF/TRN 退行ゲート | **done**（2026-06-27） |
 
 **Phase 3 実機検証**（[`REQ-auto-capture-multi-screen.md`](REQ-auto-capture-multi-screen.md)）は **R3.5d-5 完了でクローズ**。
 
@@ -554,7 +554,7 @@ score(S) = mean | prev[scrollStartY + S + y, x] - curr[scrollStartY + y, x] |
 - [x] d-2: `capture.rs` frame0 から `scrollRegionH` 推定（緑タブ走査・footer 15%）
 - [x] d-3: `scrollRegionH < 280` → **-3**、else **-4**（失敗時 -4）。セッション内固定。構造化ログ
 - [x] d-4: FRD golden `shiftRepresentative` を -3 帯に更新。`npm run stitch:golden` 全 PASS。HOF/TRN 退行なし
-- [ ] d-5: 実機 Step 4 FRD-S / 6 FRD-F OK。Step 1/3 HOF/TRN 退行なし。親 REQ Phase 3 クローズ
+- [x] d-5: 実機 Step 4 FRD-S / 6 FRD-F OK。Step 1/3 HOF/TRN 退行なし。親 REQ Phase 3 クローズ
 
 ### R3.5a 完了条件（draft）
 
@@ -583,6 +583,7 @@ score(S) = mean | prev[scrollStartY + S + y, x] - curr[scrollStartY + y, x] |
 
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
+| 2026-06-27 21:54 | **R3.5d d-5 実機クローズ** — G-FRD-F Step 6 OK（`StitchTab=Inheritance`・継承履歴緑ライン Y=2778）。4a/4b/1/3 退行なし | StitchTab 修正（`4c6029e`）後。M6c 完了 |
 | 2026-06-27 21:04 | **M6c 実機 Step 1・3 退行なし** | HOF-S wheel=-4・TRN L2 wheel=-4。R3.5d 広帯退行ゲート OK。M6c は Step 6（継承履歴カット）のみ NG で未クローズ |
 | 2026-06-27 20:26 | **M6c 実機 Step 6 NG（G-FRD-F / 継承）** | 結合・wheel=-3 OK。下部トリム NG: `StitchTab=Skill`（TrainingInfo 誤検出→上書き）で S-5 `cropAtInheritanceHistoryBar` スキップ。4b と同根の tabDetect 問題 |
 | 2026-06-27 20:19 | **M6c 実機 4b: StitchTab 誤検出（TrainingInfo）を記録** | FRD-S register・スキルタブ緑選択中に3分割右端が勝つ。`stitch.ts` が Skill に上書きし結合 OK。`detectStitchTabFromRgba` に partner 除外未配線（INV-2 ギャップ）。TODO P2・R4 前修正 |

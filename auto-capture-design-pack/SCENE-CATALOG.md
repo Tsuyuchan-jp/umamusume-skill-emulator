@@ -26,8 +26,8 @@
 | G-TRN | TRN | Skill | absent | L2 | `golden/TRN/frame_000.png` | yes | 3 | ok | M6c Step3 退行なし（wheel=-4・tabY≈0.47） |
 | G-CMP-S | CMP | Skill | absent | L3 | `golden/CMP/skill/frame_000.png` | yes | 2 skip | ok | |
 | G-FRD-S-release | FRD | Skill | **release**（灰・解除） | L3+Btn | `golden/FRD/skill-release/frame_000.png` | yes | 4 | **ok** | M6c 4a 実機 OK（wheel=-3・scrollStart≈0.546）。golden はアーモンドアイ収録 |
-| G-FRD-S-register | FRD | Skill | **register**（緑・登録） | L3+Btn | `golden/FRD/skill-register/frame_000.png` | yes | 4 | **ok** | M6c 4b 結合 OK。StitchTab 誤検出は既知（P2・スキル結合は成功） |
-| G-FRD-F | FRD | 因子/継承 | release/absent | L3+Btn | `golden/FRD/factor/frame_000.png` | yes | 6 | **ng** | M6c 6: wheel/scrollStart OK。継承履歴未カット—`StitchTab=Skill`（Inheritance 要・P2 ブロッカー） |
+| G-FRD-S-register | FRD | Skill | **register**（緑・登録） | L3+Btn | `golden/FRD/skill-register/frame_000.png` | yes | 4 | **ok** | M6c 4b 実機 OK（wheel=-3）。StitchTab 修正済み（`4c6029e`） |
+| G-FRD-F | FRD | 因子/継承 | release/absent | L3+Btn | `golden/FRD/factor/frame_000.png` | yes | 6 | **ok** | M6c Step 6 実機 OK（`StitchTab=Inheritance`・wheel=-3・scrollStart≈0.546・継承履歴緑ライン Y=2778） |
 | G-FRD-I | FRD | 育成情報 | — | — | — | R4 | — | 欠落 | R4 スコープ・golden 不要 |
 
 ---
@@ -82,8 +82,10 @@ INV 対応・計測メモ: [`REQ-stitch-scene-model.md`](../docs/tasks/REQ-stitc
 
 | シーン ID | 事象 | 備考 |
 |-----------|------|------|
-| G-FRD-S-register | StitchTab が TrainingInfo と誤検出 | スキル結合は OK（4b）。`detectStitchTabFromRgba` 未配線 — TODO P2 |
-| G-FRD-F | 継承タブで継承履歴緑バー以下が未カット | Step 6 NG。`StitchTab=Skill` 上書きで S-5 スキップ — TODO P2（M6c ブロッカー） |
+| （なし — 2026-06-27 M6c Step 6 OK で既知 NG 解消） |
+
+~~G-FRD-S-register StitchTab 誤検出~~ — **StitchTab 修正で解消**（`4c6029e`・M6c Step 6 実機 OK）。
+~~G-FRD-F 継承履歴未カット~~ — **同上**（2026-06-27）。
 
 ~~G-FRD-S-release scrollStart≈0.29~~ — **M6b/M6c 4a で実機解消**（2026-06-27）。
 
@@ -99,7 +101,7 @@ INV 対応・計測メモ: [`REQ-stitch-scene-model.md`](../docs/tasks/REQ-stitc
 | **B** | `G-FRD-S` → `G-FRD-S-release` リネーム、`golden/FRD/skill-release/` 移行 | 完了 |
 | **C** | `G-FRD-S-register` の PNG 収録 + expectations case 追加 | 完了 |
 | **M2** | Scene Spec 期待構造化 — `sceneSpec` フィールド・Catalog/REQ 同期 | **完了** |
-| **M6** | M6a/M6b 完了・M6c 実機（4a/4b/1/3 OK・6 NG） | **実機進行中** — Step 6 StitchTab 修正待ち |
+| **M6** | M6a/M6b/M6c 完了・実機 Step 4/6 + HOF/TRN 退行なし | **完了**（2026-06-27 Step 6 OK） |
 
 ---
 
@@ -110,4 +112,4 @@ INV 対応・計測メモ: [`REQ-stitch-scene-model.md`](../docs/tasks/REQ-stitc
 3. golden PNG を追加したら `goldenPath` を実パスに更新し、`状態` を `ok` / `ng` / `要再検証` へ
 4. **実機 Step を docs に記録したら** 該当行を **同一コミットで** 更新する（全 Step 完了を待たない）。手順の正本: [`DOCS-GUIDE.md`](../docs/DOCS-GUIDE.md)「永続正本同期表」capture 行
 
-最終更新: 2026-06-27 21:24
+最終更新: 2026-06-27 21:54
