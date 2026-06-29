@@ -1398,6 +1398,11 @@ export const umasimSkillDataList = [
     "rarity": "unique"
   },
   {
+    "name": "一杯全力、お届けします！",
+    "id": "120771",
+    "rarity": "unique"
+  },
+  {
     "name": "日本総大将",
     "id": "300131",
     "rarity": "special"
@@ -2755,6 +2760,11 @@ export const umasimSkillDataList = [
   {
     "name": "ミンナノアタシへ！",
     "id": "920681",
+    "rarity": "inherit"
+  },
+  {
+    "name": "一杯全力、お届けします！",
+    "id": "920771",
     "rarity": "inherit"
   },
   {
@@ -5018,6 +5028,11 @@ export const umasimSkillDataList = [
     "rarity": "rare"
   },
   {
+    "name": "秘伝の味変アレンジ！",
+    "id": "414051",
+    "rarity": "scenario"
+  },
+  {
     "name": "かっ飛ばすわよ！",
     "id": "100401111",
     "rarity": "evo"
@@ -6130,6 +6145,11 @@ export const umasimSkillDataList = [
   {
     "name": "走り湯ダッシュ",
     "id": "412011",
+    "rarity": "scenario"
+  },
+  {
+    "name": "バリカタ、一丁上がり！",
+    "id": "414011",
     "rarity": "scenario"
   },
   {
@@ -7788,6 +7808,11 @@ export const umasimSkillDataList = [
     "rarity": "scenario"
   },
   {
+    "name": "湯切りの妙技",
+    "id": "414041",
+    "rarity": "scenario"
+  },
+  {
     "name": "中盤巧者",
     "id": "202792",
     "rarity": "normal"
@@ -8005,6 +8030,11 @@ export const umasimSkillDataList = [
   {
     "name": "グラン・ジュッテ",
     "id": "111701111",
+    "rarity": "evo"
+  },
+  {
+    "name": "凱歌へのプレパラシオン",
+    "id": "111701121",
     "rarity": "evo"
   },
   {
@@ -8908,6 +8938,11 @@ export const umasimSkillDataList = [
     "rarity": "normal"
   },
   {
+    "name": "曙光",
+    "id": "203641",
+    "rarity": "rare"
+  },
+  {
     "name": "光明",
     "id": "203642",
     "rarity": "normal"
@@ -8925,6 +8960,11 @@ export const umasimSkillDataList = [
   {
     "name": "激アツ☆ロードマップ",
     "id": "413051",
+    "rarity": "scenario"
+  },
+  {
+    "name": "麺の極意、見つけたり",
+    "id": "414031",
     "rarity": "scenario"
   },
   {
@@ -8983,6 +9023,11 @@ export const umasimSkillDataList = [
     "rarity": "rare"
   },
   {
+    "name": "いざ、開店です！",
+    "id": "107703211",
+    "rarity": "evo"
+  },
+  {
     "name": "思い切り",
     "id": "203702",
     "rarity": "normal"
@@ -9016,6 +9061,11 @@ export const umasimSkillDataList = [
     "name": "エネルギッシュ",
     "id": "203731",
     "rarity": "rare"
+  },
+  {
+    "name": "湯気立つ勝負道",
+    "id": "107703111",
+    "rarity": "evo"
   },
   {
     "name": "張り切り",
@@ -9563,6 +9613,11 @@ export const umasimSkillDataList = [
     "rarity": "rare"
   },
   {
+    "name": "元気特盛りのおもてなし",
+    "id": "414061",
+    "rarity": "scenario"
+  },
+  {
     "name": "溌剌",
     "id": "204172",
     "rarity": "normal"
@@ -9765,6 +9820,26 @@ export const umasimSkillDataList = [
   {
     "name": "超長距離回復○",
     "id": "204293",
+    "rarity": "normal"
+  },
+  {
+    "name": "悠々自適",
+    "id": "204391",
+    "rarity": "rare"
+  },
+  {
+    "name": "じっくり仕込みの一杯",
+    "id": "414021",
+    "rarity": "scenario"
+  },
+  {
+    "name": "息抜き上手",
+    "id": "204392",
+    "rarity": "normal"
+  },
+  {
+    "name": "奮い立つ心",
+    "id": "204472",
     "rarity": "normal"
   },
   {
@@ -9995,6 +10070,16 @@ export const umasimSkillDataList = [
   {
     "name": "アメリカンドリーム",
     "id": "210382",
+    "rarity": "normal"
+  },
+  {
+    "name": "極上の感謝を！",
+    "id": "210391",
+    "rarity": "rare"
+  },
+  {
+    "name": "恩返し、召し上がれ",
+    "id": "210392",
     "rarity": "normal"
   },
   {

@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-06-28 03:34
+最終更新: 2026-06-30 03:39
 
 ---
 
@@ -125,10 +125,6 @@
   - 目標: Cockpit UI 整備で余白が確保されたため、「実行時のステータス条件」等のラベル付きボタンに変更
   - 触る想定: `SimulationStatusView.tsx`, 必要なら `page.tsx` のツールバー行
 
-- [ ] **ゲームアップデート後のスキルデータ更新**
-  - 手順: `UPDATE_SKILLS.md`
-  - コマンド: `npm run extract-umasim-skills`（必須）、`npm run extract-skill-info`（mdb あり時）
-
 - [ ] **OCR 用 Gemini モデルを Flash-Lite のみに変更**
   - 現状: `geminiOcr.ts` で `gemini-3.5-flash` を primary、`gemini-3.1-flash-lite` を fallback として試行
   - 目標: `gemini-3.5-flash` を外し、最初から `gemini-3.1-flash-lite` のみ使用
@@ -169,6 +165,7 @@
 - [x] **Scene Model M1 Phase B** — `G-FRD-S` → `G-FRD-S-release`、`golden/FRD/skill/` → `skill-release/`、expectations・Vitest・Catalog 同期、golden 18/18 PASS（2026-06-27 05:30 / `a84d51f`）/ `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)`
 - [x] **Scene Model Catalog Phase A** — SCENE-CATALOG に goldenPath・expectations 列・対応表、欠落表吸収、NG サブケース整理、PACK-GUIDE 同期（2026-06-27 05:25 / `fa91f07`）/ `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)` M1 Phase A
 - [x] **design-pack 整理** — logs/screenshots 削除・Vitest 参照 PNG を golden/ へ統合・PACK-GUIDE 2層化（2026-06-27 05:12 / `23cac9f`）
+- [x] **ゲームアップデート後のスキルデータ更新** — Steam `master.mdb` 差し替え（2026-06-29）・umasim 2038件（+17）・skillRarity 1833件（2026-06-30 03:39 / `COMMIT_HASH`）
 - [x] **design-pack P0** — PACK-GUIDE 新設・README 案内板化・DOCS-GUIDE リンク（2026-06-27 04:48 / `11a6879`）/ `[PACK-GUIDE.md](../auto-capture-design-pack/PACK-GUIDE.md)`
 - [x] **オートキャプチャ結合 R3.5d 実装**（d-2〜d-4: frame0 帯推定・狭帯 -3 / 広帯 -4・FRD golden）— golden 18/18 PASS（2026-06-27 02:41 / `139c14e`）/ `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)` — **d-5 実機はユーザー確認待ち**
 - [x] **オートキャプチャ結合 R3.5c**（c-2〜c-5 一部 + 実機 HOF-S/TRN/HOF-F）— terminal・狭帯ガード・golden 18/18（2026-06-27 02:04 / `23ebab7`）/ `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)`
