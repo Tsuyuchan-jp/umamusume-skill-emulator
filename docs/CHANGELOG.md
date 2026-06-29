@@ -6,9 +6,20 @@
 
 ## Unreleased
 
-### 開発者向け
+（なし）
 
-- **バージョン管理の一元化** — 正本を `desktop-app/package.json` に集約。UI（`app/lib/version.ts`）、Tauri（`tauri.conf.json` → `../package.json`）、`Cargo.toml`（`npm run sync-version`）は自動同期。運用: [`RELEASE_BUILD.md`](RELEASE_BUILD.md#バージョン管理)
+---
+
+## v1.1.1 — 2026-06-30
+
+### データ
+
+- スキルマスタを umasim `skill_data.txt` と同期（2038件 / 新育成ウマ娘スキル対応）
+- `master.mdb` から `skillRarityData.ts` を再生成（1833件）
+
+### ビルド
+
+- 配布正本: `desktop-app/src-tauri/target/release/app.exe` 更新済み（`npm run build:release-exe`）
 
 ---
 
