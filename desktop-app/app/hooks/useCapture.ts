@@ -3,7 +3,7 @@ import { invoke, convertFileSrc } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { deriveCaptureWheelFromFrameUrl } from "../lib/stitch/captureWheel";
 import type { CaptureWheelDecision } from "../lib/stitch/wheelCore";
-import { stitchWithOpenCV } from "../lib/opencvStitcher";
+import { stitchImages } from "../lib/stitch";
 
 export type CaptureStatus = "idle" | "recording" | "done" | "saving" | "saved";
 
@@ -114,8 +114,8 @@ export function useCapture() {
       const cacheBuster = Date.now();
       const imageUrls = filePaths.map(path => `${convertFileSrc(path)}?t=${cacheBuster}`);
 
-      setCaptureMessage("OpenCVで画像を結合しています...");
-      const { cleanDataUrl } = await stitchWithOpenCV(imageUrls);
+      setCaptureMessage("画像を結合しています...");
+      const { cleanDataUrl } = await stitchImages(imageUrls);
 
       const filename = `factor_${Date.now()}.png`;
       const saveFolder = localStorage.getItem("saveFolder");

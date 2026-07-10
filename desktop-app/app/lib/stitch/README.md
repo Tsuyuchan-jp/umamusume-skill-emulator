@@ -14,8 +14,8 @@
 | R3.5c | -4・terminal・golden **done** |
 | **R3.5d** | **frame0 帯推定・狭帯 -3** **done** |
 | **R4a** | postProcess 分離・compose 純化 **done** |
-| R4b | TrainingInfo / S-6 |
-| R5 | `opencvStitcher.ts` 削除 |
+| **R4b** | TrainingInfo / S-6 **done** |
+| **R5** | `opencvStitcher.ts` 削除・公開 API 一本化 **done** |
 
 ## shiftEstimate（R3.5a 正本）
 
@@ -39,7 +39,6 @@
 | `postProcess/postProcessCore.ts` / `postProcessOpenCv.ts` | S-2 バー隠し・trim・S-5（RGBA / Mat 正本） |
 | `postProcess/applyPostProcess.ts` | タブ別後処理ルーティング |
 | `stitch.ts` | オーケストレータ（compose → postProcess） |
-| `flags.ts` | `USE_STITCH_V2 = true` |
 
 ## 合成式（正本）
 
@@ -50,7 +49,7 @@
      + Footer(frameLast)
 ```
 
-公開 API: [`../opencvStitcher.ts`](../opencvStitcher.ts) → `stitch.ts`（R5 で削除予定）
+公開 API: [`index.ts`](index.ts) の `stitchImages`（本番は `useCapture.ts` から直接呼び出し）
 
 ## `app/` 配下のファイル名（Next.js）
 

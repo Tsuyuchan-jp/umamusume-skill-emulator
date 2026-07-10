@@ -3,7 +3,7 @@
 > 殿堂入り以外のステータス確認画面でも、オートキャプチャ→結合→OCR まで通す。
 > **設計正本**: 本 REQ（Phase D1 完了: 2026-06-26）。検証データ: [`auto-capture-design-pack/`](../../auto-capture-design-pack/)（リポジトリ直下・git 未追跡可）。
 
-- **ステータス**: draft（Phase 1 done・Phase 1b/3 待ち）
+- **ステータス**: done（Phase 1 / 1b / 3 本線完了。Phase 2 は任意・未着手・本 REQ スコープ外）
 - **作成日**: 2026-06-25 07:25
 - **設計レビュー完了**: 2026-06-26 06:03
 - **関連コミット**: `700d0b3`（Phase 1）/ `0887fcd`（C1 TRN 修正）
@@ -23,7 +23,7 @@
 | 層 | 結論 |
 |----|------|
 | **キャプチャ（`capture.rs`）** | **Generic 1本で全経路カバー済み**（設計パック全 Rust ログで末端到達）。経路別4プロファイル分岐は **Phase 1 では不要** |
-| **結合（`opencvStitcher.ts`）** | **本バグの所在**。TRN/FRD 等で NG。HOF/CMP は OK |
+| **結合（`stitch/stitchImages`）** | **R0–R5 で正本化済み**（旧 `opencvStitcher.ts` は R5 で削除） |
 | **TRN** | キャプチャ正常。Phase 1 実機 OK（`0887fcd`・-5 旧）。**v2 + -4 実機 OK**（R3.5c `23ebab7`） |
 
 ### 方針決定（F-1〜F-5）
@@ -32,7 +32,7 @@
 |----|------|
 | F-1 | キャプチャ開始前に **対象タブを手動で開く**（スキル／継承／育成情報） |
 | F-2 | **継承タブもスコープ内**（スキル＋継承＋育成情報。タブごとに1回キャプチャ） |
-| F-3 | **結合先**（Phase 1 は `opencvStitcher.ts` のみ。`capture.rs` は触らない） |
+| F-3 | **結合先**（Phase 1 は `opencvStitcher.ts` → R5 で `stitch/stitchImages` に移行。`capture.rs` は触らない） |
 | F-4 | 判別不能時は **汎用（安全側）**（キャプチャは現行 Generic 維持） |
 | F-5 | **ウィンドウ＋フルスクリーン FHD**。フルスクリーン検証は HOF skill + TRN skill 各1回のみ |
 
@@ -85,7 +85,7 @@
 | **S-5** | `StitchTab.Inheritance` の緑帯クロップ（因子ヘッダー誤検出 Y≈504 回避） | FRD-factor ログ |
 | **S-6** | `StitchTab.TrainingInfo` S-6 配線（stitch オーケストレーション） | **done**（R4b `51c5a29`・G-FRD-I 実機クローズ 2026-06-28） |
 
-定数は `opencvStitcher.ts` 先頭に集約。マジックナンバーを経路名で散らさない。
+定数は `stitch/constants.ts` に集約（R5 以降）。マジックナンバーを経路名で散らさない。
 
 ---
 
@@ -108,10 +108,10 @@
 | Phase | 内容 | 状態 |
 |-------|------|------|
 | **D1** | 設計レビュー・設計パック | **done** |
-| **1** | 結合修正 S-1〜S-5（`opencvStitcher.ts`） | **done** |
+| **1** | 結合修正 S-1〜S-5（`stitch/` 正本・旧 `opencvStitcher.ts`） | **done** |
 | **1b** | 育成情報タブ S-6 | **done**（R4b・G-FRD-I 実機クローズ 2026-06-28） |
-| **2** | キャプチャ最小分岐（必要時のみ FactorScroll）・UI ヒント | draft |
-| **3** | 実機検証・フルスクリーン最小・docs クローズ | draft — **stitch [`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md) R3.5d-5 で本 REQ Phase 3 をクローズ** |
+| **2** | キャプチャ最小分岐（必要時のみ FactorScroll）・UI ヒント | **任意・未着手・本 REQ スコープ外** |
+| **3** | 実機検証・フルスクリーン最小・docs クローズ | **done**（stitch [`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md) R3.5d-5 + R5） |
 
 ---
 
@@ -119,7 +119,7 @@
 
 ### やること
 
-- [`opencvStitcher.ts`](../../desktop-app/app/lib/opencvStitcher.ts) に StitchLayout / StitchTab 分岐と S-1〜S-6
+- [`desktop-app/app/lib/stitch/`](../../desktop-app/app/lib/stitch/) に StitchLayout / StitchTab 分岐と S-1〜S-6（R5 で公開 API 一本化）
 - 既存 **殿堂入り・育成完了（CMP）** の結合 OK を回帰維持
 - TRN / FRD の NG 解消
 - GOLDEN: `auto-capture-design-pack/golden/` のフレームで結合のみ再現可能に（開発時デバッグ用・任意コマンド）
@@ -138,7 +138,7 @@
 
 | Phase | ファイル |
 |-------|---------|
-| 1 | `desktop-app/app/lib/opencvStitcher.ts`（**主**） |
+| 1 | `desktop-app/app/lib/stitch/**`（**主**・R5 で `opencvStitcher.ts` 削除） |
 | 1 | `desktop-app/app/hooks/useCapture.ts`（レイアウト判定ログのみ・任意） |
 | 1b | 同上 |
 | 2 | `capture.rs`（FactorScroll が必要な場合のみ） |
@@ -152,11 +152,11 @@
 - [x] 設計レビュー D1 完了（設計パック・方針 F-1〜F-5）
 - [x] Phase 1: S-1〜S-5 実装
 - [x] G-TRN: `golden/TRN/` + memo 合格条件（**実機検証クローズ** 2026-06-26 07:47）
-- [ ] G-FRD-S / G-FRD-F: FRD skill・継承 NG 解消（実機/GOLDEN 要確認）
-- [ ] G-HOF / G-CMP: ウィンドウ＋フルスクリーン HOF skill 回帰（実機要確認）
+- [x] G-FRD-S / G-FRD-F: FRD skill・継承 — **実機クローズ**（R3.5d-5・R4b 退行ゲート 2026-06-27〜28）
+- [x] G-HOF / G-CMP: ウィンドウ回帰 — **実機クローズ**（R3.5c-5 / R4a・R4b 退行ゲート 2026-06-28）。フルスクリーン最小（FS-HOF/FS-TRN）は未実施・任意
 - [x] Phase 1b: FRD-info（育成情報）結合 — **実機クローズ**（G-FRD-I・退行ゲート 2026-06-28）
-- [ ] 実機検証手順を本 REQ に追記（Phase 3）
-- [ ] REQ `done`、TODO 完了済み、INDEX 更新
+- [x] 実機検証手順を本 REQ に追記（Phase 3）— 正本は [`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md)「Capture–Stitch 契約」
+- [x] REQ `done`、TODO 完了済み、INDEX 更新
 
 ---
 
@@ -171,12 +171,12 @@
 | ID | データ | 合格 | 状態 |
 |----|--------|------|------|
 | G-TRN | `golden/TRN/` 4枚 + memo | スキル全行・タブ上右端非崩壊 | **v2/-4 実機 OK**（2026-06-27） |
-| G-HOF-S | `golden/` または実機 skill | stitched-OK 同等 | 未 |
-| G-HOF-F | HOF factor | 継承履歴手前・緑クロップ | 未 |
-| G-FRD-S | `golden/FRD/skill/` | NG→OK | 未 |
-| G-FRD-F | `golden/FRD/factor/` | 因子＋履歴 | 未 |
-| G-FRD-I | `golden/FRD/info/` | 戦績末尾・`StitchTab=TrainingInfo` | **実機 OK**（2026-06-28）。golden PNG 未収録 |
-| G-CMP | CMP skill/factor/info OK 回帰 | 退行なし | 未 |
+| G-HOF-S | `golden/` または実機 skill | stitched-OK 同等 | **実機 OK**（R3.5c-5） |
+| G-HOF-F | HOF factor | 継承履歴手前・緑クロップ | **実機 OK**（R3.5c-5 / R4a） |
+| G-FRD-S | `golden/FRD/skill/` | NG→OK | **実機 OK**（R3.5d-5） |
+| G-FRD-F | `golden/FRD/factor/` | 因子＋履歴 | **実機 OK**（R3.5d-5） |
+| G-FRD-I | `golden/FRD/info/` | 戦績末尾・`StitchTab=TrainingInfo` | **実機 OK**（2026-06-28）・golden 29/29 |
+| G-CMP | CMP skill/factor/info OK 回帰 | 退行なし | **実機 OK**（R4a 退行ゲート） |
 
 ### フルスクリーン（最小）
 
@@ -203,6 +203,7 @@
 
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
+| 2026-07-10 19:01 | **REQ 本線 done** — Phase 1/1b/3 クローズ。Phase 2（FactorScroll・CapturePanel ヒント）は **任意・未着手・本 REQ スコープ外**。結合正本は `stitch/stitchImages`（R5） | stitch REQ R5 完了に伴う親 REQ クローズ。アルゴリズム変更なし |
 | 2026-06-28 03:16 | **Phase 1b 実機クローズ** — G-FRD-I `StitchTab=TrainingInfo`・S-6・退行ゲート全 OK。実装は [`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md) R4b | ユーザー再検証。golden PNG は別タスク |
 | 2026-06-27 02:32 | **Phase 3 クローズは stitch R3.5d-5 に委譲** | HOF/TRN 実機 OK。FRD NG → 狭帯 -3（frame0 推定）。契約は stitch REQ に集約 |
 | 2026-06-27 01:01 | **Phase 3 クローズは stitch R3.5c-5 に委譲** | Capture–Stitch 契約（ホイール -4 等）は [`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md) に集約 |

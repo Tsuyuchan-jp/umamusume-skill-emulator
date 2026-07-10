@@ -12,7 +12,7 @@ import {
   validateAllGoldenCaseSceneSpecs,
 } from "./expectations";
 import { measureLayoutFromFrame, measureScrollStartFromFrames, measureComposeFromFrames, measureShiftFromFrames } from "./goldenMeasure";
-import { USE_STITCH_V2 } from "./flags";
+import { stitchImages } from "./stitch";
 
 describe("stitch golden expectations (R0)", () => {
   it("expectations.json が読み込める", () => {
@@ -67,8 +67,8 @@ describe("stitch golden expectations (R0)", () => {
     expect(trn.sceneSpec.wheel).toBe(-4);
   });
 
-  it("USE_STITCH_V2 は R3 で true（stitch オーケストレータ正本）", () => {
-    expect(USE_STITCH_V2).toBe(true);
+  it("R5: 結合正本は stitchImages 単一路線（feature flag 廃止）", () => {
+    expect(typeof stitchImages).toBe("function");
   });
 });
 

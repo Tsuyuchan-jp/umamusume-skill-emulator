@@ -2,7 +2,7 @@
 
 > **TODO の代替ではない。** 次にやることの正本は [`docs/TODO.md`](../TODO.md)。
 > 本ファイルは `docs/tasks/REQ-*.md`（テンプレ除く）の **一覧・ステータス・辿りやすさ** を目的とする。
-> ステータスは各 REQ の `**ステータス**:` 行を正とする。最終更新: 2026-06-27 04:11
+> ステータスは各 REQ の `**ステータス**:` 行を正とする。最終更新: 2026-07-10 19:03
 
 ## 使い方
 
@@ -88,8 +88,8 @@
 
 | REQ | ステータス | TODO掲載 | 備考 |
 |-----|-----------|---------|------|
-| [`REQ-auto-capture-multi-screen.md`](REQ-auto-capture-multi-screen.md) | draft | Backlog | Phase 1 + **1b done**（S-6・G-FRD-I 実機 2026-06-28）。Phase 3 は stitch R3.5d-5 でクローズ済み |
-| [`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md) | in-progress | Backlog **R3.5d** | R0–R3.5d 実装 done。**d-5 実機**保留 |
+| [`REQ-auto-capture-multi-screen.md`](REQ-auto-capture-multi-screen.md) | done | 完了済み | Phase 1/1b/3 本線 done。Phase 2 は任意見送り |
+| [`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md) | done | 完了済み | R0–R5 完了（R5: `opencvStitcher.ts` 削除・`stitchImages` 一本化） |
 | [`REQ-stitch-scene-model.md`](REQ-stitch-scene-model.md) | in-progress | 進行中 **M1** | シーンモデル正本化ロードマップ。Catalog: `SCENE-CATALOG.md` |
 
 ---

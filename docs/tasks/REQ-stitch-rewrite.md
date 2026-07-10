@@ -5,7 +5,7 @@
 > **方法論・持続可能性**: sibling [`REQ-stitch-scene-model.md`](REQ-stitch-scene-model.md)（Scene Spec / Catalog / 検出器統一ロードマップ）。
 > 設計パック: [`auto-capture-design-pack/`](../../auto-capture-design-pack/)（golden / [`SCENE-CATALOG.md`](../../auto-capture-design-pack/SCENE-CATALOG.md) / [`PACK-GUIDE.md`](../../auto-capture-design-pack/PACK-GUIDE.md)）。
 
-- **ステータス**: in-progress（R0–R3.5d・R4a/R4b done・R5 待ち）
+- **ステータス**: done（R0–R5 完了）
 - **作成日**: 2026-06-26 08:13
 - **関連コミット**: `b01ceb3`（R2 残 scrollStart）、`47d5755`（R2 layout）、`1df1860`（R1）
 
@@ -57,7 +57,7 @@ Screen
 | `stitch/compose.ts` | 縦合成（frame0 静止部 + 差分追記のみ） |
 | `stitch/postProcess/*` | バー隠し・継承クロップ・余白トリム |
 | `stitch/stitch.ts` | オーケストレータ |
-| `stitch/index.ts` | 公開 API（`stitchWithOpenCV` 互換） |
+| `stitch/index.ts` | 公開 API（`stitchImages`） |
 
 ### scrollStartY 決定（中核）
 
@@ -218,7 +218,7 @@ interface StitchReport {
 | **R3.5d** | **frame0 帯推定・狭帯 -3 / 広帯 -4・FRD 実機**（下表） | **done**（d-5 実機クローズ 2026-06-27） |
 | **R4a** | postProcess 分離・compose 純化 | **done** |
 | **R4b** | TrainingInfo S-6 配線（G-FRD-I） | **done** |
-| **R5** | `opencvStitcher.ts` 削除・REQ done | draft |
+| **R5** | `opencvStitcher.ts` 削除・REQ done | **done** |
 
 #### R3.5c サブ Phase（新 REQ 起票なし）
 
@@ -324,10 +324,10 @@ interface StitchReport {
 - [x] R3: stitched-OK 退行なし（HOF 実機 OK・golden compose スモーク）
 - [x] R3.5a: shiftEstimate 実装・HOF 退行なし・FRD scrollAmount 安定化
 - [x] R3.5b: G-TRN layout=L2 golden・tabDetect 2タブガード・HOF/FRD layout 退行なし
-- [ ] R3.5c: 下記「R3.5c 完了条件」— c-5 は HOF/TRN/HOF-F OK、FRD は R3.5d へ委譲
-- [ ] R3.5d: 下記「R3.5d 完了条件」全項目
+- [x] R3.5c: 下記「R3.5c 完了条件」— c-5 は HOF/TRN/HOF-F OK、FRD は R3.5d へ委譲
+- [x] R3.5d: 下記「R3.5d 完了条件」全項目
 - [x] R4b: TrainingInfo S-6 配線 — **実機クローズ**（2026-06-28）
-- [ ] R5: `opencvStitcher.ts` 削除、親 REQ Phase 3 検証クローズ、TODO/INDEX 更新
+- [x] R5: `opencvStitcher.ts` 削除、親 REQ Phase 3 検証クローズ、TODO/INDEX 更新
 
 ---
 
@@ -655,6 +655,7 @@ score(S) = mean | prev[scrollStartY + S + y, x] - curr[scrollStartY + y, x] |
 
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
+| 2026-07-10 19:01 | **R5 完了** — `opencvStitcher.ts` 削除・`useCapture` は `stitchImages` 直接呼び出し・`flags.ts` / `USE_STITCH_V2` 廃止（単一路線）。親 REQ 本線 done・Phase 2 は任意見送り。CONCEPT-MAP: 新概念なし | 薄いラッパー除去のみ。アルゴリズム変更なし |
 | 2026-06-28 03:34 | **G-FRD-I golden 登録完了** — expectations case 8件目・Vitest 29/29・`golden/FRD/info/frame_000..007` 収録。Vitest 計測: tabRow≈0.462・scrollStart≈0.546・S*≈144。measure-regions R0 は partner register 未対応で FAIL（G-FRD-S-register 同型・Vitest が正本）。CONCEPT-MAP: 新概念なし | PNG 配置済み。stitch アルゴリズム変更なし |
 | 2026-06-28 03:16 | **G-FRD-I 実機クローズ確定** — `StitchTab=TrainingInfo` ログ確認。退行ゲート G-HOF-S / G-TRN / G-FRD-S / G-HOF-F / G-FRD-F 全 OK。R4b・親 REQ Phase 1b 実機完了 | ユーザー再検証。次: `golden/FRD/info/` PNG 収録 |
 | 2026-06-28 01:16 | **G-FRD-I / HOF 育成情報 実機クローズ** — 結合・OCR OK。HOF: `StitchTab=TrainingInfo`・S-6 ログ OK。FRD: 成果物 OK だがログ `StitchTab=Inheritance` — `shouldRepickWithoutTrainingSeg` が register 帯で右端強緑を無条件棄却していたため dominance 判定に統一（`b8963da`） | ユーザー実機ログ。golden 25/25 退行なし |

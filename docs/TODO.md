@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-07-03 21:48
+最終更新: 2026-07-10 19:01
 
 ---
 
@@ -45,10 +45,6 @@
 - v1.1.0 リリースは完了（下記「完了済み」参照）
 
 ### P1 — 重要
-
-- [ ] **オートキャプチャ結合リライト R5**（`opencvStitcher.ts` 削除）
-  - 前提: **R4b 完了後**
-  - REQ: `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)` R5
 
 - [ ] **REQ-skill-data-fetch-fallback 実機検証クローズ（手順 3〜7）**
   - 背景: 実装・docs 完了済み（`a5c04a0`）。**手順 1〜2 は OK**（オンライン sim・オフライン AppData フォールバック＋警告トースト）。**手順 3〜7 は未実施** — 後日実施
@@ -157,6 +153,7 @@
 
 ## 完了済み
 
+- [x] **オートキャプチャ結合リライト R5** — `opencvStitcher.ts` 削除・`stitchImages` 一本化・`USE_STITCH_V2` 廃止。golden 29/29 PASS（2026-07-10 19:03 / コミット後更新）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) **done**・親 REQ [`REQ-auto-capture-multi-screen.md`](tasks/REQ-auto-capture-multi-screen.md) **done**
 - [x] **G-FRD-I golden 登録** — expectations 8件目・Vitest 29/29 PASS・Catalog 同期（2026-06-28 03:34 / `4ad5dc1`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) R4b
 - [x] **オートキャプチャ結合リライト R4b**（TrainingInfo S-6 配線）— golden 25/25 PASS。**実機クローズ**: G-FRD-I（`StitchTab=TrainingInfo`）+ 退行ゲート全 OK（2026-06-28 03:16 / `b8963da`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) R4b
 - [x] **オートキャプチャ結合リライト R4a**（postProcess 分離・compose 純化）— golden 25/25 + postProcess Vitest 2件 PASS。**実機クローズ**: Step 1 G-HOF-S・3 G-TRN・4a/4b G-FRD-S・5 G-HOF-F・6 G-FRD-F（S-5）退行なし（2026-06-28 00:47 / `0b549f5`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) R4a
