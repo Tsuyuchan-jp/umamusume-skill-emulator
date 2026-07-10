@@ -153,7 +153,7 @@
 
 ## 完了済み
 
-- [x] **オートキャプチャ結合リライト R5** — `opencvStitcher.ts` 削除・`stitchImages` 一本化・`USE_STITCH_V2` 廃止。golden 29/29 PASS（2026-07-10 19:03 / コミット後更新）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) **done**・親 REQ [`REQ-auto-capture-multi-screen.md`](tasks/REQ-auto-capture-multi-screen.md) **done**
+- [x] **オートキャプチャ結合リライト R5** — `opencvStitcher.ts` 削除・`stitchImages` 一本化・`USE_STITCH_V2` 廃止。golden 29/29 PASS（2026-07-10 19:03 / `6c92354`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) **done**・親 REQ [`REQ-auto-capture-multi-screen.md`](tasks/REQ-auto-capture-multi-screen.md) **done**
 - [x] **G-FRD-I golden 登録** — expectations 8件目・Vitest 29/29 PASS・Catalog 同期（2026-06-28 03:34 / `4ad5dc1`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) R4b
 - [x] **オートキャプチャ結合リライト R4b**（TrainingInfo S-6 配線）— golden 25/25 PASS。**実機クローズ**: G-FRD-I（`StitchTab=TrainingInfo`）+ 退行ゲート全 OK（2026-06-28 03:16 / `b8963da`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) R4b
 - [x] **オートキャプチャ結合リライト R4a**（postProcess 分離・compose 純化）— golden 25/25 + postProcess Vitest 2件 PASS。**実機クローズ**: Step 1 G-HOF-S・3 G-TRN・4a/4b G-FRD-S・5 G-HOF-F・6 G-FRD-F（S-5）退行なし（2026-06-28 00:47 / `0b549f5`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) R4a
