@@ -144,7 +144,7 @@
 
 ## 完了済み
 
-- [x] **タブ追加時のサムネイル飛翔アニメーション削除** — `flyingThumbnail` / `flyToTab` / `highlightedTabId` 除去、複製時トースト常時表示（2026-07-11 18:28 / `3522bc3`）/ 関連 [`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)
+- [x] **タブ追加時のサムネイル飛翔アニメーション削除** — `flyingThumbnail` / `flyToTab` / `highlightedTabId` 除去、複製時トースト常時表示（2026-07-11 18:28 / `8f7dda8`）/ 関連 [`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)
 - [x] **オートキャプチャ結合: 最下部びったし到達時の二重結合** — 案 A′ 実装 + **実機検証クローズ**（Frame7→8 terminal micro skip coarse=60・二重なし。2026-07-11 18:16 / 実装 `24f624f`）/ [`REQ-stitch-terminal-exact-bottom.md`](tasks/REQ-stitch-terminal-exact-bottom.md) **done**
 - [x] **「実行時のステータス条件」ボタンをテキスト付き表記に変更** — トリガーラベル「ステータス条件」・秒数/バ身差トグルと高さ揃え（2026-07-11 17:19 / `0d86bbc`）
 - [x] **エラートーストの全文表示** — `type: error` は折り返し・複数行表示、success は1行 truncate 維持（2026-07-11 17:06 / `de990f6`）/ `[REQ-skill-data-fetch-fallback.md](tasks/REQ-skill-data-fetch-fallback.md)` 実機検証手順 2 関連
