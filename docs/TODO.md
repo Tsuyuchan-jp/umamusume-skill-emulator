@@ -158,7 +158,7 @@
 
 ## 完了済み
 
-- [x] **エラートーストの全文表示** — `type: error` は折り返し・複数行表示、success は1行 truncate 維持（2026-07-11 17:06）
+- [x] **エラートーストの全文表示** — `type: error` は折り返し・複数行表示、success は1行 truncate 維持（2026-07-11 17:06 / `de990f6`）/ `[REQ-skill-data-fetch-fallback.md](tasks/REQ-skill-data-fetch-fallback.md)` 実機検証手順 2 関連
 - [x] **オートキャプチャ結合リライト R5** — `opencvStitcher.ts` 削除・`stitchImages` 一本化・`USE_STITCH_V2` 廃止。golden 29/29 PASS（2026-07-10 19:03 / `6c92354`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) **done**・親 REQ [`REQ-auto-capture-multi-screen.md`](tasks/REQ-auto-capture-multi-screen.md) **done**
 - [x] **G-FRD-I golden 登録** — expectations 8件目・Vitest 29/29 PASS・Catalog 同期（2026-06-28 03:34 / `4ad5dc1`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) R4b
 - [x] **オートキャプチャ結合リライト R4b**（TrainingInfo S-6 配線）— golden 25/25 PASS。**実機クローズ**: G-FRD-I（`StitchTab=TrainingInfo`）+ 退行ゲート全 OK（2026-06-28 03:16 / `b8963da`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) R4b
