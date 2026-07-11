@@ -2,7 +2,7 @@
 
 > **TODO の代替ではない。** 次にやることの正本は [`docs/TODO.md`](../TODO.md)。
 > 本ファイルは `docs/tasks/REQ-*.md`（テンプレ除く）の **一覧・ステータス・辿りやすさ** を目的とする。
-> ステータスは各 REQ の `**ステータス**:` 行を正とする。最終更新: 2026-07-10 19:03
+> ステータスは各 REQ の `**ステータス**:` 行を正とする。最終更新: 2026-07-11 17:31
 
 ## 使い方
 
@@ -91,6 +91,7 @@
 | [`REQ-auto-capture-multi-screen.md`](REQ-auto-capture-multi-screen.md) | done | 完了済み | Phase 1/1b/3 本線 done。Phase 2 は任意見送り |
 | [`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md) | done | 完了済み | R0–R5 完了（R5: `opencvStitcher.ts` 削除・`stitchImages` 一本化） |
 | [`REQ-stitch-scene-model.md`](REQ-stitch-scene-model.md) | in-progress | 進行中 **M1** | シーンモデル正本化ロードマップ。Catalog: `SCENE-CATALOG.md` |
+| [`REQ-stitch-terminal-exact-bottom.md`](REQ-stitch-terminal-exact-bottom.md) | draft | 進行中 | 最下部びったし二重結合。R3.5c-2 ガード穴。設計レビュー中 |
 
 ---
 
@@ -107,9 +108,9 @@
 
 | 項目 | 件数 |
 |------|------|
-| REQ 総数（テンプレ除く） | 32 |
+| REQ 総数（テンプレ除く） | 33 |
 | done | 25 |
-| draft | 3 |
+| draft | 4 |
 | in-progress | 2 |
 | superseded | 3 |
 | ロードマップ（親） | 1（`REQ-race-detail-graph.md`） |
