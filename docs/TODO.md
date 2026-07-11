@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-07-11 16:38
+最終更新: 2026-07-11 16:43
 
 ---
 
@@ -16,7 +16,7 @@
 
 ## 現在のフォーカス
 
-**P0（緊急）** — **長距離レース（中山3600m）でエミュレートエラー**。7月ウマ娘対人イベントが長距離舞台のため早急対応
+**P1** — Backlog 先頭から着手（**長距離 sim エラーは再現待ちで保留**）
 
 ---
 
@@ -26,21 +26,7 @@
 
 ## 次にやること（Backlog）
 
-優先度順。作業チャット起票時は **P0 から1件** 取る。
-
-### P0 — 緊急
-
-- [ ] **長距離レース（中山3600m）でエミュレートエラー**
-  - 症状: 距離の極端に長いレース場（**中山3600m**）でエミュレートするとエラーが出る
-  - 切り分け情報（実機確認済み）:
-    - **育成完了した個体** のキャプチャ → 長距離でも **エミュレート成功**
-    - **育成途中でスキル数が 2/3 程度** の個体のキャプチャ → 長距離で **エラー**
-    - 症状はいずれも **長距離レース場（中山3600m）のみ**。短〜中距離では未再現
-  - 推測: コース距離ではなく「スキル構成・不足」または個体データ（未取得スキル/ステータス）依存の可能性。要原因切り分け
-  - 目標: 育成途中個体 × 長距離でもエラーなくエミュレートできるようにする
-  - 触る想定: `umaemuAdapter.ts`（sim パラメータ構築・エラー発生箇所）、`worker.js`（WASM 実行）、`SimulationLauncher.tsx`（エラー表示）、必要なら `trackData.ts` / `raceGraphBuilder.ts`
-  - 期限感: **7月ウマ娘対人イベント（長距離舞台）前に対応必須**
-  - 着手: まず育成途中個体 × 中山3600m の再現とエラーメッセージ/スタックの特定（Ask mode 切り分け推奨）
+優先度順。作業チャット起票時は **P1 から1件** 取る（P0 長距離 sim は保留中）。
 
 - v1.1.0 リリースは完了（下記「完了済み」参照）
 
@@ -279,6 +265,12 @@
 
 ## 保留 / ブロック中
 
+- [ ] **長距離レース（中山3600m）でエミュレートエラー** — **再現待ち**（2026-07-11 保留。現時点では再現不可）
+  - 過去の実機情報: 育成完了個体→長距離成功 / 育成途中（スキル2/3程度）→中山3600mのみエラー / 短〜中距離は未再現
+  - 設計レビュー済み: 最有力は WASM 層（スタミナ不足×超長距離等）。`umaemuAdapter` が Worker 実エラーを捨てているため、再現時は DevTools の `Worker simulation error:` を取得してから着手
+  - 再開時: Ask mode でログ共有 → Agent で診断修正（エラー伝播）→ 最小修正。触る想定: `umaemuAdapter.ts` / `simulationErrors.ts` / `worker.js`（WASM フォークはしない）
+  - 期限感: 7月ウマ娘対人イベント（長距離舞台）前に再現次第対応
+
 - [ ] **R3.5d パートナー登録緑ボタン除外**（`6de25ad`）— **実機再検証待ち**（tauri dev 再起動 or release exe 後）
   - Scene Model M4/M6 と統合修正予定。暫定パッチの追加は `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)` パッチ禁止リストに従う
 
@@ -286,6 +278,7 @@
 
 ## 既知の問題・メモ
 
+- **長距離 sim エラー（中山3600m）**: 保留中（2026-07-11）。再現時はコンソール `Worker simulation error:` + コース・スキル数・スタミナを記録してチャット再開
 - パレットのスキル一覧は `**umasimSkillDataList`（ローカル）正本** — `buildPaletteSkillOptions`。WASM sim は `fetchSkillData()`（GitHub 優先 → AppData → 同梱 `public/skill_data.txt`）
 - **オートキャプチャ Capture–Stitch 契約**: **広帯 -4 / 狭帯 -3**（`scrollRegionH` しきい値 280px）。**M5**: wheel は stitch（TS）正本・Rust IPC 受信。正本: `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)`「Capture–Stitch 契約」
 - **Scene Model ロードマップ**: `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)` 起票（M0 done）。Catalog: `[SCENE-CATALOG.md](../auto-capture-design-pack/SCENE-CATALOG.md)`。素材運用: `[PACK-GUIDE.md](../auto-capture-design-pack/PACK-GUIDE.md)`
