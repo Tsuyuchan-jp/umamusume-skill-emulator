@@ -16,10 +16,12 @@
 
 - スキルマスタを umasim `skill_data.txt` と同期（2038件 / 新育成ウマ娘スキル対応）
 - `master.mdb` から `skillRarityData.ts` を再生成（1833件）
+- **2026-07-11 追記**: スキルマスタ再同期（**2042件** / +4）・`app.exe` 再ビルド（バージョン表記 v1.1.1 のまま）
 
 ### ビルド
 
 - 配布正本: `desktop-app/src-tauri/target/release/app.exe` 更新済み（`npm run build:release-exe`）
+- **2026-07-11**: 上記データ更新に伴い `app.exe` 再生成
 
 ---
 

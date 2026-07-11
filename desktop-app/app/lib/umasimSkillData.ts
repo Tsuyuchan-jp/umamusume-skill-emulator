@@ -1308,6 +1308,11 @@ export const umasimSkillDataList = [
     "rarity": "unique"
   },
   {
+    "name": "麗走一直！ラーメン道",
+    "id": "120221",
+    "rarity": "unique"
+  },
+  {
     "name": "勝利ヘ至ル累積",
     "id": "120231",
     "rarity": "unique"
@@ -2670,6 +2675,11 @@ export const umasimSkillDataList = [
   {
     "name": "きらめくは海、まばゆきは君",
     "id": "920131",
+    "rarity": "inherit"
+  },
+  {
+    "name": "麗走一直！ラーメン道",
+    "id": "920221",
     "rarity": "inherit"
   },
   {
@@ -8168,6 +8178,11 @@ export const umasimSkillDataList = [
     "rarity": "rare"
   },
   {
+    "name": "熱々、上等！へいお待ち！",
+    "id": "102203211",
+    "rarity": "evo"
+  },
+  {
     "name": "素直な一歩",
     "id": "203032",
     "rarity": "normal"
@@ -9551,6 +9566,11 @@ export const umasimSkillDataList = [
     "name": "順風満帆",
     "id": "204071",
     "rarity": "rare"
+  },
+  {
+    "name": "替え玉一丁、承ります♪",
+    "id": "102203111",
+    "rarity": "evo"
   },
   {
     "name": "気持ちを乗せて",
