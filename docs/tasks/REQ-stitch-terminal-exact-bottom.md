@@ -23,8 +23,29 @@
 | 条件 | ホイール段（-3/-4）による 1 ノッチ量が、リスト残量と **びったり一致** し、最下部がちょうど見える |
 | 症状 | 結合画像で末尾スキル行（例: レースの真髄・速/体 → 賢/陽の加護 → 恩返し…）が **もう一度** 続く |
 | 証拠 | 結合結果 PNG + 末尾付近フレーム（7〜9 枚目 / `frame_006`〜）。末尾近傍の 2 枚がほぼ同一の「最下部＋閉じる」 |
+| DevTools（2026-07-11） | 下記「実機ログ」 |
 
 掃除キュー（タブ飛翔アニメ削除等）は **中断せずキューごと温存**。本バグを割り込み優先。
+
+### 実機ログ（DevTools・再現時）
+
+```
+StitchLayout=L3, StitchTab=Skill, scrollStartY=397px(0.441), scrollRegion=369px
+shiftEstimate: S*=192
+Frame 0..5 → 次: scrollAmount≈192 method=ssd score≈0.97
+Frame 6 -> 7: shift raw=300→final=192 method=ssd-refined score=0.971
+Frame 7 -> 8: shift raw=60→final=167 method=ssd-refined score=0.925
+```
+
+数値の意味:
+
+| 値 | 意味 |
+|----|------|
+| S\*=192 | セッション代表シフト（広帯 -4 相当） |
+| 0.85·S\* ≈ 163.2 | terminal「短シフト」判定の上限 |
+| Frame 7→8 raw=60 | 全範囲 SSD では短いずれを検出できている |
+| final=167 | **S\* 近傍への refine** が raw を上書き。167 ≰ 163.2 のため terminal / 微探索に入らない |
+| append 167px | ほぼ同一の最下部フレームから下端 167px を再結合 → 二重 |
 
 ---
 
@@ -47,15 +68,17 @@ Rust capture（ホイール → 差分で末端停止）
 2. 微探索で ≈0 → `method=skip`・`overlap=0`（二重 append しない）
 3. 正当な短シフト（例: TRN 119px）は維持
 
-### 今回の穴（仮説・最有力）
+### 今回の穴（ログで確定・2026-07-11 17:36 更新）
 
-びったし最下部のあと、もう 1 ノッチしてもリストは動かない（またはバウンド後に戻る）。その **無移動ペア** に対し:
+初回仮説「coarse がいきなり S\*」は **半分だけ正しい**。実ログでは:
 
-1. スキル行が縦に周期的 → SSD（全重なり平均差分）が **S\* 付近に誤ピーク**を取りうる
-2. coarse ≈ S\* のため `coarseIsTerminalShortScroll` が **false**
-3. **微探索が走らず**、S\* のまま compose が末尾を再 append → 二重結合
+1. 最終ペア Frame 7→8 の **raw=60**（短シフト候補として正しい方向）
+2. セッションに外れ値（Frame 6→7 raw=300 等）があり `shouldRefineAroundAnchor` が true
+3. refine が **[S\*-τ, S\*+τ] = [152, 232]** だけ再探索し、周期的スキル行で **167** を採用（`ssd-refined`）
+4. terminal 判定は **refined 後の coarse（167）** を見る → `167 < 0.85·192` が **偽**（163.2 をわずかに超える）
+5. 微探索も skip も走らず **167px append** → 二重結合
 
-既存修正は「coarse が短めの誤ピーク（例: 135 vs S\*=192）」を想定。今回は **誤ピーク自体が S\*** のためガードに入らない。
+つまり穴の本体は「無移動なのに S\* を直採用」より、**短 raw を S\* 近傍 refine が潰して terminal ゲートをすり抜ける**こと。
 
 ### キャプチャ側の補足
 
@@ -67,10 +90,11 @@ Rust capture（ホイール → 差分で末端停止）
 
 ### やること
 
-- 最終ペア（必要なら session 安定時）で **シフト 0（無移動）を coarse より先に評価**し、無移動なら `skip`（overlap=0）
-- Vitest: 同一 strip / ほぼ同一 strip で coarse≈S\* でも skip になる合成ケース
+- 最終ペアで **短 raw を S\* 近傍 refine から守る**（または terminal ゲートを raw 基準にする）→ 既存微探索 / NO_SCROLL skip に乗せる
+- （任意・二次）zero-shift 先判定を安全網として追加するかは承認時に決定
+- Vitest: raw 短・refine が S\* 近傍に引き上がる合成ケース → skip または短 terminal
 - 既存 golden・TRN 正当 terminal（119px 等）・既存 NO_SCROLL 微探索の退行なし
-- 実機: びったし最下部再現（長スキルリスト）で二重なし
+- 実機: びったし最下部再現（長スキルリスト）で二重なし。ログで最終ペアが skip / terminal になること
 
 ### やらないこと
 
@@ -81,37 +105,38 @@ Rust capture（ホイール → 差分で末端停止）
 
 ---
 
-## 設計レビュー（2026-07-11）
+## 設計レビュー（2026-07-11 / ログ反映で改訂）
 
 ### 選択肢比較
 
 | 案 | 内容 | メリット | デメリット | 適合度 |
 |----|------|----------|------------|--------|
-| **A. zero-shift 先判定（推奨）** | 最終ペア・session 安定時、`overlapAvgDiff(shift=0)` が閾値未満、または coarse より十分よければ **即 skip**。既存微探索は短シフト経路として維持 | 穴（coarse≈S\*）を直接塞ぐ。正当な最終スクロールは shift=0 の差分が大きく誤 skip しにくい | 閾値調整が必要。最終以外ペアは対象外（今回の症状は最終で足りる） | 高 |
-| B. 最終ペアは常に微探索 | `coarseIsTerminalShortScroll` ガードを外し、常に [0, MICRO_MAX) を試す | 実装が単純に見える | coarse≈S\* かつ真値が 0 のとき、micro 範囲外の S\* を「採用」したまま残しうる。A の方が直接的 | 中 |
-| C. capture のみ強化 | 差分閾値を厳しくし同一フレームを落とす | stitch を触らない | 微小差ですり抜け残る。根本の SSD 誤ピークは残る | 低（単独不可） |
+| **A′. 最終ペアの短 raw を refine から除外（推奨）** | 最終ペアかつ `raw < 0.85·S*`（または anchor）のとき **refine しない**。既存 terminal / 微探索 / skip にそのまま乗せる | 本ログ（raw=60→167）を直接説明・修正。新閾値を増やしにくい | raw が誤って中〜長のときだけ別途必要 | **高** |
+| A″. terminal ゲートを raw 基準に | 最終ペアの短判定を `min(raw, refined)` または raw で行う | refine 後でも微探索に入れる | refined=167 を coarse に残すと微探索の比較基準が歪む。A′の方がきれい | 高（A′と併用可） |
+| A. zero-shift 先判定 | shift=0 の一致がよければ即 skip | refine 経路を問わない安全網 | 本ログの主因は refine。単独だと対症療法寄り | 中（**二次推奨**） |
+| B. 最終ペアは常に微探索 | 短判定ガード撤廃 | 単純 | 範囲外の S\* 誤採用は残る | 低〜中 |
+| C. capture のみ強化 | 同一フレームを落とす | stitch 非接触 | すり抜け残る | 低（単独不可） |
 
-### 推奨案
+### 推奨案（ログ反映後）
 
-**案 A**。既存 R3.5c-2 微探索の **前段** に zero-shift ガードを足す（置き換えない）。
+**案 A′ を主修正。** 初回推奨の案 A（zero-shift）は **必須ではない二次安全網**（承認者が欲しければ追加）。
 
-推奨アルゴリズム（最終ペア・`sessionStable` 時）:
+推奨アルゴリズム:
 
-1. `zeroDiff = overlapAvgDiff(prev, curr, 0, contentWidth)`
-2. `zeroDiff ≤ ZERO_SHIFT_MAX`（新定数・初期案 2〜5 程度、実装時 Vitest で確定）→ `skip`
-3. または `zeroDiff < coarseAvgDiff * WIN`（既存 MICRO_WIN 流用可）かつ zero が実質無移動 → `skip`
-4. それ以外は現行どおり（短シフトなら微探索、正当 terminal / median 維持）
+1. `refinedPairs` 生成時: **最終ペア**かつ `raw.scrollAmount > 0` かつ `raw.scrollAmount < terminalRatio * anchor` なら **refine せず raw を採用**
+2. 既存どおり: session 安定 + 短 coarse → 微探索 → micro≈0 なら skip
+3. （任意）その前に zero-shift 即 skip
 
-定数名案: `STITCH_SHIFT_TERMINAL_ZERO_DIFF_MAX`（要実装時確定）。
+本ログへの適用予想: Frame 7→8 は raw=60 のまま → `60 < 163` で terminal → 微探索で ≈0 → **skip** → 二重なし。
 
 ### 変更計画
 
 | ファイル | 変更内容 |
 |---------|---------|
-| `desktop-app/app/lib/stitch/shiftEstimateCore.ts` | 最終ペア zero-shift 先判定 → skip |
-| `desktop-app/app/lib/stitch/constants.ts` | zero-diff 閾値定数 1 件 |
-| `desktop-app/app/lib/stitch/shiftEstimateCore.test.ts` | 同一/ほぼ同一 strip で coarse≈S\* → skip |
-| 本 REQ / `TODO.md` / `INDEX.md` | 決定ログ・完了記録 |
+| `desktop-app/app/lib/stitch/shiftEstimateCore.ts` | 最終ペア・短 raw 時は refine スキップ（案 A′）。任意で zero-shift |
+| `desktop-app/app/lib/stitch/shiftEstimateCore.test.ts` | raw 短→refine 引き上がり再現 → skip/terminal 維持 |
+| `constants.ts` | 新定数は原則不要（既存 `TERMINAL_RATIO` 流用）。zero-shift 採用時のみ追加 |
+| 本 REQ / `TODO.md` | 決定ログ・完了記録 |
 
 触らない（原則）: `compose*`、`capture.rs`、`regionsCore`、`wheelCore`、OCR / UI。
 
@@ -121,17 +146,17 @@ Rust capture（ホイール → 差分で末端停止）
 
 ### リスク・未決事項
 
-1. **ゼロ差分閾値**: バウンド残差で `zeroDiff` が数〜十数になりうるか → 実機ログで確認。必要なら「zeroDiff ≪ coarseAvgDiff」の相対条件を主にする
-2. **最終以外の無移動ペア**: いまは最終のみ。中間で同一フレームが混入する報告が出たら拡張
-3. **frame がメニュー等に遷移**: 添付の末尾近傍に別画面が混ざる場合は本バグと別件（シーン外れ）。本 REQ では「ほぼ同一の最下部」を主対象
-4. **承認待ち**: コード修正はユーザー承認後
+1. **ユーザー確認待ち（方針変更）**: 初回案 A 単独承認は保留。案 A′ 主でよいか
+2. **zero-shift を同時に入れるか**: 安全網として入れる / 入れない
+3. **最終以外**: Frame 6→7 の raw=300→192 は中間の正当 refine。触らない
+4. **raw が誤って ≥0.85·S\* の無移動**: 今回ログでは非該当。出たら案 A を追加
 
 ### 検証手順
 
 1. `desktop-app` で `npm run stitch:golden`（退行なし）
-2. `shiftEstimateCore` 関連 Vitest PASS（新規 skip ケース含む）
-3. 実機: 長スキルリストで最下部がびったり見えるスクロール幅を狙い、結合末尾に同一スキル行の繰り返しが無いこと
-4. 回帰: G-HOF-S / G-TRN / FRD 系で末端欠け・誤 skip が無いこと（既存実機クローズ相当の目視）
+2. `shiftEstimateCore` 関連 Vitest PASS（raw=短・refine 帯に周期ピークがある合成 → skip）
+3. 実機: びったし最下部。期待ログ例: `Frame 7 -> 8: ... skip` または terminal 短／micro skip。二重なし
+4. 回帰: G-HOF-S / G-TRN / FRD 末端
 
 ---
 
@@ -163,6 +188,8 @@ Rust capture（ホイール → 差分で末端停止）
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
 | 2026-07-11 17:31 | 掃除キューは温存し本バグを割り込み。docs + 設計レビューのみ先行。コードは承認後 | ユーザー指示 |
-| 2026-07-11 17:31 | 原因仮説: 無移動最終ペアで SSD が S\* 誤ピーク → `coarseIsTerminalShortScroll` 不成立 → 微探索未実行 | R3.5c-2 拡張のガード条件と再現条件が一致 |
-| 2026-07-11 17:31 | 推奨: 案 A（zero-shift 先判定 → skip）。案 B/C は非推奨または二次 | 穴を直接塞ぎ、正当 terminal を壊しにくい |
-| 2026-07-11 17:31 | CONCEPT-MAP: `zero-shift skip` カード 1 件追加 | 会話で使う新ポリシー用語 |
+| 2026-07-11 17:31 | 初回仮説: 無移動最終ペアで SSD が S\* 誤ピーク → terminal 不成立 | 画像症状からの推定 |
+| 2026-07-11 17:31 | 初回推奨: 案 A（zero-shift）。**ログ後に改訂** | — |
+| 2026-07-11 17:31 | CONCEPT-MAP: `zero-shift skip` カード 1 件追加 | 会話用語（二次案でも有効） |
+| 2026-07-11 17:36 | DevTools: Frame7→8 raw=60→final=167 ssd-refined。S\*=192。167 が 0.85·S\* をわずかに超え terminal 未入 | ユーザー提供ログ |
+| 2026-07-11 17:36 | **推奨を案 A′ に変更**（最終ペアの短 raw は refine しない）。案 A は二次。初回案 A 単独承認は保留しユーザー確認 | ログが refine 破壊を直接示す |
