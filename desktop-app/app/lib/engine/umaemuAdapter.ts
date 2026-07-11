@@ -127,9 +127,6 @@ let worker: Worker | null = null;
 let currentMessageId = 0;
 const pendingRequests = new Map<number, { resolve: (val: any) => void, reject: (err: any) => void, onProgress?: (current: number, total: number) => void }>();
 
-/** 超長距離（中山3600m 等）で Worker を走ごとに作り直す距離閾値（m） */
-const ULTRA_LONG_DISTANCE_M = 3000;
-
 function getWorker(): Worker {
   if (typeof window === 'undefined') {
     throw new Error("WASM engine can only be loaded in the browser");
@@ -169,15 +166,6 @@ function getWorker(): Worker {
     worker = null;
   };
   return worker;
-}
-
-/** 意図的な再生成用。未完了リクエストは reject しない（バッチ間で pending は空のはず） */
-function disposeWorkerSilent() {
-  if (worker) {
-    worker.terminate();
-    worker = null;
-  }
-  pendingRequests.clear();
 }
 
 /** N 走完了後に同一 payload で詳細1走を取得 */
@@ -242,58 +230,6 @@ function createPayload(data: UmaStatusData, raceCondition: RaceCondition) {
   };
 }
 
-/** Worker に SIMULATE を1回投げ、結果配列を返す */
-async function postSimulateBatch(
-  jsonInput: string,
-  iterations: number,
-  onProgress?: (current: number, total: number) => void
-): Promise<any[]> {
-  const w = getWorker();
-  const id = ++currentMessageId;
-
-  const resultsPromise = new Promise<any[]>((resolve, reject) => {
-    pendingRequests.set(id, { resolve, reject, onProgress });
-  });
-
-  w.postMessage({
-    id,
-    type: 'SIMULATE',
-    payload: jsonInput,
-    iterations,
-    skillData: cachedSkillsJson
-  });
-
-  return resultsPromise;
-}
-
-/**
- * 連続実行。超長距離は Step 2b（走ごとに Worker 再生成）、
- * それ以外は単一 Worker + worker 内 Step 2a（毎走 initializeEngine）。
- */
-async function collectSimulationResults(
-  jsonInput: string,
-  iterations: number,
-  courseDist: number,
-  onProgress?: (current: number, total: number) => void
-): Promise<any[]> {
-  const isUltraLong = courseDist >= ULTRA_LONG_DISTANCE_M;
-
-  if (!isUltraLong) {
-    return postSimulateBatch(jsonInput, iterations, onProgress);
-  }
-
-  // Step 2b: WASM モジュールごと捨てて作り直す（状態汚染の本命対策）
-  const results: any[] = [];
-  for (let i = 0; i < iterations; i++) {
-    disposeWorkerSilent();
-    const batch = await postSimulateBatch(jsonInput, 1);
-    results.push(...batch);
-    if (onProgress) onProgress(i + 1, iterations);
-  }
-  disposeWorkerSilent();
-  return results;
-}
-
 export async function runMultipleSimulations(
   data: UmaStatusData, 
   raceCondition: RaceCondition, 
@@ -304,17 +240,30 @@ export async function runMultipleSimulations(
     await fetchSkillData();
   }
   
-  const course = getCourseById(raceCondition.locationId, raceCondition.courseId);
-  const courseDist = course?.dist ?? 0;
   const payload = createPayload(data, raceCondition);
   const jsonInput = JSON.stringify(payload);
+
+  const w = getWorker();
+  const id = ++currentMessageId;
+
+  const resultsPromise = new Promise<any[]>((resolve, reject) => {
+    pendingRequests.set(id, { resolve, reject, onProgress });
+  });
 
   const timerLabel = `Simulating ${iterations} times via Worker`;
   console.time(timerLabel);
 
+  w.postMessage({
+    id,
+    type: 'SIMULATE',
+    payload: jsonInput,
+    iterations,
+    skillData: cachedSkillsJson
+  });
+
   let results: any[];
   try {
-    results = await collectSimulationResults(jsonInput, iterations, courseDist, onProgress);
+    results = await resultsPromise;
   } catch (error) {
     console.error("Simulation crashed, worker was terminated.", error);
     // Rethrow to let the UI handle the error and display a toast

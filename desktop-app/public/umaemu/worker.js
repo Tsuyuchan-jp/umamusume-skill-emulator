@@ -21,12 +21,6 @@ async function initEngine(skillData) {
   return engineInstance;
 }
 
-/** 連続 runSimulation 時の WASM 状態汚染対策: 毎走前にスキルデータを再投入 */
-function reinitializeEngine(skillData) {
-  if (!engineInstance) return;
-  engineInstance.initializeEngine(skillData);
-}
-
 function formatWorkerError(error) {
   if (error == null) return "null";
   if (typeof error === "string") return error;
@@ -43,8 +37,6 @@ self.onmessage = async (event) => {
       
       const results = [];
       for (let i = 0; i < iterations; i++) {
-        // Step 2a: 毎走前にエンジン再初期化（超長距離×連続実行の状態汚染対策）
-        reinitializeEngine(skillData);
         const jsonOutput = engine.runSimulation(payload);
         results.push(JSON.parse(jsonOutput));
         
@@ -56,7 +48,6 @@ self.onmessage = async (event) => {
       self.postMessage({ id, type: 'SUCCESS', results });
     } else if (type === 'SIMULATE_DETAIL') {
       const engine = await initEngine(skillData);
-      reinitializeEngine(skillData);
       const jsonOutput = engine.runSimulationDetail(payload);
       const detail = JSON.parse(jsonOutput);
       self.postMessage({ id, type: 'SUCCESS', results: detail });
