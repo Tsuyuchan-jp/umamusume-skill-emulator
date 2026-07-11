@@ -23,20 +23,6 @@ interface SimTabPanelProps {
     React.SetStateAction<{ current: number; total: number } | null>
   >;
   showToastMessage: (message: string, type: "success" | "error", duration: number) => void;
-  previewRef: React.RefObject<HTMLDivElement | null>;
-  scrollContainerRef: React.RefObject<HTMLDivElement | null>;
-  setFlyingThumbnail: React.Dispatch<
-    React.SetStateAction<{
-      id: number;
-      src: string;
-      rect: DOMRect;
-      deltaX?: number;
-      deltaY?: number;
-    } | null>
-  >;
-  setHighlightedTabId: React.Dispatch<React.SetStateAction<string | null>>;
-  flyTimerRef: React.MutableRefObject<ReturnType<typeof setTimeout> | null>;
-  highlightTimerRef: React.MutableRefObject<ReturnType<typeof setTimeout> | null>;
 }
 
 export const SimTabPanel: React.FC<SimTabPanelProps> = ({
@@ -49,12 +35,6 @@ export const SimTabPanel: React.FC<SimTabPanelProps> = ({
   setIsSimulating,
   setSimulationProgress,
   showToastMessage,
-  previewRef,
-  scrollContainerRef,
-  setFlyingThumbnail,
-  setHighlightedTabId,
-  flyTimerRef,
-  highlightTimerRef,
 }) => {
   const tabId = tab.id;
 
@@ -122,48 +102,7 @@ export const SimTabPanel: React.FC<SimTabPanelProps> = ({
 
               setTabs((prev) => [...prev, newTab]);
               setActiveTabId(newTab.id);
-
-              const thumbUrl = tab.thumbnailUrl;
-              const rect = previewRef.current?.getBoundingClientRect();
-              if (rect && thumbUrl) {
-                setTimeout(() => {
-                  let deltaX = 0;
-                  let deltaY = -window.innerHeight * 0.8;
-                  const targetTabEl = document.getElementById(`tab-${newTab.id}`);
-                  if (targetTabEl) {
-                    const targetRect = targetTabEl.getBoundingClientRect();
-                    deltaX =
-                      targetRect.left + targetRect.width / 2 - (rect.left + rect.width / 2);
-                    deltaY =
-                      targetRect.top + targetRect.height / 2 - (rect.top + rect.height / 2);
-                  }
-                  setFlyingThumbnail({
-                    id: Date.now(),
-                    src: thumbUrl,
-                    rect,
-                    deltaX,
-                    deltaY,
-                  });
-                }, 10);
-
-                if (scrollContainerRef.current) {
-                  scrollContainerRef.current.scrollTo({ top: 0, behavior: "smooth" });
-                }
-                setHighlightedTabId(newTab.id);
-
-                if (flyTimerRef.current) clearTimeout(flyTimerRef.current);
-                if (highlightTimerRef.current) clearTimeout(highlightTimerRef.current);
-
-                flyTimerRef.current = setTimeout(() => {
-                  setFlyingThumbnail(null);
-                }, 710);
-
-                highlightTimerRef.current = setTimeout(() => {
-                  setHighlightedTabId(null);
-                }, 2000);
-              } else {
-                showToastMessage("タブを複製しました", "success", 3000);
-              }
+              showToastMessage("タブを複製しました", "success", 3000);
             }}
             addedSkillIds={tab.addedSkillIds || []}
             onAddSkill={(skillId) => {

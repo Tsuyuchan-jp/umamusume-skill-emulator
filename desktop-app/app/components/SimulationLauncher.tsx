@@ -21,7 +21,6 @@ interface SimulationLauncherProps {
   setTabs: React.Dispatch<React.SetStateAction<SimTab[]>>;
   setActiveTabId: (id: string) => void;
   showToastMessage: (msg: string, type: 'success'|'error', time: number) => void;
-  onAnimateNewTab?: (tabId: string, thumbUrl: string | null) => void;
 }
 
 export function SimulationLauncher(props: SimulationLauncherProps) {
@@ -81,11 +80,7 @@ export function SimulationLauncher(props: SimulationLauncherProps) {
       
       setTabs(prev => [...prev, newTab]);
       setActiveTabId(newTabId);
-      
-      if (props.onAnimateNewTab) {
-        props.onAnimateNewTab(newTabId, thumbUrl);
-      }
-      
+
       showToastMessage(`${simulationCount.toLocaleString()}回のシミュレーションが完了しました！`, 'success', 5000);
       const { getLastSkillDataMeta } = await import('../lib/engine/umaemuAdapter');
       if (getLastSkillDataMeta()?.usedFallback) {

@@ -7,11 +7,10 @@ interface TabBarProps {
   setTabs: React.Dispatch<React.SetStateAction<SimTab[]>>;
   activeTabId: string | null;
   setActiveTabId: (id: string | null) => void;
-  highlightedTabId: string | null;
 }
 
 export function TabBar(props: TabBarProps) {
-  const { tabs, setTabs, activeTabId, setActiveTabId, highlightedTabId } = props;
+  const { tabs, setTabs, activeTabId, setActiveTabId } = props;
 
   if (tabs.length === 0) return null;
 
@@ -24,7 +23,6 @@ export function TabBar(props: TabBarProps) {
       <div className="flex gap-2 overflow-x-auto scrollbar-thin rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-1.5 pl-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-sm">
         {tabs.map((tab) => {
           const isActive = activeTabId === tab.id;
-          const isHighlighted = highlightedTabId === tab.id;
 
           return (
             <div
@@ -44,7 +42,7 @@ export function TabBar(props: TabBarProps) {
                 isActive
                   ? "z-10 shadow-[0_0_20px_rgba(16,185,129,0.22),0_4px_14px_rgba(0,0,0,0.45)] ring-1 ring-emerald-500/45"
                   : "opacity-70 hover:opacity-100 hover:ring-1 hover:ring-zinc-600/40 hover:shadow-md active:scale-[0.98]"
-              } ${isHighlighted ? "animate-pulse shadow-[0_0_0_3px_rgba(52,211,153,0.55)]" : ""}`}
+              }`}
             >
               <div className="relative h-11 w-[152px] overflow-hidden rounded-[inherit] bg-zinc-950">
                 {tab.thumbnailUrl ? (

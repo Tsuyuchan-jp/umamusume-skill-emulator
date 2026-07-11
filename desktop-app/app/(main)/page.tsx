@@ -71,14 +71,6 @@ export default function Home() {
   const [simulationProgress, setSimulationProgress] = useState<{current: number, total: number} | null>(null); // 進捗
   const [displayUnit, setDisplayUnit] = useState<'seconds' | 'lengths'>('seconds'); // 差分表示単位
 
-  // アニメーション用ステート
-  const [flyingThumbnail, setFlyingThumbnail] = useState<{ id: number, src: string, rect: DOMRect, deltaX?: number, deltaY?: number } | null>(null);
-  const [highlightedTabId, setHighlightedTabId] = useState<string | null>(null);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  // アニメーションタイマーのref（メモリリーク防止）
-  const flyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const highlightTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
   // リネーム用ステート
   const [editingTabId, setEditingTabId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState<string>("");
@@ -487,32 +479,6 @@ export default function Home() {
               setTabs={setTabs}
               setActiveTabId={setActiveTabId}
               showToastMessage={showToastMessage}
-              onAnimateNewTab={(tabId, thumbUrl) => {
-                const rect = previewRef.current?.getBoundingClientRect();
-                if (rect && thumbUrl) {
-                  setTimeout(() => {
-                    let deltaX = 0;
-                    let deltaY = -window.innerHeight * 0.8;
-                    const targetTab = document.getElementById(`tab-${tabId}`);
-                    if (targetTab) {
-                      const targetRect = targetTab.getBoundingClientRect();
-                      deltaX = (targetRect.left + targetRect.width / 2) - (rect.left + rect.width / 2);
-                      deltaY = (targetRect.top + targetRect.height / 2) - (rect.top + rect.height / 2);
-                    }
-                    setFlyingThumbnail({ id: Date.now(), src: thumbUrl, rect, deltaX, deltaY });
-                  }, 10);
-                }
-                if (scrollContainerRef.current) {
-                  scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
-                }
-                setHighlightedTabId(tabId);
-                
-                if (flyTimerRef.current) clearTimeout(flyTimerRef.current);
-                if (highlightTimerRef.current) clearTimeout(highlightTimerRef.current);
-
-                flyTimerRef.current = setTimeout(() => setFlyingThumbnail(null), 710);
-                highlightTimerRef.current = setTimeout(() => setHighlightedTabId(null), 2000);
-              }}
             />
           </div>
         )}
@@ -536,13 +502,12 @@ export default function Home() {
           {activeTab ? (
             <div className="flex flex-col h-full min-h-0 overflow-hidden animate-fadeIn min-w-0">
               {/* ヘッダー: TabBar + レース情報行 */}
-              <div ref={scrollContainerRef} className="shrink-0 min-w-0">
+              <div className="shrink-0 min-w-0">
               <TabBar
                 tabs={tabs}
                 setTabs={setTabs}
                 activeTabId={activeTabId}
                 setActiveTabId={setActiveTabId}
-                highlightedTabId={highlightedTabId}
               />
 
               <div className="flex flex-wrap items-center gap-x-3 gap-y-2 min-w-0 mb-3">
@@ -647,12 +612,6 @@ export default function Home() {
                           setIsSimulating={setIsSimulating}
                           setSimulationProgress={setSimulationProgress}
                           showToastMessage={showToastMessage}
-                          previewRef={previewRef}
-                          scrollContainerRef={scrollContainerRef}
-                          setFlyingThumbnail={setFlyingThumbnail}
-                          setHighlightedTabId={setHighlightedTabId}
-                          flyTimerRef={flyTimerRef}
-                          highlightTimerRef={highlightTimerRef}
                         />
                       </div>
                     );
@@ -667,38 +626,6 @@ export default function Home() {
             </div>
           )}
       </div>
-      {/* 飛翔アニメーション用要素 */}
-      {flyingThumbnail && (
-        <div
-          key={flyingThumbnail.id}
-          className="fixed pointer-events-none z-[9999] rounded-xl overflow-hidden shadow-2xl shadow-emerald-500/50 border-2 border-emerald-400"
-          style={{
-            left: flyingThumbnail.rect.left,
-            top: flyingThumbnail.rect.top,
-            width: flyingThumbnail.rect.width,
-            height: flyingThumbnail.rect.height,
-            '--delta-x': flyingThumbnail.deltaX ? `${flyingThumbnail.deltaX}px` : '0px',
-            '--delta-y': flyingThumbnail.deltaY ? `${flyingThumbnail.deltaY}px` : '-80vh',
-            animation: 'flyToTab 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards'
-          } as React.CSSProperties}
-        >
-          <img src={flyingThumbnail.src} className="w-full h-full object-cover" />
-        </div>
-      )}
-
-      <style dangerouslySetInnerHTML={{__html: `
-        @keyframes flyToTab {
-          0% {
-            transform: translate(0px, 0px) scale(1);
-            opacity: 0.9;
-          }
-          100% {
-            transform: translate(var(--delta-x), var(--delta-y)) scale(0.1);
-            opacity: 0;
-          }
-        }
-      `}} />
-
       {/* トースト通知 & モーダル */}
       <ToastNotification show={showToast} type={toastType} message={toastMessage} />
       <ApiKeyModal

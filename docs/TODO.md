@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-07-11 18:16
+最終更新: 2026-07-11 18:28
 
 ---
 
@@ -16,7 +16,7 @@
 
 ## 現在のフォーカス
 
-**最下部びったし二重結合バグ** — 実機クローズ済み。掃除キュー再開可
+**細かい掃除キュー** — 1番完了。次は OCR Flash-Lite のみ（P2）
 
 ---
 
@@ -24,11 +24,9 @@
 
 スキル獲得 OCR（P1 先頭）は棚上げ。長距離 sim は保留のまま。
 優先度ラベル（P1/P2）は変更せず、**いま進める順だけ**ここに書く。
-**本バグ対応が終わるまで着手しない**（キュー内容は維持）。
 
-1. タブ追加時の飛翔アニメ削除（P2）
-2. OCR を Flash-Lite のみに（P2）
-3. OCR 解析の中止（P1）
+1. OCR を Flash-Lite のみに（P2）
+2. OCR 解析の中止（P1）
 
 完了したらこのリストから消し、Backlog 本体も完了済みへ移す。
 
@@ -120,13 +118,6 @@
   - 注意: `onlyUnique` パレットは unique のみのため別扱い。各段階内の名前順は要検討
   - 関連: `[REQ-palette-local-skill-data.md](tasks/REQ-palette-local-skill-data.md)`
 
-- [ ] **タブ追加時のサムネイル飛翔アニメーション削除**
-  - 経緯: 旧レイアウトでは右カラム上部タブが見えないことがあり、タブ追加をユーザーに認知させるための対処だった
-  - 現状: ダッシュボード形式で上部タブが常に見えるため不要
-  - 目標: `flyingThumbnail` / `flyToTab` アニメーションと関連 state・タイマーを削除
-  - 触る想定: `page.tsx`, `SimTabPanel.tsx`
-  - 関連: 全画面 Cockpit UI（`[REQ-fullscreen-cockpit-layout.md](tasks/REQ-fullscreen-cockpit-layout.md)`）
-
 - [ ] **グラフ デバフ帯（B-3）の実機検証**
   - 現状: `minus` 系はパレット/OCR 経路で sim に載らず、紫線・デバフ checkbox の検証不可
   - 目標: SkillVerifier で minus を手動追加する等、検証用データで `kind: debuff` の skillEvents を確認
@@ -153,6 +144,7 @@
 
 ## 完了済み
 
+- [x] **タブ追加時のサムネイル飛翔アニメーション削除** — `flyingThumbnail` / `flyToTab` / `highlightedTabId` 除去、複製時トースト常時表示（2026-07-11 18:28 / `3522bc3`）/ 関連 [`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)
 - [x] **オートキャプチャ結合: 最下部びったし到達時の二重結合** — 案 A′ 実装 + **実機検証クローズ**（Frame7→8 terminal micro skip coarse=60・二重なし。2026-07-11 18:16 / 実装 `24f624f`）/ [`REQ-stitch-terminal-exact-bottom.md`](tasks/REQ-stitch-terminal-exact-bottom.md) **done**
 - [x] **「実行時のステータス条件」ボタンをテキスト付き表記に変更** — トリガーラベル「ステータス条件」・秒数/バ身差トグルと高さ揃え（2026-07-11 17:19 / `0d86bbc`）
 - [x] **エラートーストの全文表示** — `type: error` は折り返し・複数行表示、success は1行 truncate 維持（2026-07-11 17:06 / `de990f6`）/ `[REQ-skill-data-fetch-fallback.md](tasks/REQ-skill-data-fetch-fallback.md)` 実機検証手順 2 関連
