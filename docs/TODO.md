@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-07-11 17:36
+最終更新: 2026-07-11 18:04
 
 ---
 
@@ -16,7 +16,7 @@
 
 ## 現在のフォーカス
 
-**最下部びったし二重結合バグ** — ログ反映で方針改訂・**再確認待ち**（コード未着手）。掃除キューは温存
+**最下部びったし二重結合バグ** — 案 A′ 実装完了。**実機確認はユーザー実施**
 
 ---
 
@@ -36,12 +36,7 @@
 
 ## 進行中
 
-- [ ] **オートキャプチャ結合: 最下部びったし到達時の二重結合**（設計レビュー・ログ反映済み・再確認待ち）
-  - 症状: 最下部びったし到達でスキル末尾が二重
-  - **ログ確定**: Frame7→8 `raw=60→final=167`（ssd-refined）。S\*=192。167 が 0.85·S\* をわずかに超え terminal 未入
-  - **推奨（改訂）**: 案 A′＝最終ペアの短 raw は refine しない → 既存 skip に乗せる。zero-shift は二次
-  - REQ: [`REQ-stitch-terminal-exact-bottom.md`](tasks/REQ-stitch-terminal-exact-bottom.md)
-  - 注意: **初回案 A 単独は未承認扱い**。再確認後に実装。掃除キューは触らない
+（なし）
 
 ## 次にやること（Backlog）
 
@@ -158,6 +153,7 @@
 
 ## 完了済み
 
+- [x] **オートキャプチャ結合: 最下部びったし到達時の二重結合** — 案 A′ 実装（最終ペア短 raw の偽 refine 抑制）。Vitest 5/5 + golden 29/29 PASS。**実機確認はユーザー**（2026-07-11 18:04 / `9d5a61a`）/ [`REQ-stitch-terminal-exact-bottom.md`](tasks/REQ-stitch-terminal-exact-bottom.md) **done**
 - [x] **「実行時のステータス条件」ボタンをテキスト付き表記に変更** — トリガーラベル「ステータス条件」・秒数/バ身差トグルと高さ揃え（2026-07-11 17:19 / `0d86bbc`）
 - [x] **エラートーストの全文表示** — `type: error` は折り返し・複数行表示、success は1行 truncate 維持（2026-07-11 17:06 / `de990f6`）/ `[REQ-skill-data-fetch-fallback.md](tasks/REQ-skill-data-fetch-fallback.md)` 実機検証手順 2 関連
 - [x] **オートキャプチャ結合リライト R5** — `opencvStitcher.ts` 削除・`stitchImages` 一本化・`USE_STITCH_V2` 廃止。golden 29/29 PASS（2026-07-10 19:03 / `6c92354`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) **done**・親 REQ [`REQ-auto-capture-multi-screen.md`](tasks/REQ-auto-capture-multi-screen.md) **done**
@@ -288,7 +284,7 @@
 
 ## 既知の問題・メモ
 
-- **最下部びったし二重結合（2026-07-11）**: スキル一覧スクロールが末端にちょうど着地すると末尾行が二重。R3.5c-2 微探索のガード漏れ仮説。タスク化済み → 進行中 / [`REQ-stitch-terminal-exact-bottom.md`](tasks/REQ-stitch-terminal-exact-bottom.md)
+- **最下部びったし二重結合（2026-07-11）**: **コード修正済み**（案 A′）。実機確認待ち → [`REQ-stitch-terminal-exact-bottom.md`](tasks/REQ-stitch-terminal-exact-bottom.md) done
 - **長距離 sim エラー（中山3600m）**: 保留中（2026-07-11）。再現時はコンソール `Worker simulation error:` + コース・スキル数・スタミナを記録してチャット再開
 - パレットのスキル一覧は `**umasimSkillDataList`（ローカル）正本** — `buildPaletteSkillOptions`。WASM sim は `fetchSkillData()`（GitHub 優先 → AppData → 同梱 `public/skill_data.txt`）
 - **オートキャプチャ Capture–Stitch 契約**: **広帯 -4 / 狭帯 -3**（`scrollRegionH` しきい値 280px）。**M5**: wheel は stitch（TS）正本・Rust IPC 受信。正本: `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)`「Capture–Stitch 契約」

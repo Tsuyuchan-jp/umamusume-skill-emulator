@@ -83,7 +83,7 @@ function resolveOptions(
   };
 }
 
-/** scrollRegionH から SSD 重なり下限を満たす探索上界（狭い帯のみ比率ガード） */
+/** scrollRegionH ?? SSD ????????????????????????? */
 function effectiveSMax(stripHeight: number, opts: ResolvedShiftOptions): number {
   const fromMargin = stripHeight - opts.sMaxMargin;
   if (stripHeight >= STITCH_SHIFT_NARROW_REGION_MAX) {
@@ -101,7 +101,7 @@ function rgbaGray(img: RgbaImage, x: number, y: number): number {
   return Math.round(0.299 * r + 0.587 * g + 0.114 * b);
 }
 
-/** 重なり全体の平均絶対差分（Step B コア） */
+/** ?????????????Step B ??? */
 export function overlapAvgDiff(
   prev: RgbaImage,
   curr: RgbaImage,
@@ -162,7 +162,7 @@ function searchBestShift(
   };
 }
 
-/** 単一ペアの縦シフト推定（Step B） */
+/** ????????????Step B? */
 export function estimatePairShiftRgba(
   prev: RgbaImage,
   curr: RgbaImage,
@@ -199,10 +199,10 @@ function sessionRepresentative(
 
   if (spread <= outlierTau) return base;
 
-  // 2 ペアのみで広がる場合は高側誤ピークを捨て、低い方をアンカーにする（HOF）
+  // 2 ?????????????????????????????????HOF?
   if (amounts.length === 2) return min;
 
-  // 高側外れ値が支配的なときだけ下位クラスタへ（多数派は median 維持）
+  // ?????????????????????????? median ???
   if (max - base > outlierTau) {
     const lowerCluster = amounts.filter((s) => s <= base);
     if (lowerCluster.length > 0) return median(lowerCluster);
@@ -224,7 +224,7 @@ function shouldRefineAroundAnchor(
 
   const base = median(amounts);
   const max = Math.max(...amounts);
-  // 低側外れ値が多い FRD 型は full-range 結果を維持し、後段 median-correct に任せる
+  // ???????? FRD ?? full-range ????????? median-correct ????
   if (max - base <= outlierTau) return false;
 
   return max - anchor > outlierTau / 2;
@@ -252,7 +252,7 @@ function shouldTerminalMicroSkip(
   return microS <= STITCH_SHIFT_TERMINAL_NO_SCROLL_MAX;
 }
 
-/** 全スクロール帯フレームの overlap 列を算出（Step B + Step C） */
+/** ???????????? overlap ?????Step B + Step C? */
 export function estimateShiftFramesRgba(
   strips: RgbaImage[],
   options?: ShiftEstimateOptions
@@ -279,11 +279,38 @@ export function estimateShiftFramesRgba(
 
   const refinedPairs = rawPairs.map((raw, i) => {
     if (!useRefine || anchor <= 0) return raw;
+
     const prev = strips[i]!;
     const curr = strips[i + 1]!;
     const refineLo = anchor - opts.outlierTau;
     const refineHi = anchor + opts.outlierTau;
     const refined = searchBestShift(prev, curr, opts, refineLo, refineHi);
+
+    const isLastPair = i === rawPairs.length - 1;
+    const terminalMax = opts.terminalRatio * anchor;
+    if (
+      isLastPair &&
+      raw.scrollAmount > 0 &&
+      raw.scrollAmount < terminalMax
+    ) {
+      // ?????: ? raw ??????anchor ???? refine ??????raw=60?167?
+      if (
+        refined.scrollAmount >= terminalMax &&
+        refined.scrollAmount < anchor
+      ) {
+        return raw;
+      }
+      // anchor ???anchor+? ??? refine ?????: FRD release ?? 166px?
+      if (
+        refined.scrollAmount >= anchor &&
+        refined.scrollAmount < anchor + opts.outlierTau
+      ) {
+        return refined;
+      }
+      // ? A?: ????? raw ? refine ???
+      return raw;
+    }
+
     if (refined.scrollAmount > 0) return refined;
     return raw;
   });
@@ -326,7 +353,7 @@ export function estimateShiftFramesRgba(
       priorAmounts.length > 0 &&
       priorAmounts.every((s) => Math.abs(s - representative) <= opts.outlierTau);
 
-    // リスト末端: 短い実測シフトは S* で補正せず raw/refined を採用（R3.5c-2）
+    // ?????: ???????? S* ????? raw/refined ????R3.5c-2?
     const coarseIsTerminalShortScroll =
       sessionStable &&
       representative > 0 &&
@@ -336,7 +363,7 @@ export function estimateShiftFramesRgba(
     let isTerminalShortScroll =
       isLast && coarseIsTerminalShortScroll;
 
-    // 最終ペア: terminal 経路のみ [0, MICRO_MAX) 微探索（G-HOF-S 135px 誤結合対策）
+    // ????: terminal ???? [0, MICRO_MAX) ????G-HOF-S 135px ??????
     if (isLast && coarseScrollAmount > 0 && coarseIsTerminalShortScroll) {
       const micro = searchBestShift(
         prev,

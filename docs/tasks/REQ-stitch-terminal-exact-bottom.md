@@ -3,9 +3,9 @@
 > 親文脈: [`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md) R3.5c-2（terminal 微探索 + NO_SCROLL skip）。
 > 本 REQ は **既存ガードの穴**（最終ペアが「短シフト」と判定されないまま S* を採用する経路）を塞ぐ。
 
-- **ステータス**: draft（設計レビュー中・コード未着手）
+- **ステータス**: done（実装完了・実機はユーザー）
 - **作成日**: 2026-07-11 17:31
-- **関連コミット**: （完了後に記入）
+- **関連コミット**: `9d5a61a`
 
 ---
 
@@ -176,10 +176,17 @@ Rust capture（ホイール → 差分で末端停止）
 ## 完了条件
 
 - [x] `docs/TODO.md` Backlog に起票と同時に1行追加（`draft` 起票時必須）
-- [ ] 案 A 実装（ユーザー承認後）
-- [ ] Vitest + `stitch:golden` 退行なし
-- [ ] 実機: びったし最下部で二重結合なし
-- [ ] REQ `done`・TODO 完了済み・INDEX 更新・コミット
+- [x] 案 A′ 実装（最終ペア短 raw の偽 refine 抑制）
+- [x] Vitest + `stitch:golden` 退行なし
+- [ ] 実機: びったし最下部で二重結合なし（**ユーザー実施**）
+- [x] REQ `done`・TODO 完了済み・INDEX 更新・コミット
+
+### 実機確認チェックリスト（ユーザー実施）
+
+1. 長スキルリスト（例: オグリキャップ）でスキル一覧を最下部までスクロールし、下端にびったし収まるタイミングでオートキャプチャ
+2. 結合画像の末尾スキル行が二重になっていないこと（目視 + OCR 長さ）
+3. DevTools で最終ペアログを確認: `method=skip` または `method=terminal`（短シフト）。`ssd-refined` で S\* 近傍（例: 167px）append されていないこと
+4. 回帰: G-HOF-S / G-TRN / FRD 末端で従来どおり結合できること
 
 ---
 
@@ -193,3 +200,5 @@ Rust capture（ホイール → 差分で末端停止）
 | 2026-07-11 17:31 | CONCEPT-MAP: `zero-shift skip` カード 1 件追加 | 会話用語（二次案でも有効） |
 | 2026-07-11 17:36 | DevTools: Frame7→8 raw=60→final=167 ssd-refined。S\*=192。167 が 0.85·S\* をわずかに超え terminal 未入 | ユーザー提供ログ |
 | 2026-07-11 17:36 | **推奨を案 A′ に変更**（最終ペアの短 raw は refine しない）。案 A は二次。初回案 A 単独承認は保留しユーザー確認 | ログが refine 破壊を直接示す |
+| 2026-07-11 18:04 | **案 A′ 実装完了**。最終ペア短 raw で (1) 閾値〜anchor 偽 refine 帯は raw 維持 (2) anchor〜anchor+τ の正当 refine は維持（FRD golden 退行回避）(3) その他短 raw は refine スキップ。Vitest 5/5・golden 29/29 PASS | FRD release 最終 raw=59→166 は正当 refine のため例外必要 |
+| 2026-07-11 18:04 | CONCEPT-MAP: 追記 0 件（`zero-shift skip` 既存カードで十分） | Phase 完了時検討 |

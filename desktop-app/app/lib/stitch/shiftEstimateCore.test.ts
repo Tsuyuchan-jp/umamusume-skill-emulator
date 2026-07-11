@@ -88,6 +88,14 @@ function buildSessionStrips(terminalShift: number, sessionPairs: number): RgbaIm
   return strips;
 }
 
+function buildCustomSessionStrips(shifts: number[]): RgbaImage[] {
+  const strips: RgbaImage[] = [makePatternStrip(STRIP_H)];
+  for (const shift of shifts) {
+    strips.push(shiftScrollRegion(strips[strips.length - 1]!, shift));
+  }
+  return strips;
+}
+
 describe("shiftEstimateCore terminal micro", () => {
   it("定数: MICRO_MAX=S_MIN、NO_SCROLL 域は S_MIN 未満", () => {
     expect(STITCH_SHIFT_TERMINAL_MICRO_MAX).toBe(STITCH_SHIFT_S_MIN);
@@ -135,5 +143,38 @@ describe("shiftEstimateCore terminal micro", () => {
     const last = result.frames[2]!;
     expect(last.method).toBe("terminal");
     expect(last.scrollAmount).toBe(TRN_TERMINAL);
+  });
+});
+
+describe("shiftEstimateCore terminal exact-bottom refine skip（案 A′）", () => {
+  it("最終ペアの短 raw は refine せず terminal 経路へ（修正前は raw=60→ssd-refined 232）", () => {
+    const TERMINAL_SHIFT = 60;
+    const shifts = [...Array(6).fill(SESSION_SHIFT), TERMINAL_SHIFT];
+    const strips = buildCustomSessionStrips(shifts);
+
+    for (let i = 0; i < 3; i++) {
+      const pair = estimatePairShiftRgba(strips[i]!, strips[i + 1]!);
+      expect(Math.abs(pair.scrollAmount - SESSION_SHIFT)).toBeLessThanOrEqual(2);
+    }
+
+    const lastRaw = estimatePairShiftRgba(
+      strips[strips.length - 2]!,
+      strips[strips.length - 1]!
+    );
+    expect(lastRaw.scrollAmount).toBe(TERMINAL_SHIFT);
+
+    const result = estimateShiftFramesRgba(strips);
+    expect(result.representative).toBe(SESSION_SHIFT);
+
+    const penult = result.frames[result.frames.length - 2]!;
+    expect(penult.method).toBe("ssd-refined");
+    expect(penult.scrollAmount).toBe(SESSION_SHIFT);
+    expect(penult.rawScrollAmount).toBeGreaterThan(SESSION_SHIFT);
+
+    const last = result.frames[result.frames.length - 1]!;
+    expect(last.method).toBe("terminal");
+    expect(last.scrollAmount).toBe(TERMINAL_SHIFT);
+    expect(last.method).not.toBe("ssd-refined");
+    expect(result.overlaps[result.overlaps.length - 1]).toBe(TERMINAL_SHIFT);
   });
 });
