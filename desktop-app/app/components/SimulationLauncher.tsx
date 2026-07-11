@@ -6,6 +6,7 @@ import {
   RACE_DETAIL_FETCH_FAILED_MESSAGE,
   SKILL_DATA_FALLBACK_TOAST_MESSAGE,
 } from "../lib/engine/simulationErrors";
+import type { TabArrivalKind } from "./TabBar";
 
 interface SimulationLauncherProps {
   simulationCount: number;
@@ -20,6 +21,7 @@ interface SimulationLauncherProps {
   tabs: SimTab[];
   setTabs: React.Dispatch<React.SetStateAction<SimTab[]>>;
   setActiveTabId: (id: string) => void;
+  onTabArrived: (tabId: string, kind: TabArrivalKind) => void;
   showToastMessage: (msg: string, type: 'success'|'error', time: number) => void;
 }
 
@@ -27,7 +29,7 @@ export function SimulationLauncher(props: SimulationLauncherProps) {
   const {
     simulationCount, setSimulationCount, isSimulating, setIsSimulating,
     simulationProgress, setSimulationProgress, umaData, raceCondition,
-    resultImage, tabs, setTabs, setActiveTabId, showToastMessage
+    resultImage, tabs, setTabs, setActiveTabId, onTabArrived, showToastMessage
   } = props;
 
   const firstSkillId = umaData?.skillIds?.[0];
@@ -80,6 +82,7 @@ export function SimulationLauncher(props: SimulationLauncherProps) {
       
       setTabs(prev => [...prev, newTab]);
       setActiveTabId(newTabId);
+      onTabArrived(newTabId, "sim");
 
       showToastMessage(`${simulationCount.toLocaleString()}回のシミュレーションが完了しました！`, 'success', 5000);
       const { getLastSkillDataMeta } = await import('../lib/engine/umaemuAdapter');

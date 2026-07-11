@@ -52,3 +52,85 @@ body {
   -webkit-user-select: none;
 }
 
+/* Tab Arrival（新タブ入場）Phase A */
+@keyframes tab-arrive-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes tab-arrive-ring-emerald {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.55);
+    opacity: 1;
+  }
+  100% {
+    box-shadow: 0 0 0 14px rgba(16, 185, 129, 0);
+    opacity: 0;
+  }
+}
+
+@keyframes tab-arrive-ring-amber {
+  0% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.5);
+    opacity: 1;
+  }
+  100% {
+    box-shadow: 0 0 0 14px rgba(245, 158, 11, 0);
+    opacity: 0;
+  }
+}
+
+@keyframes tab-arrive-underline {
+  0% {
+    height: 2px;
+    opacity: 1;
+    box-shadow: 0 0 8px rgba(52, 211, 153, 0.8);
+  }
+  35% {
+    height: 3px;
+    opacity: 1;
+    box-shadow: 0 0 14px rgba(52, 211, 153, 1);
+  }
+  100% {
+    height: 2px;
+    opacity: 1;
+    box-shadow: 0 0 8px rgba(52, 211, 153, 0.8);
+  }
+}
+
+@keyframes tab-arrive-badge-fade {
+  0%,
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.tab-arriving {
+  animation: tab-arrive-enter 0.6s ease-out both;
+}
+
+.tab-arrive-ring-emerald {
+  animation: tab-arrive-ring-emerald 0.6s ease-out forwards;
+}
+
+.tab-arrive-ring-amber {
+  animation: tab-arrive-ring-amber 0.6s ease-out forwards;
+}
+
+.tab-arrive-underline {
+  animation: tab-arrive-underline 0.6s ease-out both;
+}
+
+.tab-arrive-badge-new {
+  animation: tab-arrive-badge-fade 3s ease-out both;
+}
+

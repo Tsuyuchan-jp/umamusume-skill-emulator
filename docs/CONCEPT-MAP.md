@@ -5,7 +5,7 @@
 >
 > 入口: [`DOCS-GUIDE.md`](DOCS-GUIDE.md)
 
-最終更新: 2026-07-11 17:31
+最終更新: 2026-07-11 19:11
 
 ---
 
@@ -80,6 +80,12 @@ crop 内（上→下）
 | TODO | 進捗正本 | ファイル・ドキュメント | 次に何をするか | `docs/TODO.md` |
 | REQ | 作業チケット | ファイル・ドキュメント | 1作業のスコープ・完了条件 | `docs/tasks/REQ-*.md` |
 | SCENE-CATALOG | シーンカタログ | ファイル・ドキュメント | 画面バリエーション一覧 | `auto-capture-design-pack/SCENE-CATALOG.md` |
+
+### UI（Cockpit）
+
+| 英語 | 日本語 | 種別 | 一言 | どこで見る |
+|------|--------|------|------|-----------|
+| Tab Arrival | タブ到着 | 概念＋画面領域 | 新タブを TabBar 上で入場演出する（飛翔ではない） | `TabBar.tsx`・`onTabArrived` |
 
 ### オートキャプチャ結合 — 仕様層
 

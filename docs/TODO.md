@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-07-11 18:28
+最終更新: 2026-07-11 19:11
 
 ---
 
@@ -16,7 +16,7 @@
 
 ## 現在のフォーカス
 
-**細かい掃除キュー** — 1番完了。次は OCR Flash-Lite のみ（P2）
+**細かい掃除キュー** — 次は OCR Flash-Lite のみ（P2）
 
 ---
 
@@ -82,6 +82,11 @@
 
 ### P2 — 改善・アイデア
 
+- [ ] **Tab Arrival Phase B — ヘッダーフラッシュ + KPI ポップ**
+  - 前提: Phase A（TabBar 入場）済み。`onTabArrived(tabId, kind)` / `newlyArrivedTabId` を再利用
+  - 内容: ヘッダー帯（TabBar + レース情報行）の短い着地フラッシュ（約 300ms）。ResultCard ヒーロー KPI の軽い数値ポップ（scale + 短いカウントアップ。グラフ/Recharts は触らない）
+  - 触る想定: `page.tsx`, `ResultCard.tsx`（KPI のみ）。Phase A の TabBar 入場は維持
+
 - [x] **FRD アクティブタブ誤検出（StitchTab）— 4b / 6 実機 NG 要因**（コード修正済み・**Step 6 実機再 OK 待ち**）
   - 症状 A（4b register）: **スキルタブ選択中**なのに `detectStitchTabFromRgba`→**TrainingInfo**。`stitch.ts` 上書きで結合は OK
   - 症状 B（6 継承・G-FRD-F）: **継承タブ選択中**も同警告→`StitchTab=Skill`。**継承履歴緑バー以下が未カット**（`cropAtInheritanceHistoryBar` は `tab===Inheritance` のみ）
@@ -144,6 +149,7 @@
 
 ## 完了済み
 
+- [x] **Tab Arrival Phase A** — TabBar 新タブ入場（スケール/不透明度/リング/下線）・自動スクロール・NEW/コピーバッジ。`onTabArrived(tabId, kind)` 配線（2026-07-11 19:11）
 - [x] **タブ追加時のサムネイル飛翔アニメーション削除** — `flyingThumbnail` / `flyToTab` / `highlightedTabId` 除去、複製時トースト常時表示（2026-07-11 18:28 / `8f7dda8`）/ 関連 [`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)
 - [x] **オートキャプチャ結合: 最下部びったし到達時の二重結合** — 案 A′ 実装 + **実機検証クローズ**（Frame7→8 terminal micro skip coarse=60・二重なし。2026-07-11 18:16 / 実装 `24f624f`）/ [`REQ-stitch-terminal-exact-bottom.md`](tasks/REQ-stitch-terminal-exact-bottom.md) **done**
 - [x] **「実行時のステータス条件」ボタンをテキスト付き表記に変更** — トリガーラベル「ステータス条件」・秒数/バ身差トグルと高さ揃え（2026-07-11 17:19 / `0d86bbc`）

@@ -21,9 +21,12 @@ import { SimTabPanel } from "./SimTabPanel";
 import SimulationStatusView from "../components/SimulationStatusView";
 import { CapturePanel } from "../components/CapturePanel";
 import { SimulationLauncher } from "../components/SimulationLauncher";
-import { TabBar } from "../components/TabBar";
+import { TabBar, TabArrivalKind } from "../components/TabBar";
 import { RaceInfoLabel } from "../components/RaceInfoLabel";
 import { APP_VERSION_LABEL } from "../lib/version";
+
+/** NEW バッジ表示など到着演出の寿命（入場アニメ 600ms より長く保持） */
+const TAB_ARRIVAL_CLEAR_MS = 3000;
 
 
 export default function Home() {
@@ -63,7 +66,32 @@ export default function Home() {
   // 複数タブ管理用ステート
   const [tabs, setTabs] = useState<SimTab[]>([]);
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
-  
+  // Tab Arrival（新タブ到着）— Phase B のヘッダーフラッシュでも同じ state を参照できる
+  const [newlyArrivedTabId, setNewlyArrivedTabId] = useState<string | null>(null);
+  const [newlyArrivedKind, setNewlyArrivedKind] = useState<TabArrivalKind | null>(null);
+  const arrivalClearTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const onTabArrived = (tabId: string, kind: TabArrivalKind) => {
+    if (arrivalClearTimerRef.current) {
+      clearTimeout(arrivalClearTimerRef.current);
+    }
+    setNewlyArrivedTabId(tabId);
+    setNewlyArrivedKind(kind);
+    arrivalClearTimerRef.current = setTimeout(() => {
+      setNewlyArrivedTabId(null);
+      setNewlyArrivedKind(null);
+      arrivalClearTimerRef.current = null;
+    }, TAB_ARRIVAL_CLEAR_MS);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (arrivalClearTimerRef.current) {
+        clearTimeout(arrivalClearTimerRef.current);
+      }
+    };
+  }, []);
+
   const activeTab = tabs.find(t => t.id === activeTabId) || null;
   const [isPreviewExpanded, setIsPreviewExpanded] = useState<boolean>(true); // プレビューの開閉
   const [isSimulating, setIsSimulating] = useState<boolean>(false); // シミュレーション実行中
@@ -478,6 +506,7 @@ export default function Home() {
               tabs={tabs}
               setTabs={setTabs}
               setActiveTabId={setActiveTabId}
+              onTabArrived={onTabArrived}
               showToastMessage={showToastMessage}
             />
           </div>
@@ -508,6 +537,8 @@ export default function Home() {
                 setTabs={setTabs}
                 activeTabId={activeTabId}
                 setActiveTabId={setActiveTabId}
+                newlyArrivedTabId={newlyArrivedTabId}
+                newlyArrivedKind={newlyArrivedKind}
               />
 
               <div className="flex flex-wrap items-center gap-x-3 gap-y-2 min-w-0 mb-3">
@@ -611,6 +642,7 @@ export default function Home() {
                           setActiveTabId={setActiveTabId}
                           setIsSimulating={setIsSimulating}
                           setSimulationProgress={setSimulationProgress}
+                          onTabArrived={onTabArrived}
                           showToastMessage={showToastMessage}
                         />
                       </div>

@@ -10,6 +10,7 @@ import {
 } from "../lib/engine/simulationErrors";
 import { ResultCard } from "../components/ResultCard";
 import { SkillVerifier } from "../components/SkillVerifier";
+import type { TabArrivalKind } from "../components/TabBar";
 
 interface SimTabPanelProps {
   tab: SimTab;
@@ -22,6 +23,7 @@ interface SimTabPanelProps {
   setSimulationProgress: React.Dispatch<
     React.SetStateAction<{ current: number; total: number } | null>
   >;
+  onTabArrived: (tabId: string, kind: TabArrivalKind) => void;
   showToastMessage: (message: string, type: "success" | "error", duration: number) => void;
 }
 
@@ -34,6 +36,7 @@ export const SimTabPanel: React.FC<SimTabPanelProps> = ({
   setActiveTabId,
   setIsSimulating,
   setSimulationProgress,
+  onTabArrived,
   showToastMessage,
 }) => {
   const tabId = tab.id;
@@ -102,6 +105,7 @@ export const SimTabPanel: React.FC<SimTabPanelProps> = ({
 
               setTabs((prev) => [...prev, newTab]);
               setActiveTabId(newTab.id);
+              onTabArrived(newTab.id, "duplicate");
               showToastMessage("タブを複製しました", "success", 3000);
             }}
             addedSkillIds={tab.addedSkillIds || []}
