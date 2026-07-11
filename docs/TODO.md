@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-07-11 19:12
+最終更新: 2026-07-11 19:50
 
 ---
 
@@ -16,13 +16,13 @@
 
 ## 現在のフォーカス
 
-**細かい掃除キュー** — 次は OCR Flash-Lite のみ（P2）
+**長距離 sim エラー（中山3600m）** — P0 割り込み。OCR Flash-Lite より先
 
 ---
 
 ## 細かい掃除の着手順（当面）
 
-スキル獲得 OCR（P1 先頭）は棚上げ。長距離 sim は保留のまま。
+スキル獲得 OCR（P1 先頭）は棚上げ。**長距離 sim は進行中（P0）** — 完了後に掃除キュー再開。
 優先度ラベル（P1/P2）は変更せず、**いま進める順だけ**ここに書く。
 
 1. OCR を Flash-Lite のみに（P2）
@@ -34,11 +34,14 @@
 
 ## 進行中
 
-（なし）
+- [ ] **長距離レース（中山3600m）でエミュレートエラー** — P0 割り込み（再現 2026-07-11）
+  - 症状: スタミナ1442・スキル33・中山芝3600m・良・9人。逃げ/先行/差しは 100回ほぼ落ち、追込のみ100回通る。短中距離1000回OK。Worker error=`"null"`
+  - 方針: Step1 実エラー伝播 → Step2a エンジン再初期化 → 2b Worker再生成 → 2c 試行上限。WASMフォーク・部分成功集計なし
+  - 関連: [`REQ-long-distance-sim-error.md`](tasks/REQ-long-distance-sim-error.md)
 
 ## 次にやること（Backlog）
 
-優先度順（重要度）。当面は上記進行中バグを優先。掃除キューは割り込み解消後に再開（長距離 sim は保留中）。
+優先度順（重要度）。当面は上記進行中バグを優先。掃除キューは割り込み解消後に再開。
 
 - v1.1.0 リリースは完了（下記「完了済み」参照）
 
@@ -269,12 +272,6 @@
 
 ## 保留 / ブロック中
 
-- [ ] **長距離レース（中山3600m）でエミュレートエラー** — **再現待ち**（2026-07-11 保留。現時点では再現不可）
-  - 過去の実機情報: 育成完了個体→長距離成功 / 育成途中（スキル2/3程度）→中山3600mのみエラー / 短〜中距離は未再現
-  - 設計レビュー済み: 最有力は WASM 層（スタミナ不足×超長距離等）。`umaemuAdapter` が Worker 実エラーを捨てているため、再現時は DevTools の `Worker simulation error:` を取得してから着手
-  - 再開時: Ask mode でログ共有 → Agent で診断修正（エラー伝播）→ 最小修正。触る想定: `umaemuAdapter.ts` / `simulationErrors.ts` / `worker.js`（WASM フォークはしない）
-  - 期限感: 7月ウマ娘対人イベント（長距離舞台）前に再現次第対応
-
 - [ ] **R3.5d パートナー登録緑ボタン除外**（`6de25ad`）— **実機再検証待ち**（tauri dev 再起動 or release exe 後）
   - Scene Model M4/M6 と統合修正予定。暫定パッチの追加は `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)` パッチ禁止リストに従う
 
@@ -283,7 +280,7 @@
 ## 既知の問題・メモ
 
 - **最下部びったし二重結合（2026-07-11）**: **実機クローズ**（案 A′・terminal micro skip）。[`REQ-stitch-terminal-exact-bottom.md`](tasks/REQ-stitch-terminal-exact-bottom.md) done
-- **長距離 sim エラー（中山3600m）**: 保留中（2026-07-11）。再現時はコンソール `Worker simulation error:` + コース・スキル数・スタミナを記録してチャット再開
+- **長距離 sim エラー（中山3600m）**: **進行中**（2026-07-11 再現）。[`REQ-long-distance-sim-error.md`](tasks/REQ-long-distance-sim-error.md)
 - パレットのスキル一覧は `**umasimSkillDataList`（ローカル）正本** — `buildPaletteSkillOptions`。WASM sim は `fetchSkillData()`（GitHub 優先 → AppData → 同梱 `public/skill_data.txt`）
 - **オートキャプチャ Capture–Stitch 契約**: **広帯 -4 / 狭帯 -3**（`scrollRegionH` しきい値 280px）。**M5**: wheel は stitch（TS）正本・Rust IPC 受信。正本: `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)`「Capture–Stitch 契約」
 - **Scene Model ロードマップ**: `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)` 起票（M0 done）。Catalog: `[SCENE-CATALOG.md](../auto-capture-design-pack/SCENE-CATALOG.md)`。素材運用: `[PACK-GUIDE.md](../auto-capture-design-pack/PACK-GUIDE.md)`
