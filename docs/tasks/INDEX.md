@@ -91,7 +91,7 @@
 | [`REQ-auto-capture-multi-screen.md`](REQ-auto-capture-multi-screen.md) | done | 完了済み | Phase 1/1b/3 本線 done。Phase 2 は任意見送り |
 | [`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md) | done | 完了済み | R0–R5 完了（R5: `opencvStitcher.ts` 削除・`stitchImages` 一本化） |
 | [`REQ-stitch-scene-model.md`](REQ-stitch-scene-model.md) | in-progress | 進行中 **M1** | シーンモデル正本化ロードマップ。Catalog: `SCENE-CATALOG.md` |
-| [`REQ-stitch-terminal-exact-bottom.md`](REQ-stitch-terminal-exact-bottom.md) | done | 完了済み | 最下部びったし二重結合。案 A′ 実装完了・実機はユーザー |
+| [`REQ-stitch-terminal-exact-bottom.md`](REQ-stitch-terminal-exact-bottom.md) | done | 完了済み | 最下部びったし二重結合。案 A′ + 実機クローズ（2026-07-11） |
 
 ---
 

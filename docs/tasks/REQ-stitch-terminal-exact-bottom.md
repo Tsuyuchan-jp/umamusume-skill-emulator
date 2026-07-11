@@ -178,15 +178,15 @@ Rust capture（ホイール → 差分で末端停止）
 - [x] `docs/TODO.md` Backlog に起票と同時に1行追加（`draft` 起票時必須）
 - [x] 案 A′ 実装（最終ペア短 raw の偽 refine 抑制）
 - [x] Vitest + `stitch:golden` 退行なし
-- [ ] 実機: びったし最下部で二重結合なし（**ユーザー実施**）
+- [x] 実機: びったし最下部で二重結合なし（**ユーザー実施 OK・2026-07-11 18:16**）
 - [x] REQ `done`・TODO 完了済み・INDEX 更新・コミット
 
 ### 実機確認チェックリスト（ユーザー実施）
 
-1. 長スキルリスト（例: オグリキャップ）でスキル一覧を最下部までスクロールし、下端にびったし収まるタイミングでオートキャプチャ
-2. 結合画像の末尾スキル行が二重になっていないこと（目視 + OCR 長さ）
-3. DevTools で最終ペアログを確認: `method=skip` または `method=terminal`（短シフト）。`ssd-refined` で S\* 近傍（例: 167px）append されていないこと
-4. 回帰: G-HOF-S / G-TRN / FRD 末端で従来どおり結合できること
+1. [x] 長スキルリスト（オグリキャップ）で最下部びったしオートキャプチャ
+2. [x] 結合画像の末尾スキル行が二重でない（目視 OK）
+3. [x] DevTools: Frame 7→8 `terminal micro skip（coarse=60px）`。修正前の `raw=60→final=167 ssd-refined` は解消
+4. [ ] 回帰: G-HOF-S / G-TRN / FRD 末端（今回ログ対象外・必要なら別途）
 
 ---
 
@@ -202,3 +202,4 @@ Rust capture（ホイール → 差分で末端停止）
 | 2026-07-11 17:36 | **推奨を案 A′ に変更**（最終ペアの短 raw は refine しない）。案 A は二次。初回案 A 単独承認は保留しユーザー確認 | ログが refine 破壊を直接示す |
 | 2026-07-11 18:04 | **案 A′ 実装完了**。最終ペア短 raw で (1) 閾値〜anchor 偽 refine 帯は raw 維持 (2) anchor〜anchor+τ の正当 refine は維持（FRD golden 退行回避）(3) その他短 raw は refine スキップ。Vitest 5/5・golden 29/29 PASS | FRD release 最終 raw=59→166 は正当 refine のため例外必要 |
 | 2026-07-11 18:04 | CONCEPT-MAP: 追記 0 件（`zero-shift skip` 既存カードで十分） | Phase 完了時検討 |
+| 2026-07-11 18:16 | **実機クローズ**: S\*=192・Frame6→7 raw=300→192 refine 維持・Frame7→8 terminal micro skip（coarse=60）。二重なし | ユーザー提供ログ＋結合画像 |
