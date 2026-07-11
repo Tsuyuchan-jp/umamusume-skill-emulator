@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-07-11 16:59
+最終更新: 2026-07-11 17:06
 
 ---
 
@@ -25,11 +25,10 @@
 スキル獲得 OCR（P1 先頭）は棚上げ。長距離 sim は保留のまま。
 優先度ラベル（P1/P2）は変更せず、**いま進める順だけ**ここに書く。
 
-1. エラートーストの全文表示（P2）
-2. 「実行時のステータス条件」ボタンをテキスト付きに（P2）
-3. タブ追加時の飛翔アニメ削除（P2）
-4. OCR を Flash-Lite のみに（P2）
-5. OCR 解析の中止（P1）
+1. 「実行時のステータス条件」ボタンをテキスト付きに（P2）
+2. タブ追加時の飛翔アニメ削除（P2）
+3. OCR を Flash-Lite のみに（P2）
+4. OCR 解析の中止（P1）
 
 完了したらこのリストから消し、Backlog 本体も完了済みへ移す。
 
@@ -98,12 +97,6 @@
   - 触る想定: `SettingsPanel.tsx`, `useCapture.ts`, `page.tsx`（localStorage 設定）、必要なら `stitch.rs` / `capture.rs`（一時フレームの扱い・削除タイミング）
   - 注意: 保存先フォルダ設定との関係（非保存 ON 時は saveFolder を無視等）を UI で明示。実機検証必須
 
-- [ ] **エラートーストの全文表示**（truncate 解除）
-  - 症状: `ToastNotification` の message に `truncate` があり、長文が途中で切れる（実機: スキルデータフォールバック警告が「最新版…」までしか見えない）
-  - 目標: `type: error` のトーストは全文が読めるようにする（折り返し・複数行。`max-w` は維持可）
-  - 触る想定: `ToastNotification.tsx`（success は1行 truncate 維持でも可）
-  - 経緯: `[REQ-skill-data-fetch-fallback.md](tasks/REQ-skill-data-fetch-fallback.md)` 実機検証手順 2
-
 - [ ] **keep-alive タブのメモリ/描画負荷軽減**（将来 Fix）
   - 現状: sim 済みタブは unmount せず Recharts 等がタブ数分残る。1〜3 タブ運用では問題になりにくい
   - 目標: 非アクティブタブのグラフ/Recharts をアンマウントまたは lazy 化（5 タブ以上を想定した場合）
@@ -165,6 +158,7 @@
 
 ## 完了済み
 
+- [x] **エラートーストの全文表示** — `type: error` は折り返し・複数行表示、success は1行 truncate 維持（2026-07-11 17:06）
 - [x] **オートキャプチャ結合リライト R5** — `opencvStitcher.ts` 削除・`stitchImages` 一本化・`USE_STITCH_V2` 廃止。golden 29/29 PASS（2026-07-10 19:03 / `6c92354`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) **done**・親 REQ [`REQ-auto-capture-multi-screen.md`](tasks/REQ-auto-capture-multi-screen.md) **done**
 - [x] **G-FRD-I golden 登録** — expectations 8件目・Vitest 29/29 PASS・Catalog 同期（2026-06-28 03:34 / `4ad5dc1`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) R4b
 - [x] **オートキャプチャ結合リライト R4b**（TrainingInfo S-6 配線）— golden 25/25 PASS。**実機クローズ**: G-FRD-I（`StitchTab=TrainingInfo`）+ 退行ゲート全 OK（2026-06-28 03:16 / `b8963da`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) R4b

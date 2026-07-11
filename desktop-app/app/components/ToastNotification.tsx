@@ -28,8 +28,9 @@ export function ToastNotification({ show, type, message }: ToastNotificationProp
   const toast = (
     <div className="fixed bottom-8 left-1/2 z-[9999] -translate-x-1/2 pointer-events-none">
       <div
-        className={`pointer-events-auto flex items-center gap-3 px-5 py-3 rounded-2xl transition-all duration-300
+        className={`pointer-events-auto flex gap-3 px-5 py-3 rounded-2xl transition-all duration-300
           border shadow-lg ring-1 ring-inset ring-white/10
+          ${isError ? "items-start" : "items-center"}
           ${isError
             ? "border-rose-500/40 text-rose-400 shadow-rose-900/40"
             : "border-emerald-500/40 text-emerald-400 shadow-emerald-900/40"
@@ -39,12 +40,22 @@ export function ToastNotification({ show, type, message }: ToastNotificationProp
           backgroundColor: isError ? "rgba(24, 10, 14, 0.72)" : "rgba(10, 24, 18, 0.72)",
         }}
       >
-        {isError ? <AlertCircle className="w-5 h-5 shrink-0" /> : <Sparkles className="w-5 h-5 shrink-0" />}
+        {isError ? (
+          <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+        ) : (
+          <Sparkles className="w-5 h-5 shrink-0" />
+        )}
         <div className="flex flex-col min-w-0 max-w-[min(90vw,28rem)]">
           <span className={`text-[12px] font-bold font-sans tracking-wide ${isError ? "text-rose-300" : "text-zinc-200"}`}>
             {isError ? "ERROR" : "NOTIFICATION"}
           </span>
-          <span className="text-[11px] text-zinc-300/90 font-sans font-medium truncate">{message}</span>
+          <span
+            className={`text-[11px] text-zinc-300/90 font-sans font-medium ${
+              isError ? "whitespace-pre-wrap break-words" : "truncate"
+            }`}
+          >
+            {message}
+          </span>
         </div>
       </div>
     </div>
