@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-07-11 19:11
+最終更新: 2026-07-11 19:12
 
 ---
 
@@ -149,7 +149,7 @@
 
 ## 完了済み
 
-- [x] **Tab Arrival Phase A** — TabBar 新タブ入場（スケール/不透明度/リング/下線）・自動スクロール・NEW/コピーバッジ。`onTabArrived(tabId, kind)` 配線（2026-07-11 19:11）
+- [x] **Tab Arrival Phase A** — TabBar 新タブ入場（スケール/不透明度/リング/下線）・自動スクロール・NEW/コピーバッジ。`onTabArrived(tabId, kind)` 配線（2026-07-11 19:11 / `7e3acd8`）
 - [x] **タブ追加時のサムネイル飛翔アニメーション削除** — `flyingThumbnail` / `flyToTab` / `highlightedTabId` 除去、複製時トースト常時表示（2026-07-11 18:28 / `8f7dda8`）/ 関連 [`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)
 - [x] **オートキャプチャ結合: 最下部びったし到達時の二重結合** — 案 A′ 実装 + **実機検証クローズ**（Frame7→8 terminal micro skip coarse=60・二重なし。2026-07-11 18:16 / 実装 `24f624f`）/ [`REQ-stitch-terminal-exact-bottom.md`](tasks/REQ-stitch-terminal-exact-bottom.md) **done**
 - [x] **「実行時のステータス条件」ボタンをテキスト付き表記に変更** — トリガーラベル「ステータス条件」・秒数/バ身差トグルと高さ揃え（2026-07-11 17:19 / `0d86bbc`）
