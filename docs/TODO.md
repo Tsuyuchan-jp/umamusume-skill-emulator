@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-07-11 17:06
+最終更新: 2026-07-11 17:19
 
 ---
 
@@ -25,10 +25,9 @@
 スキル獲得 OCR（P1 先頭）は棚上げ。長距離 sim は保留のまま。
 優先度ラベル（P1/P2）は変更せず、**いま進める順だけ**ここに書く。
 
-1. 「実行時のステータス条件」ボタンをテキスト付きに（P2）
-2. タブ追加時の飛翔アニメ削除（P2）
-3. OCR を Flash-Lite のみに（P2）
-4. OCR 解析の中止（P1）
+1. タブ追加時の飛翔アニメ削除（P2）
+2. OCR を Flash-Lite のみに（P2）
+3. OCR 解析の中止（P1）
 
 完了したらこのリストから消し、Backlog 本体も完了済みへ移す。
 
@@ -133,11 +132,6 @@
   - 触る想定: 検証手順のみ（必要なら `SkillVerifier` / パレット方針は別判断）
   - 関連: `[REQ-race-detail-graph-phase3.md](tasks/REQ-race-detail-graph-phase3.md)` B-3
 
-- [ ] **「実行時のステータス条件」ボタンをテキスト付き表記に変更**
-  - 現状: `SimulationStatusView` が Activity アイコンのみ（スペース不足時の暫定 UI）
-  - 目標: Cockpit UI 整備で余白が確保されたため、「実行時のステータス条件」等のラベル付きボタンに変更
-  - 触る想定: `SimulationStatusView.tsx`, 必要なら `page.tsx` のツールバー行
-
 - [ ] **OCR 用 Gemini モデルを Flash-Lite のみに変更**
   - 現状: `geminiOcr.ts` で `gemini-3.5-flash` を primary、`gemini-3.1-flash-lite` を fallback として試行
   - 目標: `gemini-3.5-flash` を外し、最初から `gemini-3.1-flash-lite` のみ使用
@@ -158,6 +152,7 @@
 
 ## 完了済み
 
+- [x] **「実行時のステータス条件」ボタンをテキスト付き表記に変更** — トリガーラベル「ステータス条件」・秒数/バ身差トグルと高さ揃え（2026-07-11 17:19）
 - [x] **エラートーストの全文表示** — `type: error` は折り返し・複数行表示、success は1行 truncate 維持（2026-07-11 17:06 / `de990f6`）/ `[REQ-skill-data-fetch-fallback.md](tasks/REQ-skill-data-fetch-fallback.md)` 実機検証手順 2 関連
 - [x] **オートキャプチャ結合リライト R5** — `opencvStitcher.ts` 削除・`stitchImages` 一本化・`USE_STITCH_V2` 廃止。golden 29/29 PASS（2026-07-10 19:03 / `6c92354`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) **done**・親 REQ [`REQ-auto-capture-multi-screen.md`](tasks/REQ-auto-capture-multi-screen.md) **done**
 - [x] **G-FRD-I golden 登録** — expectations 8件目・Vitest 29/29 PASS・Catalog 同期（2026-06-28 03:34 / `4ad5dc1`）/ [`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md) R4b
