@@ -6,6 +6,13 @@ export const SKILL_DATA_FETCH_ERROR_MESSAGE =
 export const SIMULATION_WORKER_ERROR_MESSAGE =
   "シミュレーション処理中にエラーが発生しました。試行回数を減らすか、アプリを再起動してお試しください。";
 
+/**
+ * Worker が "null" / 空メッセージを返したとき（超長距離の連続実行で起きやすい）向け文言。
+ * 部分成功集計はせず、全滅時の理由説明に使う。
+ */
+export const SIMULATION_NULL_ERROR_MESSAGE =
+  "超長距離レースの連続シミュレーション中に内部エラーが発生しました。試行回数を減らすか、作戦を変更してお試しください。改善しない場合はアプリを再起動してください。";
+
 /** フォールバック使用時のトースト文言（sim 自体は成功） */
 export const SKILL_DATA_FALLBACK_TOAST_MESSAGE =
   "オンライン取得に失敗したため、保存済み／同梱のスキルデータで続行しました（最新版ではない可能性があります）。";
@@ -13,6 +20,13 @@ export const SKILL_DATA_FALLBACK_TOAST_MESSAGE =
 /** raceDetail 取得失敗時（sim 集計は成功）のトースト文言 */
 export const RACE_DETAIL_FETCH_FAILED_MESSAGE =
   "シミュレーションは完了しましたが、詳細グラフの取得に失敗しました。もう一度実行するか、結果の数値のみご確認ください。";
+
+/** "null" / 空など、長距離向け専用文言へ寄せるパターン */
+const NULLISH_ERROR_PATTERNS = [
+  /^null$/i,
+  /^undefined$/i,
+  /^\s*$/,
+];
 
 const INTERNAL_ERROR_PATTERNS = [
   /^null$/i,
@@ -57,9 +71,16 @@ export function isInternalSimulationErrorMessage(message: string): boolean {
   return !hasJapanese;
 }
 
+function isNullishSimulationMessage(message: string): boolean {
+  return NULLISH_ERROR_PATTERNS.some((p) => p.test(message.trim()));
+}
+
 /** reject / throw 用に Worker エラーを正規化する */
 export function toSimulationError(error: unknown): SimulationWorkerError {
   const message = extractErrorMessage(error);
+  if (isNullishSimulationMessage(message)) {
+    return new SimulationWorkerError(SIMULATION_NULL_ERROR_MESSAGE);
+  }
   if (message && !isInternalSimulationErrorMessage(message)) {
     return new SimulationWorkerError(message);
   }
@@ -76,6 +97,9 @@ export function formatSimulationErrorMessage(error: unknown): string {
   }
 
   const message = extractErrorMessage(error);
+  if (isNullishSimulationMessage(message)) {
+    return SIMULATION_NULL_ERROR_MESSAGE;
+  }
   if (message && !isInternalSimulationErrorMessage(message)) {
     return message;
   }
