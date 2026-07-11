@@ -174,7 +174,7 @@
 - [x] **Scene Model M1 Phase B** — `G-FRD-S` → `G-FRD-S-release`、`golden/FRD/skill/` → `skill-release/`、expectations・Vitest・Catalog 同期、golden 18/18 PASS（2026-06-27 05:30 / `a84d51f`）/ `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)`
 - [x] **Scene Model Catalog Phase A** — SCENE-CATALOG に goldenPath・expectations 列・対応表、欠落表吸収、NG サブケース整理、PACK-GUIDE 同期（2026-06-27 05:25 / `fa91f07`）/ `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)` M1 Phase A
 - [x] **design-pack 整理** — logs/screenshots 削除・Vitest 参照 PNG を golden/ へ統合・PACK-GUIDE 2層化（2026-06-27 05:12 / `23cac9f`）
-- [x] **ゲームアップデート後のスキルデータ更新（2026-07）** — Steam `master.mdb` 差し替え（2026-07-10）・umasim 2042件（+4）・v1.1.1 `app.exe` 再ビルド（2026-07-11 15:56 / `COMMIT_HASH`）
+- [x] **ゲームアップデート後のスキルデータ更新（2026-07）** — Steam `master.mdb` 差し替え（2026-07-10）・umasim 2042件（+4）・v1.1.1 `app.exe` 再ビルド（2026-07-11 15:56 / `5660ba2`）
 - [x] **v1.1.1 リリースビルド** — スキルデータ 2038件同梱・version bump・`app.exe` 更新（2026-06-30 03:51 / `650ab04`）
 - [x] **ゲームアップデート後のスキルデータ更新** — Steam `master.mdb` 差し替え（2026-06-29）・umasim 2038件（+17）・skillRarity 1833件（2026-06-30 03:39 / `0e84324`）
 - [x] **design-pack P0** — PACK-GUIDE 新設・README 案内板化・DOCS-GUIDE リンク（2026-06-27 04:48 / `11a6879`）/ `[PACK-GUIDE.md](../auto-capture-design-pack/PACK-GUIDE.md)`
