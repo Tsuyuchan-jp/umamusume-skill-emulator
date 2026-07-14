@@ -3,7 +3,7 @@
 > 親文脈: [`REQ-stitch-terminal-exact-bottom.md`](REQ-stitch-terminal-exact-bottom.md)（案 A′）・[`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md) R3.5c-2（terminal 微探索）。
 > 案 A′ は **短 raw** の偽 refine を塞ぐ。本 REQ は **非短 coarse（≈S*）** で SSD が誤ピークを採用する穴を塞ぐ。
 
-- **ステータス**: done（実装完了・実機はユーザー）
+- **ステータス**: done（実装完了・**実機検証クローズ** 2026-07-14 10:03）
 - **作成日**: 2026-07-14 09:43
 - **関連コミット**: `f2a4c3e`
 
@@ -55,15 +55,15 @@
 
 - [x] 案 A2a 実装（raw/coarse 両方 ≥ 0.85·S* 時のみ）
 - [x] Vitest 7/7 + golden 29/29 PASS
-- [ ] 実機: ナリタトップロードで二重なし（ユーザー確認）
+- [x] 実機: ナリタトップロードで二重なし（**ユーザー実施 OK・2026-07-14 10:03**）
 - [x] REQ `done`・TODO 完了済み・INDEX 更新
 
 ### 実機確認チェックリスト（ユーザー実施）
 
-1. [ ] ナリタトップロード長スキルリストでオートキャプチャ
-2. [ ] 結合画像末尾が二重でない
-3. [ ] DevTools: Frame12→13 `terminal coarse re-probe（coarse=145px→final=??px）` または正当な terminal 短シフト
-4. [ ] 回帰: オグリびったし（案 A′）・G-FRD-S-release
+1. [x] ナリタトップロード長スキルリストでオートキャプチャ
+2. [x] 結合画像末尾が二重でない（目視 OK）
+3. [x] DevTools: Frame12→13 `terminal coarse re-probe（coarse=144px→final=38px）` score=0.987
+4. [ ] 回帰: オグリびったし（案 A′）・G-FRD-S-release（今回ログ対象外・必要なら別途）
 
 ---
 
@@ -74,3 +74,5 @@
 | 2026-07-14 09:43 | 設計レビュー: 案 A2a 承認。再探索上限 A2a `[0, 0.85·S*)` | ユーザー訂正: 末端は無移動ではなく小さい正当シフト |
 | 2026-07-14 09:43 | A2a 発火に raw ≥ 0.85·S* を追加 | G-FRD-S-release golden 退行（短 raw→166 refine） |
 | 2026-07-14 09:43 | **実装完了**。Vitest + golden PASS | 同一セッション実装 |
+| 2026-07-14 10:03 | **実機クローズ**: S*=143・Frame12→13 terminal coarse re-probe（coarse=144→final=38）・二重なし | ユーザー提供ログ＋結合画像 |
+| 2026-07-14 10:03 | CONCEPT-MAP: 追記 0 件（`terminal coarse re-probe` 既存カードで十分） | Phase 完了時検討 |
