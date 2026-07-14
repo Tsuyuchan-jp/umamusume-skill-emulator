@@ -5,7 +5,7 @@
 >
 > 入口: [`DOCS-GUIDE.md`](DOCS-GUIDE.md)
 
-最終更新: 2026-07-11 19:11
+最終更新: 2026-07-14 09:43
 
 ---
 
@@ -115,6 +115,7 @@ crop 内（上→下）
 | capture-wheel IPC | キャプチャ・結合 IPC | 概念＋データ項目 | frame0 プレビュー → TS wheel → Rust セッション固定 | `capture_frame0_preview`・`useCapture.ts` |
 | stitch rewrite | 結合リライト | 概念＋ファイル・ドキュメント | キャプチャ画像の縦結合パイプライン | `REQ-stitch-rewrite.md` |
 | zero-shift skip | 無移動スキップ | 概念＋識別子・定数 | 最終ペアでスクロール0と見て append しない（びったし末端の二重結合対策） | `shiftEstimateCore` / `REQ-stitch-terminal-exact-bottom.md` |
+| terminal coarse re-probe | 末端 coarse 再探索 | 概念＋識別子 | 最終ペアで coarse≈S* 誤採用時に `[0, 0.85·S*)` を再探索（案 A2a） | `shiftEstimateCore` / `REQ-stitch-terminal-coarse-reprobe.md` |
 | INV-1〜3 | 不変条件 | 概念＋識別子・定数 | 帯の幾何が矛盾したら棄却 | `REQ-stitch-scene-model.md` |
 
 ### 不変条件（INV）要約

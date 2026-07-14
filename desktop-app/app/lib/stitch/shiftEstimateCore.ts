@@ -252,6 +252,106 @@ function shouldTerminalMicroSkip(
   return microS <= STITCH_SHIFT_TERMINAL_NO_SCROLL_MAX;
 }
 
+/** 最終ペア微探索の上限（microOnly=false は A2a: [0, 0.85·S*)） */
+function terminalReprobeRangeMax(
+  representative: number,
+  terminalRatio: number,
+  microOnly: boolean
+): number {
+  if (microOnly) {
+    return STITCH_SHIFT_TERMINAL_MICRO_MAX - 1;
+  }
+  return Math.max(0, Math.floor(terminalRatio * representative) - 1);
+}
+
+type TerminalReprobeOutcome =
+  | { kind: "none" }
+  | { kind: "skip"; score: number }
+  | { kind: "terminal"; scrollAmount: number; score: number };
+
+/** 最終ペア: 短帯再探索（R3.5c-2 短 coarse / A2a 非短 coarse）— Vitest からも利用 */
+export function runTerminalReprobeForPair(
+  prev: RgbaImage,
+  curr: RgbaImage,
+  coarseAvgDiff: number,
+  representative: number,
+  microOnly: boolean,
+  coarseIsTerminalShortScroll: boolean,
+  options?: ShiftEstimateOptions
+): TerminalReprobeOutcome {
+  const opts = resolveOptions(options, prev.height);
+  return runTerminalReprobe(
+    prev,
+    curr,
+    coarseAvgDiff,
+    representative,
+    opts,
+    microOnly,
+    coarseIsTerminalShortScroll
+  );
+}
+
+function runTerminalReprobe(
+  prev: RgbaImage,
+  curr: RgbaImage,
+  coarseAvgDiff: number,
+  representative: number,
+  opts: ResolvedShiftOptions,
+  microOnly: boolean,
+  coarseIsTerminalShortScroll: boolean
+): TerminalReprobeOutcome {
+  const rangeMax = terminalReprobeRangeMax(
+    representative,
+    opts.terminalRatio,
+    microOnly
+  );
+  if (rangeMax < 0) return { kind: "none" };
+
+  const reprobe = searchBestShift(
+    prev,
+    curr,
+    microShiftOpts(opts),
+    0,
+    rangeMax
+  );
+  const reprobeS = reprobe.scrollAmount;
+  const reprobeAdopted = shouldAdoptMicroShift(reprobe.avgDiff, coarseAvgDiff);
+  if (!reprobeAdopted) return { kind: "none" };
+
+  if (microOnly) {
+    if (shouldTerminalMicroSkip(reprobeS, true, coarseIsTerminalShortScroll)) {
+      return { kind: "skip", score: reprobe.score };
+    }
+    if (
+      reprobeS >= STITCH_SHIFT_TERMINAL_NO_SCROLL_MAX + 1 &&
+      reprobeS < STITCH_SHIFT_TERMINAL_MICRO_MAX
+    ) {
+      return {
+        kind: "terminal",
+        scrollAmount: reprobeS,
+        score: reprobe.score,
+      };
+    }
+    return { kind: "none" };
+  }
+
+  // A2a: coarse ≥ 0.85·S* でも [0, 0.85·S*) を再探索
+  if (reprobeS <= STITCH_SHIFT_TERMINAL_NO_SCROLL_MAX) {
+    return { kind: "skip", score: reprobe.score };
+  }
+  if (
+    reprobeS >= STITCH_SHIFT_TERMINAL_NO_SCROLL_MAX + 1 &&
+    reprobeS <= rangeMax
+  ) {
+    return {
+      kind: "terminal",
+      scrollAmount: reprobeS,
+      score: reprobe.score,
+    };
+  }
+  return { kind: "none" };
+}
+
 /** ???????????? overlap ?????Step B + Step C? */
 export function estimateShiftFramesRgba(
   strips: RgbaImage[],
@@ -363,38 +463,46 @@ export function estimateShiftFramesRgba(
     let isTerminalShortScroll =
       isLast && coarseIsTerminalShortScroll;
 
-    // ????: terminal ???? [0, MICRO_MAX) ????G-HOF-S 135px ??????
-    if (isLast && coarseScrollAmount > 0 && coarseIsTerminalShortScroll) {
-      const micro = searchBestShift(
+    const coarseIsTerminalNonShortScroll =
+      sessionStable &&
+      representative > 0 &&
+      coarseScrollAmount > 0 &&
+      coarseScrollAmount >= opts.terminalRatio * representative &&
+      // 短 raw→正当 refine（FRD release 166px 等）は A2a 対象外
+      rawScrollAmount >= opts.terminalRatio * representative;
+
+    // 最終ペア短帯再探索: 短 coarse [0,MICRO) / A2a 非短 coarse [0,0.85·S*)
+    if (
+      isLast &&
+      coarseScrollAmount > 0 &&
+      (coarseIsTerminalShortScroll || coarseIsTerminalNonShortScroll)
+    ) {
+      const reprobe = runTerminalReprobe(
         prev,
         curr,
-        microShiftOpts(opts),
-        0,
-        STITCH_SHIFT_TERMINAL_MICRO_MAX - 1
+        coarseAvgDiff,
+        representative,
+        opts,
+        coarseIsTerminalShortScroll,
+        coarseIsTerminalShortScroll
       );
-      const microS = micro.scrollAmount;
-      const microAdopted = shouldAdoptMicroShift(micro.avgDiff, coarseAvgDiff);
 
-      if (microAdopted) {
-        if (
-          microS >= STITCH_SHIFT_TERMINAL_NO_SCROLL_MAX + 1 &&
-          microS < STITCH_SHIFT_TERMINAL_MICRO_MAX
-        ) {
-          scrollAmount = microS;
-          score = micro.score;
-          method = "terminal";
-          isTerminalShortScroll = true;
-        } else if (shouldTerminalMicroSkip(microS, true, coarseIsTerminalShortScroll)) {
-          frames.push({
-            index: i,
-            scrollAmount: 0,
-            score: micro.score,
-            method: "skip",
-            rawScrollAmount: coarseScrollAmount,
-          });
-          overlaps.push(0);
-          continue;
-        }
+      if (reprobe.kind === "skip") {
+        frames.push({
+          index: i,
+          scrollAmount: 0,
+          score: reprobe.score,
+          method: "skip",
+          rawScrollAmount: coarseScrollAmount,
+        });
+        overlaps.push(0);
+        continue;
+      }
+      if (reprobe.kind === "terminal") {
+        scrollAmount = reprobe.scrollAmount;
+        score = reprobe.score;
+        method = "terminal";
+        isTerminalShortScroll = true;
       }
     }
 

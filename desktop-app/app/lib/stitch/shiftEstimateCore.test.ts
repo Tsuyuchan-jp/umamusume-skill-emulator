@@ -9,6 +9,7 @@ import {
   overlapAvgDiff,
   estimatePairShiftRgba,
   estimateShiftFramesRgba,
+  runTerminalReprobeForPair,
 } from "./shiftEstimateCore";
 import type { RgbaImage } from "./rgba";
 
@@ -143,6 +144,50 @@ describe("shiftEstimateCore terminal micro", () => {
     const last = result.frames[2]!;
     expect(last.method).toBe("terminal");
     expect(last.scrollAmount).toBe(TRN_TERMINAL);
+  });
+});
+
+describe("shiftEstimateCore terminal coarse re-probe（案 A2a）", () => {
+  const NARROW_SESSION_SHIFT = 143;
+  /** 狭帯末端: わずかに残スクロール（非ゼロ） */
+  const NARROW_TERMINAL_SHIFT = 55;
+
+  it("最終ペア coarse≈S* でも短帯再探索で正当な小シフトを採用", () => {
+    const shifts = [...Array(11).fill(NARROW_SESSION_SHIFT), NARROW_TERMINAL_SHIFT];
+    const strips = buildCustomSessionStrips(shifts);
+    const prev = strips[strips.length - 2]!;
+    const curr = strips[strips.length - 1]!;
+    const wrongCoarse = NARROW_SESSION_SHIFT + 2;
+    const contentWidth = Math.floor(prev.width * STITCH_SHIFT_CONTENT_WIDTH_RATIO);
+    const coarseAvgDiff = overlapAvgDiff(prev, curr, wrongCoarse, contentWidth);
+
+    const reprobe = runTerminalReprobeForPair(
+      prev,
+      curr,
+      coarseAvgDiff,
+      NARROW_SESSION_SHIFT,
+      false,
+      false
+    );
+
+    expect(reprobe.kind).toBe("terminal");
+    if (reprobe.kind !== "terminal") return;
+    expect(reprobe.scrollAmount).toBe(NARROW_TERMINAL_SHIFT);
+    expect(reprobe.scrollAmount).toBeLessThan(
+      Math.floor(NARROW_SESSION_SHIFT * 0.85)
+    );
+  });
+
+  it("正当な最終フルノッチ（≈S*）は短帯で改善がなければ coarse 維持", () => {
+    const shifts = [...Array(5).fill(NARROW_SESSION_SHIFT), NARROW_SESSION_SHIFT];
+    const strips = buildCustomSessionStrips(shifts);
+
+    const result = estimateShiftFramesRgba(strips);
+    const last = result.frames[result.frames.length - 1]!;
+
+    expect(last.scrollAmount).toBe(NARROW_SESSION_SHIFT);
+    expect(["ssd", "ssd-refined"]).toContain(last.method);
+    expect(result.overlaps[result.overlaps.length - 1]).toBe(NARROW_SESSION_SHIFT);
   });
 });
 

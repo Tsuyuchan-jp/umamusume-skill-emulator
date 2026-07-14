@@ -117,9 +117,18 @@ export async function stitchImages(
       fm.rawScrollAmount !== undefined &&
       fm.rawScrollAmount !== fm.scrollAmount
     ) {
-      console.warn(
-        `Frame ${fm.index} -> ${fm.index + 1}: shift raw=${fm.rawScrollAmount}→final=${fm.scrollAmount} method=${fm.method} score=${fm.score.toFixed(3)}`
-      );
+      if (
+        fm.method === "terminal" &&
+        fm.rawScrollAmount >= fm.scrollAmount + 20
+      ) {
+        console.warn(
+          `Frame ${fm.index} -> ${fm.index + 1}: terminal coarse re-probe（coarse=${fm.rawScrollAmount}px→final=${fm.scrollAmount}px） score=${fm.score.toFixed(3)}`
+        );
+      } else {
+        console.warn(
+          `Frame ${fm.index} -> ${fm.index + 1}: shift raw=${fm.rawScrollAmount}→final=${fm.scrollAmount} method=${fm.method} score=${fm.score.toFixed(3)}`
+        );
+      }
     } else {
       console.log(
         `Frame ${fm.index} -> ${fm.index + 1}: score=${fm.score.toFixed(3)}, scrollAmount=${fm.scrollAmount}, method=${fm.method}`
