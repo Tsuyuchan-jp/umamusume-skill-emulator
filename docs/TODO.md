@@ -152,7 +152,7 @@
 
 ## 完了済み
 
-- [x] **オートキャプチャ結合: 最終ペア coarse≈S* 誤採用時の二重結合** — 案 A2a 実装（短帯 `[0, 0.85·S*)` 再探索・raw/coarse 両方 ≥ 0.85·S* 時のみ）。Vitest 7/7 + golden 29/29 PASS。**実機確認はユーザー** / [`REQ-stitch-terminal-coarse-reprobe.md`](tasks/REQ-stitch-terminal-coarse-reprobe.md) **done**
+- [x] **オートキャプチャ結合: 最終ペア coarse≈S* 誤採用時の二重結合** — 案 A2a 実装（短帯 `[0, 0.85·S*)` 再探索・raw/coarse 両方 ≥ 0.85·S* 時のみ）。Vitest 7/7 + golden 29/29 PASS。**実機確認はユーザー**（`f2a4c3e`）/ [`REQ-stitch-terminal-coarse-reprobe.md`](tasks/REQ-stitch-terminal-coarse-reprobe.md) **done**
 - [x] **Tab Arrival Phase A** — TabBar 新タブ入場（スケール/不透明度/リング/下線）・自動スクロール・NEW/コピーバッジ。`onTabArrived(tabId, kind)` 配線（2026-07-11 19:11 / `7e3acd8`）
 - [x] **タブ追加時のサムネイル飛翔アニメーション削除** — `flyingThumbnail` / `flyToTab` / `highlightedTabId` 除去、複製時トースト常時表示（2026-07-11 18:28 / `8f7dda8`）/ 関連 [`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)
 - [x] **オートキャプチャ結合: 最下部びったし到達時の二重結合** — 案 A′ 実装 + **実機検証クローズ**（Frame7→8 terminal micro skip coarse=60・二重なし。2026-07-11 18:16 / 実装 `24f624f`）/ [`REQ-stitch-terminal-exact-bottom.md`](tasks/REQ-stitch-terminal-exact-bottom.md) **done**
