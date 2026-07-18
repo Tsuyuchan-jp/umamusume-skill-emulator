@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-07-14 10:03
+最終更新: 2026-07-18 21:24
 
 ---
 
@@ -16,13 +16,13 @@
 
 ## 現在のフォーカス
 
-**長距離 sim エラー（中山3600m）** — P0 割り込み。OCR Flash-Lite より先
+**長距離 sim エラー（中山3600m）** — P0。v1.2.0 リリース完了（2026-07-18）。次回バージョン優先
 
 ---
 
 ## 細かい掃除の着手順（当面）
 
-スキル獲得 OCR（P1 先頭）は棚上げ。**長距離 sim は進行中（P0）** — 完了後に掃除キュー再開。
+スキル獲得 OCR（P1 先頭）は棚上げ。**v1.2.0 リリース後**に長距離 sim（P0）を再開。
 優先度ラベル（P1/P2）は変更せず、**いま進める順だけ**ここに書く。
 
 1. OCR を Flash-Lite のみに（P2）
@@ -34,16 +34,20 @@
 
 ## 進行中
 
-- [ ] **長距離レース（中山3600m）でエミュレートエラー** — P0 割り込み（再現 2026-07-11）
-  - 症状: スタミナ1442・スキル33・中山芝3600m・良・9人。逃げ/先行/差しは 100回ほぼ落ち、追込のみ100回通る。短中距離1000回OK。Worker error=`"null"`
-  - 実装済み: Step1 実エラー伝播 + Timer finally。**Step2a/2b は実機NG・速度低下のため撤去**（2026-07-11）。次は Step2c 検討
-  - 関連: [`REQ-long-distance-sim-error.md`](tasks/REQ-long-distance-sim-error.md)
+（なし — 次は Backlog P0 長距離 sim）
 
 ## 次にやること（Backlog）
 
-優先度順（重要度）。当面は上記進行中バグを優先。掃除キューは割り込み解消後に再開。
+優先度順（重要度）。v1.2.0 リリース完了後は長距離 sim（P0）を再開。
 
-- v1.1.0 リリースは完了（下記「完了済み」参照）
+- v1.1.1 リリースは完了（下記「完了済み」参照）
+
+### P0 — 緊急（次回バージョン優先）
+
+- [ ] **長距離レース（中山3600m）でエミュレートエラー** — **v1.2.0 スコープ外・次回バージョンで対応**（再現 2026-07-11）
+  - 症状: スタミナ1442・スキル33・中山芝3600m・良・9人。逃げ/先行/差しは 100回ほぼ落ち、追込のみ100回通る。短中距離1000回OK。Worker error=`"null"`
+  - 実装済み: Step1 実エラー伝播 + Timer finally。**Step2a/2b は実機NG・速度低下のため撤去**（2026-07-11）。次は Step2c 検討
+  - 関連: [`REQ-long-distance-sim-error.md`](tasks/REQ-long-distance-sim-error.md)
 
 ### P1 — 重要
 
@@ -152,6 +156,7 @@
 
 ## 完了済み
 
+- [x] **v1.2.0 リリースビルド** — version 1.2.0 bump・CHANGELOG・`app.exe` 生成・62件テスト PASS（2026-07-18 21:24 / コミット後にハッシュ追記）/ [`REQ-release-v1.2.0.md`](tasks/REQ-release-v1.2.0.md) **done**
 - [x] **オートキャプチャ結合: 最終ペア coarse≈S* 誤採用時の二重結合** — 案 A2a 実装 + **実機検証クローズ**（Frame12→13 terminal coarse re-probe coarse=144→final=38・二重なし。2026-07-14 10:03 / 実装 `f2a4c3e`）/ [`REQ-stitch-terminal-coarse-reprobe.md`](tasks/REQ-stitch-terminal-coarse-reprobe.md) **done**
 - [x] **Tab Arrival Phase A** — TabBar 新タブ入場（スケール/不透明度/リング/下線）・自動スクロール・NEW/コピーバッジ。`onTabArrived(tabId, kind)` 配線（2026-07-11 19:11 / `7e3acd8`）
 - [x] **タブ追加時のサムネイル飛翔アニメーション削除** — `flyingThumbnail` / `flyToTab` / `highlightedTabId` 除去、複製時トースト常時表示（2026-07-11 18:28 / `8f7dda8`）/ 関連 [`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)
@@ -282,7 +287,7 @@
 
 - **最下部びったし二重結合（2026-07-11）**: **実機クローズ**（案 A′・terminal micro skip）。[`REQ-stitch-terminal-exact-bottom.md`](tasks/REQ-stitch-terminal-exact-bottom.md) done
 - **最終ペア coarse≈S* 二重結合（2026-07-14）**: **実機クローズ**（案 A2a・terminal coarse re-probe 144→38）。[`REQ-stitch-terminal-coarse-reprobe.md`](tasks/REQ-stitch-terminal-coarse-reprobe.md) done
-- **長距離 sim エラー（中山3600m）**: **進行中**（2026-07-11 再現）。[`REQ-long-distance-sim-error.md`](tasks/REQ-long-distance-sim-error.md)
+- **長距離 sim エラー（中山3600m）**: **Backlog P0**（v1.2.0 スコープ外・次回バージョン優先 / 2026-07-18）。[`REQ-long-distance-sim-error.md`](tasks/REQ-long-distance-sim-error.md)
 - パレットのスキル一覧は `**umasimSkillDataList`（ローカル）正本** — `buildPaletteSkillOptions`。WASM sim は `fetchSkillData()`（GitHub 優先 → AppData → 同梱 `public/skill_data.txt`）
 - **オートキャプチャ Capture–Stitch 契約**: **広帯 -4 / 狭帯 -3**（`scrollRegionH` しきい値 280px）。**M5**: wheel は stitch（TS）正本・Rust IPC 受信。正本: `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)`「Capture–Stitch 契約」
 - **Scene Model ロードマップ**: `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)` 起票（M0 done）。Catalog: `[SCENE-CATALOG.md](../auto-capture-design-pack/SCENE-CATALOG.md)`。素材運用: `[PACK-GUIDE.md](../auto-capture-design-pack/PACK-GUIDE.md)`
@@ -305,7 +310,8 @@
 - **別作業で発見（2026-06-11）**: サイドバー折りたたみボタンのスクロール追従、ステータス条件ボタンのテキスト化、グラフ/スキル表記以降のレスポンス低下 — いずれも Backlog 登録済み
 - **REQ 運用**: 着手候補の正本は **本 TODO**。全 REQ カタログは `[docs/tasks/INDEX.md](tasks/INDEX.md)`。`draft` REQ 起票時は Backlog へ必ず1行追加（`.cursor/rules/docs-management.mdc`）
 - **連続ホイール・overlay 復帰**: **実機検証クローズ**（2026-06-19）。handoff + adaptive idle（`ed67df3`）+ ホイール 1.3（`7e6af0d`）で停止後 latency・2 ノッチ目ひっかかりともに改善。詳細: `[REQ-race-detail-graph-overlay-handoff-latency.md](tasks/REQ-race-detail-graph-overlay-handoff-latency.md)`
-- **v1.1.0 リリース**: 作業正本 `[REQ-release-v1.1.0.md](tasks/REQ-release-v1.1.0.md)` — **2026-06-19 完了（R1/R2.5/R3）**
+- **v1.2.0 リリース**: 作業正本 [`REQ-release-v1.2.0.md`](tasks/REQ-release-v1.2.0.md) — **2026-07-18 完了**
+- **v1.1.0 リリース**: 作業正本 [`REQ-release-v1.1.0.md`](tasks/REQ-release-v1.1.0.md) — **2026-06-19 完了（R1/R2.5/R3）**
 - **配布**: インストーラーではなく `desktop-app/src-tauri/target/release/app.exe` を直接配布。リリース時は `[RELEASE_BUILD.md](RELEASE_BUILD.md)` の `npm run build:release-exe` を必須（2026-06-19 手順整備）
 - 因子管理 DB・Tesseract OCR・Supabase 連携は **開発予定なし**（`.cursor/rules/development.mdc`）
 
