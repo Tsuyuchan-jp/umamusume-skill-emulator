@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-07-18 21:24
+最終更新: 2026-07-18 23:09
 
 ---
 
@@ -79,6 +79,14 @@
   - 背景: `[REQ-skill-data-fetch-fallback.md](tasks/REQ-skill-data-fetch-fallback.md)` Phase 3 見送り。フォールバックトーストで代替済み
   - 目標: 「スキルデータ取得テスト」ボタン → 成功/失敗/使用ソースを日本語表示
   - 触る想定: `SettingsPanel.tsx`, `umaemuAdapter.ts`
+
+- [ ] **1走シミュレーション — 賢さ判定による不発動スキル表示**
+  - 背景: 実ゲームでは所持スキルがすべて発動するわけではなく、**賢さ**の数値判定で一部スキルが不発動になる。現状のグラフ（1走 `raceDetail`）は **発動した `skillEvents` のみ** 表示で、不発動スキルは見えない
+  - 目標: 本家 **umasim** が賢さ判定による不発動をどう扱っているかを調査した上、1走シミュレーション結果に **不発動スキル** を表記する（発動スキル帯と区別できる UI）
+  - 調査: umasim / WASM の `runSimulationDetail` 出力に不発動情報があるか、`activateLot` 等の既存フィールドとの対応、なければ Worker 拡張の要否
+  - 触る想定: `umaemuAdapter.ts`, `worker.js` / WASM（`SkillEventDump` 拡張の可能性）、`RaceDetailChart.tsx`, `raceGraphBuilder.ts`, `types.ts`
+  - 注意: **着手前に Ask mode で umasim 調査・UI 案を確定**。REQ 起票推奨（レース詳細グラフ Phase 3 系の拡張）
+  - 関連: [`REQ-race-detail-graph-phase3.md`](tasks/REQ-race-detail-graph-phase3.md) スキル帯・[`REQ-race-detail-graph-skill-tooltip.md`](tasks/REQ-race-detail-graph-skill-tooltip.md)
 
 - [ ] **Worker 大量試行時の断続失敗対策**（調査・別タスク）
   - 背景: ユーザーレポートで 1,000 回 sim の途中失敗など fetch 単独では説明しきれないパターンあり（`[REQ-skill-data-fetch-fallback.md](tasks/REQ-skill-data-fetch-fallback.md)` スコープ外）
