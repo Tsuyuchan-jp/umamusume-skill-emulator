@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-07-23 06:48
+最終更新: 2026-07-23 06:53
 
 ---
 
@@ -162,36 +162,19 @@
 
 ## 既知の問題・メモ
 
-- **最下部びったし二重結合（2026-07-11）**: **実機クローズ**（案 A′・terminal micro skip）。`[REQ-stitch-terminal-exact-bottom.md](tasks/REQ-stitch-terminal-exact-bottom.md)` done
-- **最終ペア coarse≈S* 二重結合（2026-07-14）**: **実機クローズ**（案 A2a・terminal coarse re-probe 144→38）。`[REQ-stitch-terminal-coarse-reprobe.md](tasks/REQ-stitch-terminal-coarse-reprobe.md)` done
-- **長距離 sim エラー（中山3600m）**: **実機クローズ**（失敗走スキップ・ヘッダー完走表示・スパート率枠高さ修正）。`[REQ-long-distance-sim-error.md](tasks/REQ-long-distance-sim-error.md)` done（2026-07-23）
+未解決・調査中・運用上の参照メモのみ。実機クローズ／解消済みのバグは載せない（完了済み・REQ・ARCHIVE を参照）。
+
 - **Tab Arrival（2026-07-23）**: Phase A（TabBar 入場）**実機検証クローズ**（`7e3acd8`）。旧 Phase B（ヘッダー+scale）は `49ec2f1` でロールバック済み。**KPI フラッシュ**は `e8e5acf` 実装→実機で表現不一致のため `f57d467` でロールバック。**見送り**（再着手時は Ask で方針再合意）
-- パレットのスキル一覧は `**umasimSkillDataList`（ローカル）正本** — `buildPaletteSkillOptions`。WASM sim は `fetchSkillData()`（GitHub 優先 → AppData → 同梱 `public/skill_data.txt`）
+- パレットのスキル一覧は **umasimSkillDataList**（ローカル）正本 — `buildPaletteSkillOptions`。WASM sim は `fetchSkillData()`（GitHub 優先 → AppData → 同梱 `public/skill_data.txt`）
 - **オートキャプチャ Capture–Stitch 契約**: **広帯 -4 / 狭帯 -3**（`scrollRegionH` しきい値 280px）。**M5**: wheel は stitch（TS）正本・Rust IPC 受信。正本: `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)`「Capture–Stitch 契約」
 - **Scene Model ロードマップ**: `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)` 起票（M0 done）。Catalog: `[SCENE-CATALOG.md](../auto-capture-design-pack/SCENE-CATALOG.md)`。素材運用: `[PACK-GUIDE.md](../auto-capture-design-pack/PACK-GUIDE.md)`
 - **stitch `layoutOpenCv.ts`**: 旧 `layout.ts` は Next.js 16 の `app/` 予約名衝突でリネーム（`0fac03e`）。正本は `layoutCore.ts`。ビルド失敗時は `[RELEASE_BUILD.md](RELEASE_BUILD.md)` トラブルシュート
-- **FRD StitchTab 誤検出**: **解消**（`4c6029e` 修正・M6c Step 6 実機 OK: `StitchTab=Inheritance`・継承履歴緑ライン Y=2778）
-- **オートキャプチャ結合 R3.5d**: **d-5 実機クローズ**（4a/4b/1/3/6 全 OK・HOF/TRN 退行なし）
-- **オートキャプチャ結合 R3.5b 完了**: layout L2 優先 + tabDetect 2タブガード。golden 17/17
 - **オートキャプチャ結合 R3.5 設計正本**: shiftEstimate（SSD + median）。詳細: `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)` R3.5 節
 - **sim スキルデータ**: オンライン時 GitHub fetch + AppData キャッシュ。オフライン時は同梱/キャッシュで制限付き動作（フォールバック時トースト）
-- **REQ-skill-data-fetch-fallback 実機検証**: **実機検証クローズ**（手順 1〜7 OK / 2026-07-23）。同梱フォールバック・fetch 全滅・Worker 文言区別・Launcher/SimTabPanel 回帰・raceDetail トースト確認済み
-- **将来（案B・Backlog）**: `skill_data.txt` を自前 GitHub に置き fetch 一本化 → extract→push でユーザー再配布を減らす方針。sim 定義と UI 一覧を同一 JSON に揃える
 - **新スキル時の現状**: 同梱 `umasimSkillData.ts` 利用箇所（P1 後のパレット/OCR）は **extract + アプリ再配布** が必要。WASM のみ mee1080/umasim fetch なら sim 定義はオンラインで追従しうるが、パレット/OCR は同梱更新まで新スキル非対応
-- `special`（14件）+ `minus`（1件）が `unique` 直後に並んでいたため、除外前は先頭がすべて白表示だった
 - Gemini API キーは Windows 資格情報マネージャー（`com.umamusume.race-analyzer` / `gemini_api_key`）に保存
-- サイドバー狭幅 UI（380px / min 320px）は Phase S1+S2 で完了（`[REQ-sidebar-compact-layout.md](tasks/REQ-sidebar-compact-layout.md)`）。S3 コンテナクエリは見送り。**設定折りたたみ**（3項目1トグル・`settingsPanelExpanded`・hydration 対策済み）は **実機検証クローズ**（2026-06-19 / `05fd9a6`）
-- 全画面 Cockpit UI（Phase 1〜3）は完了（`[REQ-fullscreen-cockpit-layout.md](tasks/REQ-fullscreen-cockpit-layout.md)`）
-- グラフ Y軸・m/s は `[REQ-race-detail-graph-axis.md](tasks/REQ-race-detail-graph-axis.md)` で対応済み
 - 直近レース詳細グラフ: ロードマップ `[REQ-race-detail-graph.md](tasks/REQ-race-detail-graph.md)`。**Phase 5 実装正本**は `[REQ-race-detail-graph-map-view.md](tasks/REQ-race-detail-graph-map-view.md)`（Google Map 型・等倍 XY + 2D パン）。旧 R2/R3 は superseded
 - 現代ウマ娘: 所持 50〜70+ スキル。グラフ `skillEvents` は発動イベント数（20〜40+ あり得る）
-- **別作業で発見（2026-06-11）**: サイドバー折りたたみボタンのスクロール追従、ステータス条件ボタンのテキスト化、グラフ/スキル表記以降のレスポンス低下 — いずれも Backlog 登録済み
-- **REQ 運用**: 着手候補の正本は **本 TODO**。全 REQ カタログは `[docs/tasks/INDEX.md](tasks/INDEX.md)`。`draft` REQ 起票時は Backlog へ必ず1行追加（`.cursor/rules/docs-management.mdc`）
-- **連続ホイール・overlay 復帰**: **実機検証クローズ**（2026-06-19）。handoff + adaptive idle（`ed67df3`）+ ホイール 1.3（`7e6af0d`）で停止後 latency・2 ノッチ目ひっかかりともに改善。詳細: `[REQ-race-detail-graph-overlay-handoff-latency.md](tasks/REQ-race-detail-graph-overlay-handoff-latency.md)`
-- **v1.2.0 リリース**: 作業正本 `[REQ-release-v1.2.0.md](tasks/REQ-release-v1.2.0.md)` — **2026-07-18 完了**
-- **v1.1.0 リリース**: 作業正本 `[REQ-release-v1.1.0.md](tasks/REQ-release-v1.1.0.md)` — **2026-06-19 完了（R1/R2.5/R3）**
-- **配布**: インストーラーではなく `desktop-app/src-tauri/target/release/app.exe` を直接配布。リリース時は `[RELEASE_BUILD.md](RELEASE_BUILD.md)` の `npm run build:release-exe` を必須（2026-06-19 手順整備）
-- 因子管理 DB・Tesseract OCR・Supabase 連携は **開発予定なし**（`.cursor/rules/development.mdc`）
 
 ---
 
@@ -205,7 +188,7 @@
 | **Backlog**    | 未着手タスク（優先度付き）               | 新タスク追加・着手時に行を移動       |
 | **完了済み**       | 完了タスク直近10件（コミットハッシュ付き）。古い分は ARCHIVE | **完了時**（必須）           |
 | **保留 / ブロック中** | 外部待ち・判断待ちで止まっている作業          | ブロック発生/解消時            |
-| **既知の問題・メモ**   | バグメモ・調査結果・運用メモ（タスク化前の情報）    | 発見時。タスク化したら Backlog へ |
+| **既知の問題・メモ**   | 未解決・運用参照メモ（クローズ済みバグは載せない） | 発見時。タスク化したら Backlog へ。クローズしたら削除 |
 
 
 ---
@@ -228,6 +211,7 @@
 6. REQ が `done` になったら Backlog から削除し「完了済み」へ移す（REQ ファイル自体は残す）
 7. REQ 20件超: `docs/tasks/INDEX.md` を新設して一覧管理（`.cursor/rules/docs-management.mdc` 参照）
 8. **完了済みの上限**: 直近 **10件** のみ `TODO.md` に残す。11件目以降は [`TODO-ARCHIVE.md`](TODO-ARCHIVE.md) へ追い出す（完了コミットと同一で可）
+9. **既知の問題・メモ**: 未解決・調査中・運用参照のみ載せる。実機クローズ／解消済みは追記しない。完了済みへ移したバグメモは削除する
 
 ### 着手の定義
 
