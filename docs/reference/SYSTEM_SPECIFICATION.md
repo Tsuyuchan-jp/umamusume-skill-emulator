@@ -4,7 +4,7 @@
 > 正本の進捗・要件は [`TODO.md`](../TODO.md)・[`PROJECT.md`](../PROJECT.md)・[`tasks/INDEX.md`](../tasks/INDEX.md) を参照。
 
 **バージョン**: [`desktop-app/package.json`](../../desktop-app/package.json) の `version` が正本（`app/lib/version.ts` → UI、`tauri.conf.json` → Tauri、`sync-version` → Cargo）。運用: [`RELEASE_BUILD.md`](../RELEASE_BUILD.md#バージョン管理)  
-**最終更新**: 2026-07-23 05:38（OCR 解析の中止を実装済みへ）
+**最終更新**: 2026-07-23 06:04（OCR 解析の中止・実機検証クローズ）
 
 ---
 
