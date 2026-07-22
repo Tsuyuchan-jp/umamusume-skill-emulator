@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-07-23 06:12
+最終更新: 2026-07-23 06:15
 
 ---
 
@@ -16,7 +16,7 @@
 
 ## 現在のフォーカス
 
-**OCR 用 Gemini を Flash-Lite のみに**（P2・細かい掃除）
+（なし — 細かい掃除の当面リストは完了。次は Backlog P1/P2 から選択）
 
 ---
 
@@ -25,7 +25,7 @@
 スキル獲得 OCR（P1 先頭）は棚上げ。長距離 sim（P0）完了済み。
 優先度ラベル（P1/P2）は変更せず、**いま進める順だけ**ここに書く。
 
-1. OCR を Flash-Lite のみに（P2）← **進行中**
+（なし）
 
 完了したらこのリストから消し、Backlog 本体も完了済みへ移す。
 
@@ -33,10 +33,7 @@
 
 ## 進行中
 
-- [ ] **OCR 用 Gemini モデルを Flash-Lite のみに変更**
-  - 現状: `geminiOcr.ts` で `gemini-3.5-flash` を primary、`gemini-3.1-flash-lite` を fallback として試行
-  - 目標: `gemini-3.5-flash` を外し、最初から `gemini-3.1-flash-lite` のみ使用（Auto-Fallback 削除）
-  - 触る想定: `app/lib/geminiOcr.ts`、`page.tsx`（完了トーストのモデル名除去）、`SYSTEM_SPECIFICATION.md`
+（なし）
 
 ## 次にやること（Backlog）
 
@@ -154,6 +151,7 @@
 
 ## 完了済み
 
+- [x] **OCR 用 Gemini モデルを Flash-Lite のみに変更** — `gemini-3.1-flash-lite` 単一化・Auto-Fallback 削除・完了 toast からモデル名除去。`npm test` 62件 PASS（2026-07-23 06:15 / `979fc13`）
 - [x] **OCR 解析の中止（停止）機能** — AbortController + fetch signal・CapturePanel「停止」・AbortError と API エラー区別・遅延結果破棄。`npm test` 62件 PASS。**実機検証クローズ**（中止→再実行・通常完了・本物エラーの3系統 OK / 2026-07-23 06:04 / `bac51e7`）/ [`REQ-ocr-cancel.md`](tasks/REQ-ocr-cancel.md) **done**
 - [x] **REQ-skill-data-fetch-fallback 実機検証クローズ** — 手順 3〜7 OK（同梱フォールバック・fetch 全滅・Worker 文言区別・Launcher/SimTabPanel 回帰・raceDetail トースト）。手順 1〜2 は 2026-06-25 確認済み（2026-07-23 04:52 / 実装 `a5c04a0`）/ `[REQ-skill-data-fetch-fallback.md](tasks/REQ-skill-data-fetch-fallback.md)` **done**
 - [x] **v1.3.0 リリースビルド** — version 1.3.0 bump・CHANGELOG（長距離 sim 失敗走スキップ＋完走数 UI）・`app.exe` 生成・62件テスト PASS（2026-07-23 04:04 / `d3ffb53`）
