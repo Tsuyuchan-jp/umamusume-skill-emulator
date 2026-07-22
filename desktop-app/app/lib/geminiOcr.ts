@@ -1,8 +1,7 @@
 import { UmaStatusData } from "./types";
 import { normalizeStatusData } from "./fuzzyMatcher";
 
-const MODEL_PRIMARY = "gemini-3.5-flash";
-const MODEL_FALLBACK = "gemini-3.1-flash-lite";
+const MODEL = "gemini-3.1-flash-lite";
 
 class ApiError extends Error {
   status: number;
@@ -18,12 +17,6 @@ function isAbortError(err: unknown): boolean {
   if (!err || typeof err !== "object") return false;
   const name = (err as { name?: string }).name;
   return name === "AbortError";
-}
-
-function throwIfAborted(signal?: AbortSignal): void {
-  if (signal?.aborted) {
-    throw new DOMException("The operation was aborted.", "AbortError");
-  }
 }
 
 const SYSTEM_INSTRUCTION = `あなたはゲーム「ウマ娘 プリティーダービー」の詳細ステータス画面の画像を解析するAIです。
@@ -130,11 +123,8 @@ export async function analyzeStitchedImage(
     }
   };
 
-  let modelUsed = MODEL_PRIMARY;
-  let responseData: any;
-
-  const callApi = async (model: string) => {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  const callApi = async () => {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`;
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -148,8 +138,9 @@ export async function analyzeStitchedImage(
     return res.json();
   };
 
+  let responseData: any;
   try {
-    responseData = await callApi(MODEL_PRIMARY);
+    responseData = await callApi();
   } catch (err: unknown) {
     // 中止は ApiError(429/503) 扱いにせず、そのまま再 throw
     if (isAbortError(err)) throw err;
@@ -158,24 +149,9 @@ export async function analyzeStitchedImage(
     const message = err instanceof Error ? err.message : String(err);
 
     if (status === 429 || status === 503) {
-      // primary 失敗後、fallback 前に中止済みなら打ち切る
-      throwIfAborted(signal);
-      console.warn(`[Auto-Fallback] ${MODEL_PRIMARY} is busy/limited. Switching to ${MODEL_FALLBACK}...`);
-      modelUsed = MODEL_FALLBACK;
-      try {
-        responseData = await callApi(MODEL_FALLBACK);
-      } catch (fallbackErr: unknown) {
-        if (isAbortError(fallbackErr)) throw fallbackErr;
-        const fbStatus = fallbackErr instanceof ApiError ? fallbackErr.status : 500;
-        const fbMessage = fallbackErr instanceof Error ? fallbackErr.message : String(fallbackErr);
-        if (fbStatus === 429 || fbStatus === 503) {
-          throw new Error(`Gemini APIの制限またはサーバー混雑に達しました。数秒〜数分待ってから再度お試しください。`);
-        }
-        throw new Error(`Gemini API Error (Fallback ${fbStatus}): ${fbMessage}`);
-      }
-    } else {
-      throw new Error(`Gemini API Error (${status}): ${message}`);
+      throw new Error(`Gemini APIの制限またはサーバー混雑に達しました。数秒〜数分待ってから再度お試しください。`);
     }
+    throw new Error(`Gemini API Error (${status}): ${message}`);
   }
 
   const jsonString = responseData.candidates?.[0]?.content?.parts?.[0]?.text;
@@ -196,6 +172,5 @@ export async function analyzeStitchedImage(
     }
   }
 
-  return { data: normalizeStatusData(rawData) as UmaStatusData, modelUsed };
+  return { data: normalizeStatusData(rawData) as UmaStatusData, modelUsed: MODEL };
 }
-

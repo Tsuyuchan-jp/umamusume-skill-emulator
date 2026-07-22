@@ -4,7 +4,7 @@
 > 正本の進捗・要件は [`TODO.md`](../TODO.md)・[`PROJECT.md`](../PROJECT.md)・[`tasks/INDEX.md`](../tasks/INDEX.md) を参照。
 
 **バージョン**: [`desktop-app/package.json`](../../desktop-app/package.json) の `version` が正本（`app/lib/version.ts` → UI、`tauri.conf.json` → Tauri、`sync-version` → Cargo）。運用: [`RELEASE_BUILD.md`](../RELEASE_BUILD.md#バージョン管理)  
-**最終更新**: 2026-07-23 06:04（OCR 解析の中止・実機検証クローズ）
+**最終更新**: 2026-07-23 06:12（OCR 用 Gemini を Flash-Lite のみに変更）
 
 ---
 
@@ -115,7 +115,7 @@ Steam版・DMM版「ウマ娘 プリティーダービー」向けの **Windows 
 
 | 統合先 | 実装ファイル | 用途 |
 |--------|-------------|------|
-| **Google Gemini API** | `app/lib/geminiOcr.ts` | 結合画像からステータス・スキル名を OCR。Primary: `gemini-3.5-flash`、Fallback: `gemini-3.1-flash-lite` |
+| **Google Gemini API** | `app/lib/geminiOcr.ts` | 結合画像からステータス・スキル名を OCR。モデル: `gemini-3.1-flash-lite` のみ（Auto-Fallback なし） |
 | **GitHub (mee1080/umasim)** | `umaemuAdapter.ts`, extract スクリプト | WASM 実行時の `skill_data.txt` fetch、スキルマスタ生成 |
 | **Windows Credential Manager** | `api_key.rs`, `apiKeyStorage.ts` | Service: `com.umamusume.race-analyzer` / `gemini_api_key` |
 | **OpenCV.js** | `opencvStitcher.ts`, `(main)/layout.tsx` | キャプチャフレームのテンプレートマッチング結合（CDN/同梱参照） |

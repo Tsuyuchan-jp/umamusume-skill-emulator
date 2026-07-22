@@ -254,7 +254,7 @@ export default function Home() {
         return;
       }
       setUmaData(res.data);
-      showToastMessage(`OCR解析が完了しました！(モデル: ${res.modelUsed})`, "success", 4000);
+      showToastMessage("OCR解析が完了しました！", "success", 4000);
     } catch (err: any) {
       if (err?.name === "AbortError" || controller.signal.aborted) {
         // 中止は error toast にしない。新しいセッションが既に始まっている場合は上書きしない

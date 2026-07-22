@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-07-23 06:04
+最終更新: 2026-07-23 06:12
 
 ---
 
@@ -16,7 +16,7 @@
 
 ## 現在のフォーカス
 
-**細かい掃除** — OCR 中止完了。次は OCR Flash-Lite のみ（P2）
+**OCR 用 Gemini を Flash-Lite のみに**（P2・細かい掃除）
 
 ---
 
@@ -25,7 +25,7 @@
 スキル獲得 OCR（P1 先頭）は棚上げ。長距離 sim（P0）完了済み。
 優先度ラベル（P1/P2）は変更せず、**いま進める順だけ**ここに書く。
 
-1. OCR を Flash-Lite のみに（P2）
+1. OCR を Flash-Lite のみに（P2）← **進行中**
 
 完了したらこのリストから消し、Backlog 本体も完了済みへ移す。
 
@@ -33,7 +33,10 @@
 
 ## 進行中
 
-（なし）
+- [ ] **OCR 用 Gemini モデルを Flash-Lite のみに変更**
+  - 現状: `geminiOcr.ts` で `gemini-3.5-flash` を primary、`gemini-3.1-flash-lite` を fallback として試行
+  - 目標: `gemini-3.5-flash` を外し、最初から `gemini-3.1-flash-lite` のみ使用（Auto-Fallback 削除）
+  - 触る想定: `app/lib/geminiOcr.ts`、`page.tsx`（完了トーストのモデル名除去）、`SYSTEM_SPECIFICATION.md`
 
 ## 次にやること（Backlog）
 
@@ -135,11 +138,6 @@
   - 目標: SkillVerifier で minus を手動追加する等、検証用データで `kind: debuff` の skillEvents を確認
   - 触る想定: 検証手順のみ（必要なら `SkillVerifier` / パレット方針は別判断）
   - 関連: `[REQ-race-detail-graph-phase3.md](tasks/REQ-race-detail-graph-phase3.md)` B-3
-
-- [ ] **OCR 用 Gemini モデルを Flash-Lite のみに変更**
-  - 現状: `geminiOcr.ts` で `gemini-3.5-flash` を primary、`gemini-3.1-flash-lite` を fallback として試行
-  - 目標: `gemini-3.5-flash` を外し、最初から `gemini-3.1-flash-lite` のみ使用
-  - 触る想定: `app/lib/geminiOcr.ts`、必要なら `page.tsx`（OCR 完了トーストのモデル表示）
 
 - [ ] **StatusPanel のスキル表示に色分けを追加**（任意）
   - 現状: スキル名のみ（`getSkillNameById`）
