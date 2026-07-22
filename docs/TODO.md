@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-07-23 02:58
+最終更新: 2026-07-23 03:03
 
 ---
 
@@ -81,6 +81,13 @@
   - 想定フロー: ファイル選択（Tauri ダイアログ or input）→ dataUrl 化 → `resultImage` / `captureStatus` を更新 → `analyzeStitchedImage`（既存と同経路）
   - 触る想定: `CapturePanel.tsx`, `page.tsx`（OCR 起動・プレビュー表示）、必要なら `useCapture.ts` または専用 hook、Tauri（ファイル読み込み・`dialog::open`）
   - 注意: 結合済み縦長画像を想定。キャプチャ未実施でも sim まで通せること。OCR 中止機能（別 Backlog）との整合
+
+- [ ] **OCR 後スキル数サマリー表示**（総数・金・進化）
+  - 目標: OCR 解析完了後・**シミュレーション前**に、所持スキルの **総数**・**金スキル（rare）数**・**進化スキル（evo）数** をカウントして表示
+  - 現状: `SkillPanel` / `StatusPanel` はスキル一覧はあるが、上記3指標のサマリーはない
+  - 算出: `umaData.skills` を `getSkillRarityInfoById`（`umasimSkillData.ts`）で分類して集計。手動編集後も再計算
+  - 触る想定: `SkillPanel.tsx` または `StatusPanel.tsx` / `CapturePanel.tsx`（OCR 直後の見える位置）、必要なら集計ヘルパー新設
+  - 注意: 金＝`rare`、進化＝`evo` の既存色分け定義に合わせる。固有（unique）・継承（inherit）は今回スコープ外（要望あれば追記）
 
 - [ ] **Settings スキルデータ接続チェック UI**（任意）
   - 背景: `[REQ-skill-data-fetch-fallback.md](tasks/REQ-skill-data-fetch-fallback.md)` Phase 3 見送り。フォールバックトーストで代替済み
