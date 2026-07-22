@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-07-23 04:52
+最終更新: 2026-07-23 05:35
 
 ---
 
@@ -16,7 +16,7 @@
 
 ## 現在のフォーカス
 
-**細かい掃除** — v1.3.0 リリース完了。次は OCR Flash-Lite のみ（P2）／OCR 解析の中止（P1）など
+**OCR 解析の中止（P1）** — AbortController + CapturePanel「停止」UI（[`REQ-ocr-cancel.md`](tasks/REQ-ocr-cancel.md)）
 
 ---
 
@@ -25,8 +25,8 @@
 スキル獲得 OCR（P1 先頭）は棚上げ。長距離 sim（P0）完了済み。
 優先度ラベル（P1/P2）は変更せず、**いま進める順だけ**ここに書く。
 
-1. OCR を Flash-Lite のみに（P2）
-2. OCR 解析の中止（P1）
+1. OCR 解析の中止（P1）← **いまここ**
+2. OCR を Flash-Lite のみに（P2）
 
 完了したらこのリストから消し、Backlog 本体も完了済みへ移す。
 
@@ -34,7 +34,11 @@
 
 ## 進行中
 
-（なし）
+- [ ] **OCR 解析の中止（停止）機能** — [`REQ-ocr-cancel.md`](tasks/REQ-ocr-cancel.md)
+  - 症状: Gemini OCR がエラーを返さず不自然に長時間かかることがある。現状は `page.tsx` で `analyzeStitchedImage` を await するだけで、ユーザーが途中で止められない
+  - 目標: 解析中に停止できる UI を追加し、中止後に再度 OCR を実行できるようにする
+  - 触る想定: `geminiOcr.ts`（`AbortController` / fetch 中断）、`page.tsx`（解析中 state・停止・トースト）、`CapturePanel.tsx`
+  - 注意: 停止後は「OCR解析中...」トーストの解除と `isOcrProcessing` のリセットが必要。中止後の遅延成功は破棄
 
 ## 次にやること（Backlog）
 
@@ -58,12 +62,6 @@
   - 触る想定: `geminiOcr.ts`（獲得画面用プロンプト/スキーマ）、`fuzzyMatcher.ts`, `umasimSkillData.ts` / `skillRarityData.ts`（コスト正本の要確認）、新 UI コンポーネント、必要なら `capture.rs` / `stitch`（獲得画面シーン）・`CapturePanel.tsx`
   - 注意: **着手前に Ask mode 設計レビュー必須**（ヒントレベル→コスト換算・切れ者ルール・DB 不足項目）。**REQ 起票必須**（着手時 `REQ-skill-point-planner.md` 等を draft 起票し同一コミットで本行にリンク）
   - 関連: オートキャプチャ複数画面（育成完了前後の獲得画面）— `[REQ-auto-capture-multi-screen.md](tasks/REQ-auto-capture-multi-screen.md)` Phase 2 経路と整合要検討
-
-- [ ] **OCR 解析の中止（停止）機能**
-  - 症状: Gemini OCR がエラーを返さず不自然に長時間かかることがある。現状は `page.tsx` で `analyzeStitchedImage` を await するだけで、ユーザーが途中で止められない
-  - 目標: 解析中に停止できる UI を追加し、中止後に再度 OCR を実行できるようにする
-  - 触る想定: `geminiOcr.ts`（`AbortController` / fetch 中断）、`page.tsx`（解析中 state・停止ボタン・トースト）、必要なら `CapturePanel.tsx`
-  - 注意: 停止後は「OCR解析中...」トーストの解除と `isAnalyzing` 相当 state のリセットが必要
 
 - [ ] **過去キャプチャ画像からステータス読み込み（ファイル OCR ルート）**
   - 現状: ステータス取得は **オートキャプチャ → 結合 → OCR** のみ。`analyzeStitchedImage` は `resultImage`（dataUrl）を受け取るが、外部画像ファイルを選ぶ UI がない
