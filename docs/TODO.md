@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（要点は下記「更新ルール」「エージェント必須手順」。詳細は [`DOCS-GUIDE.md`](DOCS-GUIDE.md)）。
 
-最終更新: 2026-07-23 08:25
+最終更新: 2026-07-23 08:34
 
 ---
 
@@ -24,7 +24,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 | 進行中 | P1 着手可能 | P1 棚上げ | P2 未着手 | 保留 |
 | --- | --- | --- | --- | --- |
-| 0 | 3 | 1 | 8 | 1 |
+| 0 | 4 | 1 | 8 | 1 |
 
 直近リリース: **v1.3.0**（2026-07-23）
 
@@ -43,6 +43,13 @@ Backlog・保留を変更したら件数を合わせて更新する。
 （なし）
 
 ### P1 — 重要
+
+- [ ] **シナリオ進化スキル（`scenario`）を赤スキル（`evo`）と同じ表示枠に**
+  - 背景: umasim の `rarity: "scenario"`（現行 47 件・ID `407xxx`〜`414xxx`）は、ゲームでは **シナリオ進化スキル**。クライアント上のアイコン色はウマ娘固有の進化スキル（赤）と **完全同一**。現状 `getSkillRarityInfoById` が未対応のため白扱いとなり、スキル数サマリーの「★進化」にも入らない（例: バリカタ、一丁上がり！／麺の極意、見つけたり）
+  - 目標: 一覧色分け・サマリー「進化」件数で `scenario` を `evo` と同じ赤枠にする（第三枠「シナリオ」は出さない方針候補）
+  - 触る想定: `umasimSkillData.ts`（`getSkillRarityInfoById`）、`skillSummary.ts` / テスト、SkillPanel / SkillVerifier / パレット表示経路
+  - 注意: **着手前に Ask mode 設計レビュー**（`SkillDisplayRarity` 型の扱い・データ上の `scenario` ラベル維持 vs UI だけ evo 寄せ・REQ 要否）。sim / WASM / OCR は触らない
+  - 調査メモ: 攻略サイトも種類「進化」。`evo` は9桁キャラ進化、`scenario` は6桁シナリオ限定。sim 精度にはレアリティ名は影響しない
 
 - [ ] **Settings スキルデータ接続チェック UI**（任意）
   - 背景: `[REQ-skill-data-fetch-fallback.md](tasks/REQ-skill-data-fetch-fallback.md)` Phase 3 見送り。フォールバックトーストで代替済み
