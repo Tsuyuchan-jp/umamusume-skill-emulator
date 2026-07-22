@@ -22,6 +22,7 @@ interface SimulationLauncherProps {
   setTabs: React.Dispatch<React.SetStateAction<SimTab[]>>;
   setActiveTabId: (id: string) => void;
   onTabArrived: (tabId: string, kind: TabArrivalKind) => void;
+  onKpiFlash: (tabId: string) => void;
   showToastMessage: (msg: string, type: 'success'|'error', time: number) => void;
 }
 
@@ -29,7 +30,7 @@ export function SimulationLauncher(props: SimulationLauncherProps) {
   const {
     simulationCount, setSimulationCount, isSimulating, setIsSimulating,
     simulationProgress, setSimulationProgress, umaData, raceCondition,
-    resultImage, tabs, setTabs, setActiveTabId, onTabArrived, showToastMessage
+    resultImage, tabs, setTabs, setActiveTabId, onTabArrived, onKpiFlash, showToastMessage
   } = props;
 
   const firstSkillId = umaData?.skillIds?.[0];
@@ -83,6 +84,7 @@ export function SimulationLauncher(props: SimulationLauncherProps) {
       setTabs(prev => [...prev, newTab]);
       setActiveTabId(newTabId);
       onTabArrived(newTabId, "sim");
+      onKpiFlash(newTabId);
 
       const completedCount = simResult.completedCount ?? simResult.iterations;
       const failedCount = simResult.failedCount ?? 0;

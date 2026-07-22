@@ -27,6 +27,8 @@ import { APP_VERSION_LABEL } from "../lib/version";
 
 /** NEW バッジ表示など到着演出の寿命（入場アニメ 600ms より長く保持） */
 const TAB_ARRIVAL_CLEAR_MS = 3000;
+/** ヒーロー KPI フラッシュの寿命 */
+const KPI_FLASH_CLEAR_MS = 300;
 
 
 export default function Home() {
@@ -66,10 +68,14 @@ export default function Home() {
   // 複数タブ管理用ステート
   const [tabs, setTabs] = useState<SimTab[]>([]);
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
-  // Tab Arrival（新タブ到着）— Phase B のヘッダーフラッシュでも同じ state を参照できる
+  // Tab Arrival（新タブ到着）— TabBar 入場演出（Phase A）
   const [newlyArrivedTabId, setNewlyArrivedTabId] = useState<string | null>(null);
   const [newlyArrivedKind, setNewlyArrivedKind] = useState<TabArrivalKind | null>(null);
   const arrivalClearTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // KPI フラッシュ（数値更新の合図）— Tab Arrival とは別シグナル
+  const [kpiFlashTabId, setKpiFlashTabId] = useState<string | null>(null);
+  const [kpiFlashNonce, setKpiFlashNonce] = useState(0);
+  const kpiFlashClearTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const onTabArrived = (tabId: string, kind: TabArrivalKind) => {
     if (arrivalClearTimerRef.current) {
@@ -84,10 +90,25 @@ export default function Home() {
     }, TAB_ARRIVAL_CLEAR_MS);
   };
 
+  const onKpiFlash = (tabId: string) => {
+    if (kpiFlashClearTimerRef.current) {
+      clearTimeout(kpiFlashClearTimerRef.current);
+    }
+    setKpiFlashTabId(tabId);
+    setKpiFlashNonce((n) => n + 1);
+    kpiFlashClearTimerRef.current = setTimeout(() => {
+      setKpiFlashTabId(null);
+      kpiFlashClearTimerRef.current = null;
+    }, KPI_FLASH_CLEAR_MS);
+  };
+
   useEffect(() => {
     return () => {
       if (arrivalClearTimerRef.current) {
         clearTimeout(arrivalClearTimerRef.current);
+      }
+      if (kpiFlashClearTimerRef.current) {
+        clearTimeout(kpiFlashClearTimerRef.current);
       }
     };
   }, []);
@@ -512,6 +533,7 @@ export default function Home() {
               setTabs={setTabs}
               setActiveTabId={setActiveTabId}
               onTabArrived={onTabArrived}
+              onKpiFlash={onKpiFlash}
               showToastMessage={showToastMessage}
             />
           </div>
@@ -660,6 +682,9 @@ export default function Home() {
                           setIsSimulating={setIsSimulating}
                           setSimulationProgress={setSimulationProgress}
                           onTabArrived={onTabArrived}
+                          onKpiFlash={onKpiFlash}
+                          kpiFlashTabId={kpiFlashTabId}
+                          kpiFlashNonce={kpiFlashNonce}
                           showToastMessage={showToastMessage}
                         />
                       </div>

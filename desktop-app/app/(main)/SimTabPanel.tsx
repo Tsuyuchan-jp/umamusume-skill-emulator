@@ -24,6 +24,9 @@ interface SimTabPanelProps {
     React.SetStateAction<{ current: number; total: number } | null>
   >;
   onTabArrived: (tabId: string, kind: TabArrivalKind) => void;
+  onKpiFlash: (tabId: string) => void;
+  kpiFlashTabId: string | null;
+  kpiFlashNonce: number;
   showToastMessage: (message: string, type: "success" | "error", duration: number) => void;
 }
 
@@ -37,9 +40,13 @@ export const SimTabPanel: React.FC<SimTabPanelProps> = ({
   setIsSimulating,
   setSimulationProgress,
   onTabArrived,
+  onKpiFlash,
+  kpiFlashTabId,
+  kpiFlashNonce,
   showToastMessage,
 }) => {
   const tabId = tab.id;
+  const isKpiFlashing = tab.id === kpiFlashTabId;
 
   if (!tab.simResultDump) return null;
 
@@ -47,6 +54,8 @@ export const SimTabPanel: React.FC<SimTabPanelProps> = ({
     <ResultCard
       result={tab.simResultDump}
       baseline={tab.baselineResult || undefined}
+      isKpiFlashing={isKpiFlashing}
+      kpiFlashNonce={kpiFlashNonce}
       graphCompareActive={
         tab.simResultDump !== tab.baselineResult &&
         ((tab.appliedDisabledSkillIds?.length ?? 0) > 0 ||
@@ -189,6 +198,7 @@ export const SimTabPanel: React.FC<SimTabPanelProps> = ({
                     return t;
                   })
                 );
+                onKpiFlash(tabId);
 
                 const completedCount = simResult.completedCount ?? simResult.iterations;
                 const failedCount = simResult.failedCount ?? 0;
