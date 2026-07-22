@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-07-23 04:34
+最終更新: 2026-07-23 04:24
 
 ---
 
@@ -16,7 +16,7 @@
 
 ## 現在のフォーカス
 
-**KPI フラッシュ** — ヒーロー KPI（最速・平均・最遅）の300msフラッシュ実装
+**細かい掃除** — v1.3.0 リリース完了。次は OCR Flash-Lite のみ（P2）／OCR 解析の中止（P1）など
 
 ---
 
@@ -34,8 +34,7 @@
 
 ## 進行中
 
-- [ ] **KPI フラッシュ** — ヒーロー KPI（最速・平均・最遅）のみ約300msフラッシュ。新規シミュ・比較検証完了時に発火。複製では出さない。`onKpiFlash` は Tab Arrival と分離
-  - 触る: `page.tsx`, `SimulationLauncher.tsx`, `SimTabPanel.tsx`, `ResultCard.tsx`, `globals.css`
+（なし）
 
 ## 次にやること（Backlog）
 
@@ -108,6 +107,12 @@
 （Phase 5 完了。上記ほか P1 候補は Backlog 追加時にここへ）
 
 ### P2 — 改善・アイデア
+
+- [ ] **Tab Arrival Phase B — ヘッダーフラッシュ + KPI ポップ**（**実装ロールバック済み**・再設計待ち）
+  - 前提: Phase A（TabBar 入場）済み・**実機検証クローズ**済み。`onTabArrived(tabId, kind)` / `newlyArrivedTabId` を再利用
+  - 内容: ヘッダー帯（TabBar + レース情報行）の短い着地フラッシュ（約 300ms）。ResultCard ヒーロー KPI の軽い数値ポップ（グラフ/Recharts は触らない）
+  - 経緯: `3a5ad46` 実装→実機確認でバグなしも表現が意図と不一致のため `49ec2f1` でロールバック（2026-07-23）
+  - 触る想定: `page.tsx`, `ResultCard.tsx`（KPI のみ）。Phase A の TabBar 入場は維持。**再着手前に Ask mode で表現方針を再合意**
 
 - [x] **FRD アクティブタブ誤検出（StitchTab）— 4b / 6 実機 NG 要因**（コード修正済み・**Step 6 実機再 OK 待ち**）
   - 症状 A（4b register）: **スキルタブ選択中**なのに `detectStitchTabFromRgba`→**TrainingInfo**。`stitch.ts` 上書きで結合は OK
@@ -305,7 +310,7 @@
 - **最下部びったし二重結合（2026-07-11）**: **実機クローズ**（案 A′・terminal micro skip）。[`REQ-stitch-terminal-exact-bottom.md`](tasks/REQ-stitch-terminal-exact-bottom.md) done
 - **最終ペア coarse≈S* 二重結合（2026-07-14）**: **実機クローズ**（案 A2a・terminal coarse re-probe 144→38）。[`REQ-stitch-terminal-coarse-reprobe.md`](tasks/REQ-stitch-terminal-coarse-reprobe.md) done
 - **長距離 sim エラー（中山3600m）**: **実機クローズ**（失敗走スキップ・ヘッダー完走表示・スパート率枠高さ修正）。[`REQ-long-distance-sim-error.md`](tasks/REQ-long-distance-sim-error.md) done（2026-07-23）
-- **Tab Arrival Phase B（2026-07-23）**: 旧案（ヘッダー+scale）はロールバック済み（`49ec2f1`）。**KPI フラッシュ専用**に再設計・実装（進行中）
+- **Tab Arrival Phase B（2026-07-23）**: 一度実装（`3a5ad46`）→実機でバグなしも表現が意図と不一致のためロールバック（`49ec2f1`）。Phase A のみ維持。再着手は Ask で表現方針を再合意してから
 - パレットのスキル一覧は `**umasimSkillDataList`（ローカル）正本** — `buildPaletteSkillOptions`。WASM sim は `fetchSkillData()`（GitHub 優先 → AppData → 同梱 `public/skill_data.txt`）
 - **オートキャプチャ Capture–Stitch 契約**: **広帯 -4 / 狭帯 -3**（`scrollRegionH` しきい値 280px）。**M5**: wheel は stitch（TS）正本・Rust IPC 受信。正本: `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)`「Capture–Stitch 契約」
 - **Scene Model ロードマップ**: `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)` 起票（M0 done）。Catalog: `[SCENE-CATALOG.md](../auto-capture-design-pack/SCENE-CATALOG.md)`。素材運用: `[PACK-GUIDE.md](../auto-capture-design-pack/PACK-GUIDE.md)`

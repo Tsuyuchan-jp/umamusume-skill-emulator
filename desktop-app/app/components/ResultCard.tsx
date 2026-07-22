@@ -10,9 +10,6 @@ interface ResultCardProps {
   baseline?: SimResultDump;
   /** 比較 sim 適用後のみ true（グラフ baseline 破線） */
   graphCompareActive?: boolean;
-  /** ヒーロー KPI フラッシュ（数値更新の合図） */
-  isKpiFlashing?: boolean;
-  kpiFlashNonce?: number;
   disabledSkillIds?: string[];
   displayUnit?: 'seconds' | 'lengths';
   umaData?: UmaStatusData;
@@ -36,8 +33,6 @@ export const ResultCard = React.memo<ResultCardProps>(function ResultCard({
   result,
   baseline,
   graphCompareActive = false,
-  isKpiFlashing = false,
-  kpiFlashNonce = 0,
   displayUnit = 'seconds',
   umaData,
   raceCondition,
@@ -101,17 +96,12 @@ export const ResultCard = React.memo<ResultCardProps>(function ResultCard({
     );
   };
 
-  const kpiFlashClass = isKpiFlashing ? "kpi-flash-emerald" : "";
-
   return (
     <div className="flex flex-col h-full min-h-0 gap-3">
       {/* 行1: ヒーロー KPI + スパートコンパクトチップ */}
       <div className="shrink-0 flex items-stretch gap-2 min-h-[52px]">
         <div className="flex flex-1 gap-2 min-w-0">
-          <div
-            key={isKpiFlashing ? `kpi-min-${kpiFlashNonce}` : "kpi-min"}
-            className={`flex-1 min-w-0 bg-zinc-900/80 border border-zinc-800 rounded-lg px-3 py-2 flex flex-col justify-center relative overflow-hidden ${kpiFlashClass}`}
-          >
+          <div className="flex-1 min-w-0 bg-zinc-900/80 border border-zinc-800 rounded-lg px-3 py-2 flex flex-col justify-center relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-0.5 bg-blue-500/50" />
             <span className="text-zinc-500 text-[10px] font-bold leading-none mb-1">最速</span>
             <div className="flex items-baseline min-w-0 gap-1">
@@ -121,10 +111,7 @@ export const ResultCard = React.memo<ResultCardProps>(function ResultCard({
               {baseline && renderDelta(all.minTime, baseline.summary.all.minTime, true)}
             </div>
           </div>
-          <div
-            key={isKpiFlashing ? `kpi-avg-${kpiFlashNonce}` : "kpi-avg"}
-            className={`flex-1 min-w-0 bg-zinc-900/80 border border-emerald-500/30 rounded-lg px-3 py-2 flex flex-col justify-center relative overflow-hidden ${kpiFlashClass}`}
-          >
+          <div className="flex-1 min-w-0 bg-zinc-900/80 border border-emerald-500/30 rounded-lg px-3 py-2 flex flex-col justify-center relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-0.5 bg-emerald-500" />
             <span className="text-emerald-400/80 text-[10px] font-bold leading-none mb-1">平均</span>
             <div className="flex items-baseline min-w-0 gap-1">
@@ -134,10 +121,7 @@ export const ResultCard = React.memo<ResultCardProps>(function ResultCard({
               {baseline && renderDelta(all.avgTime, baseline.summary.all.avgTime, true)}
             </div>
           </div>
-          <div
-            key={isKpiFlashing ? `kpi-max-${kpiFlashNonce}` : "kpi-max"}
-            className={`flex-1 min-w-0 bg-zinc-900/80 border border-zinc-800 rounded-lg px-3 py-2 flex flex-col justify-center relative overflow-hidden ${kpiFlashClass}`}
-          >
+          <div className="flex-1 min-w-0 bg-zinc-900/80 border border-zinc-800 rounded-lg px-3 py-2 flex flex-col justify-center relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-0.5 bg-orange-500/50" />
             <span className="text-zinc-500 text-[10px] font-bold leading-none mb-1">最遅</span>
             <div className="flex items-baseline min-w-0 gap-1">
