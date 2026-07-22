@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-07-18 23:09
+最終更新: 2026-07-23 02:58
 
 ---
 
@@ -74,6 +74,13 @@
   - 目標: 解析中に停止できる UI を追加し、中止後に再度 OCR を実行できるようにする
   - 触る想定: `geminiOcr.ts`（`AbortController` / fetch 中断）、`page.tsx`（解析中 state・停止ボタン・トースト）、必要なら `CapturePanel.tsx`
   - 注意: 停止後は「OCR解析中...」トーストの解除と `isAnalyzing` 相当 state のリセットが必要
+
+- [ ] **過去キャプチャ画像からステータス読み込み（ファイル OCR ルート）**
+  - 現状: ステータス取得は **オートキャプチャ → 結合 → OCR** のみ。`analyzeStitchedImage` は `resultImage`（dataUrl）を受け取るが、外部画像ファイルを選ぶ UI がない
+  - 目標: 「過去にキャプチャした画像からステータスを読み込む」機能を追加。画像ファイル（PNG 等）を選択して **既存 OCR 解析フロー** に進める
+  - 想定フロー: ファイル選択（Tauri ダイアログ or input）→ dataUrl 化 → `resultImage` / `captureStatus` を更新 → `analyzeStitchedImage`（既存と同経路）
+  - 触る想定: `CapturePanel.tsx`, `page.tsx`（OCR 起動・プレビュー表示）、必要なら `useCapture.ts` または専用 hook、Tauri（ファイル読み込み・`dialog::open`）
+  - 注意: 結合済み縦長画像を想定。キャプチャ未実施でも sim まで通せること。OCR 中止機能（別 Backlog）との整合
 
 - [ ] **Settings スキルデータ接続チェック UI**（任意）
   - 背景: `[REQ-skill-data-fetch-fallback.md](tasks/REQ-skill-data-fetch-fallback.md)` Phase 3 見送り。フォールバックトーストで代替済み
