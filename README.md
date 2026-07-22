@@ -49,7 +49,7 @@ umamusume-skill-emulator/
 ### OCR（Gemini API）
 
 - **Google Gemini API キーが必須**（アプリの設定画面から登録）
-- 使用モデル: `gemini-3.5-flash`（メイン）、失敗時 `gemini-3.1-flash-lite`（フォールバック）
+- 使用モデル: `gemini-3.1-flash-lite` のみ（Auto-Fallback なし）
 - API キーは **Windows 資格情報マネージャー** に保存される（`localStorage` には保存しない）
 
 ### ネットワーク

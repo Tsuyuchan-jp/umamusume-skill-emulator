@@ -6,7 +6,9 @@
 
 ## Unreleased
 
-（なし）
+### 改善
+
+- **OCR 用 Gemini モデル** — `gemini-3.1-flash-lite` のみに統一。`gemini-3.5-flash` への Auto-Fallback を廃止。OCR 完了トーストからモデル名表示を削除
 
 ---
 

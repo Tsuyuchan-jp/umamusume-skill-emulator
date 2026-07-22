@@ -4,7 +4,7 @@
 > 正本の進捗・要件は [`TODO.md`](../TODO.md)・[`PROJECT.md`](../PROJECT.md)・[`tasks/INDEX.md`](../tasks/INDEX.md) を参照。
 
 **バージョン**: [`desktop-app/package.json`](../../desktop-app/package.json) の `version` が正本（`app/lib/version.ts` → UI、`tauri.conf.json` → Tauri、`sync-version` → Cargo）。運用: [`RELEASE_BUILD.md`](../RELEASE_BUILD.md#バージョン管理)  
-**最終更新**: 2026-07-23 06:12（OCR 用 Gemini を Flash-Lite のみに変更）
+**最終更新**: 2026-07-23 06:18（OCR 用 Gemini Flash-Lite のみ・実機検証クローズ）
 
 ---
 
@@ -141,7 +141,7 @@ Steam版・DMM版「ウマ娘 プリティーダービー」向けの **Windows 
 
 ### 3.2 OCR・データ入力
 
-- Gemini API による結合画像の OCR（ステータス 5 種、適性、スキル名リスト等）
+- Gemini API による結合画像の OCR（ステータス 5 種、適性、スキル名リスト等）。モデルは `gemini-3.1-flash-lite` のみ（Auto-Fallback なし）
 - **OCR 解析の中止**（`AbortController` / `AbortSignal`）: 解析中に CapturePanel 同一ボタンで「停止」。中止後は再 OCR 可能。遅延成功結果は破棄
 - ファジーマッチングによる OCR スキル名 → umasim スキル ID 解決
 - 手動編集: `StatusPanel` / `SkillPanel` でステータス・スキル調整
