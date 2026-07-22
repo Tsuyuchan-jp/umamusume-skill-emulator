@@ -136,7 +136,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 直近10件のみ。それ以前は [`TODO-ARCHIVE.md`](TODO-ARCHIVE.md)。
 
-- [x] **過去キャプチャ画像からステータス読み込み（ファイル OCR ルート）** — 結合済み PNG/JPEG を選択→プレビュー→既存 OCR/Abort。ファイル由来は autoCopy・saveFolder 再保存なし。recording/OCR 中は「画像ファイルを開く」無効。差し替え時 `umaData` クリア漏れ修正込み。`npm test` 62件 PASS（2026-07-23 07:46 / `096d436`〜）/ [`REQ-file-ocr-status.md`](tasks/REQ-file-ocr-status.md) **done**
+- [x] **過去キャプチャ画像からステータス読み込み（ファイル OCR ルート）** — 結合済み PNG/JPEG を選択→プレビュー→既存 OCR/Abort。ファイル由来は autoCopy・saveFolder 再保存なし。recording/OCR 中は「画像ファイルを開く」無効。差し替え時 `umaData` クリア漏れ修正込み。`npm test` 62件 PASS（2026-07-23 07:46 / `096d436`〜`3cea248`）/ [`REQ-file-ocr-status.md`](tasks/REQ-file-ocr-status.md) **done**
 - [x] **TODO.md 改修（改善提案1〜7、提案4除く）** — ARCHIVE 分離・既知の問題掃除・P1 棚上げ分離・P0/ルール短縮・件数サマリー追加。388行→218行（2026-07-23 07:17 / `261cf95`〜`91157b9`）
 - [x] **OCR 用 Gemini モデルを Flash-Lite のみに変更** — `gemini-3.1-flash-lite` 単一化・Auto-Fallback 削除・完了 toast からモデル名除去。`npm test` 62件 PASS。**実機検証クローズ**（結合画像1枚で OCR 完了・ステータス/スキル反映・中止退行なし OK / 2026-07-23 06:18 / `979fc13`）
 - [x] **OCR 解析の中止（停止）機能** — AbortController + fetch signal・CapturePanel「停止」・AbortError と API エラー区別・遅延結果破棄。`npm test` 62件 PASS。**実機検証クローズ**（中止→再実行・通常完了・本物エラーの3系統 OK / 2026-07-23 06:04 / `bac51e7`）/ [`REQ-ocr-cancel.md`](tasks/REQ-ocr-cancel.md) **done**
