@@ -2,7 +2,7 @@
 
 > **TODO の代替ではない。** 次にやることの正本は [`docs/TODO.md`](../TODO.md)。
 > 本ファイルは `docs/tasks/REQ-*.md`（テンプレ除く）の **一覧・ステータス・辿りやすさ** を目的とする。
-> ステータスは各 REQ の `**ステータス**:` 行を正とする。最終更新: 2026-07-23 07:30
+> ステータスは各 REQ の `**ステータス**:` 行を正とする。最終更新: 2026-07-23 07:35
 
 ## 使い方
 
@@ -90,7 +90,7 @@
 
 | REQ | ステータス | TODO掲載 | 備考 |
 |-----|-----------|---------|------|
-| [`REQ-file-ocr-status.md`](REQ-file-ocr-status.md) | in-progress | 進行中 | 過去キャプチャ画像のファイル選択 → 既存 OCR。autoCopy/再保存なし |
+| [`REQ-file-ocr-status.md`](REQ-file-ocr-status.md) | done | 完了済み | 過去キャプチャ画像のファイル選択 → 既存 OCR。autoCopy/再保存なし（`528bce2`） |
 | [`REQ-ocr-cancel.md`](REQ-ocr-cancel.md) | done | 完了済み | AbortController + CapturePanel「停止」。**実機検証クローズ**（2026-07-23 06:04 / `bac51e7`） |
 | [`REQ-auto-capture-multi-screen.md`](REQ-auto-capture-multi-screen.md) | done | 完了済み | Phase 1/1b/3 本線 done。Phase 2 は任意見送り |
 | [`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md) | done | 完了済み | R0–R5 完了（R5: `opencvStitcher.ts` 削除・`stitchImages` 一本化） |
@@ -114,8 +114,8 @@
 | 項目 | 件数 |
 |------|------|
 | REQ 総数（テンプレ除く） | 36 |
-| done | 26 |
+| done | 27 |
 | draft | 4 |
-| in-progress | 4 |
+| in-progress | 3 |
 | superseded | 3 |
 | ロードマップ（親） | 1（`REQ-race-detail-graph.md`） |

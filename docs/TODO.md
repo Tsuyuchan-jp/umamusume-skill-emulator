@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（要点は下記「更新ルール」「エージェント必須手順」。詳細は [`DOCS-GUIDE.md`](DOCS-GUIDE.md)）。
 
-最終更新: 2026-07-23 07:30
+最終更新: 2026-07-23 07:35
 
 ---
 
@@ -16,7 +16,7 @@
 
 ## 現在のフォーカス
 
-過去キャプチャ画像からステータス読み込み（ファイル OCR ルート）— [`REQ-file-ocr-status.md`](tasks/REQ-file-ocr-status.md)
+（なし — 次は Backlog P1（着手可能）/ P2 から選択）
 
 ## サマリー（手更新）
 
@@ -24,7 +24,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 | 進行中 | P1 着手可能 | P1 棚上げ | P2 未着手 | 保留 |
 | --- | --- | --- | --- | --- |
-| 1 | 4 | 1 | 8 | 1 |
+| 0 | 4 | 1 | 8 | 1 |
 
 直近リリース: **v1.3.0**（2026-07-23）
 
@@ -32,9 +32,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 ## 進行中
 
-- [ ] **過去キャプチャ画像からステータス読み込み（ファイル OCR ルート）** — [`REQ-file-ocr-status.md`](tasks/REQ-file-ocr-status.md)
-  - 結合済み縦長画像を選択 → プレビュー → 既存 OCR / Abort → Status/Skill → sim（キャプチャ未実施でも可）
-  - ファイル由来では autoCopy・saveFolder 再保存なし。recording / OCR 中は「画像ファイルを開く」無効
+（なし）
 
 ## 次にやること（Backlog）
 
@@ -138,6 +136,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 直近10件のみ。それ以前は [`TODO-ARCHIVE.md`](TODO-ARCHIVE.md)。
 
+- [x] **過去キャプチャ画像からステータス読み込み（ファイル OCR ルート）** — 結合済み PNG/JPEG を選択→プレビュー→既存 OCR/Abort。ファイル由来は autoCopy・saveFolder 再保存なし。recording/OCR 中は「画像ファイルを開く」無効。`npm test` 62件 PASS（2026-07-23 07:35 / `096d436`〜`528bce2`）/ [`REQ-file-ocr-status.md`](tasks/REQ-file-ocr-status.md) **done**
 - [x] **TODO.md 改修（改善提案1〜7、提案4除く）** — ARCHIVE 分離・既知の問題掃除・P1 棚上げ分離・P0/ルール短縮・件数サマリー追加。388行→218行（2026-07-23 07:17 / `261cf95`〜`91157b9`）
 - [x] **OCR 用 Gemini モデルを Flash-Lite のみに変更** — `gemini-3.1-flash-lite` 単一化・Auto-Fallback 削除・完了 toast からモデル名除去。`npm test` 62件 PASS。**実機検証クローズ**（結合画像1枚で OCR 完了・ステータス/スキル反映・中止退行なし OK / 2026-07-23 06:18 / `979fc13`）
 - [x] **OCR 解析の中止（停止）機能** — AbortController + fetch signal・CapturePanel「停止」・AbortError と API エラー区別・遅延結果破棄。`npm test` 62件 PASS。**実機検証クローズ**（中止→再実行・通常完了・本物エラーの3系統 OK / 2026-07-23 06:04 / `bac51e7`）/ [`REQ-ocr-cancel.md`](tasks/REQ-ocr-cancel.md) **done**
@@ -147,7 +146,6 @@ Backlog・保留を変更したら件数を合わせて更新する。
 - [x] **v1.2.0 リリースビルド** — version 1.2.0 bump・CHANGELOG・`app.exe` 生成・62件テスト PASS（2026-07-18 21:24 / `58873a5`）/ `[REQ-release-v1.2.0.md](tasks/REQ-release-v1.2.0.md)` **done**
 - [x] **オートキャプチャ結合: 最終ペア coarse≈S* 誤採用時の二重結合** — 案 A2a 実装 + **実機検証クローズ**（Frame12→13 terminal coarse re-probe coarse=144→final=38・二重なし。2026-07-14 10:03 / 実装 `f2a4c3e`）/ `[REQ-stitch-terminal-coarse-reprobe.md](tasks/REQ-stitch-terminal-coarse-reprobe.md)` **done**
 - [x] **Tab Arrival Phase A** — TabBar 新タブ入場（スケール/不透明度/リング/下線）・自動スクロール・NEW/コピーバッジ。`onTabArrived(tabId, kind)` 配線。**実機検証クローズ**（2026-07-23 04:15 / 実装 `7e3acd8`）
-- [x] **タブ追加時のサムネイル飛翔アニメーション削除** — `flyingThumbnail` / `flyToTab` / `highlightedTabId` 除去、複製時トースト常時表示（2026-07-11 18:28 / `8f7dda8`）/ 関連 `[REQ-fullscreen-cockpit-layout.md](tasks/REQ-fullscreen-cockpit-layout.md)`
 
 ---
 

@@ -3,9 +3,9 @@
 > 結合済み縦長画像をファイル選択し、既存 OCR フローに乗せてキャプチャ未実施でもシミュレーションまで通す。
 > 設計レビューで Q1〜Q6・ボタン無効案1 承認済み。正本: 本 REQ + 完成プロンプト。
 
-- **ステータス**: in-progress
+- **ステータス**: done
 - **作成日**: 2026-07-23 07:30
-- **関連コミット**: （完了後に記入）
+- **関連コミット**: `096d436`（着手）〜 `528bce2`（実装）
 
 ---
 
@@ -117,21 +117,22 @@
 
 ## 完了条件
 
-- [ ] キャプチャなしでファイル→プレビュー→OCR→Status/Skill→sim まで通る
-- [ ] 既存オートキャプチャ→OCR 経路に退行なし（autoCopy 含む）
-- [ ] ファイル読込時に autoCopy・saveFolder 保存が走らない
-- [ ] ファイル OCR 中の「停止」（Abort）が既存と同様に動く
-- [ ] recording 中・OCR 中は「画像ファイルを開く」が無効
-- [ ] PNG/JPEG を選べる。ヒント文言あり
-- [ ] `docs/TODO.md` 着手・完了同期、`INDEX.md` 更新
-- [ ] `SYSTEM_SPECIFICATION.md` §3.2 追記
-- [ ] コミット（push なし）
+- [x] キャプチャなしでファイル→プレビュー→OCR→Status/Skill→sim まで通る（実装完了・実機はユーザー確認）
+- [x] 既存オートキャプチャ→OCR 経路に退行なし（autoCopy 含む）— ファイル由来フラグで分岐のみ
+- [x] ファイル読込時に autoCopy・saveFolder 保存が走らない
+- [x] ファイル OCR 中の「停止」（Abort）が既存と同様に動く — 同経路再利用
+- [x] recording 中・OCR 中は「画像ファイルを開く」が無効
+- [x] PNG/JPEG を選べる。ヒント文言あり
+- [x] `docs/TODO.md` 着手・完了同期、`INDEX.md` 更新
+- [x] `SYSTEM_SPECIFICATION.md` §3.2 追記
+- [x] コミット（push なし）
+- [x] `npm test`（desktop-app）62件 PASS（2026-07-23 07:34）
 
 ---
 
 ## 検証手順
 
-1. CHAT_TEMPLATE「検証コマンド（共通）」— `npm test`（desktop-app）。本変更では stitch:golden 必須ではない
+1. CHAT_TEMPLATE「検証コマンド（共通）」— `npm test`（desktop-app）。本変更では stitch:golden 必須ではない — **62 passed**（2026-07-23 07:34）
 2. 実機: 通常 OCR・中止・ファイル経路・キャプチャなし sim・autoCopy 退行・recording/OCR 中のボタン無効
 3. JPEG は1枚煙テスト可
 
@@ -143,3 +144,4 @@
 |------|---------|------|
 | 2026-07-23 07:30 | Q1 Tauri dialog / Q2 プレビューのみ手動 OCR / Q3 saved 相当＋ファイル由来で autoCopy 抑制 / Q4 PNG+JPEG・誤画像はヒント＋既存エラー / Q5 本 REQ 起票 / Q6 ファイル読込時はコピー・再保存しない / ボタン無効は案1 | 設計レビュー承認済み |
 | 2026-07-23 07:30 | CONCEPT-MAP: 今回の用語追加なし（既存カードで十分） | 入口追加のみで新ドメイン概念なし |
+| 2026-07-23 07:35 | 実装完了。`resultImageFromFile` で autoCopy 抑制。dataUrl は `convertFileSrc`→fetch。fs 権限拡大なし | 承認済み方針どおり |
