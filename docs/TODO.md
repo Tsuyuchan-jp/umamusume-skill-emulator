@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-07-23 06:53
+最終更新: 2026-07-23 06:59
 
 ---
 
@@ -16,7 +16,7 @@
 
 ## 現在のフォーカス
 
-（なし — 次は Backlog P1/P2 から選択）
+（なし — 次は Backlog P1（着手可能）/ P2 から選択）
 
 ---
 
@@ -33,17 +33,6 @@
 （なし — 長距離 sim は完了済みへ）
 
 ### P1 — 重要
-
-- [ ] **スキル獲得画面 OCR → 全習得スキルポイント算出**（大型新機能・**当面棚上げ**）
-  - 概要: スキル獲得画面をキャプチャし OCR で **獲得可能スキル** と **スキルのヒントレベル** を取得。スキル DB と突き合わせ、**全スキル習得に必要なスキルポイント** を算出する
-  - オプション（同一機能内）:
-    1. **チェックリスト** — 不要スキルを外した場合の必要ポイント再計算
-    2. **仮想スキル追加** — 画面に無いスキルを足した場合の必要ポイント再計算
-    3. **切れ者** — 切れ者付与時の必要ポイント再計算
-  - 想定フロー: キャプチャ（獲得画面）→ OCR → ファジーマッチでスキル ID 解決 → ヒントレベル + DB（コスト・前提）から合計 SP 算出 → UI で調整・再計算
-  - 触る想定: `geminiOcr.ts`（獲得画面用プロンプト/スキーマ）、`fuzzyMatcher.ts`, `umasimSkillData.ts` / `skillRarityData.ts`（コスト正本の要確認）、新 UI コンポーネント、必要なら `capture.rs` / `stitch`（獲得画面シーン）・`CapturePanel.tsx`
-  - 注意: **着手前に Ask mode 設計レビュー必須**（ヒントレベル→コスト換算・切れ者ルール・DB 不足項目）。**REQ 起票必須**（着手時 `REQ-skill-point-planner.md` 等を draft 起票し同一コミットで本行にリンク）
-  - 関連: オートキャプチャ複数画面（育成完了前後の獲得画面）— `[REQ-auto-capture-multi-screen.md](tasks/REQ-auto-capture-multi-screen.md)` Phase 2 経路と整合要検討
 
 - [ ] **過去キャプチャ画像からステータス読み込み（ファイル OCR ルート）**
   - 現状: ステータス取得は **オートキャプチャ → 結合 → OCR** のみ。`analyzeStitchedImage` は `resultImage`（dataUrl）を受け取るが、外部画像ファイルを選ぶ UI がない
@@ -79,14 +68,20 @@
 
 （Phase 5 完了。上記ほか P1 候補は Backlog 追加時にここへ）
 
-### P2 — 改善・アイデア
+### P1 — 棚上げ（着手見送り）
 
-- [x] **FRD アクティブタブ誤検出（StitchTab）— 4b / 6 実機 NG 要因**（コード修正済み・**Step 6 実機再 OK 待ち**）
-  - 症状 A（4b register）: **スキルタブ選択中**なのに `detectStitchTabFromRgba`→**TrainingInfo**。`stitch.ts` 上書きで結合は OK
-  - 症状 B（6 継承・G-FRD-F）: **継承タブ選択中**も同警告→`StitchTab=Skill`。**継承履歴緑バー以下が未カット**（`cropAtInheritanceHistoryBar` は `tab===Inheritance` のみ）
-  - 対応: `tabDetectCore` partner 配線・register 帯下端より下の再走査・緑比率スコア・右端弱優勢再判定。`stitch.ts` は partner 渡し（継承は検出側で維持）
-  - golden: `G-FRD-S-register` tab=Skill・`G-FRD-F` tab=Inheritance assert 追加（25/25 PASS）
-  - 関連: `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)` INV-2 拡張
+- [ ] **スキル獲得画面 OCR → 全習得スキルポイント算出**（大型新機能）
+  - 概要: スキル獲得画面をキャプチャし OCR で **獲得可能スキル** と **スキルのヒントレベル** を取得。スキル DB と突き合わせ、**全スキル習得に必要なスキルポイント** を算出する
+  - オプション（同一機能内）:
+    1. **チェックリスト** — 不要スキルを外した場合の必要ポイント再計算
+    2. **仮想スキル追加** — 画面に無いスキルを足した場合の必要ポイント再計算
+    3. **切れ者** — 切れ者付与時の必要ポイント再計算
+  - 想定フロー: キャプチャ（獲得画面）→ OCR → ファジーマッチでスキル ID 解決 → ヒントレベル + DB（コスト・前提）から合計 SP 算出 → UI で調整・再計算
+  - 触る想定: `geminiOcr.ts`（獲得画面用プロンプト/スキーマ）、`fuzzyMatcher.ts`, `umasimSkillData.ts` / `skillRarityData.ts`（コスト正本の要確認）、新 UI コンポーネント、必要なら `capture.rs` / `stitch`（獲得画面シーン）・`CapturePanel.tsx`
+  - 注意: **着手前に Ask mode 設計レビュー必須**（ヒントレベル→コスト換算・切れ者ルール・DB 不足項目）。**REQ 起票必須**（着手時 `REQ-skill-point-planner.md` 等を draft 起票し同一コミットで本行にリンク）
+  - 関連: オートキャプチャ複数画面（育成完了前後の獲得画面）— `[REQ-auto-capture-multi-screen.md](tasks/REQ-auto-capture-multi-screen.md)` Phase 2 経路と整合要検討
+
+### P2 — 改善・アイデア
 
 - [ ] **オートキャプチャ結合画像のディスク非保存オプション**
   - 現状: オートキャプチャ完了後 `useCapture` が OpenCV で結合し、`saveFolder` 指定時は Rust `save_stitched_image`、未指定時はブラウザダウンロードへ保存。Rust 側 `capture.rs` もフレーム PNG を一時ディレクトリに書き込み
