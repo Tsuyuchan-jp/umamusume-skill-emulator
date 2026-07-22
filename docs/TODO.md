@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-07-23 04:04
+最終更新: 2026-07-23 04:24
 
 ---
 
@@ -108,10 +108,11 @@
 
 ### P2 — 改善・アイデア
 
-- [ ] **Tab Arrival Phase B — ヘッダーフラッシュ + KPI ポップ**
-  - 前提: Phase A（TabBar 入場）済み。`onTabArrived(tabId, kind)` / `newlyArrivedTabId` を再利用
-  - 内容: ヘッダー帯（TabBar + レース情報行）の短い着地フラッシュ（約 300ms）。ResultCard ヒーロー KPI の軽い数値ポップ（scale + 短いカウントアップ。グラフ/Recharts は触らない）
-  - 触る想定: `page.tsx`, `ResultCard.tsx`（KPI のみ）。Phase A の TabBar 入場は維持
+- [ ] **Tab Arrival Phase B — ヘッダーフラッシュ + KPI ポップ**（**実装ロールバック済み**・再設計待ち）
+  - 前提: Phase A（TabBar 入場）済み・**実機検証クローズ**済み。`onTabArrived(tabId, kind)` / `newlyArrivedTabId` を再利用
+  - 内容: ヘッダー帯（TabBar + レース情報行）の短い着地フラッシュ（約 300ms）。ResultCard ヒーロー KPI の軽い数値ポップ（グラフ/Recharts は触らない）
+  - 経緯: `3a5ad46` 実装→実機確認でバグなしも表現が意図と不一致のため `49ec2f1` でロールバック（2026-07-23）
+  - 触る想定: `page.tsx`, `ResultCard.tsx`（KPI のみ）。Phase A の TabBar 入場は維持。**再着手前に Ask mode で表現方針を再合意**
 
 - [x] **FRD アクティブタブ誤検出（StitchTab）— 4b / 6 実機 NG 要因**（コード修正済み・**Step 6 実機再 OK 待ち**）
   - 症状 A（4b register）: **スキルタブ選択中**なのに `detectStitchTabFromRgba`→**TrainingInfo**。`stitch.ts` 上書きで結合は OK
@@ -179,7 +180,7 @@
 - [x] **長距離レース（中山3600m）でエミュレートエラー** — 失敗走スキップ＋完走数 UI（ヘッダー `n/N走`・rate 分母=成功回数・Step1 維持・Step2a/2b 再導入なし）。`npm test` 62件 PASS。**実機検証クローズ**（2026-07-23 03:58 / 実装 `cdd8f4d`〜`a138908`）/ [`REQ-long-distance-sim-error.md`](tasks/REQ-long-distance-sim-error.md) **done**
 - [x] **v1.2.0 リリースビルド** — version 1.2.0 bump・CHANGELOG・`app.exe` 生成・62件テスト PASS（2026-07-18 21:24 / `58873a5`）/ [`REQ-release-v1.2.0.md`](tasks/REQ-release-v1.2.0.md) **done**
 - [x] **オートキャプチャ結合: 最終ペア coarse≈S* 誤採用時の二重結合** — 案 A2a 実装 + **実機検証クローズ**（Frame12→13 terminal coarse re-probe coarse=144→final=38・二重なし。2026-07-14 10:03 / 実装 `f2a4c3e`）/ [`REQ-stitch-terminal-coarse-reprobe.md`](tasks/REQ-stitch-terminal-coarse-reprobe.md) **done**
-- [x] **Tab Arrival Phase A** — TabBar 新タブ入場（スケール/不透明度/リング/下線）・自動スクロール・NEW/コピーバッジ。`onTabArrived(tabId, kind)` 配線（2026-07-11 19:11 / `7e3acd8`）
+- [x] **Tab Arrival Phase A** — TabBar 新タブ入場（スケール/不透明度/リング/下線）・自動スクロール・NEW/コピーバッジ。`onTabArrived(tabId, kind)` 配線。**実機検証クローズ**（2026-07-23 04:15 / 実装 `7e3acd8`）
 - [x] **タブ追加時のサムネイル飛翔アニメーション削除** — `flyingThumbnail` / `flyToTab` / `highlightedTabId` 除去、複製時トースト常時表示（2026-07-11 18:28 / `8f7dda8`）/ 関連 [`REQ-fullscreen-cockpit-layout.md`](tasks/REQ-fullscreen-cockpit-layout.md)
 - [x] **オートキャプチャ結合: 最下部びったし到達時の二重結合** — 案 A′ 実装 + **実機検証クローズ**（Frame7→8 terminal micro skip coarse=60・二重なし。2026-07-11 18:16 / 実装 `24f624f`）/ [`REQ-stitch-terminal-exact-bottom.md`](tasks/REQ-stitch-terminal-exact-bottom.md) **done**
 - [x] **「実行時のステータス条件」ボタンをテキスト付き表記に変更** — トリガーラベル「ステータス条件」・秒数/バ身差トグルと高さ揃え（2026-07-11 17:19 / `0d86bbc`）
@@ -309,6 +310,7 @@
 - **最下部びったし二重結合（2026-07-11）**: **実機クローズ**（案 A′・terminal micro skip）。[`REQ-stitch-terminal-exact-bottom.md`](tasks/REQ-stitch-terminal-exact-bottom.md) done
 - **最終ペア coarse≈S* 二重結合（2026-07-14）**: **実機クローズ**（案 A2a・terminal coarse re-probe 144→38）。[`REQ-stitch-terminal-coarse-reprobe.md`](tasks/REQ-stitch-terminal-coarse-reprobe.md) done
 - **長距離 sim エラー（中山3600m）**: **実機クローズ**（失敗走スキップ・ヘッダー完走表示・スパート率枠高さ修正）。[`REQ-long-distance-sim-error.md`](tasks/REQ-long-distance-sim-error.md) done（2026-07-23）
+- **Tab Arrival Phase B（2026-07-23）**: 一度実装（`3a5ad46`）→実機でバグなしも表現が意図と不一致のためロールバック（`49ec2f1`）。Phase A のみ維持。再着手は Ask で表現方針を再合意してから
 - パレットのスキル一覧は `**umasimSkillDataList`（ローカル）正本** — `buildPaletteSkillOptions`。WASM sim は `fetchSkillData()`（GitHub 優先 → AppData → 同梱 `public/skill_data.txt`）
 - **オートキャプチャ Capture–Stitch 契約**: **広帯 -4 / 狭帯 -3**（`scrollRegionH` しきい値 280px）。**M5**: wheel は stitch（TS）正本・Rust IPC 受信。正本: `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)`「Capture–Stitch 契約」
 - **Scene Model ロードマップ**: `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)` 起票（M0 done）。Catalog: `[SCENE-CATALOG.md](../auto-capture-design-pack/SCENE-CATALOG.md)`。素材運用: `[PACK-GUIDE.md](../auto-capture-design-pack/PACK-GUIDE.md)`
