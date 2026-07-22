@@ -4,7 +4,7 @@
 > 正本の進捗・要件は [`TODO.md`](../TODO.md)・[`PROJECT.md`](../PROJECT.md)・[`tasks/INDEX.md`](../tasks/INDEX.md) を参照。
 
 **バージョン**: [`desktop-app/package.json`](../../desktop-app/package.json) の `version` が正本（`app/lib/version.ts` → UI、`tauri.conf.json` → Tauri、`sync-version` → Cargo）。運用: [`RELEASE_BUILD.md`](../RELEASE_BUILD.md#バージョン管理)  
-**最終更新**: 2026-07-23 08:25（所持スキル数サマリー表示・実機検証クローズ）
+**最終更新**: 2026-07-23 08:47（シナリオ進化スキル scenario→evo 表示・実機検証クローズ）
 
 ---
 
@@ -163,7 +163,7 @@ Steam版・DMM版「ウマ娘 プリティーダービー」向けの **Windows 
 - スキル ON/OFF（`disabledSkillIds`）と追加スキル（`addedSkillIds`）
 - スキルコマンドパレット（`SkillCommandPalette`）— 検索・追加
 - 通常固有スキルの先頭スロット制限（`canPlaceSkillAtIndex`）
-- レアリティ別色分け表示（unique / inherit / evo / rare / normal）。データ `scenario` は表示 `evo`（★・赤）に寄せる
+- レアリティ別色分け表示（unique / inherit / evo / rare / normal）。データ `scenario` は表示 `evo`（★・赤）に寄せる。**実機検証クローズ**（2026-07-23 08:47）
 - baseline タブとの比較（詳細グラフ diff オーバーレイ）
 
 ### 3.5 レース詳細グラフ（v1.1.0 の中核機能）
