@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-07-23 03:28
+最終更新: 2026-07-23 03:58
 
 ---
 
@@ -16,7 +16,7 @@
 
 ## 現在のフォーカス
 
-**細かい掃除** — 長距離 sim（P0）実装完了。次は OCR Flash-Lite のみ（P2）／OCR 解析の中止（P1）など
+**細かい掃除** — 長距離 sim（P0）実機検証クローズ済み。次は OCR Flash-Lite のみ（P2）／OCR 解析の中止（P1）など
 
 ---
 
@@ -175,7 +175,7 @@
 
 ## 完了済み
 
-- [x] **長距離レース（中山3600m）でエミュレートエラー** — 失敗走スキップ＋完走数 UI（Step1 維持・Step2a/2b 再導入なし）。`npm test` 62件 PASS（2026-07-23 03:26 / `cdd8f4d`）/ [`REQ-long-distance-sim-error.md`](tasks/REQ-long-distance-sim-error.md) **done**
+- [x] **長距離レース（中山3600m）でエミュレートエラー** — 失敗走スキップ＋完走数 UI（ヘッダー `n/N走`・rate 分母=成功回数・Step1 維持・Step2a/2b 再導入なし）。`npm test` 62件 PASS。**実機検証クローズ**（2026-07-23 03:58 / 実装 `cdd8f4d`〜`a138908`）/ [`REQ-long-distance-sim-error.md`](tasks/REQ-long-distance-sim-error.md) **done**
 - [x] **v1.2.0 リリースビルド** — version 1.2.0 bump・CHANGELOG・`app.exe` 生成・62件テスト PASS（2026-07-18 21:24 / `58873a5`）/ [`REQ-release-v1.2.0.md`](tasks/REQ-release-v1.2.0.md) **done**
 - [x] **オートキャプチャ結合: 最終ペア coarse≈S* 誤採用時の二重結合** — 案 A2a 実装 + **実機検証クローズ**（Frame12→13 terminal coarse re-probe coarse=144→final=38・二重なし。2026-07-14 10:03 / 実装 `f2a4c3e`）/ [`REQ-stitch-terminal-coarse-reprobe.md`](tasks/REQ-stitch-terminal-coarse-reprobe.md) **done**
 - [x] **Tab Arrival Phase A** — TabBar 新タブ入場（スケール/不透明度/リング/下線）・自動スクロール・NEW/コピーバッジ。`onTabArrived(tabId, kind)` 配線（2026-07-11 19:11 / `7e3acd8`）
@@ -307,7 +307,7 @@
 
 - **最下部びったし二重結合（2026-07-11）**: **実機クローズ**（案 A′・terminal micro skip）。[`REQ-stitch-terminal-exact-bottom.md`](tasks/REQ-stitch-terminal-exact-bottom.md) done
 - **最終ペア coarse≈S* 二重結合（2026-07-14）**: **実機クローズ**（案 A2a・terminal coarse re-probe 144→38）。[`REQ-stitch-terminal-coarse-reprobe.md`](tasks/REQ-stitch-terminal-coarse-reprobe.md) done
-- **長距離 sim エラー（中山3600m）**: **Backlog P0**（v1.2.0 スコープ外・次回バージョン優先 / 2026-07-18）。[`REQ-long-distance-sim-error.md`](tasks/REQ-long-distance-sim-error.md)
+- **長距離 sim エラー（中山3600m）**: **実機クローズ**（失敗走スキップ・ヘッダー完走表示・スパート率枠高さ修正）。[`REQ-long-distance-sim-error.md`](tasks/REQ-long-distance-sim-error.md) done（2026-07-23）
 - パレットのスキル一覧は `**umasimSkillDataList`（ローカル）正本** — `buildPaletteSkillOptions`。WASM sim は `fetchSkillData()`（GitHub 優先 → AppData → 同梱 `public/skill_data.txt`）
 - **オートキャプチャ Capture–Stitch 契約**: **広帯 -4 / 狭帯 -3**（`scrollRegionH` しきい値 280px）。**M5**: wheel は stitch（TS）正本・Rust IPC 受信。正本: `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)`「Capture–Stitch 契約」
 - **Scene Model ロードマップ**: `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)` 起票（M0 done）。Catalog: `[SCENE-CATALOG.md](../auto-capture-design-pack/SCENE-CATALOG.md)`。素材運用: `[PACK-GUIDE.md](../auto-capture-design-pack/PACK-GUIDE.md)`

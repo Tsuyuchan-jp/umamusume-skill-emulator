@@ -2,7 +2,7 @@
 
 > **TODO の代替ではない。** 次にやることの正本は [`docs/TODO.md`](../TODO.md)。
 > 本ファイルは `docs/tasks/REQ-*.md`（テンプレ除く）の **一覧・ステータス・辿りやすさ** を目的とする。
-> ステータスは各 REQ の `**ステータス**:` 行を正とする。最終更新: 2026-07-18 21:24
+> ステータスは各 REQ の `**ステータス**:` 行を正とする。最終更新: 2026-07-23 03:58
 
 ## 使い方
 
@@ -21,11 +21,11 @@
 
 | REQ | ステータス | TODO掲載 | 備考 |
 |-----|-----------|---------|------|
-| [`REQ-release-v1.2.0.md`](REQ-release-v1.2.0.md) | done | 完了済み | v1.2.0 リリース（2026-07-18）。長距離 sim は次回バージョン |
+| [`REQ-release-v1.2.0.md`](REQ-release-v1.2.0.md) | done | 完了済み | v1.2.0 リリース（2026-07-18）。長距離 sim は 2026-07-23 クローズ |
 | [`REQ-release-v1.1.0.md`](REQ-release-v1.1.0.md) | done | 完了済み | v1.1.0（R1/R2.5/R3）。配布: [`RELEASE_BUILD.md`](../RELEASE_BUILD.md) |
 | [`REQ-secure-api-key.md`](REQ-secure-api-key.md) | done | 完了済み | Gemini API キー → Windows 資格情報マネージャー |
 | [`REQ-skill-data-fetch-fallback.md`](REQ-skill-data-fetch-fallback.md) | done | 完了済み | fetch フォールバック・sim エラー区別・AppData キャッシュ |
-| [`REQ-long-distance-sim-error.md`](REQ-long-distance-sim-error.md) | done | 完了済み | 失敗走スキップ＋完走数 UI。Step1 維持・Step2a/2b 再導入なし |
+| [`REQ-long-distance-sim-error.md`](REQ-long-distance-sim-error.md) | done | 完了済み | 失敗走スキップ＋ヘッダー完走表示。**実機検証クローズ**（2026-07-23 / `a138908`） |
 
 ---
 

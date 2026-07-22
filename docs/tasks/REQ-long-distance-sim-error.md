@@ -5,7 +5,7 @@
 
 - **ステータス**: done
 - **作成日**: 2026-07-11 19:50
-- **関連コミット**: `cdd8f4d`（着手 `03d491f`）
+- **関連コミット**: `a138908`（実機クローズ。主実装 `cdd8f4d`、着手 `03d491f`）
 
 ---
 
@@ -43,7 +43,7 @@
    - `completedCount === 0` なら reject（ERROR トーストのみ・結果タブなし）
    - 成功 ≥1 なら従来どおり `raceDetail` 取得。失敗時は既存 `raceDetailFetchFailed` トースト
    - 比較検証（`SimTabPanel`）も同じスキップ方針（`runMultipleSimulations` 一本化）
-   - UI: 完了トースト分岐＋ ResultCard に「完走 completedCount / iterations」最小表示
+   - UI: 完了トースト分岐。完走数はヘッダー右（ステータス条件左）に `n/N走`、ツールチップ `シミュ完走〇走 失敗〇走`
 3. 各段階の結果を本 REQ 決定ログに記録
 4. 実機検証（逃げ×3600m×100 / 追込×100 / 短中距離1000 退行なし / 全滅時 ERROR のみ）
 
@@ -61,7 +61,7 @@
 
 ---
 
-## 触るファイル（予定）
+## 触るファイル（実装）
 
 | ファイル | 変更内容 |
 |---------|---------|
@@ -70,7 +70,8 @@
 | `desktop-app/app/lib/types.ts` | `SimResultDump` に `completedCount` / `failedCount` |
 | `desktop-app/app/lib/engine/simulationErrors.ts` | 全滅時 null 向け日本語維持・コメント更新 |
 | `desktop-app/app/lib/engine/simulationErrors.test.ts` | 文言・正規化テスト |
-| `SimulationLauncher.tsx` / `ResultCard.tsx` / `SimTabPanel.tsx` | 完走数トースト・最小表示 |
+| `SimulationLauncher.tsx` / `SimTabPanel.tsx` | 完走数トースト分岐 |
+| `RaceInfoLabel.tsx` / `page.tsx` / `ResultCard.tsx` | 〇走削除・ヘッダー完走表示・スパート下完走削除・枠高さ修正 |
 
 ---
 
@@ -97,18 +98,20 @@
 - [x] 連続失敗後に Timer already exists が出ない（`console.timeEnd` finally 維持）
 - [x] `npm test` 通過（62件）
 - [x] REQ 決定ログに「部分成功集計しない」撤回が残る
+- [x] **実機検証クローズ**（2026-07-23）
 - [x] REQ done・TODO 完了済み・コミット済み
 
 ---
 
 ## 検証手順
 
-1. CHAT_TEMPLATE「検証コマンド（共通）」の desktop-app 単体テスト
-2. 実機: 逃げ×中山3600×低スタミナ×100で完走数表示
-3. 実機: 追込×100・短中距離×1000の退行なし
-4. 実機: スタミナ3000×3600は失敗0
-5. 実機: 全滅時は ERROR のみ・タブなし
-6. 実機: 連続失敗後に DevTools で Timer already exists が出ないこと
+1. CHAT_TEMPLATE「検証コマンド（共通）」の desktop-app 単体テスト — **PASS（62件）**
+2. 実機: 逃げ×中山3600×低スタミナ×100で完走数表示 — **OK**
+3. 実機: 追込×100・短中距離×1000の退行なし — **OK**
+4. 実機: スタミナ3000×3600は失敗0 — **OK**
+5. 実機: 全滅時は ERROR のみ・タブなし — **OK**
+6. 実機: 連続失敗後に DevTools で Timer already exists が出ないこと — **OK**
+7. 実機: ヘッダー `n/N走`・ツールチップ・スパート率枠高さ — **OK**
 
 ---
 
@@ -128,3 +131,5 @@
 | 2026-07-23 03:26 | **実装完了**: Worker 走ごと try/catch・Adapter 成功分集計＋全滅 reject・UI 完走数表示。`npm test` 62件 PASS。CONCEPT-MAP: 今回の用語追加なし（既存カードで十分） | 完了条件充足。実機確認はユーザー側 |
 | 2026-07-23 03:32 | **rate 分母の訂正**: 指定回数（iterations）ではなく成功回数（completedCount）。Adapter の `rate` と ResultCard のスパート率のみ変更 | 指示誤り訂正。他箇所（完走数表示・トースト・全滅判定）は据え置き |
 | 2026-07-23 03:50 | **完走 UI 移設（案 A′）**: RaceInfoLabel の〇走削除。完走表示はヘッダー右（ステータス条件左）へ。文言は『n/N走』、ツールチップは『シミュ完走〇走 失敗〇走』。失敗0控えめ・失敗あり琥珀。ResultCard スパート下の完走表示は削除 | スパート率との混同回避・設計レビュー承認 |
+| 2026-07-23 03:55 | **スパート率枠の高さ修正**: ResultCard でスパートチップを行の直接子に戻し、タイム枠と同高に | 完走移設時のラッパー div で `items-stretch` が効かず縮んでいた |
+| 2026-07-23 03:58 | **実機検証クローズ・REQ 完了** — 完走表示・ツールチップ・スパート枠高さ・退行なし・全滅時 ERROR 等すべて OK。本 REQ をクローズ | ユーザー実機確認 |
