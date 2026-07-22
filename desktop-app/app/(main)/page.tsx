@@ -413,15 +413,15 @@ export default function Home() {
   }, [resultImage, captureStatus, autoCopyEnabled, copyImageToClipboard, resultImageFromFile]);
 
   useEffect(() => {
-    if (resultImage && previewRef.current) {
-      // 少し遅延を入れてからスクロールする（DOMレンダリングを確実にするため）
-      const timer = setTimeout(() => {
-        previewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
-      return () => clearTimeout(timer);
-    }
-    // キャプチャが新しくなったらOCR結果をリセット
+    // 画像が変わったら OCR 結果を破棄（ファイル差し替え・新規キャプチャ共通）
+    // ※ スクロール用 early return の後に置かないこと（差し替え時にクリア漏れになる）
     setUmaData(null);
+
+    if (!resultImage || !previewRef.current) return;
+    const timer = setTimeout(() => {
+      previewRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
+    return () => clearTimeout(timer);
   }, [resultImage]);
 
   const captureStatusConfig = {

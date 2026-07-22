@@ -145,3 +145,4 @@
 | 2026-07-23 07:30 | Q1 Tauri dialog / Q2 プレビューのみ手動 OCR / Q3 saved 相当＋ファイル由来で autoCopy 抑制 / Q4 PNG+JPEG・誤画像はヒント＋既存エラー / Q5 本 REQ 起票 / Q6 ファイル読込時はコピー・再保存しない / ボタン無効は案1 | 設計レビュー承認済み |
 | 2026-07-23 07:30 | CONCEPT-MAP: 今回の用語追加なし（既存カードで十分） | 入口追加のみで新ドメイン概念なし |
 | 2026-07-23 07:35 | 実装完了。`resultImageFromFile` で autoCopy 抑制。dataUrl は `convertFileSrc`→fetch。fs 権限拡大なし | 承認済み方針どおり |
+| 2026-07-23 07:46 | 案 A: `resultImage` 変更時はスクロール early return の有無に関わらず常に `setUmaData(null)`。差し替え後に OCR ボタン再表示 | 実機で OCR 後ファイル差し替え時に古い `umaData` が残りボタン非表示になるバグを解消 |
