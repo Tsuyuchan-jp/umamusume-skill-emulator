@@ -160,7 +160,7 @@ npm run build:release-exe
 ### リリース時に手動で触るもの
 
 1. `desktop-app/package.json` の `version`
-2. `docs/CHANGELOG.md`（当該バージョン節の追記）
+2. `docs/CHANGELOG.md` — リリース時は [`Unreleased` を新バージョン節へ昇格](CHANGELOG.md#運用unreleased-の維持)。日々はユーザー向け完了時に `Unreleased` へ1行追記
 3. （任意）`docs/TODO.md` / REQ の完了記録
 
 `Cargo.toml` は `sync-version` 実行後に差分が出たら **同一コミットに含める**（正本とのミラー）。
@@ -176,7 +176,7 @@ npm run build:release-exe
 - **docs 運用の入口（地図）**: [`DOCS-GUIDE.md`](DOCS-GUIDE.md)
 - 進捗・Todo: `docs/TODO.md`
 - **REQ 索引（全件カタログ）**: `docs/tasks/INDEX.md`
-- 更新履歴: `docs/CHANGELOG.md`
+- 更新履歴: `docs/CHANGELOG.md`（**`Unreleased`** = 次回リリースの人間向け下書き。運用は同ファイル先頭）
 - **リリースビルド（app.exe）**: `docs/RELEASE_BUILD.md`
 - 個別要件: `docs/tasks/REQ-*.md`
 - チャット起票手順: `docs/CHAT_TEMPLATE.md`

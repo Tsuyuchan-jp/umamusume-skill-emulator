@@ -67,7 +67,7 @@ npm run build:release-exe
 ### バージョン bump の手順（リリース時）
 
 1. **`desktop-app/package.json` の `version` を更新**（例: `1.1.0` → `1.2.0`）
-2. **`docs/CHANGELOG.md` に当該バージョン節を追記**
+2. **`docs/CHANGELOG.md`**: [`Unreleased` の運用](CHANGELOG.md#運用unreleased-の維持)に従い、**`Unreleased` の全項目を新バージョン節へ昇格**（`## vX.Y.Z — YYYY-MM-DD`）。`Unreleased` は `（なし）` に戻す
 3. `cd desktop-app` → `npm test`（`version.test.ts` 含む）
 4. `npm run build:release-exe`（`sync-version` 実行後、`Cargo.toml` に差分があればコミットに含める）
 5. アプリ UI ヘッダーの `v*` 表示を実機で確認
@@ -95,7 +95,7 @@ npm run build:release-exe
 [`バージョン管理`](#バージョン管理) を参照。要約:
 
 1. **`desktop-app/package.json` の `version` のみ** を更新する（正本）
-2. `docs/CHANGELOG.md` に当該バージョンを追記
+2. `docs/CHANGELOG.md` — **`Unreleased` を新バージョン節へ昇格**し、`Unreleased` を `（なし）` に戻す（[`CHANGELOG.md` 運用節](CHANGELOG.md#運用unreleased-の維持)）
 3. `npm test` → `npm run build:release-exe`（`sync-version` は build / tauri / release スクリプトで自動実行）
 4. `Cargo.toml` に同期差分が出たらコミットに含める
 

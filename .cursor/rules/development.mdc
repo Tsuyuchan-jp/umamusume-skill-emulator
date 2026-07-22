@@ -40,6 +40,7 @@ alwaysApply: true
 - **配布正本**: `desktop-app/src-tauri/target/release/app.exe`（インストーラーは使わない）
 - **バージョン正本**: `desktop-app/package.json` の `version` のみ（UI・Tauri・`Cargo.toml` は `app/lib/version.ts` / `tauri.conf.json` の `../package.json` 参照 / `npm run sync-version` で自動同期。詳細: `docs/RELEASE_BUILD.md`）
 - バージョン bump・CHANGELOG 追記・REQ のリリース Phase 完了時は、**ユーザー指示がなくても** `npm run build:release-exe` を実行して exe を最新化する
+- **CHANGELOG `Unreleased`**: ユーザー向け変更の完了時に1行追記（実機クローズ後・完了コミットと同一推奨）。リリース時は新バージョン節へ昇格し空に戻す。正本: `docs/CHANGELOG.md`「運用（Unreleased の維持）」
 - 手順の正本: `docs/RELEASE_BUILD.md`
 
 ## 廃止済みの機能

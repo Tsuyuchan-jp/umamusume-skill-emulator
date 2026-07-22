@@ -4,7 +4,7 @@
 > アプリの製品仕様・技術概要は [`PROJECT.md`](PROJECT.md)。**進捗・要件・運用の地図はここ。**
 > リポジトリ全体の紹介は [ルート `README.md`](../README.md)（別ファイル）。
 
-最終更新: 2026-06-27 21:24
+最終更新: 2026-07-23 06:32
 
 ---
 
@@ -44,7 +44,7 @@ REQ が `done` になっても、**ここを更新し続ける**。
 | [`PROJECT.md`](PROJECT.md) | アプリ概要・開発ルール要約 |
 | [`CHAT_TEMPLATE.md`](CHAT_TEMPLATE.md) | チャット起票テンプレ（設計 / 実装 / 検証 / 実機クローズ） |
 | [`RELEASE_BUILD.md`](RELEASE_BUILD.md) | app.exe ビルド・バージョン bump |
-| [`CHANGELOG.md`](CHANGELOG.md) | リリース履歴 |
+| [`CHANGELOG.md`](CHANGELOG.md) | リリース履歴。**`Unreleased`** = 次回リリース下書き（人間チェック用）。運用: 同ファイル「運用（Unreleased の維持）」 |
 
 ### 参照用（`reference/`）
 
@@ -87,7 +87,8 @@ REQ が `done` になっても、**ここを更新し続ける**。
 | 着手（コード・設定変更） | [`TODO.md`](TODO.md) 進行中・フォーカス・`最終更新:` |
 | 完了・Phase 完了 | TODO 完了済み、REQ `done` / 決定ログ、[`INDEX.md`](tasks/INDEX.md)（該当時） |
 | 新用語・概念の初出（会話に残す価値あり） | [`CONCEPT-MAP.md`](CONCEPT-MAP.md)（`.cursor/rules/concept-map.mdc`） |
-| バージョン bump・リリース | [`CHANGELOG.md`](CHANGELOG.md)、[`RELEASE_BUILD.md`](RELEASE_BUILD.md) 手順 |
+| バージョン bump・リリース | [`CHANGELOG.md`](CHANGELOG.md)（`Unreleased` 昇格・空に戻す）、[`RELEASE_BUILD.md`](RELEASE_BUILD.md) 手順 |
+| ユーザー向け変更の完了（次回リリース予定） | [`CHANGELOG.md`](CHANGELOG.md) の **`Unreleased` に1行追記**（実機クローズ後・完了コミットと同一推奨） |
 
 ### ドメイン別
 
