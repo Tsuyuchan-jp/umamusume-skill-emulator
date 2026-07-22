@@ -318,8 +318,8 @@ export async function runMultipleSimulations(
 
     return {
       count: groupResults.length,
-      // rate / スパート率の分母は指定回数（iterations）
-      rate: groupResults.length / iterations,
+      // rate / スパート率の分母は成功回数（completedCount）
+      rate: groupResults.length / completedCount,
       avgTime,
       minTime,
       maxTime,

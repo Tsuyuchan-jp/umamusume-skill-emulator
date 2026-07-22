@@ -39,7 +39,7 @@
 2. **失敗走スキップ＋完走数表示**（本家 `RaceOperation` の `runCatching` 相当）:
    - Worker `SIMULATE` ループを走ごと try/catch。成功のみ results に push。失敗は `failedCount` 増＋`console.error`
    - Adapter は成功配列＋`failedCount` を受け取り、`SimResultDump` に `iterations`（指定回数のまま）・`completedCount`・`failedCount` を載せる
-   - 集計は成功走のみ。rate / スパート率の分母は `iterations`
+   - 集計は成功走のみ。rate / スパート率の分母は成功回数（`completedCount`）
    - `completedCount === 0` なら reject（ERROR トーストのみ・結果タブなし）
    - 成功 ≥1 なら従来どおり `raceDetail` 取得。失敗時は既存 `raceDetailFetchFailed` トースト
    - 比較検証（`SimTabPanel`）も同じスキップ方針（`runMultipleSimulations` 一本化）
@@ -91,7 +91,7 @@
 - [x] 1走例外でバッチ全体 ERROR にならない（成功≥1なら結果を返す）
 - [x] UI に指定回数のうち完走数が分かる
 - [x] 全滅時は Step1 の日本語 ERROR・結果タブなし
-- [x] rate 分母は指定回数。`iterations` 意味は指定回数のまま
+- [x] rate 分母は成功回数（`completedCount`）。`iterations` 意味は指定回数のまま
 - [x] 比較検証も同じスキップ方針
 - [x] 追込×100回・短中距離1000回の退行なし想定を満たす実装
 - [x] 連続失敗後に Timer already exists が出ない（`console.timeEnd` finally 維持）
@@ -126,3 +126,4 @@
 | 2026-07-18 21:18 | **v1.2.0 スコープ外・次回バージョン優先** — ユーザー承認。v1.2.0 リリースは stitch/UI 改善のみ。本 REQ は Backlog P0 で継続 | v1.2.0 リリース判断 |
 | 2026-07-23 03:22 | **2026-07-11 19:50 の『部分成功集計しない』を撤回。** 本家 RaceOperation の失敗走スキップに合わせ、成功分で集計し完走数を UI 表示する。Step2a/2b は再導入しない。全滅時は ERROR のみ・結果タブなし。rate 分母は指定回数（iterations） | 設計レビュー承認（2026-07-11）・実装着手 |
 | 2026-07-23 03:26 | **実装完了**: Worker 走ごと try/catch・Adapter 成功分集計＋全滅 reject・UI 完走数表示。`npm test` 62件 PASS。CONCEPT-MAP: 今回の用語追加なし（既存カードで十分） | 完了条件充足。実機確認はユーザー側 |
+| 2026-07-23 03:32 | **rate 分母の訂正**: 指定回数（iterations）ではなく成功回数（completedCount）。Adapter の `rate` と ResultCard のスパート率のみ変更 | 指示誤り訂正。他箇所（完走数表示・トースト・全滅判定）は据え置き |

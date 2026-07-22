@@ -56,8 +56,8 @@ export const ResultCard = React.memo<ResultCardProps>(function ResultCard({
     ? "検証後（実線） / 初期構成（破線）"
     : "速度・体力・走行レーン";
 
-  const spurtComplete = (maxSpurt?.count || 0) === result.iterations;
-  const spurtRate = formatPercent((maxSpurt?.count || 0) / result.iterations);
+  const spurtComplete = (maxSpurt?.count || 0) === completedCount;
+  const spurtRate = formatPercent((maxSpurt?.count || 0) / completedCount);
   
   // 差分計算用のヘルパー
   const renderDelta = (current: number, base: number, isTime: boolean = false, isPercent: boolean = false) => {
