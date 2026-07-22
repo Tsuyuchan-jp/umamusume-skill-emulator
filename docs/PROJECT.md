@@ -176,7 +176,7 @@ npm run build:release-exe
 - **docs 運用の入口（地図）**: [`DOCS-GUIDE.md`](DOCS-GUIDE.md)
 - 進捗・Todo: `docs/TODO.md`
 - **REQ 索引（全件カタログ）**: `docs/tasks/INDEX.md`
-- 更新履歴: `docs/CHANGELOG.md`（**`Unreleased`** = 次回リリースの人間向け下書き。運用は同ファイル先頭）
+- 更新履歴: `docs/CHANGELOG.md`（**`Unreleased`** = 次回リリースの人間向け下書き。運用は同ファイル末尾）
 - **リリースビルド（app.exe）**: `docs/RELEASE_BUILD.md`
 - 個別要件: `docs/tasks/REQ-*.md`
 - チャット起票手順: `docs/CHAT_TEMPLATE.md`
