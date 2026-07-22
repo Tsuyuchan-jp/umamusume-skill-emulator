@@ -93,15 +93,6 @@ export default function Home() {
   }, []);
 
   const activeTab = tabs.find(t => t.id === activeTabId) || null;
-  const isHeaderArriving =
-    newlyArrivedTabId != null &&
-    newlyArrivedTabId === activeTabId &&
-    newlyArrivedKind != null;
-  const headerArrivalFlashClass = isHeaderArriving
-    ? newlyArrivedKind === "duplicate"
-      ? "tab-arrive-header-flash-amber"
-      : "tab-arrive-header-flash-emerald"
-    : "";
   const simDump = activeTab?.simResultDump ?? null;
   const completedRunCount = simDump
     ? (simDump.completedCount ?? simDump.iterations)
@@ -545,7 +536,7 @@ export default function Home() {
           {activeTab ? (
             <div className="flex flex-col h-full min-h-0 overflow-hidden animate-fadeIn min-w-0">
               {/* ヘッダー: TabBar + レース情報行 */}
-              <div className={`shrink-0 min-w-0 rounded-xl ${headerArrivalFlashClass}`}>
+              <div className="shrink-0 min-w-0">
               <TabBar
                 tabs={tabs}
                 setTabs={setTabs}
@@ -669,7 +660,6 @@ export default function Home() {
                           setIsSimulating={setIsSimulating}
                           setSimulationProgress={setSimulationProgress}
                           onTabArrived={onTabArrived}
-                          isArriving={tab.id === newlyArrivedTabId}
                           showToastMessage={showToastMessage}
                         />
                       </div>

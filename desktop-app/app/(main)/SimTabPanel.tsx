@@ -24,7 +24,6 @@ interface SimTabPanelProps {
     React.SetStateAction<{ current: number; total: number } | null>
   >;
   onTabArrived: (tabId: string, kind: TabArrivalKind) => void;
-  isArriving?: boolean;
   showToastMessage: (message: string, type: "success" | "error", duration: number) => void;
 }
 
@@ -38,7 +37,6 @@ export const SimTabPanel: React.FC<SimTabPanelProps> = ({
   setIsSimulating,
   setSimulationProgress,
   onTabArrived,
-  isArriving = false,
   showToastMessage,
 }) => {
   const tabId = tab.id;
@@ -49,7 +47,6 @@ export const SimTabPanel: React.FC<SimTabPanelProps> = ({
     <ResultCard
       result={tab.simResultDump}
       baseline={tab.baselineResult || undefined}
-      isArriving={isArriving}
       graphCompareActive={
         tab.simResultDump !== tab.baselineResult &&
         ((tab.appliedDisabledSkillIds?.length ?? 0) > 0 ||
