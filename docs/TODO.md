@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（要点は下記「更新ルール」「エージェント必須手順」。詳細は [`DOCS-GUIDE.md`](DOCS-GUIDE.md)）。
 
-最終更新: 2026-07-23 07:48
+最終更新: 2026-07-23 08:17
 
 ---
 
@@ -16,7 +16,7 @@
 
 ## 現在のフォーカス
 
-（なし — 次は Backlog P1（着手可能）/ P2 から選択）
+OCR 後スキル数サマリー表示（総数・金・進化）— SkillPanel / SimulationStatusView
 
 ## サマリー（手更新）
 
@@ -24,7 +24,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 | 進行中 | P1 着手可能 | P1 棚上げ | P2 未着手 | 保留 |
 | --- | --- | --- | --- | --- |
-| 0 | 4 | 1 | 8 | 1 |
+| 1 | 3 | 1 | 8 | 1 |
 
 直近リリース: **v1.3.0**（2026-07-23）
 
@@ -32,7 +32,12 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 ## 進行中
 
-（なし）
+- [ ] **OCR 後スキル数サマリー表示**（総数・金・進化）
+  - 目標: OCR 解析完了後・**シミュレーション前**に、所持スキルの **総数**・**金スキル（rare）数**・**進化スキル（evo）数** をカウントして表示
+  - 現状: `SkillPanel` はスキル一覧はあるが、上記3指標のサマリーはない。sim タブの実行時ステータス条件パネルにも未表示
+  - 算出: `umaData.skillIds` を `getSkillRarityInfoById`（`umasimSkillData.ts`）で分類して集計。手動編集後も再計算
+  - 触る想定: `skillSummary.ts`（新設）、`SkillSummaryLine`、`SkillPanel.tsx`、`SimulationStatusView.tsx`
+  - 注意: 金＝`rare`、進化＝`evo` の既存色分け定義に合わせる。固有（unique）・継承（inherit）は総数のみ（内訳は出さない）
 
 ## 次にやること（Backlog）
 
@@ -43,13 +48,6 @@ Backlog・保留を変更したら件数を合わせて更新する。
 （なし）
 
 ### P1 — 重要
-
-- [ ] **OCR 後スキル数サマリー表示**（総数・金・進化）
-  - 目標: OCR 解析完了後・**シミュレーション前**に、所持スキルの **総数**・**金スキル（rare）数**・**進化スキル（evo）数** をカウントして表示
-  - 現状: `SkillPanel` / `StatusPanel` はスキル一覧はあるが、上記3指標のサマリーはない
-  - 算出: `umaData.skills` を `getSkillRarityInfoById`（`umasimSkillData.ts`）で分類して集計。手動編集後も再計算
-  - 触る想定: `SkillPanel.tsx` または `StatusPanel.tsx` / `CapturePanel.tsx`（OCR 直後の見える位置）、必要なら集計ヘルパー新設
-  - 注意: 金＝`rare`、進化＝`evo` の既存色分け定義に合わせる。固有（unique）・継承（inherit）は今回スコープ外（要望あれば追記）
 
 - [ ] **Settings スキルデータ接続チェック UI**（任意）
   - 背景: `[REQ-skill-data-fetch-fallback.md](tasks/REQ-skill-data-fetch-fallback.md)` Phase 3 見送り。フォールバックトーストで代替済み
