@@ -4,11 +4,10 @@ import { trackData } from '../lib/trackData';
 
 interface RaceInfoLabelProps {
   activeTab: SimTab | null;
-  simulationCount: number;
 }
 
-export function RaceInfoLabel({ activeTab, simulationCount }: RaceInfoLabelProps) {
-  if (!activeTab || !activeTab.raceCondition) return <span>東京 芝 2400m / 100走</span>;
+export function RaceInfoLabel({ activeTab }: RaceInfoLabelProps) {
+  if (!activeTab || !activeTab.raceCondition) return <span>東京 芝 2400m</span>;
   
   const cond = activeTab.raceCondition;
   const loc = trackData.find(l => l.id === cond.locationId);
@@ -19,9 +18,6 @@ export function RaceInfoLabel({ activeTab, simulationCount }: RaceInfoLabelProps
   if (loc && course) parts.push(`${loc.name} ${course.name}`);
   if (SURFACE_MAP[cond.surfaceCond]) parts.push(SURFACE_MAP[cond.surfaceCond]);
   if (cond.playerNum) parts.push(`${cond.playerNum}人`);
-  
-  const runCount = activeTab.simResultDump?.iterations || simulationCount;
-  parts.push(`${runCount.toLocaleString()}走`);
   
   return <span>{parts.join(' / ')}</span>;
 }

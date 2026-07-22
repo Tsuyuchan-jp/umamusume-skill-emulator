@@ -93,6 +93,11 @@ export default function Home() {
   }, []);
 
   const activeTab = tabs.find(t => t.id === activeTabId) || null;
+  const simDump = activeTab?.simResultDump ?? null;
+  const completedRunCount = simDump
+    ? (simDump.completedCount ?? simDump.iterations)
+    : 0;
+  const failedRunCount = simDump?.failedCount ?? 0;
   const [isPreviewExpanded, setIsPreviewExpanded] = useState<boolean>(true); // プレビューの開閉
   const [isSimulating, setIsSimulating] = useState<boolean>(false); // シミュレーション実行中
   const [simulationCount, setSimulationCount] = useState<number>(100); // シミュレーション回数
@@ -581,10 +586,22 @@ export default function Home() {
                   </div>
                 )}
                 <span className="ml-auto text-zinc-500 text-sm font-medium min-w-0">
-                  <RaceInfoLabel activeTab={activeTab} simulationCount={simulationCount} />
+                  <RaceInfoLabel activeTab={activeTab} />
                 </span>
 
                 <div className="ml-auto flex items-center gap-3 shrink-0">
+                  {/* 完走数（ステータス条件のすぐ左） */}
+                  {simDump && (
+                    <span
+                      className={`text-xs font-mono font-bold whitespace-nowrap px-1 ${
+                        failedRunCount > 0 ? 'text-amber-400' : 'text-zinc-600'
+                      }`}
+                      title={`シミュ完走${completedRunCount.toLocaleString()}走 失敗${failedRunCount.toLocaleString()}走`}
+                    >
+                      {completedRunCount.toLocaleString()}/{simDump.iterations.toLocaleString()}走
+                    </span>
+                  )}
+
                   {/* ステータス確認モーダルボタン */}
                   {activeTab.umaData && activeTab.raceCondition && (
                     <SimulationStatusView umaData={activeTab.umaData} raceCondition={activeTab.raceCondition} />
