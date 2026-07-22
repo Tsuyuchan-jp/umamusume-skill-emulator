@@ -45,6 +45,8 @@ export const ResultCard = React.memo<ResultCardProps>(function ResultCard({
 
   if (!result) return null;
   const { all, maxSpurt, nonMaxSpurt } = result.summary;
+  const completedCount = result.completedCount ?? result.iterations;
+  const failedCount = result.failedCount ?? 0;
 
   const showGraphCompare =
     graphCompareActive &&
@@ -131,24 +133,38 @@ export const ResultCard = React.memo<ResultCardProps>(function ResultCard({
             </div>
           </div>
         </div>
-        <div
-          className={`shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg border ${
-            spurtComplete
-              ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-              : 'bg-red-500/10 border-red-500/20 text-red-400'
-          }`}
-          title={
-            spurtComplete
-              ? 'スパート完走（全レースで最大スパート成功）'
-              : `スタミナ切れリスクあり${
-                  nonMaxSpurt && nonMaxSpurt.count > 0
-                    ? `（失敗時平均: ${formatTime(nonMaxSpurt.avgTime)}）`
-                    : ''
-                }`
-          }
-        >
-          <span className="text-sm leading-none">{spurtComplete ? '✅' : '⚠️'}</span>
-          <span className="text-sm font-bold font-mono whitespace-nowrap">{spurtRate}</span>
+        <div className="shrink-0 flex flex-col justify-center gap-1">
+          <div
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border ${
+              spurtComplete
+                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                : 'bg-red-500/10 border-red-500/20 text-red-400'
+            }`}
+            title={
+              spurtComplete
+                ? 'スパート完走（全レースで最大スパート成功）'
+                : `スタミナ切れリスクあり${
+                    nonMaxSpurt && nonMaxSpurt.count > 0
+                      ? `（失敗時平均: ${formatTime(nonMaxSpurt.avgTime)}）`
+                      : ''
+                  }`
+            }
+          >
+            <span className="text-sm leading-none">{spurtComplete ? '✅' : '⚠️'}</span>
+            <span className="text-sm font-bold font-mono whitespace-nowrap">{spurtRate}</span>
+          </div>
+          <div
+            className={`text-center text-[10px] font-mono px-1 ${
+              failedCount > 0 ? 'text-amber-400/90 font-bold' : 'text-zinc-600'
+            }`}
+            title={
+              failedCount > 0
+                ? `指定${result.iterations}回中${completedCount}回完走（${failedCount}回は内部エラーでスキップ）`
+                : `指定${result.iterations}回すべて完走`
+            }
+          >
+            完走 {completedCount.toLocaleString()} / {result.iterations.toLocaleString()}
+          </div>
         </div>
       </div>
 

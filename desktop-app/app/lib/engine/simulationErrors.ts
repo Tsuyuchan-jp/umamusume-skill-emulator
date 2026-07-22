@@ -8,7 +8,7 @@ export const SIMULATION_WORKER_ERROR_MESSAGE =
 
 /**
  * Worker が "null" / 空メッセージを返したとき（超長距離の連続実行で起きやすい）向け文言。
- * 部分成功集計はせず、全滅時の理由説明に使う。
+ * 全滅（成功0）時の reject 理由説明に使う。成功≥1 のときは失敗走スキップで続行する。
  */
 export const SIMULATION_NULL_ERROR_MESSAGE =
   "超長距離レースの連続シミュレーション中に内部エラーが発生しました。試行回数を減らすか、作戦を変更してお試しください。改善しない場合はアプリを再起動してください。";

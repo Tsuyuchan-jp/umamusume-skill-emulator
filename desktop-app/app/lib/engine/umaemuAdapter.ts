@@ -147,7 +147,12 @@ function getWorker(): Worker {
     
     pendingRequests.delete(id);
     if (type === 'SUCCESS') {
-      req.resolve(results);
+      // SIMULATE は failedCount 付き。SIMULATE_DETAIL は results のみ
+      if (typeof event.data.failedCount === 'number') {
+        req.resolve({ results, failedCount: event.data.failedCount });
+      } else {
+        req.resolve(results);
+      }
     } else {
       // Crash or error in worker — 実エラーを toSimulationError 経由で伝播
       worker?.terminate();
@@ -246,7 +251,7 @@ export async function runMultipleSimulations(
   const w = getWorker();
   const id = ++currentMessageId;
 
-  const resultsPromise = new Promise<any[]>((resolve, reject) => {
+  const resultsPromise = new Promise<{ results: any[]; failedCount: number }>((resolve, reject) => {
     pendingRequests.set(id, { resolve, reject, onProgress });
   });
 
@@ -262,8 +267,11 @@ export async function runMultipleSimulations(
   });
 
   let results: any[];
+  let failedCount: number;
   try {
-    results = await resultsPromise;
+    const batch = await resultsPromise;
+    results = batch.results;
+    failedCount = batch.failedCount;
   } catch (error) {
     console.error("Simulation crashed, worker was terminated.", error);
     // Rethrow to let the UI handle the error and display a toast
@@ -273,7 +281,13 @@ export async function runMultipleSimulations(
     console.timeEnd(timerLabel);
   }
 
-  // Phase 16.5: 正しいキーによる集計ロジック
+  const completedCount = results.length;
+  // 全滅: Worker は空 SUCCESS 可。Adapter が reject（日本語 ERROR）
+  if (completedCount === 0) {
+    throw toSimulationError(null);
+  }
+
+  // Phase 16.5: 正しいキーによる集計ロジック（成功走のみ）
   const aggregateGroup = (groupResults: any[]) => {
     if (groupResults.length === 0) return null;
 
@@ -304,6 +318,7 @@ export async function runMultipleSimulations(
 
     return {
       count: groupResults.length,
+      // rate / スパート率の分母は指定回数（iterations）
       rate: groupResults.length / iterations,
       avgTime,
       minTime,
@@ -323,7 +338,7 @@ export async function runMultipleSimulations(
   const maxSpurtResults = results.filter(r => r.maxSpurt);
   const nonMaxSpurtResults = results.filter(r => !r.maxSpurt);
 
-  // 詳細1走を自動取得（グラフ表示用）
+  // 詳細1走を自動取得（成功≥1 のときのみここに来る）
   let raceDetail: RaceDetailDump | null = null;
   let raceDetailFetchFailed = false;
   try {
@@ -338,6 +353,8 @@ export async function runMultipleSimulations(
 
   return {
     iterations,
+    completedCount,
+    failedCount,
     summary: {
       all,
       maxSpurt: aggregateGroup(maxSpurtResults),

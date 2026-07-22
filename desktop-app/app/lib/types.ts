@@ -80,7 +80,12 @@ export interface RaceDetailDump {
 }
 
 export interface SimResultDump {
+  /** 指定した試行回数（分母・トースト文言の基準） */
   iterations: number;
+  /** 成功して集計に使った回数。旧データは completedCount ?? iterations */
+  completedCount?: number;
+  /** 内部エラーでスキップした回数。旧データは 0 扱い */
+  failedCount?: number;
   summary: {
     all: ResultSummary;
     maxSpurt: ResultSummary;

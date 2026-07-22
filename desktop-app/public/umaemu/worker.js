@@ -34,18 +34,32 @@ self.onmessage = async (event) => {
   try {
     if (type === 'SIMULATE') {
       const engine = await initEngine(skillData);
-      
+
       const results = [];
+      let failedCount = 0;
       for (let i = 0; i < iterations; i++) {
-        const jsonOutput = engine.runSimulation(payload);
-        results.push(JSON.parse(jsonOutput));
-        
+        try {
+          const jsonOutput = engine.runSimulation(payload);
+          results.push(JSON.parse(jsonOutput));
+        } catch (error) {
+          failedCount++;
+          const message = formatWorkerError(error);
+          const stack = error instanceof Error ? error.stack : undefined;
+          console.error(
+            `Simulation run ${i + 1}/${iterations} failed:`,
+            message,
+            stack || ""
+          );
+        }
+
+        // PROGRESS は試行インデックス基準（成功数ではない）
         if (i > 0 && i % 100 === 0) {
           self.postMessage({ id, type: 'PROGRESS', current: i, total: iterations });
         }
       }
-      
-      self.postMessage({ id, type: 'SUCCESS', results });
+
+      // 成功0でも SUCCESS（空配列）を返す。全滅判定は Adapter 側
+      self.postMessage({ id, type: 'SUCCESS', results, failedCount });
     } else if (type === 'SIMULATE_DETAIL') {
       const engine = await initEngine(skillData);
       const jsonOutput = engine.runSimulationDetail(payload);

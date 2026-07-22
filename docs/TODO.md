@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-07-23 03:22
+最終更新: 2026-07-23 03:26
 
 ---
 
@@ -16,13 +16,13 @@
 
 ## 現在のフォーカス
 
-**長距離 sim エラー（中山3600m）** — P0。失敗走スキップ＋完走数 UI（本家 RaceOperation 相当）を実装中
+**細かい掃除** — 長距離 sim（P0）実装完了。次は OCR Flash-Lite のみ（P2）／OCR 解析の中止（P1）など
 
 ---
 
 ## 細かい掃除の着手順（当面）
 
-スキル獲得 OCR（P1 先頭）は棚上げ。長距離 sim（P0）完了後に再開。
+スキル獲得 OCR（P1 先頭）は棚上げ。長距離 sim（P0）完了済み。
 優先度ラベル（P1/P2）は変更せず、**いま進める順だけ**ここに書く。
 
 1. OCR を Flash-Lite のみに（P2）
@@ -34,10 +34,7 @@
 
 ## 進行中
 
-- [ ] **長距離レース（中山3600m）でエミュレートエラー** — 失敗走スキップ＋完走数表示（設計レビュー承認 2026-07-11）
-  - Step1（実エラー伝播・日本語・Timer finally）維持。Step2a/2b は再導入しない
-  - 方針: 失敗走はスキップして続行、成功分で集計、rate 分母は指定回数、全滅時は ERROR のみ（結果タブなし）
-  - 関連: [`REQ-long-distance-sim-error.md`](tasks/REQ-long-distance-sim-error.md)
+（なし）
 
 ## 次にやること（Backlog）
 
@@ -47,7 +44,7 @@
 
 ### P0 — 緊急（次回バージョン優先）
 
-（進行中へ移動済み）
+（なし — 長距離 sim は完了済みへ）
 
 ### P1 — 重要
 
@@ -178,6 +175,7 @@
 
 ## 完了済み
 
+- [x] **長距離レース（中山3600m）でエミュレートエラー** — 失敗走スキップ＋完走数 UI（Step1 維持・Step2a/2b 再導入なし）。`npm test` 62件 PASS（2026-07-23 03:26 / `PENDING`）/ [`REQ-long-distance-sim-error.md`](tasks/REQ-long-distance-sim-error.md) **done**
 - [x] **v1.2.0 リリースビルド** — version 1.2.0 bump・CHANGELOG・`app.exe` 生成・62件テスト PASS（2026-07-18 21:24 / `58873a5`）/ [`REQ-release-v1.2.0.md`](tasks/REQ-release-v1.2.0.md) **done**
 - [x] **オートキャプチャ結合: 最終ペア coarse≈S* 誤採用時の二重結合** — 案 A2a 実装 + **実機検証クローズ**（Frame12→13 terminal coarse re-probe coarse=144→final=38・二重なし。2026-07-14 10:03 / 実装 `f2a4c3e`）/ [`REQ-stitch-terminal-coarse-reprobe.md`](tasks/REQ-stitch-terminal-coarse-reprobe.md) **done**
 - [x] **Tab Arrival Phase A** — TabBar 新タブ入場（スケール/不透明度/リング/下線）・自動スクロール・NEW/コピーバッジ。`onTabArrived(tabId, kind)` 配線（2026-07-11 19:11 / `7e3acd8`）

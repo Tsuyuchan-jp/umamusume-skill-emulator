@@ -190,7 +190,17 @@ export const SimTabPanel: React.FC<SimTabPanelProps> = ({
                   })
                 );
 
-                showToastMessage("比較検証が完了しました！", "success", 5000);
+                const completedCount = simResult.completedCount ?? simResult.iterations;
+                const failedCount = simResult.failedCount ?? 0;
+                if (failedCount === 0) {
+                  showToastMessage("比較検証が完了しました！", "success", 5000);
+                } else {
+                  showToastMessage(
+                    `比較検証完了: ${simulationCount.toLocaleString()}回中${completedCount.toLocaleString()}回完走（${failedCount.toLocaleString()}回は内部エラーのためスキップ）`,
+                    "success",
+                    5000
+                  );
+                }
                 const { getLastSkillDataMeta } = await import("../lib/engine/umaemuAdapter");
                 if (getLastSkillDataMeta()?.usedFallback) {
                   showToastMessage(SKILL_DATA_FALLBACK_TOAST_MESSAGE, "error", 5000);
