@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-07-23 03:26
+最終更新: 2026-07-23 03:28
 
 ---
 
@@ -175,7 +175,7 @@
 
 ## 完了済み
 
-- [x] **長距離レース（中山3600m）でエミュレートエラー** — 失敗走スキップ＋完走数 UI（Step1 維持・Step2a/2b 再導入なし）。`npm test` 62件 PASS（2026-07-23 03:26 / `PENDING`）/ [`REQ-long-distance-sim-error.md`](tasks/REQ-long-distance-sim-error.md) **done**
+- [x] **長距離レース（中山3600m）でエミュレートエラー** — 失敗走スキップ＋完走数 UI（Step1 維持・Step2a/2b 再導入なし）。`npm test` 62件 PASS（2026-07-23 03:26 / `cdd8f4d`）/ [`REQ-long-distance-sim-error.md`](tasks/REQ-long-distance-sim-error.md) **done**
 - [x] **v1.2.0 リリースビルド** — version 1.2.0 bump・CHANGELOG・`app.exe` 生成・62件テスト PASS（2026-07-18 21:24 / `58873a5`）/ [`REQ-release-v1.2.0.md`](tasks/REQ-release-v1.2.0.md) **done**
 - [x] **オートキャプチャ結合: 最終ペア coarse≈S* 誤採用時の二重結合** — 案 A2a 実装 + **実機検証クローズ**（Frame12→13 terminal coarse re-probe coarse=144→final=38・二重なし。2026-07-14 10:03 / 実装 `f2a4c3e`）/ [`REQ-stitch-terminal-coarse-reprobe.md`](tasks/REQ-stitch-terminal-coarse-reprobe.md) **done**
 - [x] **Tab Arrival Phase A** — TabBar 新タブ入場（スケール/不透明度/リング/下線）・自動スクロール・NEW/コピーバッジ。`onTabArrived(tabId, kind)` 配線（2026-07-11 19:11 / `7e3acd8`）
