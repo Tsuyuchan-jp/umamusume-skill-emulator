@@ -35,10 +35,12 @@ export default function Home() {
     captureMessage,
     captureError,
     resultImage,
+    resultImageFromFile,
     debugFramePaths, // ← 追加
     handleStartAutoCapture,
     handleStopCapture,
     handleResetCapture,
+    handleLoadImageFromFile,
   } = useCapture();
 
   const { showToast, toastMessage, toastType, showToastMessage } = useToast();
@@ -400,15 +402,15 @@ export default function Home() {
     }
   }, [showToastMessage]);
 
-  // 自動コピーの監視
+  // 自動コピーの監視（ファイル由来のプレビューではスキップ）
   useEffect(() => {
     if (captureStatus === "saved" && !autoCopyTriggeredRef.current) {
       autoCopyTriggeredRef.current = true; // このセッションでの自動コピー判定を済みにする
-      if (resultImage && autoCopyEnabled) {
+      if (resultImage && autoCopyEnabled && !resultImageFromFile) {
         copyImageToClipboard(resultImage);
       }
     }
-  }, [resultImage, captureStatus, autoCopyEnabled, copyImageToClipboard]);
+  }, [resultImage, captureStatus, autoCopyEnabled, copyImageToClipboard, resultImageFromFile]);
 
   useEffect(() => {
     if (resultImage && previewRef.current) {
@@ -513,6 +515,7 @@ export default function Home() {
           onStartAutoCapture={handleStartAutoCapture}
           onStopCapture={handleStopCapture}
           onResetCapture={handleResetCapture}
+          onLoadImageFromFile={handleLoadImageFromFile}
           onTogglePreviewExpanded={() => setIsPreviewExpanded(!isPreviewExpanded)}
           onCopyImage={copyImageToClipboard}
           onOcrStart={handleOcrStart}

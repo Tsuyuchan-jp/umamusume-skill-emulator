@@ -1,5 +1,5 @@
 import React from 'react';
-import { Copy, Wand2, ChevronDown, ChevronUp } from "lucide-react";
+import { Copy, Wand2, ChevronDown, ChevronUp, FolderOpen } from "lucide-react";
 import { SettingsPanel } from "./SettingsPanel";
 import { UmaStatusData } from "../lib/types";
 
@@ -31,6 +31,7 @@ interface CapturePanelProps {
   onStartAutoCapture: () => void;
   onStopCapture: () => void;
   onResetCapture: () => void;
+  onLoadImageFromFile: () => void;
   onTogglePreviewExpanded: () => void;
   onCopyImage: (dataUrl: string) => void;
   onOcrStart: () => void;
@@ -45,8 +46,10 @@ export function CapturePanel(props: CapturePanelProps) {
     isPreviewExpanded, isOcrProcessing, previewRef, shortcutInputRef,
     onToggleAutoCopy, onSelectFolder, onRecordingShortcutStart, onRecordingShortcutBlur,
     onKeyDownForShortcut, onShowApiKeyModal, onStartAutoCapture, onStopCapture,
-    onResetCapture, onTogglePreviewExpanded, onCopyImage, onOcrStart, onOcrCancel
+    onResetCapture, onLoadImageFromFile, onTogglePreviewExpanded, onCopyImage, onOcrStart, onOcrCancel
   } = props;
+
+  const fileOpenDisabled = captureStatus === "recording" || isOcrProcessing;
 
   return (
     <div className="w-full backdrop-blur-xl bg-zinc-900/30 border border-zinc-800/80 rounded-2xl p-4 shadow-lg">
@@ -132,6 +135,21 @@ export function CapturePanel(props: CapturePanelProps) {
               リセット
             </button>
           )}
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <button
+            type="button"
+            onClick={onLoadImageFromFile}
+            disabled={fileOpenDisabled}
+            className="w-full font-bold py-2.5 px-4 rounded-xl shadow-md transition-all active:scale-[0.98] text-sm flex justify-center items-center gap-2 bg-zinc-800/80 hover:bg-zinc-700 text-zinc-100 border border-zinc-700/80 disabled:opacity-40 disabled:pointer-events-none disabled:active:scale-100"
+          >
+            <FolderOpen className="w-4 h-4" />
+            画像ファイルを開く
+          </button>
+          <p className="text-[11px] text-zinc-500 leading-relaxed">
+            過去に保存した結合済みステータス画面（PNG / JPEG）を想定しています。別画面の画像でも選べますが、OCR が失敗することがあります。選択後はプレビューのみで、読み込みは下のボタンから手動です。
+          </p>
         </div>
 
         {captureStatus === 'saved' && resultImage && (

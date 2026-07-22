@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { invoke, convertFileSrc } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
+import { open } from "@tauri-apps/plugin-dialog";
 import { deriveCaptureWheelFromFrameUrl } from "../lib/stitch/captureWheel";
 import type { CaptureWheelDecision } from "../lib/stitch/wheelCore";
 import { stitchImages } from "../lib/stitch";
+import { filePathToDataUrl } from "../lib/fileImageToDataUrl";
 
 export type CaptureStatus = "idle" | "recording" | "done" | "saving" | "saved";
 
@@ -42,6 +44,8 @@ export function useCapture() {
   const [saveResult, setSaveResult] = useState<string>("");
   const [captureError, setCaptureError] = useState<string>("");
   const [resultImage, setResultImage] = useState<string>("");
+  /** ファイル選択由来のプレビュー。true のとき autoCopy / saveFolder 再保存をスキップ */
+  const [resultImageFromFile, setResultImageFromFile] = useState(false);
 
   useEffect(() => {
     const unlistenWheel = listen<CaptureWheelInfo>("capture-wheel-decision", (event) => {
@@ -82,6 +86,7 @@ export function useCapture() {
     setCaptureError("");
     setSaveResult("");
     setResultImage("");
+    setResultImageFromFile(false);
     setFrameCount(0);
 
     try {
@@ -108,6 +113,7 @@ export function useCapture() {
     setSaveResult("");
     setCaptureError("");
     setResultImage("");
+    setResultImageFromFile(false);
 
     try {
       const filePaths = await invoke<string[]>("save_and_copy_result");
@@ -140,6 +146,7 @@ export function useCapture() {
       }
 
       setResultImage(cleanDataUrl);
+      setResultImageFromFile(false);
       setCaptureStatus("saved");
       setCaptureMessage("画像の結合と保存が完了しました！");
 
@@ -157,7 +164,42 @@ export function useCapture() {
     setSaveResult("");
     setCaptureError("");
     setResultImage("");
+    setResultImageFromFile(false);
     setDebugFramePaths([]); // ← 追加
+  }, []);
+
+  /**
+   * 過去の結合済み画像を選び、プレビュー用に resultImage へ載せる（自動 OCR・再保存なし）。
+   */
+  const handleLoadImageFromFile = useCallback(async () => {
+    try {
+      const selected = await open({
+        multiple: false,
+        filters: [{ name: "画像", extensions: ["png", "jpg", "jpeg"] }],
+      });
+      if (!selected || typeof selected !== "string") {
+        return;
+      }
+
+      const dataUrl = await filePathToDataUrl(selected);
+      setResultImageFromFile(true);
+      setResultImage(dataUrl);
+      setCaptureStatus("saved");
+      setCaptureMessage(
+        "画像ファイルを読み込みました。プレビューを確認し、「画像からステータスを読込」を押してください。"
+      );
+      setCaptureError("");
+      setSaveResult("");
+      setDebugFramePaths([]);
+    } catch (error: unknown) {
+      const msg =
+        typeof error === "string"
+          ? error
+          : error instanceof Error
+            ? error.message
+            : JSON.stringify(error);
+      setCaptureError(`画像ファイルの読み込みに失敗しました: ${msg}`);
+    }
   }, []);
 
   const handleStartAutoCapture = useCallback(async () => {
@@ -166,6 +208,7 @@ export function useCapture() {
     setCaptureError("");
     setSaveResult("");
     setResultImage("");
+    setResultImageFromFile(false);
     setFrameCount(0);
 
     try {
@@ -203,11 +246,13 @@ export function useCapture() {
     saveResult,
     captureError,
     resultImage,
+    resultImageFromFile,
     debugFramePaths, // ← 追加
     handleStartCapture,
     handleStartAutoCapture,
     handleStopCapture,
     handleSaveAndCopy,
     handleResetCapture,
+    handleLoadImageFromFile,
   };
 }
