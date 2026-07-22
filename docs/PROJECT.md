@@ -100,6 +100,8 @@ umamusume-skill-emulator/
 | rare（金） | `text-amber-400` | ✦ |
 | その他（normal 等） | `text-zinc-200` | なし |
 
+データ上の `scenario`（シナリオ進化スキル）はラベルを維持したまま、表示は `evo` と同一（★・赤）に寄せる。
+
 ### 通常固有ガード
 
 - 通常固有は **先頭スロット（index 0）のみ** 配置可能

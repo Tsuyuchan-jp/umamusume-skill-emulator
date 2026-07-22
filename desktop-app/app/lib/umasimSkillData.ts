@@ -10221,7 +10221,7 @@ type UmasimSkillEntry = (typeof umasimSkillDataList)[number];
 export const PALETTE_EXCLUDED_RARITIES = new Set(['special', 'minus']);
 
 /** 同名スキル dedupe 時の ID 解決優先順位（inherit 明示優先） */
-const PALETTE_ID_RESOLVE_PRIORITY = ['inherit', 'evo', 'rare', 'normal'] as const;
+const PALETTE_ID_RESOLVE_PRIORITY = ['inherit', 'evo', 'scenario', 'rare', 'normal'] as const;
 
 export function isPaletteVisibleSkill(skill: UmasimSkillEntry, onlyUnique: boolean): boolean {
   if (onlyUnique) return skill.rarity === 'unique';
@@ -10313,6 +10313,7 @@ export function getSkillRarityInfoById(skillId: string): SkillRarityDisplayInfo 
     case 'inherit':
       return { rarity: 'inherit', icon: '❖', colorClass: 'text-emerald-400' };
     case 'evo':
+    case 'scenario':
       return { rarity: 'evo', icon: '★', colorClass: 'text-red-400' };
     case 'rare':
       return { rarity: 'rare', icon: '✦', colorClass: 'text-amber-400' };

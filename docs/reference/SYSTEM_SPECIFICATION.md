@@ -163,7 +163,7 @@ Steam版・DMM版「ウマ娘 プリティーダービー」向けの **Windows 
 - スキル ON/OFF（`disabledSkillIds`）と追加スキル（`addedSkillIds`）
 - スキルコマンドパレット（`SkillCommandPalette`）— 検索・追加
 - 通常固有スキルの先頭スロット制限（`canPlaceSkillAtIndex`）
-- レアリティ別色分け表示（unique / inherit / evo / rare / normal）
+- レアリティ別色分け表示（unique / inherit / evo / rare / normal）。データ `scenario` は表示 `evo`（★・赤）に寄せる
 - baseline タブとの比較（詳細グラフ diff オーバーレイ）
 
 ### 3.5 レース詳細グラフ（v1.1.0 の中核機能）

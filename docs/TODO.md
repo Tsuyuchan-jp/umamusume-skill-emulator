@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（要点は下記「更新ルール」「エージェント必須手順」。詳細は [`DOCS-GUIDE.md`](DOCS-GUIDE.md)）。
 
-最終更新: 2026-07-23 08:34
+最終更新: 2026-07-23 08:43
 
 ---
 
@@ -24,7 +24,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 | 進行中 | P1 着手可能 | P1 棚上げ | P2 未着手 | 保留 |
 | --- | --- | --- | --- | --- |
-| 0 | 4 | 1 | 8 | 1 |
+| 0 | 3 | 1 | 8 | 1 |
 
 直近リリース: **v1.3.0**（2026-07-23）
 
@@ -43,13 +43,6 @@ Backlog・保留を変更したら件数を合わせて更新する。
 （なし）
 
 ### P1 — 重要
-
-- [ ] **シナリオ進化スキル（`scenario`）を赤スキル（`evo`）と同じ表示枠に**
-  - 背景: umasim の `rarity: "scenario"`（現行 47 件・ID `407xxx`〜`414xxx`）は、ゲームでは **シナリオ進化スキル**。クライアント上のアイコン色はウマ娘固有の進化スキル（赤）と **完全同一**。現状 `getSkillRarityInfoById` が未対応のため白扱いとなり、スキル数サマリーの「★進化」にも入らない（例: バリカタ、一丁上がり！／麺の極意、見つけたり）
-  - 目標: 一覧色分け・サマリー「進化」件数で `scenario` を `evo` と同じ赤枠にする（第三枠「シナリオ」は出さない方針候補）
-  - 触る想定: `umasimSkillData.ts`（`getSkillRarityInfoById`）、`skillSummary.ts` / テスト、SkillPanel / SkillVerifier / パレット表示経路
-  - 注意: **着手前に Ask mode 設計レビュー**（`SkillDisplayRarity` 型の扱い・データ上の `scenario` ラベル維持 vs UI だけ evo 寄せ・REQ 要否）。sim / WASM / OCR は触らない
-  - 調査メモ: 攻略サイトも種類「進化」。`evo` は9桁キャラ進化、`scenario` は6桁シナリオ限定。sim 精度にはレアリティ名は影響しない
 
 - [ ] **Settings スキルデータ接続チェック UI**（任意）
   - 背景: `[REQ-skill-data-fetch-fallback.md](tasks/REQ-skill-data-fetch-fallback.md)` Phase 3 見送り。フォールバックトーストで代替済み
@@ -136,6 +129,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 直近10件のみ。それ以前は [`TODO-ARCHIVE.md`](TODO-ARCHIVE.md)。
 
+- [x] **シナリオ進化スキル（`scenario`）を赤スキル（`evo`）と同じ表示枠に** — `getSkillRarityInfoById` で scenario → evo（★・赤）表示、パレット dedupe に scenario 追加。`npm test` 68件 PASS。**実機検証は未実施**（2026-07-23 08:43 / `COMMIT_HASH`）
 - [x] **OCR 後スキル数サマリー表示**（総数・金・進化） — `countSkillSummary` + `SkillSummaryLine` を SkillPanel / SimulationStatusView に配線。未知・unique・inherit は総数のみ。`npm test` 66件 PASS。**実機検証クローズ**（SkillPanel 見出し下・一覧件数一致・追加/削除/全削除で再計算・sim ステータス条件パネル・SkillVerifier 等に未表示・OCR/キャプチャ/sim 退行なし OK / 2026-07-23 08:25 / `2352002`〜`3ea8e6f`）
 - [x] **過去キャプチャ画像からステータス読み込み（ファイル OCR ルート）** — 結合済み PNG/JPEG を選択→プレビュー→既存 OCR/Abort。ファイル由来は autoCopy・saveFolder 再保存なし。recording/OCR 中は「画像ファイルを開く」無効。差し替え時 `umaData` クリア修正込み。`npm test` 62件 PASS。**実機検証クローズ**（ファイル経路・キャプチャなし sim・autoCopy 退行なし・中止・ボタン無効・差し替え後再 OCR OK / 2026-07-23 07:48 / `096d436`〜`4b01db5`）/ [`REQ-file-ocr-status.md`](tasks/REQ-file-ocr-status.md) **done**
 - [x] **TODO.md 改修（改善提案1〜7、提案4除く）** — ARCHIVE 分離・既知の問題掃除・P1 棚上げ分離・P0/ルール短縮・件数サマリー追加。388行→218行（2026-07-23 07:17 / `261cf95`〜`91157b9`）
@@ -145,7 +139,6 @@ Backlog・保留を変更したら件数を合わせて更新する。
 - [x] **v1.3.0 リリースビルド** — version 1.3.0 bump・CHANGELOG（長距離 sim 失敗走スキップ＋完走数 UI）・`app.exe` 生成・62件テスト PASS（2026-07-23 04:04 / `d3ffb53`）
 - [x] **長距離レース（中山3600m）でエミュレートエラー** — 失敗走スキップ＋完走数 UI（ヘッダー `n/N走`・rate 分母=成功回数・Step1 維持・Step2a/2b 再導入なし）。`npm test` 62件 PASS。**実機検証クローズ**（2026-07-23 03:58 / 実装 `cdd8f4d`〜`a138908`）/ `[REQ-long-distance-sim-error.md](tasks/REQ-long-distance-sim-error.md)` **done**
 - [x] **v1.2.0 リリースビルド** — version 1.2.0 bump・CHANGELOG・`app.exe` 生成・62件テスト PASS（2026-07-18 21:24 / `58873a5`）/ `[REQ-release-v1.2.0.md](tasks/REQ-release-v1.2.0.md)` **done**
-- [x] **オートキャプチャ結合: 最終ペア coarse≈S* 誤採用時の二重結合** — 案 A2a 実装 + **実機検証クローズ**（Frame12→13 terminal coarse re-probe coarse=144→final=38・二重なし。2026-07-14 10:03 / 実装 `f2a4c3e`）/ `[REQ-stitch-terminal-coarse-reprobe.md](tasks/REQ-stitch-terminal-coarse-reprobe.md)` **done**
 
 ---
 
