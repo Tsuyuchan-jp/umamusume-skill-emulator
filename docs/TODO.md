@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-07-23 04:34
+最終更新: 2026-07-23 04:35
 
 ---
 
@@ -16,7 +16,7 @@
 
 ## 現在のフォーカス
 
-**KPI フラッシュ** — ヒーロー KPI（最速・平均・最遅）の300msフラッシュ実装
+**細かい掃除** — v1.3.0 リリース完了。次は OCR Flash-Lite のみ（P2）／OCR 解析の中止（P1）など
 
 ---
 
@@ -34,8 +34,7 @@
 
 ## 進行中
 
-- [ ] **KPI フラッシュ** — ヒーロー KPI（最速・平均・最遅）のみ約300msフラッシュ。新規シミュ・比較検証完了時に発火。複製では出さない。`onKpiFlash` は Tab Arrival と分離
-  - 触る: `page.tsx`, `SimulationLauncher.tsx`, `SimTabPanel.tsx`, `ResultCard.tsx`, `globals.css`
+（なし）
 
 ## 次にやること（Backlog）
 
@@ -171,6 +170,7 @@
 
 ## 完了済み
 
+- [x] **KPI フラッシュ** — ヒーロー KPI（最速・平均・最遅）のみ約300msフラッシュ。新規シミュ・比較検証完了時に `onKpiFlash`。複製では非発火。Tab Arrival（Phase A）と分離（2026-07-23 04:35 / `e8e5acf`）
 - [x] **v1.3.0 リリースビルド** — version 1.3.0 bump・CHANGELOG（長距離 sim 失敗走スキップ＋完走数 UI）・`app.exe` 生成・62件テスト PASS（2026-07-23 04:04 / `d3ffb53`）
 - [x] **長距離レース（中山3600m）でエミュレートエラー** — 失敗走スキップ＋完走数 UI（ヘッダー `n/N走`・rate 分母=成功回数・Step1 維持・Step2a/2b 再導入なし）。`npm test` 62件 PASS。**実機検証クローズ**（2026-07-23 03:58 / 実装 `cdd8f4d`〜`a138908`）/ [`REQ-long-distance-sim-error.md`](tasks/REQ-long-distance-sim-error.md) **done**
 - [x] **v1.2.0 リリースビルド** — version 1.2.0 bump・CHANGELOG・`app.exe` 生成・62件テスト PASS（2026-07-18 21:24 / `58873a5`）/ [`REQ-release-v1.2.0.md`](tasks/REQ-release-v1.2.0.md) **done**
@@ -305,7 +305,7 @@
 - **最下部びったし二重結合（2026-07-11）**: **実機クローズ**（案 A′・terminal micro skip）。[`REQ-stitch-terminal-exact-bottom.md`](tasks/REQ-stitch-terminal-exact-bottom.md) done
 - **最終ペア coarse≈S* 二重結合（2026-07-14）**: **実機クローズ**（案 A2a・terminal coarse re-probe 144→38）。[`REQ-stitch-terminal-coarse-reprobe.md`](tasks/REQ-stitch-terminal-coarse-reprobe.md) done
 - **長距離 sim エラー（中山3600m）**: **実機クローズ**（失敗走スキップ・ヘッダー完走表示・スパート率枠高さ修正）。[`REQ-long-distance-sim-error.md`](tasks/REQ-long-distance-sim-error.md) done（2026-07-23）
-- **Tab Arrival Phase B（2026-07-23）**: 旧案（ヘッダー+scale）はロールバック済み（`49ec2f1`）。**KPI フラッシュ専用**に再設計・実装（進行中）
+- **Tab Arrival / KPI フラッシュ（2026-07-23）**: 旧 Phase B（ヘッダー+scale）はロールバック済み（`49ec2f1`）。**KPI フラッシュ専用**を `e8e5acf` で実装（新規sim・比較検証のみ。複製では非発火）
 - パレットのスキル一覧は `**umasimSkillDataList`（ローカル）正本** — `buildPaletteSkillOptions`。WASM sim は `fetchSkillData()`（GitHub 優先 → AppData → 同梱 `public/skill_data.txt`）
 - **オートキャプチャ Capture–Stitch 契約**: **広帯 -4 / 狭帯 -3**（`scrollRegionH` しきい値 280px）。**M5**: wheel は stitch（TS）正本・Rust IPC 受信。正本: `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)`「Capture–Stitch 契約」
 - **Scene Model ロードマップ**: `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)` 起票（M0 done）。Catalog: `[SCENE-CATALOG.md](../auto-capture-design-pack/SCENE-CATALOG.md)`。素材運用: `[PACK-GUIDE.md](../auto-capture-design-pack/PACK-GUIDE.md)`
