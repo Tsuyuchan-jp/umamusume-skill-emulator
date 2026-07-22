@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（要点は下記「更新ルール」「エージェント必須手順」。詳細は [`DOCS-GUIDE.md`](DOCS-GUIDE.md)）。
 
-最終更新: 2026-07-23 08:17
+最終更新: 2026-07-23 08:19
 
 ---
 
@@ -16,7 +16,7 @@
 
 ## 現在のフォーカス
 
-OCR 後スキル数サマリー表示（総数・金・進化）— SkillPanel / SimulationStatusView
+（なし — 次は Backlog P1（着手可能）/ P2 から選択）
 
 ## サマリー（手更新）
 
@@ -24,7 +24,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 | 進行中 | P1 着手可能 | P1 棚上げ | P2 未着手 | 保留 |
 | --- | --- | --- | --- | --- |
-| 1 | 3 | 1 | 8 | 1 |
+| 0 | 3 | 1 | 8 | 1 |
 
 直近リリース: **v1.3.0**（2026-07-23）
 
@@ -32,12 +32,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 ## 進行中
 
-- [ ] **OCR 後スキル数サマリー表示**（総数・金・進化）
-  - 目標: OCR 解析完了後・**シミュレーション前**に、所持スキルの **総数**・**金スキル（rare）数**・**進化スキル（evo）数** をカウントして表示
-  - 現状: `SkillPanel` はスキル一覧はあるが、上記3指標のサマリーはない。sim タブの実行時ステータス条件パネルにも未表示
-  - 算出: `umaData.skillIds` を `getSkillRarityInfoById`（`umasimSkillData.ts`）で分類して集計。手動編集後も再計算
-  - 触る想定: `skillSummary.ts`（新設）、`SkillSummaryLine`、`SkillPanel.tsx`、`SimulationStatusView.tsx`
-  - 注意: 金＝`rare`、進化＝`evo` の既存色分け定義に合わせる。固有（unique）・継承（inherit）は総数のみ（内訳は出さない）
+（なし）
 
 ## 次にやること（Backlog）
 
@@ -134,6 +129,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 直近10件のみ。それ以前は [`TODO-ARCHIVE.md`](TODO-ARCHIVE.md)。
 
+- [x] **OCR 後スキル数サマリー表示**（総数・金・進化） — `countSkillSummary` + `SkillSummaryLine` を SkillPanel / SimulationStatusView に配線。未知・unique・inherit は総数のみ。`npm test` 66件 PASS（2026-07-23 08:19 / `2352002`〜HASH）
 - [x] **過去キャプチャ画像からステータス読み込み（ファイル OCR ルート）** — 結合済み PNG/JPEG を選択→プレビュー→既存 OCR/Abort。ファイル由来は autoCopy・saveFolder 再保存なし。recording/OCR 中は「画像ファイルを開く」無効。差し替え時 `umaData` クリア修正込み。`npm test` 62件 PASS。**実機検証クローズ**（ファイル経路・キャプチャなし sim・autoCopy 退行なし・中止・ボタン無効・差し替え後再 OCR OK / 2026-07-23 07:48 / `096d436`〜`4b01db5`）/ [`REQ-file-ocr-status.md`](tasks/REQ-file-ocr-status.md) **done**
 - [x] **TODO.md 改修（改善提案1〜7、提案4除く）** — ARCHIVE 分離・既知の問題掃除・P1 棚上げ分離・P0/ルール短縮・件数サマリー追加。388行→218行（2026-07-23 07:17 / `261cf95`〜`91157b9`）
 - [x] **OCR 用 Gemini モデルを Flash-Lite のみに変更** — `gemini-3.1-flash-lite` 単一化・Auto-Fallback 削除・完了 toast からモデル名除去。`npm test` 62件 PASS。**実機検証クローズ**（結合画像1枚で OCR 完了・ステータス/スキル反映・中止退行なし OK / 2026-07-23 06:18 / `979fc13`）
@@ -143,7 +139,6 @@ Backlog・保留を変更したら件数を合わせて更新する。
 - [x] **長距離レース（中山3600m）でエミュレートエラー** — 失敗走スキップ＋完走数 UI（ヘッダー `n/N走`・rate 分母=成功回数・Step1 維持・Step2a/2b 再導入なし）。`npm test` 62件 PASS。**実機検証クローズ**（2026-07-23 03:58 / 実装 `cdd8f4d`〜`a138908`）/ `[REQ-long-distance-sim-error.md](tasks/REQ-long-distance-sim-error.md)` **done**
 - [x] **v1.2.0 リリースビルド** — version 1.2.0 bump・CHANGELOG・`app.exe` 生成・62件テスト PASS（2026-07-18 21:24 / `58873a5`）/ `[REQ-release-v1.2.0.md](tasks/REQ-release-v1.2.0.md)` **done**
 - [x] **オートキャプチャ結合: 最終ペア coarse≈S* 誤採用時の二重結合** — 案 A2a 実装 + **実機検証クローズ**（Frame12→13 terminal coarse re-probe coarse=144→final=38・二重なし。2026-07-14 10:03 / 実装 `f2a4c3e`）/ `[REQ-stitch-terminal-coarse-reprobe.md](tasks/REQ-stitch-terminal-coarse-reprobe.md)` **done**
-- [x] **Tab Arrival Phase A** — TabBar 新タブ入場（スケール/不透明度/リング/下線）・自動スクロール・NEW/コピーバッジ。`onTabArrived(tabId, kind)` 配線。**実機検証クローズ**（2026-07-23 04:15 / 実装 `7e3acd8`）
 
 ---
 

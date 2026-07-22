@@ -3,6 +3,7 @@ import { Activity } from 'lucide-react';
 import { UmaStatusData, RaceCondition } from '../lib/types';
 import { getCourseById, getSurfaceKey, getDistanceKey, getStyleKey } from '../lib/aptitudeHelper';
 import { STRATEGIES, CONDITIONS, APTITUDE_LABELS } from '../lib/constants';
+import { SkillSummaryLine } from './SkillSummaryLine';
 
 interface SimulationStatusViewProps {
   umaData: UmaStatusData;
@@ -117,6 +118,12 @@ export default function SimulationStatusView({ umaData, raceCondition }: Simulat
                   {renderAptitudeBadge(APTITUDE_LABELS[styleKey] || '脚質', umaData.aptitudes[styleKey as keyof typeof umaData.aptitudes] || 'G')}
                 </div>
               </div>
+
+              {/* スキル数サマリー（実行時スナップショット） */}
+              <SkillSummaryLine
+                skillIds={umaData.skillIds ?? []}
+                withSkillPrefix
+              />
             </div>
           </div>
         </>

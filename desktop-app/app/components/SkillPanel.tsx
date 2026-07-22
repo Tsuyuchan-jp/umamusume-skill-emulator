@@ -5,6 +5,7 @@ import { useToast } from '../hooks/useToast';
 import { SkillCommandPalette } from './SkillCommandPalette';
 
 import { canPlaceSkillAtIndex, getSkillNameById, getSkillRarityInfoById, isUniqueSkillId } from '../lib/umasimSkillData';
+import { SkillSummaryLine } from './SkillSummaryLine';
 
 interface SkillPanelProps {
   data: UmaStatusData;
@@ -58,7 +59,7 @@ export function SkillPanel({ data, onChange }: SkillPanelProps) {
   return (
     <div className="w-full relative">
       <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-5">
-        <div className="flex items-center justify-between border-b border-zinc-800 pb-2 mb-4">
+        <div className="flex items-center justify-between border-b border-zinc-800 pb-2 mb-2">
           <h3 className="text-zinc-200 font-bold text-sm">取得スキル</h3>
           <button
             onClick={clearAllSkills}
@@ -67,7 +68,8 @@ export function SkillPanel({ data, onChange }: SkillPanelProps) {
             すべてのスキルを削除
           </button>
         </div>
-        
+        <SkillSummaryLine skillIds={data.skillIds ?? []} className="mb-4" />
+
         {!hasNormalUniqueAtFirst && (
           <div className="bg-rose-950/40 border border-rose-500/50 rounded-lg p-3 mb-4 animate-shake">
             <p className="text-sm font-bold text-rose-400 mb-2">⚠️ 通常固有スキルが設定されていません</p>
