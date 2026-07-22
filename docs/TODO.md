@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-07-23 05:35
+最終更新: 2026-07-23 05:38
 
 ---
 
@@ -16,7 +16,7 @@
 
 ## 現在のフォーカス
 
-**OCR 解析の中止（P1）** — AbortController + CapturePanel「停止」UI（[`REQ-ocr-cancel.md`](tasks/REQ-ocr-cancel.md)）
+**細かい掃除** — OCR 中止完了。次は OCR Flash-Lite のみ（P2）
 
 ---
 
@@ -25,8 +25,7 @@
 スキル獲得 OCR（P1 先頭）は棚上げ。長距離 sim（P0）完了済み。
 優先度ラベル（P1/P2）は変更せず、**いま進める順だけ**ここに書く。
 
-1. OCR 解析の中止（P1）← **いまここ**
-2. OCR を Flash-Lite のみに（P2）
+1. OCR を Flash-Lite のみに（P2）
 
 完了したらこのリストから消し、Backlog 本体も完了済みへ移す。
 
@@ -34,11 +33,7 @@
 
 ## 進行中
 
-- [ ] **OCR 解析の中止（停止）機能** — [`REQ-ocr-cancel.md`](tasks/REQ-ocr-cancel.md)
-  - 症状: Gemini OCR がエラーを返さず不自然に長時間かかることがある。現状は `page.tsx` で `analyzeStitchedImage` を await するだけで、ユーザーが途中で止められない
-  - 目標: 解析中に停止できる UI を追加し、中止後に再度 OCR を実行できるようにする
-  - 触る想定: `geminiOcr.ts`（`AbortController` / fetch 中断）、`page.tsx`（解析中 state・停止・トースト）、`CapturePanel.tsx`
-  - 注意: 停止後は「OCR解析中...」トーストの解除と `isOcrProcessing` のリセットが必要。中止後の遅延成功は破棄
+（なし）
 
 ## 次にやること（Backlog）
 
@@ -161,6 +156,7 @@
 
 ## 完了済み
 
+- [x] **OCR 解析の中止（停止）機能** — AbortController + fetch signal・CapturePanel「停止」・AbortError と API エラー区別・遅延結果破棄。`npm test` 62件 PASS（2026-07-23 05:38 / `bac51e7`）/ [`REQ-ocr-cancel.md`](tasks/REQ-ocr-cancel.md) **done**
 - [x] **REQ-skill-data-fetch-fallback 実機検証クローズ** — 手順 3〜7 OK（同梱フォールバック・fetch 全滅・Worker 文言区別・Launcher/SimTabPanel 回帰・raceDetail トースト）。手順 1〜2 は 2026-06-25 確認済み（2026-07-23 04:52 / 実装 `a5c04a0`）/ `[REQ-skill-data-fetch-fallback.md](tasks/REQ-skill-data-fetch-fallback.md)` **done**
 - [x] **v1.3.0 リリースビルド** — version 1.3.0 bump・CHANGELOG（長距離 sim 失敗走スキップ＋完走数 UI）・`app.exe` 生成・62件テスト PASS（2026-07-23 04:04 / `d3ffb53`）
 - [x] **長距離レース（中山3600m）でエミュレートエラー** — 失敗走スキップ＋完走数 UI（ヘッダー `n/N走`・rate 分母=成功回数・Step1 維持・Step2a/2b 再導入なし）。`npm test` 62件 PASS。**実機検証クローズ**（2026-07-23 03:58 / 実装 `cdd8f4d`〜`a138908`）/ `[REQ-long-distance-sim-error.md](tasks/REQ-long-distance-sim-error.md)` **done**

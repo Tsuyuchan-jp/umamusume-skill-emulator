@@ -3,9 +3,9 @@
 > Gemini OCR が長時間返らないとき、ユーザーが途中で止められるようにする。
 > 設計レビューで Q1〜Q8 承認済み（案 A）。正本: 本 REQ + [`CHAT_TEMPLATE.md`](../CHAT_TEMPLATE.md)。
 
-- **ステータス**: in-progress
+- **ステータス**: done
 - **作成日**: 2026-07-23 05:35
-- **関連コミット**: （完了後に記入）
+- **関連コミット**: `3892bf9`（着手）〜 `bac51e7`（実装）
 
 ---
 
@@ -102,22 +102,22 @@
 
 ## 完了条件
 
-- [ ] `docs/TODO.md` Backlog に起票と同時に1行追加（`draft` 起票時必須）→ 着手時に進行中へ
+- [x] `docs/TODO.md` Backlog に起票と同時に1行追加（`draft` 起票時必須）→ 着手時に進行中へ
 - [x] 「設計制約（契約）」を記入し、完成プロンプト（Q1〜Q8）で合意済み
-- [ ] 解析中に「停止」でき、トーストが「OCR解析を中止しました」に切り替わる
-- [ ] 中止後 `isOcrProcessing` が false になり、再度 OCR を実行できる
-- [ ] 中止後に遅延成功で `umaData` が載らない
-- [ ] 通常完了・503/API エラー表示が退行していない
-- [ ] `npm test`（desktop-app）通過
-- [ ] REQ 完了時: TODO を完了済みへ移動、`SYSTEM_SPECIFICATION.md` 更新
-- [ ] コミット
+- [x] 解析中に「停止」でき、トーストが「OCR解析を中止しました」に切り替わる
+- [x] 中止後 `isOcrProcessing` が false になり、再度 OCR を実行できる
+- [x] 中止後に遅延成功で `umaData` が載らない
+- [x] 通常完了・503/API エラー表示が退行していない（コードパス維持）
+- [x] `npm test`（desktop-app）通過（62件）
+- [x] REQ 完了時: TODO を完了済みへ移動、`SYSTEM_SPECIFICATION.md` 更新
+- [x] コミット
 
 ---
 
 ## 検証手順
 
-1. `desktop-app` で `npm test`（CHAT_TEMPLATE「検証コマンド（共通）」参照）
-2. 実機: 解析中に「停止」→ 中止 toast → 再 OCR 可能
+1. `desktop-app` で `npm test`（CHAT_TEMPLATE「検証コマンド（共通）」参照）— **62 passed**（2026-07-23 05:38）
+2. 実機: 解析中に「停止」→ 中止 toast → 再 OCR 可能（ユーザー確認待ち）
 3. 実機: 通常完了（`umaData` 表示・完了 toast）
 4. 実機: 本物エラー（503/API）が従来どおり error toast になること
 
@@ -128,3 +128,4 @@
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
 | 2026-07-23 05:35 | 案 A（page が AbortController 保持・signal 渡し）。CapturePanel 同一ボタンで停止。AbortError は success toast。セッション世代で遅延結果破棄。Flash-Lite のみ化等はスコープ外 | 設計レビュー Q1〜Q8 承認済み |
+| 2026-07-23 05:38 | 実装完了。`analyzeStitchedImage(..., { signal })`・CapturePanel「停止」・AbortError 区別。CONCEPT-MAP: 今回の用語追加なし（既存カードで十分） | `npm test` 62件 PASS。SYSTEM_SPEC §3.2/§3.9 同期 |

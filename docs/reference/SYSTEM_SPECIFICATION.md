@@ -4,7 +4,7 @@
 > 正本の進捗・要件は [`TODO.md`](../TODO.md)・[`PROJECT.md`](../PROJECT.md)・[`tasks/INDEX.md`](../tasks/INDEX.md) を参照。
 
 **バージョン**: [`desktop-app/package.json`](../../desktop-app/package.json) の `version` が正本（`app/lib/version.ts` → UI、`tauri.conf.json` → Tauri、`sync-version` → Cargo）。運用: [`RELEASE_BUILD.md`](../RELEASE_BUILD.md#バージョン管理)  
-**最終更新**: 2026-06-27 04:37（`docs/reference/` へ移動）
+**最終更新**: 2026-07-23 05:38（OCR 解析の中止を実装済みへ）
 
 ---
 
@@ -142,6 +142,7 @@ Steam版・DMM版「ウマ娘 プリティーダービー」向けの **Windows 
 ### 3.2 OCR・データ入力
 
 - Gemini API による結合画像の OCR（ステータス 5 種、適性、スキル名リスト等）
+- **OCR 解析の中止**（`AbortController` / `AbortSignal`）: 解析中に CapturePanel 同一ボタンで「停止」。中止後は再 OCR 可能。遅延成功結果は破棄
 - ファジーマッチングによる OCR スキル名 → umasim スキル ID 解決
 - 手動編集: `StatusPanel` / `SkillPanel` でステータス・スキル調整
 - `SkillVerifier` によるスキル ID 検証・色分け表示
@@ -196,7 +197,6 @@ Steam版・DMM版「ウマ娘 プリティーダービー」向けの **Windows 
 
 ### 3.9 未実装・Backlog（参考）
 
-- OCR 解析の中止（AbortController）機能
 - keep-alive タブのメモリ負荷軽減（5 タブ以上想定）
 - スキルパレットのレアリティ段階別ソート
 - `skill_data.txt` 参照の一本化（自前 GitHub fetch 案）
