@@ -4,7 +4,7 @@
 > アプリの製品仕様・技術概要は [`PROJECT.md`](PROJECT.md)。**進捗・要件・運用の地図はここ。**
 > リポジトリ全体の紹介は [ルート `README.md`](../README.md)（別ファイル）。
 
-最終更新: 2026-07-23 06:37
+最終更新: 2026-07-23 06:48
 
 ---
 
@@ -57,7 +57,8 @@ REQ が `done` になっても、**ここを更新し続ける**。
 
 | ファイル | 内容 |
 |---------|------|
-| [`TODO.md`](TODO.md) | **次にやること**（Backlog・進行中・保留・完了済み） |
+| [`TODO.md`](TODO.md) | **次にやること**（Backlog・進行中・保留・完了済みは直近10件） |
+| [`TODO-ARCHIVE.md`](TODO-ARCHIVE.md) | 完了済みの履歴（進捗正本ではない） |
 | [`tasks/INDEX.md`](tasks/INDEX.md) | 全 REQ のステータス一覧（TODO の代替 **ではない**） |
 | [`tasks/REQ-TEMPLATE.md`](tasks/REQ-TEMPLATE.md) | 新 REQ 起票用テンプレ |
 
@@ -85,7 +86,7 @@ REQ が `done` になっても、**ここを更新し続ける**。
 | トリガー | 更新先 |
 |----------|--------|
 | 着手（コード・設定変更） | [`TODO.md`](TODO.md) 進行中・フォーカス・`最終更新:` |
-| 完了・Phase 完了 | TODO 完了済み、REQ `done` / 決定ログ、[`INDEX.md`](tasks/INDEX.md)（該当時） |
+| 完了・Phase 完了 | TODO 完了済み（直近10件）、11件目以降は [`TODO-ARCHIVE.md`](TODO-ARCHIVE.md) へ追い出し、REQ `done` / 決定ログ、[`INDEX.md`](tasks/INDEX.md)（該当時） |
 | 新用語・概念の初出（会話に残す価値あり） | [`CONCEPT-MAP.md`](CONCEPT-MAP.md)（`.cursor/rules/concept-map.mdc`） |
 | バージョン bump・リリース | [`CHANGELOG.md`](CHANGELOG.md)（`Unreleased` 昇格・空に戻す）、[`RELEASE_BUILD.md`](RELEASE_BUILD.md) 手順 |
 | ユーザー向け変更の完了（次回リリース予定） | [`CHANGELOG.md`](CHANGELOG.md) の **`Unreleased` に1行追記**（実機クローズ後・完了コミットと同一推奨） |
@@ -159,6 +160,7 @@ REQ が `done` になっても、**ここを更新し続ける**。
 | やりたいこと | 開くファイル |
 |-------------|-------------|
 | 今日何をする？ | `TODO.md` |
+| 過去の完了履歴（10件より前） | `TODO-ARCHIVE.md` |
 | **用語の意味は？** | **`CONCEPT-MAP.md`** |
 | この機能の仕様は？ | 着手 REQ → 永続正本（上表） |
 | 新チャットを起票 | `CHAT_TEMPLATE.md`（一括コピー時は「起票プロンプト作成ルール」参照） |

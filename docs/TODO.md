@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（詳細は下記「更新ルール」「エージェント必須手順」）。
 
-最終更新: 2026-07-23 06:41
+最終更新: 2026-07-23 06:48
 
 ---
 
@@ -138,6 +138,8 @@
 
 ## 完了済み
 
+直近10件のみ。それ以前は [`TODO-ARCHIVE.md`](TODO-ARCHIVE.md)。
+
 - [x] **OCR 用 Gemini モデルを Flash-Lite のみに変更** — `gemini-3.1-flash-lite` 単一化・Auto-Fallback 削除・完了 toast からモデル名除去。`npm test` 62件 PASS。**実機検証クローズ**（結合画像1枚で OCR 完了・ステータス/スキル反映・中止退行なし OK / 2026-07-23 06:18 / `979fc13`）
 - [x] **OCR 解析の中止（停止）機能** — AbortController + fetch signal・CapturePanel「停止」・AbortError と API エラー区別・遅延結果破棄。`npm test` 62件 PASS。**実機検証クローズ**（中止→再実行・通常完了・本物エラーの3系統 OK / 2026-07-23 06:04 / `bac51e7`）/ [`REQ-ocr-cancel.md`](tasks/REQ-ocr-cancel.md) **done**
 - [x] **REQ-skill-data-fetch-fallback 実機検証クローズ** — 手順 3〜7 OK（同梱フォールバック・fetch 全滅・Worker 文言区別・Launcher/SimTabPanel 回帰・raceDetail トースト）。手順 1〜2 は 2026-06-25 確認済み（2026-07-23 04:52 / 実装 `a5c04a0`）/ `[REQ-skill-data-fetch-fallback.md](tasks/REQ-skill-data-fetch-fallback.md)` **done**
@@ -148,118 +150,6 @@
 - [x] **Tab Arrival Phase A** — TabBar 新タブ入場（スケール/不透明度/リング/下線）・自動スクロール・NEW/コピーバッジ。`onTabArrived(tabId, kind)` 配線。**実機検証クローズ**（2026-07-23 04:15 / 実装 `7e3acd8`）
 - [x] **タブ追加時のサムネイル飛翔アニメーション削除** — `flyingThumbnail` / `flyToTab` / `highlightedTabId` 除去、複製時トースト常時表示（2026-07-11 18:28 / `8f7dda8`）/ 関連 `[REQ-fullscreen-cockpit-layout.md](tasks/REQ-fullscreen-cockpit-layout.md)`
 - [x] **オートキャプチャ結合: 最下部びったし到達時の二重結合** — 案 A′ 実装 + **実機検証クローズ**（Frame7→8 terminal micro skip coarse=60・二重なし。2026-07-11 18:16 / 実装 `24f624f`）/ `[REQ-stitch-terminal-exact-bottom.md](tasks/REQ-stitch-terminal-exact-bottom.md)` **done**
-- [x] **「実行時のステータス条件」ボタンをテキスト付き表記に変更** — トリガーラベル「ステータス条件」・秒数/バ身差トグルと高さ揃え（2026-07-11 17:19 / `0d86bbc`）
-- [x] **エラートーストの全文表示** — `type: error` は折り返し・複数行表示、success は1行 truncate 維持（2026-07-11 17:06 / `de990f6`）/ `[REQ-skill-data-fetch-fallback.md](tasks/REQ-skill-data-fetch-fallback.md)` 実機検証手順 2 関連
-- [x] **オートキャプチャ結合リライト R5** — `opencvStitcher.ts` 削除・`stitchImages` 一本化・`USE_STITCH_V2` 廃止。golden 29/29 PASS（2026-07-10 19:03 / `6c92354`）/ `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)` **done**・親 REQ `[REQ-auto-capture-multi-screen.md](tasks/REQ-auto-capture-multi-screen.md)` **done**
-- [x] **G-FRD-I golden 登録** — expectations 8件目・Vitest 29/29 PASS・Catalog 同期（2026-06-28 03:34 / `4ad5dc1`）/ `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)` R4b
-- [x] **オートキャプチャ結合リライト R4b**（TrainingInfo S-6 配線）— golden 25/25 PASS。**実機クローズ**: G-FRD-I（`StitchTab=TrainingInfo`）+ 退行ゲート全 OK（2026-06-28 03:16 / `b8963da`）/ `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)` R4b
-- [x] **オートキャプチャ結合リライト R4a**（postProcess 分離・compose 純化）— golden 25/25 + postProcess Vitest 2件 PASS。**実機クローズ**: Step 1 G-HOF-S・3 G-TRN・4a/4b G-FRD-S・5 G-HOF-F・6 G-FRD-F（S-5）退行なし（2026-06-28 00:47 / `0b549f5`）/ `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)` R4a
-- [x] **G-HOF-S 末端 terminal 微探索 + NO_SCROLL skip** — 最終ペア [0,40) 微探索・terminal 経路 skip/terminal 採用。Vitest 4件 + golden 25/25。**実機クローズ**: G-HOF-S 長リスト（Frame 8→9 raw=82→final=28 terminal）・G-TRN・G-FRD-S-release/register 退行なし（2026-06-28 00:11 / `d914c3b`）/ `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)` R3.5c-2 拡張
-- [x] **オートキャプチャ・スクロール用カーソル位置** — Y: 帯上端 + max(56px, 62%帯高)（`1ac4742`）。X: crop 中心（`cropCore` 同系・`2b272bd`。幾何中心 `a3b8fcd` は実機 NG で差し替え）。golden 25/25。**実機クローズ**: G-FRD-S-register/release・G-HOF-S・G-TRN・Y/X とも OK（2026-06-27 23:21 / `2b272bd`）/ `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)`
-- [x] **Scene Model M6c** — R3.5d-5 実機検証クローズ（4a/4b/1/3/6 全 OK・StitchTab 修正後 Step 6 再 OK）（2026-06-27 21:54 / `ef7beda`）/ `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)`
-- [x] **オートキャプチャ結合 R3.5d 実機検証クローズ**（d-5: FRD Step 4/6・HOF/TRN 退行なし）（2026-06-27 21:54 / `ef7beda`）/ `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)`
-- [x] **Scene Model M6b** — INV-1: scrollStart ガード・G-FRD-S-register scrollStart assert・golden 23/23（2026-06-27 18:56 / `dccf6b3`）/ `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)` — アーモンドアイ golden は PNG 待ち
-- [x] **Scene Model M6a** — INV-2: partner register 幾何帯除外・centerDominant 検出・layoutCore partnerTabRow 正本化・golden 22/22（2026-06-27 17:35 / `556a503`）/ `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)`
-- [x] **Scene Model M5** — wheelCore・capture_frame0_preview IPC・Rust 緑タブ走査廃止・reason=stitch_*（2026-06-27 08:11 / `ba18bc3`）/ `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)`
-- [x] **Scene Model M4** — partnerDetectCore・緑判定 rgba 正本化・tabDetect INV-2 配線・capture.rs 閾値同期（2026-06-27 08:01 / `40bcbca`）/ `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)`
-- [x] **Scene Model M3** — expectations sceneSpec 必須・Vitest 駆動・INV-1 メタ（FRD タイト帯）（2026-06-27 07:14 / `cf2a6a0`）/ `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)`
-- [x] **CHAT_TEMPLATE 起票ルール** — ネストフェンス禁止・検証コマンド共通化（2026-06-27 07:03 / `1e11a78`）
-- [x] **CONCEPT-MAP 種別列** — 英語先頭・種別列追加・隣の概念削除（2026-06-27 06:52 / `db7969f`）
-- [x] **CONCEPT-MAP 新設** — 概念地図・`communication.mdc` / `concept-map.mdc`・CHAT_TEMPLATE・DOCS-GUIDE 同期（2026-06-27 06:40 / `18f43f0`）
-- [x] **Scene Model M2** — expectations `sceneSpec`（partnerBand/tabRow/scrollStart/wheel）・Catalog 期待サマリー・REQ INV 対応表・measure-regions R0 notes（2026-06-27 06:13 / `028221f`）/ `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)`
-- [x] **Scene Model M1 Phase C** — G-FRD-S-register golden（frame_000〜007）・expectations・Vitest・Catalog、golden 19+1 expected fail（2026-06-27 05:57 / `5d4f9a6`）/ `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)`
-- [x] **Scene Model M1 Phase B** — `G-FRD-S` → `G-FRD-S-release`、`golden/FRD/skill/` → `skill-release/`、expectations・Vitest・Catalog 同期、golden 18/18 PASS（2026-06-27 05:30 / `a84d51f`）/ `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)`
-- [x] **Scene Model Catalog Phase A** — SCENE-CATALOG に goldenPath・expectations 列・対応表、欠落表吸収、NG サブケース整理、PACK-GUIDE 同期（2026-06-27 05:25 / `fa91f07`）/ `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)` M1 Phase A
-- [x] **design-pack 整理** — logs/screenshots 削除・Vitest 参照 PNG を golden/ へ統合・PACK-GUIDE 2層化（2026-06-27 05:12 / `23cac9f`）
-- [x] **ゲームアップデート後のスキルデータ更新（2026-07）** — Steam `master.mdb` 差し替え（2026-07-10）・umasim 2042件（+4）・v1.1.1 `app.exe` 再ビルド（2026-07-11 15:56 / `5660ba2`）
-- [x] **v1.1.1 リリースビルド** — スキルデータ 2038件同梱・version bump・`app.exe` 更新（2026-06-30 03:51 / `650ab04`）
-- [x] **ゲームアップデート後のスキルデータ更新** — Steam `master.mdb` 差し替え（2026-06-29）・umasim 2038件（+17）・skillRarity 1833件（2026-06-30 03:39 / `0e84324`）
-- [x] **design-pack P0** — PACK-GUIDE 新設・README 案内板化・DOCS-GUIDE リンク（2026-06-27 04:48 / `11a6879`）/ `[PACK-GUIDE.md](../auto-capture-design-pack/PACK-GUIDE.md)`
-- [x] **オートキャプチャ結合 R3.5d 実装**（d-2〜d-4: frame0 帯推定・狭帯 -3 / 広帯 -4・FRD golden）— golden 18/18 PASS（2026-06-27 02:41 / `139c14e`）/ `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)` — **d-5 実機はユーザー確認待ち**
-- [x] **オートキャプチャ結合 R3.5c**（c-2〜c-5 一部 + 実機 HOF-S/TRN/HOF-F）— terminal・狭帯ガード・golden 18/18（2026-06-27 02:04 / `23ebab7`）/ `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)`
-- [x] **オートキャプチャ結合リライト R3.5b**（layout L2 優先・tabDetect 2タブガード）— golden 17/17 PASS（2026-06-27 00:02 / `5d98121`）/ `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)`
-- [x] **オートキャプチャ結合リライト R3.5a**（shiftEstimate: SSD + median・scrollMatch 委譲）— golden 15/15 PASS（2026-06-26 23:12 / `76b3fc7`）/ `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)`
-- [x] **オートキャプチャ結合リライト R3**（compose / scrollMatch・`USE_STITCH_V2=true`）— golden 12/12 PASS（2026-06-26 19:41 / `7fbf8b5`）。**実機**: HOF OK・FRD/TRN NG → R3.5 へ / `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)`
-- [x] **オートキャプチャ結合リライト R2**（layout / tabDetect 整理・走査帯正本化）— G-CMP-S + G-FRD-S layout/tabRow PASS、G-FRD-S scrollStart 要フォロー（2026-06-26 18:07 / `47d5755`）/ `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)`
-- [x] **オートキャプチャ結合リライト R1**（scrollStartY absdiff 正本・`USE_STITCH_V2`）— G-TRN/G-HOF-S golden PASS（2026-06-26 08:41 / `1df1860`）/ `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)`
-- [x] **オートキャプチャ結合リライト R0（golden ハーネス）** — expectations.json・measure-regions.ps1・Vitest 5件 PASS・設計パック 6 golden PASS（2026-06-26 08:13 / `851d341`）/ `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)`
-- [x] **オートキャプチャ G-TRN 実機検証** — Phase 1（-5 旧 `0887fcd`）+ **v2/-4 実機 OK**（R3.5c `23ebab7`）/ `[REQ-auto-capture-multi-screen.md](tasks/REQ-auto-capture-multi-screen.md)`
-- [x] **オートキャプチャ Phase 1（結合修正 S-1〜S-5）** — StitchLayout/StitchTab・absdiff フォールバック・継承緑帯修正。`capture.rs` 未変更（2026-06-26 06:12 / `700d0b3`）/ `[REQ-auto-capture-multi-screen.md](tasks/REQ-auto-capture-multi-screen.md)` Phase 1 **done**
-- [x] **スキルデータ fetch フォールバック + シミュレーションエラー区別** — GitHub→AppData→同梱チェーン、`SkillDataFetchError`/`SimulationWorkerError` 区別、フォールバックトースト（2026-06-23 03:36 / `a5c04a0`）/ `[REQ-skill-data-fetch-fallback.md](tasks/REQ-skill-data-fetch-fallback.md)` **done**（**実機検証クローズ** 手順 1〜7 / 2026-07-23）
-- [x] **REQ 索引 INDEX.md 新設とロードマップ同期** — 全28件カタログ・`REQ-race-detail-graph.md` Phase 5 同期・`PROJECT.md` / rules 更新（2026-06-20 00:41 / `5d9dc0c`）
-- [x] **v1.1.0 リリース（Phase R1 + R2.5 + R3）** — バージョン 1.1.0 bump・CHANGELOG・`tauri build` 通過（2026-06-19 23:51 / `5650bb7`）/ `[REQ-release-v1.1.0.md](tasks/REQ-release-v1.1.0.md)` **done**
-- [x] **v1.1.0 リリース — Phase R2.5: スキルデータ extract** — umasim 2021件同期・新規4エントリ（フローラ固有/継承・evo×2）・extract スクリプトにヘルパー保持（2026-06-19 23:36 / `8293001`）
-- [x] **v1.1.0 リリース — Phase R1: バグ Fix（R-001 / R-006 / R-008）** — シミュ失敗トースト正規化・raceDetail 失敗通知・simulationCount NaN ガード（`simulationErrors.ts` 新設）（2026-06-19 23:26 / `c12e628`）
-- [x] **左カラム設定項目の折りたたみ** — 3項目を1トグルで折りたたみ、自動コピーはヘッダー常時表示、localStorage `settingsPanelExpanded`（**実機検証クローズ** 2026-06-19 20:45 / `05fd9a6`）
-- [x] **サイドバー折りたたみ時アイコンフラッシュ修正** — invisible+transition 廃止、条件レンダリング+装飾なしゴースト行（2026-06-19 20:02 / `36cbc07`）
-- [x] **サイドバー折りたたみ rail 展開ボタン Y 揃え（再修正）** — 共通ヘッダー化 + 折りたたみ時 invisible 行で行高維持・absolute 中央配置（2026-06-19 19:56 / `ccbcf73`）
-- [x] **サイドバー折りたたみ rail 展開ボタン Y 揃え** — 展開時ヘッダーと同じ `pt-4` + `h-10` 行に配置（2026-06-19 19:51 / `ab93563`）
-- [x] **サイドバー UI ポリッシュ（実機指摘）** — 最小幅タイトル1行 truncate + 折りたたみ rail アイコン除去（スペーサーで展開ボタン Y 維持）（2026-06-19 19:45 / `6bb53b9`）
-- [x] **サイドバー折りたたみボタンをスクロール位置に依存させない** — 展開時を固定ヘッダー + スクロールボディ（案 B）（2026-06-19 19:33 / `74aebc6`）
-- [x] **Google Map 型グラフ — ホイール停止後 overlay 復帰 latency 短縮** — 合成 metrics 即時 handoff（A）+ adaptive idle（B）（**実機検証クローズ** 2026-06-19 / `ed67df3` / `[REQ-race-detail-graph-overlay-handoff-latency.md](tasks/REQ-race-detail-graph-overlay-handoff-latency.md)` **done**）
-- [x] ホイール 1 ノッチ拡大率調整 — `CHART_VIEW_WHEEL_ZOOM_FACTOR` 1.2→1.3（**実機検証クローズ** 2026-06-19 19:19 / `7e6af0d` / `[REQ-race-detail-graph-map-view.md](tasks/REQ-race-detail-graph-map-view.md)`）
-- [x] **Google Map 型グラフ UI Phase 5 完了** — ステップ 3 暫定 UI 削除 + ステップ 4 全体実機検証クローズ（検証手順 1〜7 すべて OK / `249c4b2` / `[REQ-race-detail-graph-map-view.md](tasks/REQ-race-detail-graph-map-view.md)` **done**）
-- [x] Google Map 型グラフ UI Phase 5 — **ステップ 3 暫定 UI 削除**（`expandSkillRows` / K=4 legacy 経路除去・map-view 単一路線・操作ヒント追加）（`ee6d460` / `[REQ-race-detail-graph-map-view.md](tasks/REQ-race-detail-graph-map-view.md)`）
-- [x] ホイール 1 ノッチ拡大率調整 — `CHART_VIEW_WHEEL_ZOOM_FACTOR` 1.1→1.2（**実機検証クローズ** 2026-06-19 18:18 / `bec0d2a` / `[REQ-race-detail-graph-map-view.md](tasks/REQ-race-detail-graph-map-view.md)`）
-- [x] **連続ホイールズームの途中 commit 除去** — `MAP_INTERACTION_WHEEL_IDLE_MS` 150→300ms（案 A。**実機検証クローズ** 2026-06-19 18:12 / `8227f93`〜`1902c42` / `[REQ-race-detail-graph-wheel-continuous-zoom.md](tasks/REQ-race-detail-graph-wheel-continuous-zoom.md)`）
-- [x] Google Map 型グラフ — Interaction Canvas Engine **Phase 1〜4**（Dual-Viewport・handoff 200ms SLA。**実機検証クローズ** 2026-06-19 / `9042aa9` / `96e40d5` / `[REQ-race-detail-graph-interaction-engine.md](tasks/REQ-race-detail-graph-interaction-engine.md)`）
-- [x] Google Map 型グラフ — Interaction Canvas Engine **Phase 4 設計レビュー**（案 A 維持 + probe 多フレーム rAF + dev 計測・200ms SLA 定義）（2026-06-19 17:36 / `[REQ-race-detail-graph-interaction-engine.md](tasks/REQ-race-detail-graph-interaction-engine.md)`）
-- [x] ホイールズーム中心を可視窓 center（画面中心拡大）に変更 — **採用・実機検証クローズ** 2026-06-19（`6ac05a9` / `[REQ-race-detail-graph-map-view.md](tasks/REQ-race-detail-graph-map-view.md)`）
-- [x] 非操作時もスキル発動点小丸を常時表示（半径 2.5px・overlay SVG + Canvas）（`c6db25c` / `d22db24` / Phase 3 拡張）
-- [x] グラフパン時の Y 軸目盛りテキスト選択による再ドラッグ不能 — select-none + pointerdown preventDefault（`9a3b8ca` / Phase 3 実機指摘）
-- [x] Google Map 型グラフ — Interaction Canvas Engine **Phase 3**（Canvas rAF 配線・発動点小丸・Line strokeOpacity defer）（**実機検証クローズ** 2026-06-19 / `8ab7c60` / `[REQ-race-detail-graph-interaction-engine.md](tasks/REQ-race-detail-graph-interaction-engine.md)`）
-- [x] Google Map 型グラフ — Interaction Canvas Engine **Phase 2**（liveViewRef 分離・deferDomainCommit・buildInteractionPlotMetrics）（**実機検証クローズ・軽量** 2026-06-19 16:13 / `8767b1a` / `[REQ-race-detail-graph-interaction-engine.md](tasks/REQ-race-detail-graph-interaction-engine.md)`）
-- [x] Google Map 型グラフ — Interaction Canvas Engine **Phase 1**（chartLineRenderer.ts・getSpeedAtTime export・座標検証）（`5693968` / `[REQ-race-detail-graph-interaction-engine.md](tasks/REQ-race-detail-graph-interaction-engine.md)`）
-- [x] Google Map 型グラフ — domain 更新 30fps cap（perf fallback）（**実機検証クローズ** 2026-06-19 01:12 / `5053012`〜`cba1f4c` / `[REQ-race-detail-graph-map-view-perf-fallback.md](tasks/REQ-race-detail-graph-map-view-perf-fallback.md)`）
-- [x] Google Map 型グラフ — overlay scales 同期 + ズーム操作一連（レスポンス・復帰ずれ・scales probe）（**実機検証クローズ** 2026-06-19 00:46 / `98c0cea`〜`a1dd542` / `[REQ-race-detail-graph-map-view.md](tasks/REQ-race-detail-graph-map-view.md)`）
-- [x] Google Map 型グラフ — overlay 復帰位置ずれ修正（metrics 同期ゲート + 操作終了時 pending flush）（`a9125c7` / `[REQ-race-detail-graph-map-view.md](tasks/REQ-race-detail-graph-map-view.md)`）
-- [x] Google Map 型グラフ — ズーム操作のレスポンス改善（rAF バッチ・metrics リセット削減・操作中 overlay defer）（`98c0cea` / `[REQ-race-detail-graph-map-view.md](tasks/REQ-race-detail-graph-map-view.md)`）
-- [x] Google Map 型グラフ — percent 軸追従修正（ホイール・縦パンで centerPercent 連動）（**実機検証クローズ** 2026-06-18 23:30 / `f8a62f0` / `[REQ-race-detail-graph-map-view.md](tasks/REQ-race-detail-graph-map-view.md)`）
-- [x] Google Map 型グラフ UI — ステップ 2（ChartViewState 配線・ホイール等倍ズーム・2D パン・ダブルクリックリセット）（`91e76cb` / `[REQ-race-detail-graph-map-view.md](tasks/REQ-race-detail-graph-map-view.md)`）
-- [x] Google Map 型グラフ UI — map-view ステップ 1（ChartPlotMetrics + cartesian 実測 + 俯瞰統合 layout）（`aca5f6f` / `[REQ-race-detail-graph-map-view.md](tasks/REQ-race-detail-graph-map-view.md)`）
-- [x] Phase 5-R1b ポリッシュ: XAxis reserve + overlay domain を speedPlotHeight に統一（`a8744ef` / 実機確認待ち）
-- [x] Phase 5-R1b ポリッシュ: speedPlotHeight に Legend 分を反映（`ba4e172` — XAxis 未考慮で stack 16px 低下）
-- [x] Phase 5-R1b ポリッシュ: contentPlotHeight 修正 + nudge リセット（`2e52a26` — Legend 未考慮で過補正）
-- [x] Phase 5-R1b ポリッシュ: stack 0 赤線の半px整列 + 速度線 nudge（`b94777d` — **plot 高さ修正で置換**）
-- [x] Phase 5-R1b ポリッシュ: 赤線アンカー分離 + 同時刻のみスタック（`7af3b0c` — **案1は撤回**）
-- [x] Phase 5-R1b ポリッシュ: ラベル↔赤線隙間 + 速度線 linear 補間統一（`cce0314` / 5-R1b 実機指摘）
-- [x] Phase 5-R1b: 詳細表示レイアウト（赤線アンカー + 同時刻スタック圧縮）— yStackOffset 二段階・赤線速度線アンカー・ラベル上配置（**実機検証待ち** / `782dabe` / `[REQ-race-detail-graph-same-time-stack-compact.md](tasks/REQ-race-detail-graph-same-time-stack-compact.md)`）— 赤線／ラベル一体・K=4.0 固定・案3 維持（**実機検証クローズ** 2026-06-14 11:04 / `dd414ea` / `[REQ-race-detail-graph-analysis-revert.md](tasks/REQ-race-detail-graph-analysis-revert.md)`）
-- [x] detail 分析モード刷新 — 案3 + K 下限 3.0 + 赤線分離（**赤線分離 NG・R1 で revert 予定** / `a83d5df` / `[REQ-race-detail-graph-skill-layout-sync.md](tasks/REQ-race-detail-graph-skill-layout-sync.md)`）
-- [x] xStaggerOnly 衝突条件修正（案A）— baseY 近接判定除去、Y zoom 探索 dead code 解消（**superseded** / `0545e9f` / `[REQ-race-detail-graph-skill-layout-sync.md](tasks/REQ-race-detail-graph-skill-layout-sync.md)`）
-- [x] overview stack 0 優先（案1）— OFF 時 Y stagger なし・速度スナップ維持・被り許容（**実機検証待ち** / `3806581` / `[REQ-race-detail-graph-skill-layout-sync.md](tasks/REQ-race-detail-graph-skill-layout-sync.md)`）
-- [x] detail ラベル px 固定（A案）— font/hit box/オフセット固定、yZoom は plot+stagger のみ（**実機検証待ち** / `af78fe8` / `[REQ-race-detail-graph-skill-layout-sync.md](tasks/REQ-race-detail-graph-skill-layout-sync.md)`）
-- [x] detail Y zoom 反復収束 + X-only stagger — 2D 被りゼロまで K 探索・detail 時 X 重なり stagger（**実機検証待ち** / `12af1e1` / `[REQ-race-detail-graph-skill-layout-sync.md](tasks/REQ-race-detail-graph-skill-layout-sync.md)`）
-- [x] 縦拡大 = Y クローズアップ（密集度自動 zoom）— 速度追従+相関維持・detail 縦スクロール（**superseded by 反復 zoom** / `b7f3838` / `[REQ-race-detail-graph-skill-layout-sync.md](tasks/REQ-race-detail-graph-skill-layout-sync.md)`）
-- [x] 縦拡大 ON 時 Y 軸圧縮（360px 固定）修正 — viewport 高さ LineChart + 下スキル band（**superseded** / `e1ef3f2`）
-- [x] 縦拡大 ON 時の Y 軸縮小・スキル重なり修正 — 速度 plot 固定 + スキル band 分離 + X+Y stagger（**実機検証待ち** / `cff8573` / `[REQ-race-detail-graph-skill-layout-sync.md](tasks/REQ-race-detail-graph-skill-layout-sync.md)`）
-- [x] スキル帯×速度折れ線連動レイアウト — 速度スナップ + 0.4秒ビンストラグger（案A）（**実機検証待ち** / `6816447` / `[REQ-race-detail-graph-skill-layout-sync.md](tasks/REQ-race-detail-graph-skill-layout-sync.md)`）
-- [x] パレットのスキルデータ参照をローカルに統一 — `buildPaletteSkillOptions` + inherit 優先 dedupe + SkillPanel warm-up 削除（**実機検証クローズ** / `f564898` / `[REQ-palette-local-skill-data.md](tasks/REQ-palette-local-skill-data.md)`）
-- [x] タブ切り替え時の引っかかり改善 — keep-alive + visibility 重ね + TabBar UI 刷新（**実機検証クローズ** / `224d67a`〜`132d56a` / `[REQ-tab-switch-performance.md](tasks/REQ-tab-switch-performance.md)`）
-- [x] スタミナキープ持続線異常 — WASM endTime センチネル + 条件付き水平線描画（**実機検証クローズ** / `8b02849` / `[REQ-race-detail-graph-stamina-keep-line.md](tasks/REQ-race-detail-graph-stamina-keep-line.md)`）
-- [x] グラフ縦拡大 ON 時の末尾スキル帯クリップ — `computeExpandedChartHeight` 式修正（`6a9b0fb` / `[REQ-race-detail-graph-vertical-clip.md](tasks/REQ-race-detail-graph-vertical-clip.md)`）
-- [x] グラフスキル hover UI ポリッシュ — カーソル default + hover ピル発光（`67b3707` / `[REQ-race-detail-graph-skill-tooltip.md](tasks/REQ-race-detail-graph-skill-tooltip.md)`）
-- [x] グラフ内スキル hover Tooltip — 効果量・持続時間・発動位置％（本家 GraphSkill.description 準拠）（`a5e5e7d` / `2c73c81` / `[REQ-race-detail-graph-skill-tooltip.md](tasks/REQ-race-detail-graph-skill-tooltip.md)`）
-- [x] 直近レース詳細グラフ Phase 4 — baseline グラフ diff（2系列オーバーレイ・**実機検証クローズ** A〜F OK）（`e780b3d` / `a4752cf` / `[REQ-race-detail-graph-phase4.md](tasks/REQ-race-detail-graph-phase4.md)`）
-- [x] レース詳細グラフ UI レスポンス改善 Phase 1+2 — overlay SVG・useMemo 分割・スクロールバー/Tooltip 追従修正・**実機検証クローズ**（`f8158c8` / `2c8e1ed` / `e9b337f` / `873080e` / `[REQ-race-detail-graph-performance.md](tasks/REQ-race-detail-graph-performance.md)`）
-- [x] Phase 3 UX スキル行 B案 — 下ライン・28px 行高・zinc ピル・縦拡大一貫レイアウト（`447d25e` / `[REQ-race-detail-graph-phase3-ux.md](tasks/REQ-race-detail-graph-phase3-ux.md)`）
-- [x] 直近レース詳細グラフ Phase 3 UX ポリッシュ — ラベル TopLeft・ダーク scrollbar・フォーカス白線除去・Legend 同期（`7a91cb7` / `[REQ-race-detail-graph-phase3-ux.md](tasks/REQ-race-detail-graph-phase3-ux.md)`）
-- [x] TODO.md 運用ルール整備 — 進行中ライフサイクル・エージェント必須手順を TODO / rules / CHAT_TEMPLATE / PROJECT に追記（`bf52d7a`）
-- [x] 直近レース詳細グラフ Phase 3 — スキル帯・表示切替（WASM skillEvents + checkbox + 本家準拠ラベル/赤線）（`f8e8cbe`〜修正コミット / `[REQ-race-detail-graph-phase3.md](tasks/REQ-race-detail-graph-phase3.md)`）
-- [x] 直近レース詳細グラフ Phase 2 — 区間オーバーレイ + trackDetail WASM + UX改善（色弱対策・坂上下段・右Y軸体力0）（`5e2b401` / `[REQ-race-detail-graph-phase2.md](tasks/REQ-race-detail-graph-phase2.md)`）
-- [x] レース詳細グラフ Y軸・単位改善 — 双 Y 軸・体力/レーン床リマップ・速度 m/s（`206b9ee` / `[REQ-race-detail-graph-axis.md](tasks/REQ-race-detail-graph-axis.md)`）
-- [x] 全画面 Cockpit UI（Phase 1〜3 + UX ポリッシュ）— SkillVerifier 右ペイン・トースト Portal・KPI ストリップ等（`98c8739`〜`a75ec9c` / `[REQ-fullscreen-cockpit-layout.md](tasks/REQ-fullscreen-cockpit-layout.md)`）
-- [x] サイドバー狭幅 UI 整備（Phase S1+S2）— 行レイアウト修正・二重カード解消・padding 圧縮（`d8ddb66` / `[REQ-sidebar-compact-layout.md](tasks/REQ-sidebar-compact-layout.md)`）
-- [x] 全画面 Cockpit UI Phase 2 — KPI ストリップ + グラフ常時表示 + 実機検証済み（`6b8b13b` / `c9412ee`）
-- [x] 全画面 Cockpit UI Phase 1 — サイドバー折りたたみ + 右カラム全幅化 + min-w-0 縮退（`98c8739`）
-- [x] 直近レース詳細グラフ（Phase 1 MVP）— `runSimulationDetail` WASM + recharts 折りたたみ UI（`2abda5a` / `[REQ-race-detail-graph-phase1.md](tasks/REQ-race-detail-graph-phase1.md)`）
-- [x] Gemini API キーのセキュアストレージ化（Windows Credential Manager + localStorage 移行）（`fa7c5b3`）
-- [x] スキル UI 最終実機確認（パレット先頭 inherit・special/minus 除外・色分け一致）
-- [x] パレットから `special` / `minus` スキルを除外（`570a1f2`）
-- [x] スキルアイコンの不要な末尾スペースを削除（`2d20a50`）
-- [x] スキル5色表示（ID ベース）+ 通常固有ガード（`8e6ff01` 付近）
-- [x] パレット先頭15件が白表示になる原因調査（`special`/`minus` が色分け対象外だった）
-- [x] SkillVerifier の色分け表示（`getSkillRarityInfoById` 適用済み・コード確認）
-- [x] Cursor 運用ドキュメント整備（`945d18f`）
 
 ---
 
@@ -313,7 +203,7 @@
 | **現在のフォーカス**   | プロジェクト全体で今優先しているテーマ（1行）     | 着手時・方針変更時             |
 | **進行中**        | **いまコード/設定を変更している作業**（最大1件） | **着手時**（必須）           |
 | **Backlog**    | 未着手タスク（優先度付き）               | 新タスク追加・着手時に行を移動       |
-| **完了済み**       | 完了タスク（コミットハッシュ付き）           | **完了時**（必須）           |
+| **完了済み**       | 完了タスク直近10件（コミットハッシュ付き）。古い分は ARCHIVE | **完了時**（必須）           |
 | **保留 / ブロック中** | 外部待ち・判断待ちで止まっている作業          | ブロック発生/解消時            |
 | **既知の問題・メモ**   | バグメモ・調査結果・運用メモ（タスク化前の情報）    | 発見時。タスク化したら Backlog へ |
 
@@ -325,7 +215,7 @@
 ### ライフサイクル（Backlog 項目）
 
 1. **着手時（必須）**: Backlog から該当行を **「進行中」へ移す**（同時に載せるのは1件）。「現在のフォーカス」を合わせて更新。`最終更新:` を書き換える
-2. **完了時（必須）**: 「進行中」から **「完了済み」へ移す**（コミットハッシュを添える）。Backlog に残っていれば削除。REQ があれば `done` に更新
+2. **完了時（必須）**: 「進行中」から **「完了済み」へ移す**（コミットハッシュを添える）。Backlog に残っていれば削除。REQ があれば `done` に更新。**完了済みが11件以上**なら一番下の1件を [`TODO-ARCHIVE.md`](TODO-ARCHIVE.md) 先頭へ移動
 3. **中断・ブロック時**: 「進行中」→「保留 / ブロック中」へ移し、理由を1行追記
 
 ### その他
@@ -337,6 +227,7 @@
 5. **REQ を `draft` / `in-progress` で起票したら、同一コミット内で Backlog に必ず1行追加する**（REQ だけに書いて TODO を空にしない）
 6. REQ が `done` になったら Backlog から削除し「完了済み」へ移す（REQ ファイル自体は残す）
 7. REQ 20件超: `docs/tasks/INDEX.md` を新設して一覧管理（`.cursor/rules/docs-management.mdc` 参照）
+8. **完了済みの上限**: 直近 **10件** のみ `TODO.md` に残す。11件目以降は [`TODO-ARCHIVE.md`](TODO-ARCHIVE.md) へ追い出す（完了コミットと同一で可）
 
 ### 着手の定義
 
@@ -380,8 +271,9 @@
 
 ### 作業完了時
 
-1. 「進行中」→「完了済み」（コミットハッシュ）
+1. 「進行中」→「完了済み」先頭へ追記（コミットハッシュ）
 2. REQ があれば `done` + 決定ログ
-3. `最終更新:` を更新
-4. 完了報告の **前に** コミットする
+3. 完了済みが11件以上なら、一番下の1件を `TODO-ARCHIVE.md` 先頭へ移動し、ARCHIVE の `最終更新:` を更新
+4. `最終更新:` を更新
+5. 完了報告の **前に** コミットする
 
