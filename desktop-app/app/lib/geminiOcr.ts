@@ -13,6 +13,19 @@ class ApiError extends Error {
   }
 }
 
+/** ユーザー中止（AbortSignal）由来のエラーか。ApiError(429/503) に変換しない */
+function isAbortError(err: unknown): boolean {
+  if (!err || typeof err !== "object") return false;
+  const name = (err as { name?: string }).name;
+  return name === "AbortError";
+}
+
+function throwIfAborted(signal?: AbortSignal): void {
+  if (signal?.aborted) {
+    throw new DOMException("The operation was aborted.", "AbortError");
+  }
+}
+
 const SYSTEM_INSTRUCTION = `あなたはゲーム「ウマ娘 プリティーダービー」の詳細ステータス画面の画像を解析するAIです。
 画像から以下の情報をJSON形式で抽出してください。
 存在しない項目はnullを返すか、リストの場合は空配列にしてください。
@@ -83,8 +96,14 @@ function cleanAndParseJSON(str: string): any {
 
 /**
  * 結合済みのDataURL画像1枚を送信する（デフォルト）
+ * @param options.signal 中止用 AbortSignal（AbortController）。将来のファイル OCR でも再利用する
  */
-export async function analyzeStitchedImage(apiKey: string, dataUrl: string): Promise<{ data: UmaStatusData; modelUsed: string }> {
+export async function analyzeStitchedImage(
+  apiKey: string,
+  dataUrl: string,
+  options?: { signal?: AbortSignal }
+): Promise<{ data: UmaStatusData; modelUsed: string }> {
+  const signal = options?.signal;
   const base64Data = dataUrl.replace(/^data:image\/(png|jpeg);base64,/, "");
   
   const payload = {
@@ -119,7 +138,8 @@ export async function analyzeStitchedImage(apiKey: string, dataUrl: string): Pro
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
+      signal,
     });
     if (!res.ok) {
       const errorText = await res.text();
@@ -131,15 +151,21 @@ export async function analyzeStitchedImage(apiKey: string, dataUrl: string): Pro
   try {
     responseData = await callApi(MODEL_PRIMARY);
   } catch (err: unknown) {
+    // 中止は ApiError(429/503) 扱いにせず、そのまま再 throw
+    if (isAbortError(err)) throw err;
+
     const status = err instanceof ApiError ? err.status : 500;
     const message = err instanceof Error ? err.message : String(err);
 
     if (status === 429 || status === 503) {
+      // primary 失敗後、fallback 前に中止済みなら打ち切る
+      throwIfAborted(signal);
       console.warn(`[Auto-Fallback] ${MODEL_PRIMARY} is busy/limited. Switching to ${MODEL_FALLBACK}...`);
       modelUsed = MODEL_FALLBACK;
       try {
         responseData = await callApi(MODEL_FALLBACK);
       } catch (fallbackErr: unknown) {
+        if (isAbortError(fallbackErr)) throw fallbackErr;
         const fbStatus = fallbackErr instanceof ApiError ? fallbackErr.status : 500;
         const fbMessage = fallbackErr instanceof Error ? fallbackErr.message : String(fallbackErr);
         if (fbStatus === 429 || fbStatus === 503) {

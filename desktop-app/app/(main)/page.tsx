@@ -62,6 +62,10 @@ export default function Home() {
   const [showApiKeyModal, setShowApiKeyModal] = useState<boolean>(false);
   const [umaData, setUmaData] = useState<UmaStatusData | null>(null);
   const [isOcrProcessing, setIsOcrProcessing] = useState<boolean>(false);
+  /** OCR 中止用。geminiOcr 内では生成せず page が保持する */
+  const ocrAbortRef = useRef<AbortController | null>(null);
+  /** 遅延成功で古い結果を載せないためのセッション世代 */
+  const ocrSessionRef = useRef(0);
   
   // 複数タブ管理用ステート
   const [tabs, setTabs] = useState<SimTab[]>([]);
@@ -222,6 +226,10 @@ export default function Home() {
     }
   }, []);
 
+  const handleOcrCancel = () => {
+    ocrAbortRef.current?.abort();
+  };
+
   const handleOcrStart = async () => {
     if (!apiKey) {
       setShowApiKeyModal(true);
@@ -229,23 +237,47 @@ export default function Home() {
     }
     if (!resultImage) return;
 
+    // 進行中があれば中止してから新セッションを開始
+    ocrAbortRef.current?.abort();
+    const controller = new AbortController();
+    ocrAbortRef.current = controller;
+    const session = ++ocrSessionRef.current;
+
     setIsOcrProcessing(true);
     setUmaData(null);
     showToastMessage("OCR解析中...", "success", 0); // タイマーなしで表示し続ける
 
     try {
-      const res = await analyzeStitchedImage(apiKey, resultImage);
+      const res = await analyzeStitchedImage(apiKey, resultImage, { signal: controller.signal });
+      // 中止済み、またはより新しい OCR セッションが始まっている場合は結果を捨てる
+      if (controller.signal.aborted || session !== ocrSessionRef.current) {
+        return;
+      }
       setUmaData(res.data);
       showToastMessage(`OCR解析が完了しました！(モデル: ${res.modelUsed})`, "success", 4000);
     } catch (err: any) {
+      if (err?.name === "AbortError" || controller.signal.aborted) {
+        // 中止は error toast にしない。新しいセッションが既に始まっている場合は上書きしない
+        if (session === ocrSessionRef.current) {
+          showToastMessage("OCR解析を中止しました", "success", 3000);
+        }
+        return;
+      }
       console.error(err);
+      if (session !== ocrSessionRef.current) return;
       if (err.message && (err.message.includes("503") || err.message.includes("UNAVAILABLE"))) {
         showToastMessage("現在AIサーバーが大変混み合っています。数秒待ってからもう一度お試しください。", "error", 4000);
       } else {
         showToastMessage(`OCRエラー: ${err.message}`, "error", 4000);
       }
     } finally {
-      setIsOcrProcessing(false);
+      // 新しいセッションが始まっている場合は processing を落とさない
+      if (session === ocrSessionRef.current) {
+        setIsOcrProcessing(false);
+        if (ocrAbortRef.current === controller) {
+          ocrAbortRef.current = null;
+        }
+      }
     }
   };
 
@@ -484,6 +516,7 @@ export default function Home() {
           onTogglePreviewExpanded={() => setIsPreviewExpanded(!isPreviewExpanded)}
           onCopyImage={copyImageToClipboard}
           onOcrStart={handleOcrStart}
+          onOcrCancel={handleOcrCancel}
         />
 
         {umaData && (
