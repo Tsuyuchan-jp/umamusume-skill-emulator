@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（要点は下記「更新ルール」「エージェント必須手順」。詳細は [`DOCS-GUIDE.md`](DOCS-GUIDE.md)）。
 
-最終更新: 2026-07-23 08:47
+最終更新: 2026-07-23 09:11
 
 ---
 
@@ -16,7 +16,7 @@
 
 ## 現在のフォーカス
 
-（なし — 次は Backlog P1（着手可能）/ P2 から選択）
+Settings スキルデータ接続チェック UI（診断 fold＋probe＋見出しトグル）
 
 ## サマリー（手更新）
 
@@ -24,7 +24,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 | 進行中 | P1 着手可能 | P1 棚上げ | P2 未着手 | 保留 |
 | --- | --- | --- | --- | --- |
-| 0 | 3 | 1 | 8 | 1 |
+| 1 | 2 | 1 | 8 | 1 |
 
 直近リリース: **v1.3.0**（2026-07-23）
 
@@ -32,7 +32,10 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 ## 進行中
 
-（なし）
+- [ ] **Settings スキルデータ接続チェック UI**（任意）
+  - 背景: `[REQ-skill-data-fetch-fallback.md](tasks/REQ-skill-data-fetch-fallback.md)` Phase 3 見送り。フォールバックトーストで代替済み
+  - 目標: 「シミュレーション用データ（診断）」fold → 接続確認 → remote/cache/bundled/全滅を日本語表示。見出し（矢印＋歯車＋設定）1ボタン化
+  - 触る想定: `SettingsPanel.tsx`, `umaemuAdapter.ts`（`probeSkillDataSources`）
 
 ## 次にやること（Backlog）
 
@@ -43,11 +46,6 @@ Backlog・保留を変更したら件数を合わせて更新する。
 （なし）
 
 ### P1 — 重要
-
-- [ ] **Settings スキルデータ接続チェック UI**（任意）
-  - 背景: `[REQ-skill-data-fetch-fallback.md](tasks/REQ-skill-data-fetch-fallback.md)` Phase 3 見送り。フォールバックトーストで代替済み
-  - 目標: 「スキルデータ取得テスト」ボタン → 成功/失敗/使用ソースを日本語表示
-  - 触る想定: `SettingsPanel.tsx`, `umaemuAdapter.ts`
 
 - [ ] **1走シミュレーション — 賢さ判定による不発動スキル表示**
   - 背景: 実ゲームでは所持スキルがすべて発動するわけではなく、**賢さ**の数値判定で一部スキルが不発動になる。現状のグラフ（1走 `raceDetail`）は **発動した `skillEvents` のみ** 表示で、不発動スキルは見えない

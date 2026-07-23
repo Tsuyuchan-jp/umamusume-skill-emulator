@@ -2,8 +2,20 @@
 
 import { useState, useEffect } from "react";
 import { Folder, Keyboard, Settings, Key, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  probeSkillDataSources,
+  type SkillDataSource,
+} from "../lib/engine/umaemuAdapter";
+import { SKILL_DATA_FETCH_ERROR_MESSAGE } from "../lib/engine/simulationErrors";
 
 const SETTINGS_PANEL_EXPANDED_KEY = "settingsPanelExpanded";
+
+const PROBE_RESULT_MESSAGES: Record<SkillDataSource, string> = {
+  remote: "オンライン（GitHub）から取得できました。最新データを利用できます。",
+  cache: "オンライン取得はできませんでしたが、保存済みデータは利用できます。",
+  bundled:
+    "オンライン／保存済みは使えませんでしたが、同梱データは利用できます（最新ではない可能性があります）。",
+};
 
 interface SettingsPanelProps {
   autoCopyEnabled: boolean;
@@ -36,6 +48,8 @@ export function SettingsPanel({
 }: SettingsPanelProps) {
   // SSR と初回クライアント描画を一致させるため、localStorage はマウント後に読む
   const [isExpanded, setIsExpanded] = useState(true);
+  const [probeChecking, setProbeChecking] = useState(false);
+  const [probeResultText, setProbeResultText] = useState<string | null>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem(SETTINGS_PANEL_EXPANDED_KEY);
@@ -52,24 +66,38 @@ export function SettingsPanel({
     });
   };
 
+  const handleProbeSkillData = async () => {
+    if (probeChecking) return;
+    setProbeChecking(true);
+    setProbeResultText("確認中…");
+    try {
+      const source = await probeSkillDataSources();
+      setProbeResultText(PROBE_RESULT_MESSAGES[source]);
+    } catch {
+      setProbeResultText(SKILL_DATA_FETCH_ERROR_MESSAGE);
+    } finally {
+      setProbeChecking(false);
+    }
+  };
+
   return (
     <div className="w-full min-w-0">
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between gap-2 min-w-0">
-          <div className="flex items-center gap-1.5 min-w-0">
-            <button
-              type="button"
-              onClick={toggleExpanded}
-              aria-expanded={isExpanded}
-              aria-label={isExpanded ? "設定を折りたたむ" : "設定を展開する"}
-              className="shrink-0 flex items-center justify-center w-6 h-6 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60 transition-colors"
-            >
+          <button
+            type="button"
+            onClick={toggleExpanded}
+            aria-expanded={isExpanded}
+            aria-label={isExpanded ? "設定を折りたたむ" : "設定を展開する"}
+            className="flex items-center gap-1.5 min-w-0 bg-transparent border-0 p-0 cursor-pointer"
+          >
+            <span className="shrink-0 flex items-center justify-center w-6 h-6 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60 transition-colors">
               {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-            </button>
-            <h2 className="text-sm font-semibold tracking-wide text-zinc-300 flex items-center gap-2 whitespace-nowrap shrink-0">
+            </span>
+            <span className="text-sm font-semibold tracking-wide text-zinc-300 flex items-center gap-2 whitespace-nowrap shrink-0">
               <Settings className="w-4 h-4 text-emerald-400" /> 設定
-            </h2>
-          </div>
+            </span>
+          </button>
           <label
             className="flex items-center gap-2 text-xs text-zinc-400 cursor-pointer select-none hover:text-zinc-300 transition-colors group shrink-0"
             title="完了時にクリップボードへ自動コピー"
@@ -160,6 +188,35 @@ export function SettingsPanel({
                 {apiKey ? "修正済み" : "未設定"}
               </button>
             </div>
+
+            <details className="pt-3 border-t border-white/[0.05] group">
+              <summary className="cursor-pointer select-none text-xs font-medium text-zinc-300 list-none flex items-center gap-1.5 hover:text-zinc-200 transition-colors [&::-webkit-details-marker]:hidden">
+                <ChevronDown className="w-3.5 h-3.5 text-zinc-500 shrink-0 transition-transform group-open:rotate-180" />
+                シミュレーション用データ（診断）
+              </summary>
+              <div className="mt-2 flex flex-col gap-2 pl-5">
+                <p className="text-[10px] text-zinc-500 leading-relaxed">
+                  シミュレーション（WASM）が使うスキルデータの取得先を確認します。OCR・スキルパレット用のデータとは別です。
+                </p>
+                <button
+                  type="button"
+                  onClick={handleProbeSkillData}
+                  disabled={probeChecking}
+                  className="self-start shrink-0 bg-zinc-800 hover:bg-emerald-600 disabled:opacity-60 disabled:hover:bg-zinc-800 text-zinc-300 hover:text-white disabled:hover:text-zinc-300 text-xs font-semibold px-4 py-2 border border-zinc-700/50 rounded-lg transition-all active:bg-emerald-700"
+                >
+                  接続を確認
+                </button>
+                {probeResultText != null && (
+                  <p
+                    className="text-[11px] text-zinc-400 leading-relaxed"
+                    role="status"
+                    aria-live="polite"
+                  >
+                    {probeResultText}
+                  </p>
+                )}
+              </div>
+            </details>
           </>
         )}
       </div>

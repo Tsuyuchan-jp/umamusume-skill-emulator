@@ -123,6 +123,45 @@ export async function fetchSkillData(): Promise<RawSkillData[]> {
   }
 }
 
+/**
+ * 読取専用の接続診断。remote → cache → bundled の順で試し、最初に成功した source を返す。
+ * メモリキャッシュ（cachedSkillsJson / lastSkillDataMeta）と AppData は更新・削除しない。
+ */
+export async function probeSkillDataSources(): Promise<SkillDataSource> {
+  try {
+    const res = await fetch(REMOTE_SKILL_DATA_URL);
+    if (!res.ok) {
+      throw new Error(`Failed to fetch skill data: HTTP ${res.status}`);
+    }
+    validateSkillDataText(await res.text());
+    return "remote";
+  } catch (remoteError) {
+    console.warn("probe: GitHub skill data failed:", remoteError);
+  }
+
+  try {
+    const text = await readSkillDataCache();
+    if (text != null) {
+      validateSkillDataText(text);
+      return "cache";
+    }
+  } catch (cacheError) {
+    console.warn("probe: AppData skill data cache failed:", cacheError);
+  }
+
+  try {
+    const res = await fetch(BUNDLED_SKILL_DATA_PATH);
+    if (!res.ok) {
+      throw new Error(`Failed to load bundled skill data: HTTP ${res.status}`);
+    }
+    validateSkillDataText(await res.text());
+    return "bundled";
+  } catch (bundledError) {
+    console.error("probe: All skill data sources failed:", bundledError);
+    throw new SkillDataFetchError();
+  }
+}
+
 let worker: Worker | null = null;
 let currentMessageId = 0;
 const pendingRequests = new Map<number, { resolve: (val: any) => void, reject: (err: any) => void, onProgress?: (current: number, total: number) => void }>();
