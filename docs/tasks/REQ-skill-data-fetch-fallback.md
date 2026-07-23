@@ -74,7 +74,7 @@
 | **D1** | 設計レビュー（Ask mode）— 取得順序・キャッシュパス・エラー分類・UI | done |
 | **1** | `fetchSkillData` リファクタ（fetch → AppData キャッシュ → 同梱）+ ビルド時 `skill_data.txt` 同梱 | done |
 | **2** | `simulationErrors` 拡張・SimulationLauncher / SimTabPanel のトースト分岐 | done |
-| **3** | フォールバック使用時トースト +（余力）Settings 接続チェック | done（接続チェック UI は Backlog 化） |
+| **3** | フォールバック使用時トースト +（余力）Settings 接続チェック | done（接続チェック UI は 2026-07-23 Backlog 実装・実機クローズ） |
 | **4** | 実機検証・`UPDATE_SKILLS.md` / README 更新 | done |
 
 ---
@@ -190,7 +190,7 @@
 - [x] GitHub fetch 成功時は従来どおり最新 `skill_data.txt` を使用
 - [x] fetch 失敗時、AppData → 同梱の順で sim が動作する
 - [x] fetch 全滅時と Worker 失敗時で **異なる** ユーザー向けトースト
-- [x] フォールバック使用時に明示トースト（接続チェック UI は Backlog）
+- [x] フォールバック使用時に明示トースト。接続チェック UI は Backlog 後続実装・**実機検証クローズ**（2026-07-23）
 - [x] Vitest: `simulationErrors` 新種別
 - [x] `UPDATE_SKILLS.md` / README 更新
 - [x] 実機確認 — **手順 1〜7 実機検証クローズ**（2026-07-23）。手順 1〜2 は 2026-06-25 確認済み
@@ -272,6 +272,7 @@
 | 2026-06-23 03:35 | Phase 1〜4 実装完了。接続チェック UI は Settings Backlog へ | 余力スコープ見送り。フォールバックトーストで代替 |
 | 2026-06-25 07:18 | 実機検証手順 1〜2 OK。手順 3〜7 は TODO P1 Backlog へ延期 | ユーザー判断で後日実施。検証手順を改訂版に更新 |
 | 2026-07-23 04:52 | **実機検証クローズ** — 手順 3〜7 全 OK。REQ 正式クローズ | ユーザー実機確認。CONCEPT-MAP: 今回の用語追加なし（既存カードで十分） |
+| 2026-07-23 09:18 | **実機検証クローズ** — Settings 接続チェック UI（`probeSkillDataSources`・診断 fold・見出し1ボタン）。remote/cache/bundled・見出しトグル・自動コピー非干渉・診断後 sim 退行なし OK | ユーザー実機確認。Phase 3 余力スコープの後続 Backlog 実装 |
 
 ---
 
