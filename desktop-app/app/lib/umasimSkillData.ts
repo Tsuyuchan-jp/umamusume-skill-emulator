@@ -768,6 +768,11 @@ export const umasimSkillDataList = [
     "rarity": "unique"
   },
   {
+    "name": "冠絶タクティクス",
+    "id": "101451",
+    "rarity": "unique"
+  },
+  {
     "name": "わやかわ♪マリンダイヴ",
     "id": "110011",
     "rarity": "unique"
@@ -1478,6 +1483,11 @@ export const umasimSkillDataList = [
     "rarity": "special"
   },
   {
+    "name": "抱えた動揺",
+    "id": "204581",
+    "rarity": "special"
+  },
+  {
     "name": "超遊び癖",
     "id": "1100011",
     "rarity": "special"
@@ -2135,6 +2145,11 @@ export const umasimSkillDataList = [
   {
     "name": "Ring-a-Link",
     "id": "901431",
+    "rarity": "inherit"
+  },
+  {
+    "name": "冠絶タクティクス",
+    "id": "901451",
     "rarity": "inherit"
   },
   {
@@ -3760,6 +3775,11 @@ export const umasimSkillDataList = [
   {
     "name": "立ち位置ゼロ番！",
     "id": "104603111",
+    "rarity": "evo"
+  },
+  {
+    "name": "巧妙なるギャンビット",
+    "id": "114501111",
     "rarity": "evo"
   },
   {
@@ -8105,6 +8125,11 @@ export const umasimSkillDataList = [
   {
     "name": "さァさ、お立ち合い！",
     "id": "105702211",
+    "rarity": "evo"
+  },
+  {
+    "name": "強襲トリック",
+    "id": "114501211",
     "rarity": "evo"
   },
   {

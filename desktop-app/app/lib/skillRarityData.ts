@@ -154,6 +154,7 @@ export const skillRarityMap: Record<string, SkillRarity> = {
   "無垢の祈り・ホーリーライト": "white",
   "想像×創造＝∞": "white",
   "Ring-a-Link": "white",
+  "冠絶タクティクス": "white",
   "わやかわ♪マリンダイヴ": "white",
   "水平線のその先へ": "white",
   "絶対は、ボクだ": "white",
@@ -262,6 +263,7 @@ export const skillRarityMap: Record<string, SkillRarity> = {
   "Have S'more Love!": "white",
   "演舞・撫子大薙刀": "white",
   "きらめくは海、まばゆきは君": "white",
+  "麗走一直！ラーメン道": "white",
   "勝利ヘ至ル累積": "white",
   "HOP STEP♪LOCK ON!": "white",
   "迷える時も、幽かなる時も": "white",
@@ -1108,6 +1110,7 @@ export const skillRarityMap: Record<string, SkillRarity> = {
   "聖女の挑戦": "white",
   "いざ我が道へ！": "white",
   "奮い立つ心": "white",
+  "抱えた動揺": "white",
   "アオハル燃焼・速": "gold",
   "アオハル点火・速": "white",
   "アオハル燃焼・体": "gold",
@@ -1367,6 +1370,8 @@ export const skillRarityMap: Record<string, SkillRarity> = {
   "思い出を力に変えて": "white",
   "モリガンの矛戟": "white",
   "理想へ向かう覚悟": "white",
+  "替え玉一丁、承ります♪": "white",
+  "熱々、上等！へいお待ち！": "white",
   "想定通り、余裕十分": "white",
   "計画的クールダウン": "white",
   "VIPな後ろ姿": "white",
@@ -1833,7 +1838,9 @@ export const skillRarityMap: Record<string, SkillRarity> = {
   "ブラッシュアップ！": "white",
   "緊急重版": "white",
   "Chain of Hearts": "white",
-  "暗夜の灯": "white"
+  "暗夜の灯": "white",
+  "巧妙なるギャンビット": "white",
+  "強襲トリック": "white"
 };
 
 export function getSkillRarityInfo(skillName: string) {

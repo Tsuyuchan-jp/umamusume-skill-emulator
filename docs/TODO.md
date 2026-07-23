@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（要点は下記「更新ルール」「エージェント必須手順」。詳細は [`DOCS-GUIDE.md`](DOCS-GUIDE.md)）。
 
-最終更新: 2026-07-23 09:29
+最終更新: 2026-07-23 09:37
 
 ---
 
@@ -124,6 +124,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 直近10件のみ。それ以前は [`TODO-ARCHIVE.md`](TODO-ARCHIVE.md)。
 
+- [x] **ゲームアップデート後のスキルデータ更新（2026-07-23）** — Steam `master.mdb`（2026-07-21）差し替え・umasim **2047件**（+5）・skillRarity **1840件**（+7）。新規固有「冠絶タクティクス」等。CHANGELOG Unreleased 追記（2026-07-23 09:37）
 - [x] **CapturePanel「画像ファイルを開く」ヒント圧縮（案A）** — 1行要約＋ⓘ クリックで詳細2点（外側クリック/Escape 閉じ・キーボード操作可）。`npm test` 68件 PASS。**実機検証クローズ**（1行表示・ⓘ 開閉・キーボード・ファイル選択〜OCR 退行なし OK / 2026-07-23 09:29 / `e366281`〜`2f64b56`）
 - [x] **Settings スキルデータ接続チェック UI** — 診断 fold＋`probeSkillDataSources`（非破壊）＋見出し1ボタン。CHANGELOG / PROJECT / SYSTEM_SPEC 同期。`npm test` 68件 PASS。**実機検証クローズ**（remote/cache/bundled 文言・見出しトグル・自動コピー非干渉・診断後 sim/フォールバックトースト退行なし OK / 2026-07-23 09:18 / `f0f2e64`〜`906bc3d`）/ `[REQ-skill-data-fetch-fallback.md](tasks/REQ-skill-data-fetch-fallback.md)` Phase 3 後続
 - [x] **シナリオ進化スキル（`scenario`）を赤スキル（`evo`）と同じ表示枠に** — `getSkillRarityInfoById` で scenario → evo（★・赤）表示、パレット dedupe に scenario 追加。`npm test` 68件 PASS。**実機検証クローズ**（パレット追加・一覧★赤・サマリー「進化」増加・既存 evo/rare 退行なし OK / 2026-07-23 08:47 / `790688d`〜`da163bf`）
@@ -133,7 +134,6 @@ Backlog・保留を変更したら件数を合わせて更新する。
 - [x] **OCR 用 Gemini モデルを Flash-Lite のみに変更** — `gemini-3.1-flash-lite` 単一化・Auto-Fallback 削除・完了 toast からモデル名除去。`npm test` 62件 PASS。**実機検証クローズ**（結合画像1枚で OCR 完了・ステータス/スキル反映・中止退行なし OK / 2026-07-23 06:18 / `979fc13`）
 - [x] **OCR 解析の中止（停止）機能** — AbortController + fetch signal・CapturePanel「停止」・AbortError と API エラー区別・遅延結果破棄。`npm test` 62件 PASS。**実機検証クローズ**（中止→再実行・通常完了・本物エラーの3系統 OK / 2026-07-23 06:04 / `bac51e7`）/ [`REQ-ocr-cancel.md`](tasks/REQ-ocr-cancel.md) **done**
 - [x] **REQ-skill-data-fetch-fallback 実機検証クローズ** — 手順 3〜7 OK（同梱フォールバック・fetch 全滅・Worker 文言区別・Launcher/SimTabPanel 回帰・raceDetail トースト）。手順 1〜2 は 2026-06-25 確認済み（2026-07-23 04:52 / 実装 `a5c04a0`）/ `[REQ-skill-data-fetch-fallback.md](tasks/REQ-skill-data-fetch-fallback.md)` **done**
-- [x] **v1.3.0 リリースビルド** — version 1.3.0 bump・CHANGELOG（長距離 sim 失敗走スキップ＋完走数 UI）・`app.exe` 生成・62件テスト PASS（2026-07-23 04:04 / `d3ffb53`）
 
 ---
 
