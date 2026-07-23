@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（要点は下記「更新ルール」「エージェント必須手順」。詳細は [`DOCS-GUIDE.md`](DOCS-GUIDE.md)）。
 
-最終更新: 2026-07-23 22:17
+最終更新: 2026-07-23 22:21
 
 ---
 
@@ -16,7 +16,7 @@
 
 ## 現在のフォーカス
 
-継承固有の継承進化（special）対応 — 表示・パレット・OCR
+（なし — 次は Backlog P1（着手可能）/ P2 から選択）
 
 ## サマリー（手更新）
 
@@ -24,7 +24,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 | 進行中 | P1 着手可能 | P1 棚上げ | P2 未着手 | 保留 |
 | --- | --- | --- | --- | --- |
-| 1 | 2 | 1 | 8 | 1 |
+| 0 | 2 | 1 | 8 | 1 |
 
 直近リリース: **v1.4.0**（2026-07-23）
 
@@ -32,9 +32,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 ## 進行中
 
-- [ ] **継承固有の継承進化（special）対応** — 判定一般化・表示 evo 寄せ・パレット例外2行・OCR 優先
-  - REQ: `[REQ-inherit-evolution-special.md](tasks/REQ-inherit-evolution-special.md)`（draft）
-  - 承認済み: 設計レビュー案 C（ハイブリッド）
+（なし）
 
 
 ## 次にやること（Backlog）
@@ -127,6 +125,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 直近10件のみ。それ以前は [`TODO-ARCHIVE.md`](TODO-ARCHIVE.md)。
 
+- [x] **継承固有の継承進化（special）対応** — 判定一般化・表示 evo 寄せ・パレット例外2行・OCR 優先。`npm test` 74件 PASS（2026-07-23 22:21 / `56b6896`〜）/ [`REQ-inherit-evolution-special.md`](tasks/REQ-inherit-evolution-special.md) **done**
 - [x] **v1.4.0 リリースビルド** — version 1.4.0 bump・CHANGELOG Unreleased 昇格・`app.exe` 生成・68件テスト PASS（2026-07-23 09:45 / `0afad19`〜`28afaaf`）
 - [x] **ゲームアップデート後のスキルデータ更新（2026-07-23）** — Steam `master.mdb`（2026-07-21）差し替え・umasim **2047件**（+5）・skillRarity **1840件**（+7）。新規固有「冠絶タクティクス」等。CHANGELOG Unreleased 追記（2026-07-23 09:37 / `a446405`）
 - [x] **CapturePanel「画像ファイルを開く」ヒント圧縮（案A）** — 1行要約＋ⓘ クリックで詳細2点（外側クリック/Escape 閉じ・キーボード操作可）。`npm test` 68件 PASS。**実機検証クローズ**（1行表示・ⓘ 開閉・キーボード・ファイル選択〜OCR 退行なし OK / 2026-07-23 09:29 / `e366281`〜`2f64b56`）
@@ -136,7 +135,6 @@ Backlog・保留を変更したら件数を合わせて更新する。
 - [x] **過去キャプチャ画像からステータス読み込み（ファイル OCR ルート）** — 結合済み PNG/JPEG を選択→プレビュー→既存 OCR/Abort。ファイル由来は autoCopy・saveFolder 再保存なし。recording/OCR 中は「画像ファイルを開く」無効。差し替え時 `umaData` クリア修正込み。`npm test` 62件 PASS。**実機検証クローズ**（ファイル経路・キャプチャなし sim・autoCopy 退行なし・中止・ボタン無効・差し替え後再 OCR OK / 2026-07-23 07:48 / `096d436`〜`4b01db5`）/ [`REQ-file-ocr-status.md`](tasks/REQ-file-ocr-status.md) **done**
 - [x] **TODO.md 改修（改善提案1〜7、提案4除く）** — ARCHIVE 分離・既知の問題掃除・P1 棚上げ分離・P0/ルール短縮・件数サマリー追加。388行→218行（2026-07-23 07:17 / `261cf95`〜`91157b9`）
 - [x] **OCR 用 Gemini モデルを Flash-Lite のみに変更** — `gemini-3.1-flash-lite` 単一化・Auto-Fallback 削除・完了 toast からモデル名除去。`npm test` 62件 PASS。**実機検証クローズ**（結合画像1枚で OCR 完了・ステータス/スキル反映・中止退行なし OK / 2026-07-23 06:18 / `979fc13`）
-- [x] **OCR 解析の中止（停止）機能** — AbortController + fetch signal・CapturePanel「停止」・AbortError と API エラー区別・遅延結果破棄。`npm test` 62件 PASS。**実機検証クローズ**（中止→再実行・通常完了・本物エラーの3系統 OK / 2026-07-23 06:04 / `bac51e7`）/ [`REQ-ocr-cancel.md`](tasks/REQ-ocr-cancel.md) **done**
 
 ---
 

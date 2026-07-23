@@ -5,7 +5,7 @@
 >
 > 入口: [`DOCS-GUIDE.md`](DOCS-GUIDE.md)
 
-最終更新: 2026-07-14 09:43
+最終更新: 2026-07-23 22:21
 
 ---
 
@@ -86,6 +86,7 @@ crop 内（上→下）
 | 英語 | 日本語 | 種別 | 一言 | どこで見る |
 |------|--------|------|------|-----------|
 | Tab Arrival | タブ到着 | 概念＋画面領域 | 新タブを TabBar 上で入場演出する（飛翔ではない） | `TabBar.tsx`・`onTabArrived` |
+| inherit evolution | 継承進化 | 概念＋識別子・定数 | 名称同一・枠色のみ変化の継承固有進化。`special` かつ同名 `inherit` あり → 表示は evo（★赤）。パレットは通常継承と2行 | `isInheritEvolutionSkill`・`REQ-inherit-evolution-special.md` |
 
 ### オートキャプチャ結合 — 仕様層
 

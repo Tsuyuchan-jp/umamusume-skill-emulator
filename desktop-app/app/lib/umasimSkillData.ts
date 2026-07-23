@@ -10248,10 +10248,29 @@ export const PALETTE_EXCLUDED_RARITIES = new Set(['special', 'minus']);
 /** 同名スキル dedupe 時の ID 解決優先順位（inherit 明示優先） */
 const PALETTE_ID_RESOLVE_PRIORITY = ['inherit', 'evo', 'scenario', 'rare', 'normal'] as const;
 
+/**
+ * 継承進化かどうか。
+ * rarity が special かつ、同名の inherit スキルが一覧に存在するとき true。
+ * （現状は「黄金を訪ねて」「ずっとずっと輝いて」など）
+ */
+export function isInheritEvolutionSkill(skill: UmasimSkillEntry): boolean {
+  if (skill.rarity !== 'special') return false;
+  return umasimSkillDataList.some((s) => s.name === skill.name && s.rarity === 'inherit');
+}
+
+export function isInheritEvolutionSkillId(skillId: string): boolean {
+  const skill = getSkillById(skillId);
+  return skill ? isInheritEvolutionSkill(skill) : false;
+}
+
 export function isPaletteVisibleSkill(skill: UmasimSkillEntry, onlyUnique: boolean): boolean {
   if (onlyUnique) return skill.rarity === 'unique';
   if (skill.rarity === 'unique') return false;
-  return !PALETTE_EXCLUDED_RARITIES.has(skill.rarity);
+  if (PALETTE_EXCLUDED_RARITIES.has(skill.rarity)) {
+    // special/minus 全除外は維持。継承進化だけパレット表示例外
+    return isInheritEvolutionSkill(skill);
+  }
+  return true;
 }
 
 function resolvePaletteSkillId(candidates: UmasimSkillEntry[]): string {
@@ -10278,6 +10297,8 @@ export function buildPaletteSkillOptions(options: { onlyUnique?: boolean } = {})
 
   for (const skill of umasimSkillDataList) {
     if (!isPaletteVisibleSkill(skill, onlyUnique)) continue;
+    // 継承進化は同名 dedupe 対象外（後で別行として出す）
+    if (isInheritEvolutionSkill(skill)) continue;
     const list = byName.get(skill.name) ?? [];
     list.push(skill);
     byName.set(skill.name, list);
@@ -10288,6 +10309,15 @@ export function buildPaletteSkillOptions(options: { onlyUnique?: boolean } = {})
 
   for (const skill of umasimSkillDataList) {
     if (!isPaletteVisibleSkill(skill, onlyUnique)) continue;
+
+    if (isInheritEvolutionSkill(skill)) {
+      result.push({
+        value: String(skill.id),
+        label: `${skill.name}（継承進化）`,
+      });
+      continue;
+    }
+
     if (seen.has(skill.name)) continue;
     seen.add(skill.name);
     result.push({
@@ -10331,6 +10361,11 @@ const WHITE_DISPLAY: SkillRarityDisplayInfo = {
 export function getSkillRarityInfoById(skillId: string): SkillRarityDisplayInfo {
   const skill = getSkillById(skillId);
   if (!skill) return WHITE_DISPLAY;
+
+  // 継承進化（special）は scenario と同様 evo 表示に寄せる
+  if (isInheritEvolutionSkill(skill)) {
+    return { rarity: 'evo', icon: '★', colorClass: 'text-red-400' };
+  }
 
   switch (skill.rarity) {
     case 'unique':

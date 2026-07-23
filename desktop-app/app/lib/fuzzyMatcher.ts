@@ -1,5 +1,11 @@
 import stringSimilarity from 'string-similarity';
-import { isUniqueSkillId, sanitizeSkillIds, umasimSkillDataList, umasimSkillNames } from './umasimSkillData';
+import {
+  isInheritEvolutionSkill,
+  isUniqueSkillId,
+  sanitizeSkillIds,
+  umasimSkillDataList,
+  umasimSkillNames,
+} from './umasimSkillData';
 import { UmaStatusData } from './types';
 
 // 全角英数字を半角に変換するユーティリティ（さらに漢数字のゼロ「〇」を記号の丸「○」に正規化）
@@ -46,6 +52,10 @@ export function fuzzyMatchSkillId(rawInput: string | null | undefined, isFirstSk
     if (uniqueSkill) return String(uniqueSkill.id);
     return String(matchedSkills[0].id);
   }
+
+  // 先頭以外: 継承進化（special）があれば通常継承より優先（枠色 OCR なし・ガチ勢寄り）
+  const inheritEvolution = matchedSkills.find((s) => isInheritEvolutionSkill(s));
+  if (inheritEvolution) return String(inheritEvolution.id);
 
   const nonUniqueSkill = matchedSkills.find(s => s.rarity !== 'unique');
   if (nonUniqueSkill) return String(nonUniqueSkill.id);

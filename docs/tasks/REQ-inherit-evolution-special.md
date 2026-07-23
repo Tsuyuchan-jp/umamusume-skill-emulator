@@ -3,9 +3,9 @@
 > 名称同一・枠色のみ変化する継承進化を、sim / 表示 / パレット / OCR で正しく扱えるようにする。
 > 設計レビュー採用案 C（ハイブリッド）。設計レビュー承認（未決すべて確定）。
 
-- **ステータス**: draft
+- **ステータス**: done
 - **作成日**: 2026-07-23 22:17
-- **関連コミット**: （完了後に記入）
+- **関連コミット**: `56b6896`（着手）〜（実装完了コミットは TODO 完了行を参照）
 
 ---
 
@@ -85,9 +85,9 @@
 |---------|---------|
 | `desktop-app/app/lib/umasimSkillData.ts` | 継承進化判定・表示 evo 寄せ・パレット例外2行 |
 | `desktop-app/app/lib/fuzzyMatcher.ts` | 非先頭で継承進化優先 |
-| `desktop-app/app/lib/skillSummary.ts` | 追従のみ（変更不要想定） |
-| `desktop-app/app/lib/skillSummary.test.ts` | 継承進化の表示・集計ケース |
-| `desktop-app/app/lib/fuzzyMatcher.test.ts` | OCR 優先の最小テスト（新規検討） |
+| `desktop-app/app/lib/skillSummary.ts` | 追従のみ（変更なし） |
+| `desktop-app/app/lib/skillSummary.test.ts` | 継承進化の表示・集計・パレットケース |
+| `desktop-app/app/lib/fuzzyMatcher.test.ts` | OCR 優先の最小テスト（新規） |
 | `docs/TODO.md` / `INDEX.md` / `CHANGELOG.md` / `CONCEPT-MAP.md` | 進捗・索引・Unreleased・用語カード |
 
 ---
@@ -104,21 +104,21 @@
 
 ## 完了条件
 
-- [ ] パレットで黄金・ずっとずっとが通常継承と継承進化の2行で選べ、日本総大将等の special は出ない
-- [ ] 継承進化 ID が SkillPanel 等で ★赤、通常継承は ❖緑
-- [ ] OCR 名前解決で非先頭の「黄金を訪ねて」が `91101351` になる（単体テスト）
-- [ ] `countSkillSummary` で継承進化が evo に入るテスト追加・PASS
-- [ ] 既存 `901351` を自動変更する処理を入れていない
-- [ ] CONCEPT-MAP に継承進化カードを追加
-- [ ] CHANGELOG Unreleased に1行
-- [ ] `docs/TODO.md` 着手→完了、本 REQ `done`、`INDEX.md` 更新
-- [ ] 単体テスト PASS・コミット（push なし）
+- [x] パレットで黄金・ずっとずっとが通常継承と継承進化の2行で選べ、日本総大将等の special は出ない（単体テスト）
+- [x] 継承進化 ID が SkillPanel 等で ★赤、通常継承は ❖緑（`getSkillRarityInfoById` テスト）
+- [x] OCR 名前解決で非先頭の「黄金を訪ねて」が `91101351` になる（`fuzzyMatcher.test.ts`）
+- [x] `countSkillSummary` で継承進化が evo に入るテスト追加・PASS
+- [x] 既存 `901351` を自動変更する処理を入れていない
+- [x] CONCEPT-MAP に継承進化カードを追加
+- [x] CHANGELOG Unreleased に1行
+- [x] `docs/TODO.md` 着手→完了、本 REQ `done`、`INDEX.md` 更新
+- [x] 単体テスト PASS・コミット（push なし）
 
 ---
 
 ## 検証手順
 
-1. `desktop-app` で `npm test`
+1. `desktop-app` で `npm test`（74件 PASS）
 2. （任意・実機）パレットで「黄金を訪ねて」「（継承進化）」の2行を確認。日本総大将が出ないこと
 3. （任意・実機）継承進化 ID 追加時に ★赤・サマリー進化が増えること
 
@@ -129,3 +129,4 @@
 | 日時 | 決定内容 | 理由 |
 |------|---------|------|
 | 2026-07-23 22:17 | 設計レビュー採用案 C（ハイブリッド）承認。判定は special+同名 inherit。OCR は非先頭で継承進化優先。パレット例外2行。表示は evo 寄せ。手動 UI・既存タブ自動置換なし | ガチ勢向け・名前固定配列より一般化・枠色 OCR は難易度高 |
+| 2026-07-23 22:21 | 実装完了。`isInheritEvolutionSkill` / パレット例外 / OCR 優先 / テスト74件 PASS。CONCEPT-MAP「継承進化」カード追加 | 承認済み方針どおり |
