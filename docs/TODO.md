@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（要点は下記「更新ルール」「エージェント必須手順」。詳細は [`DOCS-GUIDE.md`](DOCS-GUIDE.md)）。
 
-最終更新: 2026-07-23 09:11
+最終更新: 2026-07-23 09:13
 
 ---
 
@@ -16,7 +16,7 @@
 
 ## 現在のフォーカス
 
-Settings スキルデータ接続チェック UI（診断 fold＋probe＋見出しトグル）
+（なし — 次は Backlog P1（着手可能）/ P2 から選択）
 
 ## サマリー（手更新）
 
@@ -24,7 +24,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 | 進行中 | P1 着手可能 | P1 棚上げ | P2 未着手 | 保留 |
 | --- | --- | --- | --- | --- |
-| 1 | 2 | 1 | 8 | 1 |
+| 0 | 2 | 1 | 8 | 1 |
 
 直近リリース: **v1.3.0**（2026-07-23）
 
@@ -32,10 +32,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 ## 進行中
 
-- [ ] **Settings スキルデータ接続チェック UI**（任意）
-  - 背景: `[REQ-skill-data-fetch-fallback.md](tasks/REQ-skill-data-fetch-fallback.md)` Phase 3 見送り。フォールバックトーストで代替済み
-  - 目標: 「シミュレーション用データ（診断）」fold → 接続確認 → remote/cache/bundled/全滅を日本語表示。見出し（矢印＋歯車＋設定）1ボタン化
-  - 触る想定: `SettingsPanel.tsx`, `umaemuAdapter.ts`（`probeSkillDataSources`）
+（なし）
 
 ## 次にやること（Backlog）
 
@@ -127,6 +124,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 直近10件のみ。それ以前は [`TODO-ARCHIVE.md`](TODO-ARCHIVE.md)。
 
+- [x] **Settings スキルデータ接続チェック UI** — 診断 fold＋`probeSkillDataSources`（非破壊）＋見出し1ボタン。CHANGELOG / PROJECT / SYSTEM_SPEC 同期。`npm test` 68件 PASS。実機確認は別途（2026-07-23 09:13 / `f0f2e64`〜PLACEHOLDER）
 - [x] **シナリオ進化スキル（`scenario`）を赤スキル（`evo`）と同じ表示枠に** — `getSkillRarityInfoById` で scenario → evo（★・赤）表示、パレット dedupe に scenario 追加。`npm test` 68件 PASS。**実機検証クローズ**（パレット追加・一覧★赤・サマリー「進化」増加・既存 evo/rare 退行なし OK / 2026-07-23 08:47 / `790688d`〜`da163bf`）
 - [x] **OCR 後スキル数サマリー表示**（総数・金・進化） — `countSkillSummary` + `SkillSummaryLine` を SkillPanel / SimulationStatusView に配線。未知・unique・inherit は総数のみ。`npm test` 66件 PASS。**実機検証クローズ**（SkillPanel 見出し下・一覧件数一致・追加/削除/全削除で再計算・sim ステータス条件パネル・SkillVerifier 等に未表示・OCR/キャプチャ/sim 退行なし OK / 2026-07-23 08:25 / `2352002`〜`3ea8e6f`）
 - [x] **過去キャプチャ画像からステータス読み込み（ファイル OCR ルート）** — 結合済み PNG/JPEG を選択→プレビュー→既存 OCR/Abort。ファイル由来は autoCopy・saveFolder 再保存なし。recording/OCR 中は「画像ファイルを開く」無効。差し替え時 `umaData` クリア修正込み。`npm test` 62件 PASS。**実機検証クローズ**（ファイル経路・キャプチャなし sim・autoCopy 退行なし・中止・ボタン無効・差し替え後再 OCR OK / 2026-07-23 07:48 / `096d436`〜`4b01db5`）/ [`REQ-file-ocr-status.md`](tasks/REQ-file-ocr-status.md) **done**
@@ -136,7 +134,6 @@ Backlog・保留を変更したら件数を合わせて更新する。
 - [x] **REQ-skill-data-fetch-fallback 実機検証クローズ** — 手順 3〜7 OK（同梱フォールバック・fetch 全滅・Worker 文言区別・Launcher/SimTabPanel 回帰・raceDetail トースト）。手順 1〜2 は 2026-06-25 確認済み（2026-07-23 04:52 / 実装 `a5c04a0`）/ `[REQ-skill-data-fetch-fallback.md](tasks/REQ-skill-data-fetch-fallback.md)` **done**
 - [x] **v1.3.0 リリースビルド** — version 1.3.0 bump・CHANGELOG（長距離 sim 失敗走スキップ＋完走数 UI）・`app.exe` 生成・62件テスト PASS（2026-07-23 04:04 / `d3ffb53`）
 - [x] **長距離レース（中山3600m）でエミュレートエラー** — 失敗走スキップ＋完走数 UI（ヘッダー `n/N走`・rate 分母=成功回数・Step1 維持・Step2a/2b 再導入なし）。`npm test` 62件 PASS。**実機検証クローズ**（2026-07-23 03:58 / 実装 `cdd8f4d`〜`a138908`）/ `[REQ-long-distance-sim-error.md](tasks/REQ-long-distance-sim-error.md)` **done**
-- [x] **v1.2.0 リリースビルド** — version 1.2.0 bump・CHANGELOG・`app.exe` 生成・62件テスト PASS（2026-07-18 21:24 / `58873a5`）/ `[REQ-release-v1.2.0.md](tasks/REQ-release-v1.2.0.md)` **done**
 
 ---
 
@@ -157,7 +154,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 - **Scene Model ロードマップ**: `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)` 起票（M0 done）。Catalog: `[SCENE-CATALOG.md](../auto-capture-design-pack/SCENE-CATALOG.md)`。素材運用: `[PACK-GUIDE.md](../auto-capture-design-pack/PACK-GUIDE.md)`
 - **stitch `layoutOpenCv.ts`**: 旧 `layout.ts` は Next.js 16 の `app/` 予約名衝突でリネーム（`0fac03e`）。正本は `layoutCore.ts`。ビルド失敗時は `[RELEASE_BUILD.md](RELEASE_BUILD.md)` トラブルシュート
 - **オートキャプチャ結合 R3.5 設計正本**: shiftEstimate（SSD + median）。詳細: `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)` R3.5 節
-- **sim スキルデータ**: オンライン時 GitHub fetch + AppData キャッシュ。オフライン時は同梱/キャッシュで制限付き動作（フォールバック時トースト）
+- **sim スキルデータ**: オンライン時 GitHub fetch + AppData キャッシュ。オフライン時は同梱/キャッシュで制限付き動作（フォールバック時トースト）。取得先は Settings「シミュレーション用データ（診断）」で手動確認可
 - **新スキル時の現状**: 同梱 `umasimSkillData.ts` 利用箇所（P1 後のパレット/OCR）は **extract + アプリ再配布** が必要。WASM のみ mee1080/umasim fetch なら sim 定義はオンラインで追従しうるが、パレット/OCR は同梱更新まで新スキル非対応
 - Gemini API キーは Windows 資格情報マネージャー（`com.umamusume.race-analyzer` / `gemini_api_key`）に保存
 - 直近レース詳細グラフ: ロードマップ `[REQ-race-detail-graph.md](tasks/REQ-race-detail-graph.md)`。**Phase 5 実装正本**は `[REQ-race-detail-graph-map-view.md](tasks/REQ-race-detail-graph-map-view.md)`（Google Map 型・等倍 XY + 2D パン）。旧 R2/R3 は superseded

@@ -32,7 +32,7 @@ Steam版・DMM版「ウマ娘 プリティーダービー」向けの **Windows 
 - **対象 OS**: Windows 10/11（64bit）のみ（Win32 / Tauri ベース）
 - **対象ゲーム**: Steam版・DMM版「ウマ娘 プリティーダービー」
 - **検証済み解像度**: FHD（1920×1080）。DPI 100%〜125% 推奨
-- **ネットワーク必須**: Gemini API（OCR）、GitHub（umasim `skill_data.txt` の WASM 実行時 fetch）
+- **ネットワーク必須**: Gemini API（OCR）、GitHub（umasim `skill_data.txt` の WASM 実行時 fetch）。オフライン時は AppData キャッシュ／同梱フォールバック可。取得先の手動診断は Settings から可能
 
 ### 1.4 スコープ外（廃止済み）
 
@@ -181,7 +181,8 @@ Steam版・DMM版「ウマ娘 プリティーダービー」向けの **Windows 
 
 - 全画面 Cockpit レイアウト（サイドバー折りたたみ、右カラム全幅グラフ）
 - タブ keep-alive（切替時の再シミュレーション回避）
-- 設定パネル折りたたみ（キャプチャ設定・API キー・自動コピー等）
+- 設定パネル折りたたみ（キャプチャ設定・API キー・自動コピー等）。見出し（矢印・歯車・「設定」）1ボタンでトグル
+- sim 用スキルデータの接続診断（Settings 内「シミュレーション用データ（診断）」・`probeSkillDataSources`・読取専用）
 - トースト通知（Portal 経由）
 - システムトレイ（閉じる = 非表示、終了メニュー）
 - 透過オーバーレイウィンドウ（`/overlay` ルート）— キャプチャ進捗表示
