@@ -143,7 +143,7 @@ Steam版・DMM版「ウマ娘 プリティーダービー」向けの **Windows 
 
 - Gemini API による結合画像の OCR（ステータス 5 種、適性、スキル名リスト等）。モデルは `gemini-3.1-flash-lite` のみ（Auto-Fallback なし）
 - **OCR 解析の中止**（`AbortController` / `AbortSignal`）: 解析中に CapturePanel 同一ボタンで「停止」。中止後は再 OCR 可能。遅延成功結果は破棄
-- **ファイル OCR 入口**: CapturePanel の「画像ファイルを開く」で過去の結合済み縦長画像（PNG / JPEG）を選択し、プレビュー表示後に既存「画像からステータスを読込」へ進む。キャプチャ未実施でも OCR → ステータス/スキル → シミュレーションまで通せる。読込は `convertFileSrc` → `fetch` → dataUrl（plugin-fs の任意パス読取権限は増やさない）。ファイル由来ではクリップボード自動コピー・saveFolder への再保存を行わない。キャプチャ実行中（`recording`）および OCR 解析中は「画像ファイルを開く」を無効化。`resultImage` 更新時（ファイル差し替え・新規キャプチャ共通）は OCR 結果（`umaData`）をクリアし再 OCR を促す
+- **ファイル OCR 入口**: CapturePanel の「画像ファイルを開く」で過去の結合済み縦長画像（PNG / JPEG）を選択し、プレビュー表示後に既存「画像からステータスを読込」へ進む。キャプチャ未実施でも OCR → ステータス/スキル → シミュレーションまで通せる。読込は `convertFileSrc` → `fetch` → dataUrl（plugin-fs の任意パス読取権限は増やさない）。ファイル由来ではクリップボード自動コピー・saveFolder への再保存を行わない。キャプチャ実行中（`recording`）および OCR 解析中は「画像ファイルを開く」を無効化。`resultImage` 更新時（ファイル差し替え・新規キャプチャ共通）は OCR 結果（`umaData`）をクリアし再 OCR を促す。ヒントは常時1行＋ⓘ クリックで詳細（別画面 OCR 注意・手動読込）。**実機検証クローズ**（2026-07-23 09:29）
 - ファジーマッチングによる OCR スキル名 → umasim スキル ID 解決
 - 手動編集: `StatusPanel` / `SkillPanel` でステータス・スキル調整
 - **所持スキル数サマリー**: `SkillPanel` 見出し下および sim タブ「実行時のステータス条件」パネルに総数・金（rare）・進化（evo）を表示（`countSkillSummary` / `SkillSummaryLine`）。**実機検証クローズ**（2026-07-23 08:25）
