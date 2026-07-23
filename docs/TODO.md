@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（要点は下記「更新ルール」「エージェント必須手順」。詳細は [`DOCS-GUIDE.md`](DOCS-GUIDE.md)）。
 
-最終更新: 2026-07-23 09:46
+最終更新: 2026-07-23 21:00
 
 ---
 
@@ -24,7 +24,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 | 進行中 | P1 着手可能 | P1 棚上げ | P2 未着手 | 保留 |
 | --- | --- | --- | --- | --- |
-| 0 | 2 | 1 | 8 | 1 |
+| 0 | 3 | 1 | 8 | 1 |
 
 直近リリース: **v1.4.0**（2026-07-23）
 
@@ -52,6 +52,15 @@ Backlog・保留を変更したら件数を合わせて更新する。
   - 触る想定: `umaemuAdapter.ts`, `worker.js` / WASM（`SkillEventDump` 拡張の可能性）、`RaceDetailChart.tsx`, `raceGraphBuilder.ts`, `types.ts`
   - 注意: **着手前に Ask mode で umasim 調査・UI 案を確定**。REQ 起票推奨（レース詳細グラフ Phase 3 系の拡張）
   - 関連: `[REQ-race-detail-graph-phase3.md](tasks/REQ-race-detail-graph-phase3.md)` スキル帯・`[REQ-race-detail-graph-skill-tooltip.md](tasks/REQ-race-detail-graph-skill-tooltip.md)`
+
+- [ ] **継承固有「黄金を訪ねて」の継承進化（special）対応**
+  - 背景: ゲーム内で条件を満たすと継承固有が **継承進化** するが、**名称は変わらず** 枠色のみ淡い赤（進化スキル風）に変わる。現状アプリはすべて通常継承（`inherit` / ID `901351`）扱い
+  - データ: umasim 上は同名で **通常継承 `901351`（inherit）** と **継承進化 `91101351`（special）** が別 ID。効果が異なる（進化後の方が強い）
+  - 目標: 継承進化版を sim / 表示で正しく扱えるようにする（色分け・パレット・OCR 解決）
+  - 暫定案（OCR で枠色判別が難しければ）: ガチ勢向けのため **「黄金を訪ねて」は一律 `91101351`（special）扱い** にするのも可。手動切替 UI も検討
+  - 触る想定: `fuzzyMatcher.ts` / OCR スキル解決、`umasimSkillData.ts`（`getSkillRarityInfoById`・special 表示）、`SkillPanel.tsx`、必要ならパレット
+  - 注意: パレットは現状 `special` 除外の可能性あり。scenario→evo 表示の先例（`790688d`）を参考にできる
+  - 関連: OCR 後スキル数サマリー・スキル5色表示
 
 - [ ] **Worker 大量試行時の断続失敗対策**（調査・別タスク）
   - 背景: ユーザーレポートで 1,000 回 sim の途中失敗など fetch 単独では説明しきれないパターンあり（`[REQ-skill-data-fetch-fallback.md](tasks/REQ-skill-data-fetch-fallback.md)` スコープ外）
