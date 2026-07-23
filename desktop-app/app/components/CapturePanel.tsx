@@ -1,5 +1,5 @@
 import React from 'react';
-import { Copy, Wand2, ChevronDown, ChevronUp, FolderOpen } from "lucide-react";
+import { Copy, Wand2, ChevronDown, ChevronUp, FolderOpen, Info } from "lucide-react";
 import { SettingsPanel } from "./SettingsPanel";
 import { UmaStatusData } from "../lib/types";
 
@@ -50,6 +50,27 @@ export function CapturePanel(props: CapturePanelProps) {
   } = props;
 
   const fileOpenDisabled = captureStatus === "recording" || isOcrProcessing;
+
+  const [fileHintOpen, setFileHintOpen] = React.useState(false);
+  const fileHintRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (!fileHintOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (fileHintRef.current && !fileHintRef.current.contains(e.target as Node)) {
+        setFileHintOpen(false);
+      }
+    };
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setFileHintOpen(false);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [fileHintOpen]);
 
   return (
     <div className="w-full backdrop-blur-xl bg-zinc-900/30 border border-zinc-800/80 rounded-2xl p-4 shadow-lg">
@@ -142,14 +163,38 @@ export function CapturePanel(props: CapturePanelProps) {
             type="button"
             onClick={onLoadImageFromFile}
             disabled={fileOpenDisabled}
+            title="結合済みステータス画面の PNG / JPEG を選択"
             className="w-full font-bold py-2.5 px-4 rounded-xl shadow-md transition-all active:scale-[0.98] text-sm flex justify-center items-center gap-2 bg-zinc-800/80 hover:bg-zinc-700 text-zinc-100 border border-zinc-700/80 disabled:opacity-40 disabled:pointer-events-none disabled:active:scale-100"
           >
             <FolderOpen className="w-4 h-4" />
             画像ファイルを開く
           </button>
-          <p className="text-[11px] text-zinc-500 leading-relaxed">
-            過去に保存した結合済みステータス画面（PNG / JPEG）を想定しています。別画面の画像でも選べますが、OCR が失敗することがあります。選択後はプレビューのみで、読み込みは下のボタンから手動です。
-          </p>
+          <div className="relative flex items-center gap-1" ref={fileHintRef}>
+            <p className="text-[11px] text-zinc-500">
+              結合済みステータス画面（PNG / JPEG）を想定
+            </p>
+            <button
+              type="button"
+              onClick={() => setFileHintOpen((open) => !open)}
+              aria-expanded={fileHintOpen}
+              aria-label={fileHintOpen ? "画像ファイルを開くのヒントを閉じる" : "画像ファイルを開くのヒントを表示"}
+              className="shrink-0 p-0.5 text-zinc-500 hover:text-zinc-400 transition-colors"
+            >
+              <Info className="w-3 h-3" aria-hidden="true" />
+            </button>
+            {fileHintOpen && (
+              <div
+                role="region"
+                aria-label="画像ファイルを開くのヒント"
+                className="absolute left-0 top-full z-10 mt-1 w-64 rounded-lg border border-zinc-700/80 bg-zinc-900/95 p-2.5 shadow-lg"
+              >
+                <ul className="list-disc space-y-1.5 pl-4 text-[11px] leading-relaxed text-zinc-400">
+                  <li>別画面の画像でも選べますが、OCR が失敗することがあります</li>
+                  <li>選択後はプレビュー画像差し替えのみ。OCR解析は下の「画像からステータスを読込」から手動で行ってください</li>
+                </ul>
+              </div>
+            )}
+          </div>
         </div>
 
         {captureStatus === 'saved' && resultImage && (
