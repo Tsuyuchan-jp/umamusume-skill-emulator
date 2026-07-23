@@ -2,7 +2,7 @@
 
 > **TODO の代替ではない。** 次にやることの正本は [`docs/TODO.md`](../TODO.md)。
 > 本ファイルは `docs/tasks/REQ-*.md`（テンプレ除く）の **一覧・ステータス・辿りやすさ** を目的とする。
-> ステータスは各 REQ の `**ステータス**:` 行を正とする。最終更新: 2026-07-23 07:48
+> ステータスは各 REQ の `**ステータス**:` 行を正とする。最終更新: 2026-07-23 22:17
 
 ## 使い方
 
@@ -104,6 +104,7 @@
 
 | REQ | ステータス | TODO掲載 | 備考 |
 |-----|-----------|---------|------|
+| [`REQ-inherit-evolution-special.md`](REQ-inherit-evolution-special.md) | draft | 進行中 | 継承進化判定・表示 evo 寄せ・パレット例外・OCR 優先 |
 | [`REQ-skill-display.md`](REQ-skill-display.md) | done | Backlog | 5色表示等。Backlog: StatusPanel 色分け（任意） |
 | [`REQ-palette-local-skill-data.md`](REQ-palette-local-skill-data.md) | done | Backlog・完了済み | パレットローカル参照。Backlog: レアリティ段階別並び |
 
@@ -113,9 +114,9 @@
 
 | 項目 | 件数 |
 |------|------|
-| REQ 総数（テンプレ除く） | 36 |
+| REQ 総数（テンプレ除く） | 37 |
 | done | 27 |
-| draft | 4 |
+| draft | 5 |
 | in-progress | 3 |
 | superseded | 3 |
 | ロードマップ（親） | 1（`REQ-race-detail-graph.md`） |
