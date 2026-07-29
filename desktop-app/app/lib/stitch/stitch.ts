@@ -103,7 +103,7 @@ export async function stitchImages(
   for (const fm of matchFrames) {
     if (fm.method === "bound") {
       console.warn(
-        `スコアが低すぎます(${fm.score.toFixed(3)}) かつ スクロール後退。バウンドと判断し、Frame ${fm.index + 1} 以降を破棄します。`
+        `スコアが低すぎます(${fm.score.toFixed(3)}) かつ スクロール後退。バウンドと判断し、Frame ${fm.index + 1} 以降を破棄します。 raw=${fm.rawScrollAmount ?? "n/a"} final=${fm.scrollAmount} method=${fm.method}`
       );
     } else if (fm.method === "skip") {
       if (fm.rawScrollAmount !== undefined && fm.rawScrollAmount > 0) {

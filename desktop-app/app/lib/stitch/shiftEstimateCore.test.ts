@@ -223,3 +223,86 @@ describe("shiftEstimateCore terminal exact-bottom refine skip（案 A′）", ()
     expect(result.overlaps[result.overlaps.length - 1]).toBe(TERMINAL_SHIFT);
   });
 });
+
+describe("shiftEstimateCore mid-session short-shift fallback（G-CMT-TWK-P3）", () => {
+  /** 帯高さ765を使い切らないよう、既存 SESSION_SHIFT(192) より短くする */
+  const LOCAL_SESSION = 100;
+  const MID_SHORT_SHIFT = 45;
+
+  it("中盤 S* 安定＋非最終の短シフト＋後続あり → median 補正後も bound せず短シフト採用", () => {
+    const shifts = [
+      LOCAL_SESSION,
+      LOCAL_SESSION,
+      LOCAL_SESSION,
+      MID_SHORT_SHIFT,
+      LOCAL_SESSION,
+      LOCAL_SESSION,
+    ];
+    const strips = buildCustomSessionStrips(shifts);
+
+    for (let i = 0; i < 3; i++) {
+      const pair = estimatePairShiftRgba(strips[i]!, strips[i + 1]!);
+      expect(Math.abs(pair.scrollAmount - LOCAL_SESSION)).toBeLessThanOrEqual(2);
+    }
+    const midRaw = estimatePairShiftRgba(strips[3]!, strips[4]!);
+    expect(midRaw.scrollAmount).toBe(MID_SHORT_SHIFT);
+    expect(midRaw.scrollAmount).toBeLessThan(LOCAL_SESSION * 0.85);
+
+    const result = estimateShiftFramesRgba(strips);
+    expect(result.representative).toBe(LOCAL_SESSION);
+
+    // 偽 bound で打ち切らず、短シフトペア以降も残る
+    expect(result.frames.some((f) => f.method === "bound")).toBe(false);
+    expect(result.frames.length).toBe(shifts.length);
+
+    const mid = result.frames[3]!;
+    expect(mid.scrollAmount).toBe(MID_SHORT_SHIFT);
+    expect(mid.score).toBeGreaterThanOrEqual(0.85);
+    expect(mid.method).not.toBe("bound");
+    expect(mid.method).not.toBe("median-corrected");
+    expect(result.overlaps[3]).toBe(MID_SHORT_SHIFT);
+
+    expect(result.overlaps[4]).toBe(LOCAL_SESSION);
+    expect(result.overlaps[5]).toBe(LOCAL_SESSION);
+  });
+
+  it("raw も S* も低スコアなら非最終でも bound を維持", () => {
+    // 安定セッションの直後に、前フレームと無関係なノイズ帯を差し込み
+    const strips: RgbaImage[] = [makePatternStrip(STRIP_H)];
+    for (let i = 0; i < 3; i++) {
+      strips.push(shiftScrollRegion(strips[strips.length - 1]!, LOCAL_SESSION));
+    }
+    const noise = makeUnrelatedStrip(STRIP_H, 99);
+    strips.push(noise);
+    // bound 後は破棄される想定だが、後続を置いて early return を検知しやすくする
+    strips.push(shiftScrollRegion(noise, LOCAL_SESSION));
+
+    const result = estimateShiftFramesRgba(strips);
+    expect(result.representative).toBe(LOCAL_SESSION);
+
+    const bound = result.frames.find((f) => f.method === "bound");
+    expect(bound).toBeDefined();
+    expect(bound!.index).toBe(3);
+    expect(bound!.score).toBeLessThan(0.85);
+    // ログ用に raw / final（失敗量）が残る
+    expect(bound!.rawScrollAmount).toBeDefined();
+    expect(bound!.scrollAmount).toBeGreaterThan(0);
+    // bound early return で後続ペアは無い
+    expect(result.frames.length).toBe(4);
+  });
+});
+
+function makeUnrelatedStrip(height: number, seed: number): RgbaImage {
+  const data = new Uint8Array(STRIP_W * height * 4);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < STRIP_W; x++) {
+      const v = (seed * 47 + y * 91 + x * 13) % 256;
+      const i = (y * STRIP_W + x) * 4;
+      data[i] = (v + 80) % 256;
+      data[i + 1] = (v + 160) % 256;
+      data[i + 2] = (255 - v) % 256;
+      data[i + 3] = 255;
+    }
+  }
+  return { data, width: STRIP_W, height };
+}

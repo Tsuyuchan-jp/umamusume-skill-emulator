@@ -506,6 +506,11 @@ export function estimateShiftFramesRgba(
       }
     }
 
+    // median 補正前の短シフト（非最終フォールバック用）
+    const preMedianScrollAmount = scrollAmount;
+    const preMedianScore = score;
+    const preMedianMethod = method;
+
     if (
       !isTerminalShortScroll &&
       representative > 0 &&
@@ -522,6 +527,49 @@ export function estimateShiftFramesRgba(
       const avgDiff = overlapAvgDiff(prev, curr, scrollAmount, contentWidth);
       score = avgDiffToScore(avgDiff, opts.scoreScale);
       method = "terminal";
+    }
+
+    // 非最終・短 raw が median 補正でスコア崩壊したときの条件付きフォールバック
+    // （R3.5c-2 は最終ペアのみ。本分岐は中盤の偽 bound 用・G-CMT-TWK-P3）
+    const rawIsShort =
+      representative > 0 &&
+      rawScrollAmount > 0 &&
+      rawScrollAmount < opts.terminalRatio * representative;
+    if (
+      !isLast &&
+      method === "median-corrected" &&
+      score < opts.scoreMin &&
+      rawIsShort
+    ) {
+      let altScroll = preMedianScrollAmount;
+      let altScore = preMedianScore;
+      let altMethod: ShiftEstimateMethod = preMedianMethod;
+
+      const shortMax = Math.max(
+        0,
+        Math.floor(opts.terminalRatio * representative) - 1
+      );
+      if (shortMax >= 0) {
+        const shortSearch = searchBestShift(
+          prev,
+          curr,
+          microShiftOpts(opts),
+          0,
+          shortMax
+        );
+        if (shortSearch.score > altScore) {
+          altScroll = shortSearch.scrollAmount;
+          altScore = shortSearch.score;
+          altMethod = "ssd";
+        }
+      }
+
+      // alt が良くかつ scoreMin 以上なら短シフト採用。双方不良は bound 維持
+      if (altScore > score && altScore >= opts.scoreMin && altScroll > 0) {
+        scrollAmount = altScroll;
+        score = altScore;
+        method = altMethod === "median-corrected" ? "ssd" : altMethod;
+      }
     }
 
     const isTerminalLowScore =
@@ -546,7 +594,8 @@ export function estimateShiftFramesRgba(
     } else if (!isTerminalShortScroll && !isTerminalLowScore && score < opts.scoreMin) {
       frames.push({
         index: i,
-        scrollAmount: 0,
+        // 失敗した final 量を残してログで raw/final を対照できるようにする
+        scrollAmount,
         score,
         method: "bound",
         rawScrollAmount,
