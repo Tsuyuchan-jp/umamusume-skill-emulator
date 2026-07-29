@@ -125,7 +125,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 直近10件のみ。それ以前は [`TODO-ARCHIVE.md`](TODO-ARCHIVE.md)。
 
-- [x] **オートキャプチャ結合 — チャンミ月刊トゥインクル増刊号・3面の偽 bound 修正** — 非最終・短 raw・median 補正後スコア崩壊時のみ raw/短帯を条件付き採用。bound ログに raw/final/method。Vitest 9/9・golden 29/29 PASS。`G-CMT-TWK-P3` Catalog 追加（golden なし）。**実機再キャプチャ（9位戦績目視）はユーザー確認待ち**（2026-07-30 05:45 / `1750e69`〜）/ [`REQ-stitch-twinkle-extra-page3.md`](tasks/REQ-stitch-twinkle-extra-page3.md)
+- [x] **オートキャプチャ結合 — チャンミ月刊トゥインクル増刊号・3面の偽 bound 修正** — 非最終・短 raw・median 補正後スコア崩壊時のみ raw/短帯を条件付き採用。bound ログに raw/final/method。Vitest 9/9・golden 29/29 PASS。`G-CMT-TWK-P3` Catalog 追加（golden なし）。**実機再キャプチャ（9位戦績目視）はユーザー確認待ち**（2026-07-30 05:45 / `1750e69`〜`0802e18`）/ [`REQ-stitch-twinkle-extra-page3.md`](tasks/REQ-stitch-twinkle-extra-page3.md)
 - [x] **v1.4.1 リリースビルド** — version 1.4.1 bump・CHANGELOG Unreleased 昇格・`app.exe` 生成・74件テスト PASS（2026-07-23 22:28 / `65d45cf`）
 - [x] **継承固有の継承進化（special）対応** — 判定一般化・表示 evo 寄せ・パレット例外2行・OCR 優先。`npm test` 74件 PASS。**実機検証クローズ**（パレット2行・★赤表示・日本総大将非表示・OCR 継承進化寄り・既存タブ ID 自動変更なし OK / 2026-07-23 22:28 / `56b6896`〜`7bbaeed`）/ [`REQ-inherit-evolution-special.md`](tasks/REQ-inherit-evolution-special.md) **done**
 - [x] **v1.4.0 リリースビルド** — version 1.4.0 bump・CHANGELOG Unreleased 昇格・`app.exe` 生成・68件テスト PASS（2026-07-23 09:45 / `0afad19`〜`28afaaf`）
