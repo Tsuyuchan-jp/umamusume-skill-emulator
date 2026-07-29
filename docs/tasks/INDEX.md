@@ -2,7 +2,7 @@
 
 > **TODO の代替ではない。** 次にやることの正本は [`docs/TODO.md`](../TODO.md)。
 > 本ファイルは `docs/tasks/REQ-*.md`（テンプレ除く）の **一覧・ステータス・辿りやすさ** を目的とする。
-> ステータスは各 REQ の `**ステータス**:` 行を正とする。最終更新: 2026-07-30 06:13
+> ステータスは各 REQ の `**ステータス**:` 行を正とする。最終更新: 2026-07-30 06:18
 
 ## 使い方
 
@@ -97,7 +97,7 @@
 | [`REQ-stitch-scene-model.md`](REQ-stitch-scene-model.md) | in-progress | 進行中 **M1** | シーンモデル正本化ロードマップ。Catalog: `SCENE-CATALOG.md` |
 | [`REQ-stitch-terminal-exact-bottom.md`](REQ-stitch-terminal-exact-bottom.md) | done | 完了済み | 最下部びったし二重結合。案 A′ + 実機クローズ（2026-07-11） |
 | [`REQ-stitch-terminal-coarse-reprobe.md`](REQ-stitch-terminal-coarse-reprobe.md) | done | 完了済み | 最終 coarse≈S* 誤採用。案 A2a + 実機クローズ（2026-07-14） |
-| [`REQ-stitch-twinkle-extra-page3.md`](REQ-stitch-twinkle-extra-page3.md) | in-progress | 進行中 | Phase2 sessionStable。`G-CMT-TWK-P3`。**実機目視待ち** |
+| [`REQ-stitch-twinkle-extra-page3.md`](REQ-stitch-twinkle-extra-page3.md) | done | 完了済み | Phase1+2 実機クローズ（2026-07-30）。`G-CMT-TWK-P3` |
 
 ---
 
@@ -116,8 +116,8 @@
 | 項目 | 件数 |
 |------|------|
 | REQ 総数（テンプレ除く） | 38 |
-| done | 28 |
+| done | 29 |
 | draft | 4 |
-| in-progress | 4 |
+| in-progress | 3 |
 | superseded | 3 |
 | ロードマップ（親） | 1（`REQ-race-detail-graph.md`） |

@@ -1,9 +1,9 @@
 # REQ-stitch-twinkle-extra-page3: チャンミ月刊トゥインクル増刊号・3面の偽 bound 修正
 
 > 親文脈: [`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md) R3.5c-2（最終ペア短 raw 保護）、[`REQ-stitch-terminal-exact-bottom.md`](REQ-stitch-terminal-exact-bottom.md)、[`REQ-stitch-terminal-coarse-reprobe.md`](REQ-stitch-terminal-coarse-reprobe.md)。
-> 今回は **非最終ペア** で同じ median 補正破綻が起き、後続フレームが bound で破棄される穴を塞ぐ。
+> Phase1: 非最終ペアの median 補正破綻（偽 bound）。Phase2: 中盤短シフト後の最終 sessionStable 不全（末端二重）。
 
-- **ステータス**: in-progress（Phase2 sessionStable 実装済・**実機検証待ち**）
+- **ステータス**: done（実装完了・**実機検証クローズ** 2026-07-30 06:18）
 - **作成日**: 2026-07-30 05:35
 - **関連コミット**: `1750e69`〜`70b9f14`
 - **シーン ID**: `G-CMT-TWK-P3`
@@ -12,8 +12,8 @@
 
 ## 解くべき問題と目的（Problem Framing）
 
-- **現状の課題**: チャンピオンミーティング「月刊トゥインクル 増刊号」の **3面** で、オートキャプチャのフレーム取得は成功するが、結合時に Frame 4→5 が偽 bound となり Frame 5 以降（9位戦績）が破棄され、最下部が欠ける。
-- **目的**: 条件付きフォールバックで偽 bound を止め、結合画像に 9位カード全体（戦績5枠）が欠けずに出るようにする。OCR・ステータス・sim は対象外。
+- **現状の課題**: チャンピオンミーティング「月刊トゥインクル 増刊号」の **3面** で、オートキャプチャのフレーム取得は成功するが、(1) Frame 4→5 偽 bound で最下部欠け (2) 偽 bound 修正後は Frame 5→6 が 167 で9位二重。
+- **目的**: 結合画像に 9位カード全体（戦績5枠）が欠けず、かつ二重にならない。OCR・ステータス・sim は対象外。
 
 ---
 
@@ -35,6 +35,7 @@
 - bound の全廃、「短シフトを常に許す」
 - layout / tabDetect / regions の本修正（上流観測は Catalog 備考のみ）
 - composeCore / postProcess / capture.rs リファクタ（必須でない限り）
+- 結合コア全体リファクタ（見送り）
 
 ---
 
@@ -48,6 +49,11 @@
 4. そのとき **raw（または短帯再探索）側のスコアの方が良く、かつ `scoreMin` 以上**なら raw / 短シフトを採用し、bound early return しない
 5. **raw も S* もスコア不良**（いずれも `scoreMin` 未満）なら、従来どおり bound（本当のバウンドを残す）
 
+### Phase2: 最終 sessionStable
+
+- 最終ペアのみ: prior のうち `|s−S*|≤τ` のクラスタが1つでもあれば `sessionStable=true`
+- 中盤の意図的短シフト（`< 0.85·S*`）は除外し、末端の skip / A2a を発火させる
+
 ### 退行ゲート（維持）
 
 - 最終ペアの既存経路: zero-shift skip・terminal coarse re-probe・exact-bottom の短 raw refine 除外・最終ペアは低スコアでも terminal 優先
@@ -59,7 +65,7 @@
 ## 設計制約（契約）
 
 - **事前条件**: 中盤ペアまで S* が安定しているセッション（トゥインクル3面の Frame 0→4 型）
-- **事後条件**: 偽 bound で後続フレームを破棄しない。本当に raw/S* 双方不良なら bound を残す
+- **事後条件**: 偽 bound で後続フレームを破棄しない。本当に raw/S* 双方不良なら bound を残す。中盤短シフト後も最終ペアで skip/terminal が発火しうる
 - **不変条件**: 最終ペア terminal / skip / A2a / exact-bottom の振る舞いを変えない。短シフト常時許可・bound 全廃はしない
 - **異常時の保証**: フォールバック不発時は従来どおり bound early return。ログに raw/final/method を出す
 
@@ -69,7 +75,7 @@
 
 | ファイル | 変更内容 |
 |---------|---------|
-| `desktop-app/app/lib/stitch/shiftEstimateCore.ts` | 条件付きフォールバック |
+| `desktop-app/app/lib/stitch/shiftEstimateCore.ts` | 条件付きフォールバック・最終 sessionStable |
 | `desktop-app/app/lib/stitch/shiftEstimateCore.test.ts` | 新規 Vitest |
 | `desktop-app/app/lib/stitch/stitch.ts` | bound ログ強化 |
 | 本 REQ / `TODO.md` / `INDEX.md` | 記録 |
@@ -90,9 +96,9 @@
 
 ## 完了条件
 
-- [ ] 実機で3面再キャプチャし、結合画像に9位戦績5枠まで欠けず **9位が二重でない**（閉じる残存は不問）— **ユーザー確認待ち**
-- [x] DevTools: bound する場合は raw/final/method がログに出る
-- [x] Phase2: 最終ペアで skip または terminal（167 のまま ssd で終わらない）— Vitest で担保
+- [x] 実機で3面再キャプチャし、結合画像に9位戦績5枠まで欠けず **9位が二重でない**（閉じる残存は不問）— **2026-07-30 06:18 OK**
+- [x] DevTools: Frame5→6 `terminal micro skip（coarse=167px）`（実機）
+- [x] Phase2: 最終ペアで skip または terminal — Vitest＋実機
 - [x] 中盤 S* 安定・本当のバウンド bound・最終ペア terminal/skip/A2a が意図どおり（Vitest＋golden）
 - [x] `stitch:golden` 退行なし（29/29）
 - [x] `shiftEstimateCore` Vitest 10/10 PASS
@@ -116,9 +122,10 @@
 | 2026-07-30 05:35 | 設計レビュー承認: 非最終・短 raw・median 補正後スコア崩壊時のみ raw/短帯を条件付き採用。bound 全廃・短シフト常時許可は禁止 | 実機ログで Frame4→5 score=0.586 偽 bound が直接原因。R3.5c-2 を非最終へ最小延長 |
 | 2026-07-30 05:35 | 上流（タブ緑未検出→L2 fallback・scrollStart=layout-ratio confidence=low・wheel=stitch_fallback）は Catalog 備考のみ。layout/tabDetect 本修正は必須外 | 結合切れの主因は shift 偽 bound |
 | 2026-07-30 05:35 | シーン ID `G-CMT-TWK-P3`。golden / expectations は追加しない | 完了条件は結合画像の目視のみ |
-| 2026-07-30 05:45 | **実装完了**。条件付きフォールバック＋bound ログ＋Vitest 2件。golden 29/29・shiftEstimateCore 9/9 PASS | 承認済み方針どおり |
+| 2026-07-30 05:45 | **Phase1 実装完了**。条件付きフォールバック＋bound ログ＋Vitest。golden 29/29・shiftEstimateCore PASS | 承認済み方針どおり |
 | 2026-07-30 05:45 | CONCEPT-MAP: 追記 0 件（terminal / coarse re-probe 既存カードで十分） | Phase 完了時検討 |
-| 2026-07-30 05:45 | REQ `done`。実機クローズはユーザーの3面再キャプチャ目視待ち | CHANGELOG Unreleased は実機クローズ後に追記 |
 | 2026-07-30 06:01 | 実機 NG: 9位二重。原因=中盤97採用後 sessionStable 偽→Frame5→6 が167 ssd | ログ確定・全体リファクタは見送り |
-| 2026-07-30 06:13 | **Phase2 実装**: 最終ペア sessionStable を S* 近傍クラスタのみで判定。Vitest 10/10・golden 29/29 PASS | 中盤フォールバック維持。実機再キャプチャ待ち |
+| 2026-07-30 06:13 | **Phase2 実装**: 最終ペア sessionStable を S* 近傍クラスタのみで判定。Vitest 10/10・golden 29/29 PASS | 中盤フォールバック維持 |
 | 2026-07-30 06:13 | CONCEPT-MAP: 追記 0 件（sessionStable は既存概念の判定拡張） | Phase2 完了時検討 |
+| 2026-07-30 06:18 | **実機クローズ**: S*=191・Frame4→5=97・Frame5→6 terminal micro skip（coarse=167）・9位欠けなし・二重なし | ユーザー提供ログ＋結合画像 |
+| 2026-07-30 06:18 | REQ `done`・CHANGELOG Unreleased 追記・CONCEPT-MAP 追記 0 件 | 実機クローズ |

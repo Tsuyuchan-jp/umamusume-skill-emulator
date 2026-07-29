@@ -29,7 +29,7 @@
 | G-FRD-S-register | FRD | Skill | **register**（緑・登録） | L3+Btn | `golden/FRD/skill-register/frame_000.png` | yes | 4 | **ok** | R4a postProcess 退行なし（2026-06-28）。wheel=-3 |
 | G-FRD-F | FRD | 因子/継承 | release/absent | L3+Btn | `golden/FRD/factor/frame_000.png` | yes | 6 | **ok** | R4a postProcess 退行なし（2026-06-28）— S-5 継承履歴カット OK。wheel=-3 |
 | G-FRD-I | FRD | 育成情報 | **register**（緑・登録） | L3+Btn | `golden/FRD/info/frame_000.png` | yes | 7（Phase 1b） | **ok** | **golden 登録完了**（2026-06-28）— `StitchTab=TrainingInfo`・S-6・wheel=-3 |
-| G-CMT-TWK-P3 | CMT | 月刊トゥインクル増刊号・3面 | —（ウマ娘柱） | L2 fallback 観測 | — | no | — | 要実機 | 3面のみ対象（1面/2面はスクロール無し）。実機: タブ緑未検出→L2・scrollStart=layout-ratio confidence=low・wheel=stitch_fallback。Frame4→5 偽 bound（median 補正後 score 崩壊）→ [`REQ-stitch-twinkle-extra-page3.md`](../docs/tasks/REQ-stitch-twinkle-extra-page3.md)。golden / expectations なし |
+| G-CMT-TWK-P3 | CMT | 月刊トゥインクル増刊号・3面 | —（ウマ娘柱） | L2 fallback 観測 | — | no | — | **ok** | 3面のみ（1面/2面はスクロール無し）。実機クローズ 2026-07-30: Frame4→5=97・Frame5→6 terminal micro skip（coarse=167）・9位欠けなし・二重なし。タブ緑未検出→L2・scrollStart=layout-ratio confidence=low・wheel=stitch_fallback は観測のみ。[`REQ-stitch-twinkle-extra-page3.md`](../docs/tasks/REQ-stitch-twinkle-extra-page3.md)。golden / expectations なし |
 
 ---
 
