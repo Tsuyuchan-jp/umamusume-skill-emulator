@@ -3,9 +3,9 @@
 > 親文脈: [`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md) R3.5c-2（最終ペア短 raw 保護）、[`REQ-stitch-terminal-exact-bottom.md`](REQ-stitch-terminal-exact-bottom.md)、[`REQ-stitch-terminal-coarse-reprobe.md`](REQ-stitch-terminal-coarse-reprobe.md)。
 > 今回は **非最終ペア** で同じ median 補正破綻が起き、後続フレームが bound で破棄される穴を塞ぐ。
 
-- **ステータス**: done（実装完了・**実機検証はユーザー確認待ち**）
+- **ステータス**: in-progress（Phase2 sessionStable 実装済・**実機検証待ち**）
 - **作成日**: 2026-07-30 05:35
-- **関連コミット**: `1750e69`〜`0802e18`
+- **関連コミット**: `1750e69`〜（Phase2 追記予定）
 - **シーン ID**: `G-CMT-TWK-P3`
 
 ---
@@ -22,6 +22,7 @@
 ### やること
 
 - 非最終ペアで短 raw が median 補正で S* に潰されスコア崩壊したとき、raw / 短帯再探索側が良ければ短シフトを採用し bound early return しない
+- **Phase2**: 最終ペアの `sessionStable` を prior の S* 近傍クラスタのみで判定（中盤短シフト後も skip/A2a 発火）
 - `stitch.ts` の bound 警告に raw / final / method を出す
 - Vitest（既存 terminal / skip / A2a / exact-bottom 維持＋新規ケース）
 - `SCENE-CATALOG.md` に `G-CMT-TWK-P3` 行（golden なし）
@@ -89,11 +90,12 @@
 
 ## 完了条件
 
-- [ ] 実機で3面再キャプチャし、結合画像に9位戦績5枠まで欠けない（閉じる残存は不問）— **ユーザー確認待ち**
-- [x] DevTools: bound する場合は raw/final/method がログに出る（実装済み。誤 bound 回避は Vitest で担保）
+- [ ] 実機で3面再キャプチャし、結合画像に9位戦績5枠まで欠けず **9位が二重でない**（閉じる残存は不問）— **ユーザー確認待ち**
+- [x] DevTools: bound する場合は raw/final/method がログに出る
+- [x] Phase2: 最終ペアで skip または terminal（167 のまま ssd で終わらない）— Vitest で担保
 - [x] 中盤 S* 安定・本当のバウンド bound・最終ペア terminal/skip/A2a が意図どおり（Vitest＋golden）
 - [x] `stitch:golden` 退行なし（29/29）
-- [x] `shiftEstimateCore` 既存＋新規 Vitest 成功（9/9）
+- [x] `shiftEstimateCore` Vitest 10/10 PASS
 - [x] SCENE-CATALOG に `G-CMT-TWK-P3`（golden なし）
 - [x] TODO / REQ / INDEX 更新・コミット（push しない）
 
@@ -117,3 +119,6 @@
 | 2026-07-30 05:45 | **実装完了**。条件付きフォールバック＋bound ログ＋Vitest 2件。golden 29/29・shiftEstimateCore 9/9 PASS | 承認済み方針どおり |
 | 2026-07-30 05:45 | CONCEPT-MAP: 追記 0 件（terminal / coarse re-probe 既存カードで十分） | Phase 完了時検討 |
 | 2026-07-30 05:45 | REQ `done`。実機クローズはユーザーの3面再キャプチャ目視待ち | CHANGELOG Unreleased は実機クローズ後に追記 |
+| 2026-07-30 06:01 | 実機 NG: 9位二重。原因=中盤97採用後 sessionStable 偽→Frame5→6 が167 ssd | ログ確定・全体リファクタは見送り |
+| 2026-07-30 06:13 | **Phase2 実装**: 最終ペア sessionStable を S* 近傍クラスタのみで判定。Vitest 10/10・golden 29/29 PASS | 中盤フォールバック維持。実機再キャプチャ待ち |
+| 2026-07-30 06:13 | CONCEPT-MAP: 追記 0 件（sessionStable は既存概念の判定拡張） | Phase2 完了時検討 |

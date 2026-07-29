@@ -352,6 +352,32 @@ function runTerminalReprobe(
   return { kind: "none" };
 }
 
+/** 中盤: prior がすべて S* 近傍なら安定 */
+function isMidSessionStable(
+  priorAmounts: number[],
+  representative: number,
+  outlierTau: number
+): boolean {
+  return (
+    representative > 0 &&
+    priorAmounts.length > 0 &&
+    priorAmounts.every((s) => Math.abs(s - representative) <= outlierTau)
+  );
+}
+
+/** 最終ペア: prior の S* 近傍クラスタがあれば安定（中盤短シフトは除外・G-CMT-TWK-P3） */
+function isTerminalSessionStable(
+  priorAmounts: number[],
+  representative: number,
+  outlierTau: number
+): boolean {
+  if (representative <= 0 || priorAmounts.length === 0) return false;
+  const nearCluster = priorAmounts.filter(
+    (s) => s > 0 && Math.abs(s - representative) <= outlierTau
+  );
+  return nearCluster.length > 0;
+}
+
 /** ???????????? overlap ?????Step B + Step C? */
 export function estimateShiftFramesRgba(
   strips: RgbaImage[],
@@ -448,10 +474,13 @@ export function estimateShiftFramesRgba(
       .slice(0, i)
       .map((p) => p.scrollAmount)
       .filter((s) => s > 0);
-    const sessionStable =
-      representative > 0 &&
-      priorAmounts.length > 0 &&
-      priorAmounts.every((s) => Math.abs(s - representative) <= opts.outlierTau);
+    const sessionStable = isLast
+      ? isTerminalSessionStable(
+          priorAmounts,
+          representative,
+          opts.outlierTau
+        )
+      : isMidSessionStable(priorAmounts, representative, opts.outlierTau);
 
     // ?????: ???????? S* ????? raw/refined ????R3.5c-2?
     const coarseIsTerminalShortScroll =

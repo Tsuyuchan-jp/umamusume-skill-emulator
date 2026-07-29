@@ -290,6 +290,30 @@ describe("shiftEstimateCore mid-session short-shift fallback（G-CMT-TWK-P3）",
     // bound early return で後続ペアは無い
     expect(result.frames.length).toBe(4);
   });
+
+  it("中盤短シフト後も最終ペアで末端ガードが発火し skip（二重防止）", () => {
+    const shifts = [
+      LOCAL_SESSION,
+      LOCAL_SESSION,
+      LOCAL_SESSION,
+      LOCAL_SESSION,
+      MID_SHORT_SHIFT,
+      TRUE_TERMINAL_SHIFT,
+    ];
+    const strips = buildCustomSessionStrips(shifts);
+
+    const result = estimateShiftFramesRgba(strips);
+    expect(result.representative).toBe(LOCAL_SESSION);
+
+    const mid = result.frames[4]!;
+    expect(mid.scrollAmount).toBe(MID_SHORT_SHIFT);
+    expect(result.frames.some((f) => f.method === "bound")).toBe(false);
+
+    const last = result.frames[result.frames.length - 1]!;
+    expect(last.method).toBe("skip");
+    expect(last.scrollAmount).toBe(0);
+    expect(result.overlaps[result.overlaps.length - 1]).toBe(0);
+  });
 });
 
 function makeUnrelatedStrip(height: number, seed: number): RgbaImage {
