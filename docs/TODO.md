@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（要点は下記「更新ルール」「エージェント必須手順」。詳細は [`DOCS-GUIDE.md`](DOCS-GUIDE.md)）。
 
-最終更新: 2026-07-23 22:28
+最終更新: 2026-07-30 04:54
 
 ---
 
@@ -24,7 +24,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 | 進行中 | P1 着手可能 | P1 棚上げ | P2 未着手 | 保留 |
 | --- | --- | --- | --- | --- |
-| 0 | 2 | 1 | 8 | 1 |
+| 0 | 3 | 1 | 8 | 1 |
 
 直近リリース: **v1.4.1**（2026-07-23）
 
@@ -52,6 +52,15 @@ Backlog・保留を変更したら件数を合わせて更新する。
   - 触る想定: `umaemuAdapter.ts`, `worker.js` / WASM（`SkillEventDump` 拡張の可能性）、`RaceDetailChart.tsx`, `raceGraphBuilder.ts`, `types.ts`
   - 注意: **着手前に Ask mode で umasim 調査・UI 案を確定**。REQ 起票推奨（レース詳細グラフ Phase 3 系の拡張）
   - 関連: `[REQ-race-detail-graph-phase3.md](tasks/REQ-race-detail-graph-phase3.md)` スキル帯・`[REQ-race-detail-graph-skill-tooltip.md](tasks/REQ-race-detail-graph-skill-tooltip.md)`
+
+- [ ] **オートキャプチャ結合 — チャンミ月刊トゥインクル増刊号・3面の最下部切れ**
+  - 対象画面: **チャンピオンミーティング月刊トゥインクル増刊号の3面**（新規対応ルート）
+  - 現状: オートキャプチャは動作し、**フレーム取得は完璧**。結合段階で **最下部だけ切れる**
+  - 目標: 当該ページでも結合完了後に最下部まで欠けず OCR/ステータス取得まで通せるようにする
+  - 推測: footer 切り出し・terminal シフト・postProcess の過剰クロップ等（既存 HOF/CMP skill 経路との UI 差）
+  - 触る想定: `app/lib/stitch/`（`composeCore` / `regionsCore` / `shiftEstimateCore` / postProcess）、必要なら `capture.rs`、Scene Catalog / golden 追加
+  - 注意: **実機検証必須**。既存 G-HOF / G-CMP / FRD 退行なし。着手前に結合結果スクショと最終フレーム比較で切れ位置を特定推奨。REQ / Catalog 追記検討
+  - 関連: [`REQ-auto-capture-multi-screen.md`](tasks/REQ-auto-capture-multi-screen.md)、[`REQ-stitch-rewrite.md`](tasks/REQ-stitch-rewrite.md)、[`SCENE-CATALOG.md`](../auto-capture-design-pack/SCENE-CATALOG.md)
 
 - [ ] **Worker 大量試行時の断続失敗対策**（調査・別タスク）
   - 背景: ユーザーレポートで 1,000 回 sim の途中失敗など fetch 単独では説明しきれないパターンあり（`[REQ-skill-data-fetch-fallback.md](tasks/REQ-skill-data-fetch-fallback.md)` スコープ外）
