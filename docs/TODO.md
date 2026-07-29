@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（要点は下記「更新ルール」「エージェント必須手順」。詳細は [`DOCS-GUIDE.md`](DOCS-GUIDE.md)）。
 
-最終更新: 2026-07-30 05:35
+最終更新: 2026-07-30 05:45
 
 ---
 
@@ -16,7 +16,7 @@
 
 ## 現在のフォーカス
 
-オートキャプチャ結合 — チャンミ月刊トゥインクル増刊号・3面の偽 bound 修正
+（なし — 次は Backlog P1（着手可能）/ P2 から選択。トゥインクル3面は **実機再キャプチャで9位戦績目視** が残る）
 
 ## サマリー（手更新）
 
@@ -24,7 +24,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 | 進行中 | P1 着手可能 | P1 棚上げ | P2 未着手 | 保留 |
 | --- | --- | --- | --- | --- |
-| 1 | 2 | 1 | 8 | 1 |
+| 0 | 2 | 1 | 8 | 1 |
 
 直近リリース: **v1.4.1**（2026-07-23）
 
@@ -32,13 +32,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 ## 進行中
 
-- [ ] **オートキャプチャ結合 — チャンミ月刊トゥインクル増刊号・3面の最下部切れ**
-  - 対象: **チャンピオンミーティング月刊トゥインクル増刊号の3面のみ**（1面/2面は対象外）
-  - 現状: フレーム取得は成功。Frame 4→5 が median 補正後 score=0.586 で偽 bound → Frame 5 以降破棄
-  - 目標: 結合画像に **9位カード全体（戦績5枠）** が欠けずに出る（閉じる残存は不問。OCR・ステータス・sim はやらない）
-  - 修正: 非最終・短 raw・median 補正後スコア崩壊時のみ raw/短帯を条件付き採用（bound 全廃禁止）
-  - 触る: `shiftEstimateCore.ts` / `stitch.ts`（bound ログ）/ Vitest / SCENE-CATALOG
-  - 関連: [`REQ-stitch-twinkle-extra-page3.md`](tasks/REQ-stitch-twinkle-extra-page3.md)、[`SCENE-CATALOG.md`](../auto-capture-design-pack/SCENE-CATALOG.md) `G-CMT-TWK-P3`
+（なし）
 
 
 ## 次にやること（Backlog）
@@ -131,6 +125,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 直近10件のみ。それ以前は [`TODO-ARCHIVE.md`](TODO-ARCHIVE.md)。
 
+- [x] **オートキャプチャ結合 — チャンミ月刊トゥインクル増刊号・3面の偽 bound 修正** — 非最終・短 raw・median 補正後スコア崩壊時のみ raw/短帯を条件付き採用。bound ログに raw/final/method。Vitest 9/9・golden 29/29 PASS。`G-CMT-TWK-P3` Catalog 追加（golden なし）。**実機再キャプチャ（9位戦績目視）はユーザー確認待ち**（2026-07-30 05:45 / `1750e69`〜）/ [`REQ-stitch-twinkle-extra-page3.md`](tasks/REQ-stitch-twinkle-extra-page3.md)
 - [x] **v1.4.1 リリースビルド** — version 1.4.1 bump・CHANGELOG Unreleased 昇格・`app.exe` 生成・74件テスト PASS（2026-07-23 22:28 / `65d45cf`）
 - [x] **継承固有の継承進化（special）対応** — 判定一般化・表示 evo 寄せ・パレット例外2行・OCR 優先。`npm test` 74件 PASS。**実機検証クローズ**（パレット2行・★赤表示・日本総大将非表示・OCR 継承進化寄り・既存タブ ID 自動変更なし OK / 2026-07-23 22:28 / `56b6896`〜`7bbaeed`）/ [`REQ-inherit-evolution-special.md`](tasks/REQ-inherit-evolution-special.md) **done**
 - [x] **v1.4.0 リリースビルド** — version 1.4.0 bump・CHANGELOG Unreleased 昇格・`app.exe` 生成・68件テスト PASS（2026-07-23 09:45 / `0afad19`〜`28afaaf`）
@@ -140,7 +135,6 @@ Backlog・保留を変更したら件数を合わせて更新する。
 - [x] **シナリオ進化スキル（`scenario`）を赤スキル（`evo`）と同じ表示枠に** — `getSkillRarityInfoById` で scenario → evo（★・赤）表示、パレット dedupe に scenario 追加。`npm test` 68件 PASS。**実機検証クローズ**（パレット追加・一覧★赤・サマリー「進化」増加・既存 evo/rare 退行なし OK / 2026-07-23 08:47 / `790688d`〜`da163bf`）
 - [x] **OCR 後スキル数サマリー表示**（総数・金・進化） — `countSkillSummary` + `SkillSummaryLine` を SkillPanel / SimulationStatusView に配線。未知・unique・inherit は総数のみ。`npm test` 66件 PASS。**実機検証クローズ**（SkillPanel 見出し下・一覧件数一致・追加/削除/全削除で再計算・sim ステータス条件パネル・SkillVerifier 等に未表示・OCR/キャプチャ/sim 退行なし OK / 2026-07-23 08:25 / `2352002`〜`3ea8e6f`）
 - [x] **過去キャプチャ画像からステータス読み込み（ファイル OCR ルート）** — 結合済み PNG/JPEG を選択→プレビュー→既存 OCR/Abort。ファイル由来は autoCopy・saveFolder 再保存なし。recording/OCR 中は「画像ファイルを開く」無効。差し替え時 `umaData` クリア修正込み。`npm test` 62件 PASS。**実機検証クローズ**（ファイル経路・キャプチャなし sim・autoCopy 退行なし・中止・ボタン無効・差し替え後再 OCR OK / 2026-07-23 07:48 / `096d436`〜`4b01db5`）/ [`REQ-file-ocr-status.md`](tasks/REQ-file-ocr-status.md) **done**
-- [x] **TODO.md 改修（改善提案1〜7、提案4除く）** — ARCHIVE 分離・既知の問題掃除・P1 棚上げ分離・P0/ルール短縮・件数サマリー追加。388行→218行（2026-07-23 07:17 / `261cf95`〜`91157b9`）
 
 ---
 

@@ -3,9 +3,9 @@
 > 親文脈: [`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md) R3.5c-2（最終ペア短 raw 保護）、[`REQ-stitch-terminal-exact-bottom.md`](REQ-stitch-terminal-exact-bottom.md)、[`REQ-stitch-terminal-coarse-reprobe.md`](REQ-stitch-terminal-coarse-reprobe.md)。
 > 今回は **非最終ペア** で同じ median 補正破綻が起き、後続フレームが bound で破棄される穴を塞ぐ。
 
-- **ステータス**: in-progress
+- **ステータス**: done（実装完了・**実機検証はユーザー確認待ち**）
 - **作成日**: 2026-07-30 05:35
-- **関連コミット**: （完了後に記入）
+- **関連コミット**: `1750e69`〜
 - **シーン ID**: `G-CMT-TWK-P3`
 
 ---
@@ -89,13 +89,13 @@
 
 ## 完了条件
 
-- [ ] 実機で3面再キャプチャし、結合画像に9位戦績5枠まで欠けない（閉じる残存は不問）
-- [ ] DevTools: Frame 4→5 が誤 bound で Frame 5 以降破棄しない。bound する場合は raw/final がログに出る
-- [ ] 中盤 S* 安定・本当のバウンド bound・最終ペア terminal/skip/A2a が意図どおり（Vitest＋golden）
-- [ ] `stitch:golden` 退行なし
-- [ ] `shiftEstimateCore` 既存＋新規 Vitest 成功
-- [ ] SCENE-CATALOG に `G-CMT-TWK-P3`（golden なし）
-- [ ] TODO / REQ / INDEX 更新・コミット（push しない）
+- [ ] 実機で3面再キャプチャし、結合画像に9位戦績5枠まで欠けない（閉じる残存は不問）— **ユーザー確認待ち**
+- [x] DevTools: bound する場合は raw/final/method がログに出る（実装済み。誤 bound 回避は Vitest で担保）
+- [x] 中盤 S* 安定・本当のバウンド bound・最終ペア terminal/skip/A2a が意図どおり（Vitest＋golden）
+- [x] `stitch:golden` 退行なし（29/29）
+- [x] `shiftEstimateCore` 既存＋新規 Vitest 成功（9/9）
+- [x] SCENE-CATALOG に `G-CMT-TWK-P3`（golden なし）
+- [x] TODO / REQ / INDEX 更新・コミット（push しない）
 
 ---
 
@@ -114,3 +114,6 @@
 | 2026-07-30 05:35 | 設計レビュー承認: 非最終・短 raw・median 補正後スコア崩壊時のみ raw/短帯を条件付き採用。bound 全廃・短シフト常時許可は禁止 | 実機ログで Frame4→5 score=0.586 偽 bound が直接原因。R3.5c-2 を非最終へ最小延長 |
 | 2026-07-30 05:35 | 上流（タブ緑未検出→L2 fallback・scrollStart=layout-ratio confidence=low・wheel=stitch_fallback）は Catalog 備考のみ。layout/tabDetect 本修正は必須外 | 結合切れの主因は shift 偽 bound |
 | 2026-07-30 05:35 | シーン ID `G-CMT-TWK-P3`。golden / expectations は追加しない | 完了条件は結合画像の目視のみ |
+| 2026-07-30 05:45 | **実装完了**。条件付きフォールバック＋bound ログ＋Vitest 2件。golden 29/29・shiftEstimateCore 9/9 PASS | 承認済み方針どおり |
+| 2026-07-30 05:45 | CONCEPT-MAP: 追記 0 件（terminal / coarse re-probe 既存カードで十分） | Phase 完了時検討 |
+| 2026-07-30 05:45 | REQ `done`。実機クローズはユーザーの3面再キャプチャ目視待ち | CHANGELOG Unreleased は実機クローズ後に追記 |

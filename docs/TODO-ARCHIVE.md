@@ -3,10 +3,11 @@
 > **進捗の正本ではない。** 次にやることは [TODO.md](TODO.md) を見る。
 > `TODO.md` の完了済みは直近10件のみ。それより古い完了行はここに移す。
 
-最終更新: 2026-07-23 22:28
+最終更新: 2026-07-30 05:45
 
 ---
 
+- [x] **TODO.md 改修（改善提案1〜7、提案4除く）** — ARCHIVE 分離・既知の問題掃除・P1 棚上げ分離・P0/ルール短縮・件数サマリー追加。388行→218行（2026-07-23 07:17 / `261cf95`〜`91157b9`）
 - [x] **OCR 用 Gemini モデルを Flash-Lite のみに変更** — `gemini-3.1-flash-lite` 単一化・Auto-Fallback 削除・完了 toast からモデル名除去。`npm test` 62件 PASS。**実機検証クローズ**（結合画像1枚で OCR 完了・ステータス/スキル反映・中止退行なし OK / 2026-07-23 06:18 / `979fc13`）
 - [x] **OCR 解析の中止（停止）機能** — AbortController + fetch signal・CapturePanel「停止」・AbortError と API エラー区別・遅延結果破棄。`npm test` 62件 PASS。**実機検証クローズ**（中止→再実行・通常完了・本物エラーの3系統 OK / 2026-07-23 06:04 / `bac51e7`）/ [`REQ-ocr-cancel.md`](tasks/REQ-ocr-cancel.md) **done**
 - [x] **REQ-skill-data-fetch-fallback 実機検証クローズ** — 手順 3〜7 OK（同梱フォールバック・fetch 全滅・Worker 文言区別・Launcher/SimTabPanel 回帰・raceDetail トースト）。手順 1〜2 は 2026-06-25 確認済み（2026-07-23 04:52 / 実装 `a5c04a0`）/ `[REQ-skill-data-fetch-fallback.md](tasks/REQ-skill-data-fetch-fallback.md)` **done**
