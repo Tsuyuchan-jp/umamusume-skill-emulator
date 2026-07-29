@@ -36,7 +36,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
   - 原因: 中盤短シフト（97）採用後、最終ペアの sessionStable が偽 → skip/A2a 不発 → Frame5→6 が 167 で二重
   - 修正: 最終ペアの sessionStable を prior の S* 近傍クラスタのみで判定（Vitest 10/10・golden 29/29 PASS）
   - 目標: 9位戦績が欠けず、かつ9位が二重でない（**実機再キャプチャ目視待ち**）
-  - 関連: [`REQ-stitch-twinkle-extra-page3.md`](tasks/REQ-stitch-twinkle-extra-page3.md) `G-CMT-TWK-P3`
+  - 関連: [`REQ-stitch-twinkle-extra-page3.md`](tasks/REQ-stitch-twinkle-extra-page3.md) `G-CMT-TWK-P3`（`70b9f14`）
 
 
 ## 次にやること（Backlog）
