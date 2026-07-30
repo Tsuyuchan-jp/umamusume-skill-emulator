@@ -597,7 +597,8 @@ export function estimateShiftFramesRgba(
       if (altScore > score && altScore >= opts.scoreMin && altScroll > 0) {
         scrollAmount = altScroll;
         score = altScore;
-        method = altMethod === "median-corrected" ? "ssd" : altMethod;
+        // altMethod は median 前（ssd / ssd-refined / terminal）または短帯再探索の ssd
+        method = altMethod;
       }
     }
 
