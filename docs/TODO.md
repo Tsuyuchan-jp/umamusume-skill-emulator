@@ -125,7 +125,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 直近10件のみ。それ以前は [`TODO-ARCHIVE.md`](TODO-ARCHIVE.md)。
 
-- [x] **ゲームアップデート後のスキルデータ更新（2026-07-30）** — umasim **2066件**（+19）。水着セイウン／ブライト固有「海風にまったり身を任せ」「夕凪のリトリート・メモリー」等。Steam `master.mdb` は未更新（7/21）のため skillRarity **1840件のまま**。extract の HELPERS_TAIL に継承進化ヘルパーを同期。CHANGELOG Unreleased 追記（2026-07-30 15:42）
+- [x] **ゲームアップデート後のスキルデータ更新（2026-07-30）** — umasim **2066件**（+19）。水着セイウン／ブライト固有「海風にまったり身を任せ」「夕凪のリトリート・メモリー」等。Steam `master.mdb` は未更新（7/21）のため skillRarity **1840件のまま**。extract の HELPERS_TAIL に継承進化ヘルパーを同期。CHANGELOG Unreleased 追記（2026-07-30 15:42 / `18bd17e`）
 - [x] **オートキャプチャ結合 — チャンミ月刊トゥインクル増刊号・3面** — Phase1 偽 bound 回避＋Phase2 最終 sessionStable（S* 近傍クラスタ）。Vitest 10/10・golden 29/29。**実機検証クローズ**（9位戦績欠けなし・二重なし・Frame5→6 terminal micro skip coarse=167 / 2026-07-30 06:18 / `1750e69`〜`8b4d9de`）/ [`REQ-stitch-twinkle-extra-page3.md`](tasks/REQ-stitch-twinkle-extra-page3.md) **done**
 - [x] **v1.4.1 リリースビルド** — version 1.4.1 bump・CHANGELOG Unreleased 昇格・`app.exe` 生成・74件テスト PASS（2026-07-23 22:28 / `65d45cf`）
 - [x] **継承固有の継承進化（special）対応** — 判定一般化・表示 evo 寄せ・パレット例外2行・OCR 優先。`npm test` 74件 PASS。**実機検証クローズ**（パレット2行・★赤表示・日本総大将非表示・OCR 継承進化寄り・既存タブ ID 自動変更なし OK / 2026-07-23 22:28 / `56b6896`〜`7bbaeed`）/ [`REQ-inherit-evolution-special.md`](tasks/REQ-inherit-evolution-special.md) **done**
