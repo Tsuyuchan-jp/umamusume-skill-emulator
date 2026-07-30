@@ -1313,6 +1313,11 @@ export const umasimSkillDataList = [
     "rarity": "unique"
   },
   {
+    "name": "海風にまったり身を任せ",
+    "id": "120201",
+    "rarity": "unique"
+  },
+  {
     "name": "麗走一直！ラーメン道",
     "id": "120221",
     "rarity": "unique"
@@ -1405,6 +1410,11 @@ export const umasimSkillDataList = [
   {
     "name": "ミンナノアタシへ！",
     "id": "120681",
+    "rarity": "unique"
+  },
+  {
+    "name": "夕凪のリトリート・メモリー",
+    "id": "120741",
     "rarity": "unique"
   },
   {
@@ -2693,6 +2703,11 @@ export const umasimSkillDataList = [
     "rarity": "inherit"
   },
   {
+    "name": "海風にまったり身を任せ",
+    "id": "920201",
+    "rarity": "inherit"
+  },
+  {
     "name": "麗走一直！ラーメン道",
     "id": "920221",
     "rarity": "inherit"
@@ -2788,6 +2803,11 @@ export const umasimSkillDataList = [
     "rarity": "inherit"
   },
   {
+    "name": "夕凪のリトリート・メモリー",
+    "id": "920741",
+    "rarity": "inherit"
+  },
+  {
     "name": "一杯全力、お届けします！",
     "id": "920771",
     "rarity": "inherit"
@@ -2841,6 +2861,11 @@ export const umasimSkillDataList = [
     "name": "左回りの鬼",
     "id": "200024",
     "rarity": "rare"
+  },
+  {
+    "name": "私だけの世界",
+    "id": "100201311",
+    "rarity": "evo"
   },
   {
     "name": "左回り◎",
@@ -4145,6 +4170,11 @@ export const umasimSkillDataList = [
   {
     "name": "サプライズ大成功～☆",
     "id": "102002121",
+    "rarity": "evo"
+  },
+  {
+    "name": "のらりくらりdeバカンス♪",
+    "id": "102003111",
     "rarity": "evo"
   },
   {
@@ -7438,6 +7468,11 @@ export const umasimSkillDataList = [
     "rarity": "rare"
   },
   {
+    "name": "浜辺の追いかけっこ",
+    "id": "107403111",
+    "rarity": "evo"
+  },
+  {
     "name": "革命をもたらす威容",
     "id": "108301211",
     "rarity": "evo"
@@ -7466,6 +7501,11 @@ export const umasimSkillDataList = [
     "name": "一気呵成",
     "id": "202591",
     "rarity": "rare"
+  },
+  {
+    "name": "薫風もたらすルドベキア",
+    "id": "107403211",
+    "rarity": "evo"
   },
   {
     "name": "一花咲かせましょう！",
@@ -7990,6 +8030,11 @@ export const umasimSkillDataList = [
   {
     "name": "不撓のLimit Breaker",
     "id": "105003211",
+    "rarity": "evo"
+  },
+  {
+    "name": "不屈のRebellion",
+    "id": "105003221",
     "rarity": "evo"
   },
   {
@@ -9885,6 +9930,56 @@ export const umasimSkillDataList = [
   {
     "name": "奮い立つ心",
     "id": "204472",
+    "rarity": "normal"
+  },
+  {
+    "name": "急先鋒",
+    "id": "204541",
+    "rarity": "rare"
+  },
+  {
+    "name": "夏風フロントランナー",
+    "id": "102003211",
+    "rarity": "evo"
+  },
+  {
+    "name": "先導者",
+    "id": "204542",
+    "rarity": "normal"
+  },
+  {
+    "name": "奥の手",
+    "id": "204552",
+    "rarity": "normal"
+  },
+  {
+    "name": "勝負勘",
+    "id": "204562",
+    "rarity": "normal"
+  },
+  {
+    "name": "レースメイカー",
+    "id": "204481",
+    "rarity": "rare"
+  },
+  {
+    "name": "筆に任せて",
+    "id": "204482",
+    "rarity": "normal"
+  },
+  {
+    "name": "ポイントマン",
+    "id": "204492",
+    "rarity": "normal"
+  },
+  {
+    "name": "一石二鳥",
+    "id": "204501",
+    "rarity": "rare"
+  },
+  {
+    "name": "ダブルアクセル",
+    "id": "204502",
     "rarity": "normal"
   },
   {
