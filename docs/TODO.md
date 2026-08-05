@@ -139,7 +139,6 @@ Backlog・保留を変更したら件数を合わせて更新する。
 - [x] **ゲームアップデート後のスキルデータ更新（2026-07-23）** — Steam `master.mdb`（2026-07-21）差し替え・umasim **2047件**（+5）・skillRarity **1840件**（+7）。新規固有「冠絶タクティクス」等。CHANGELOG Unreleased 追記（2026-07-23 09:37 / `a446405`）
 - [x] **CapturePanel「画像ファイルを開く」ヒント圧縮（案A）** — 1行要約＋ⓘ クリックで詳細2点（外側クリック/Escape 閉じ・キーボード操作可）。`npm test` 68件 PASS。**実機検証クローズ**（1行表示・ⓘ 開閉・キーボード・ファイル選択〜OCR 退行なし OK / 2026-07-23 09:29 / `e366281`〜`2f64b56`）
 - [x] **Settings スキルデータ接続チェック UI** — 診断 fold＋`probeSkillDataSources`（非破壊）＋見出し1ボタン。CHANGELOG / PROJECT / SYSTEM_SPEC 同期。`npm test` 68件 PASS。**実機検証クローズ**（remote/cache/bundled 文言・見出しトグル・自動コピー非干渉・診断後 sim/フォールバックトースト退行なし OK / 2026-07-23 09:18 / `f0f2e64`〜`906bc3d`）/ `[REQ-skill-data-fetch-fallback.md](tasks/REQ-skill-data-fetch-fallback.md)` Phase 3 後続
-- [x] **シナリオ進化スキル（`scenario`）を赤スキル（`evo`）と同じ表示枠に** — `getSkillRarityInfoById` で scenario → evo（★・赤）表示、パレット dedupe に scenario 追加。`npm test` 68件 PASS。**実機検証クローズ**（パレット追加・一覧★赤・サマリー「進化」増加・既存 evo/rare 退行なし OK / 2026-07-23 08:47 / `790688d`〜`da163bf`）
 
 ---
 
