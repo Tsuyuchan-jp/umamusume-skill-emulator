@@ -12,6 +12,7 @@ interface CapturePanelProps {
   resultImage: string | null;
   umaData: UmaStatusData | null;
   autoCopyEnabled: boolean;
+  skipStitchedDiskSave: boolean;
   saveFolder: string;
   shortcutKey: string;
   isRecordingShortcut: boolean;
@@ -22,6 +23,7 @@ interface CapturePanelProps {
   shortcutInputRef: React.RefObject<HTMLInputElement | null>;
   
   onToggleAutoCopy: (enabled: boolean) => void;
+  onToggleSkipStitchedDiskSave: (enabled: boolean) => void;
   onSelectFolder: () => void;
   onRecordingShortcutStart: () => void;
   onRecordingShortcutBlur: () => void;
@@ -42,9 +44,9 @@ export function CapturePanel(props: CapturePanelProps) {
   const {
     statusCfg, captureStatus, captureMessage, captureError, debugFramePaths,
     resultImage, umaData,
-    autoCopyEnabled, saveFolder, shortcutKey, isRecordingShortcut, apiKey,
+    autoCopyEnabled, skipStitchedDiskSave, saveFolder, shortcutKey, isRecordingShortcut, apiKey,
     isPreviewExpanded, isOcrProcessing, previewRef, shortcutInputRef,
-    onToggleAutoCopy, onSelectFolder, onRecordingShortcutStart, onRecordingShortcutBlur,
+    onToggleAutoCopy, onToggleSkipStitchedDiskSave, onSelectFolder, onRecordingShortcutStart, onRecordingShortcutBlur,
     onKeyDownForShortcut, onShowApiKeyModal, onStartAutoCapture, onStopCapture,
     onResetCapture, onLoadImageFromFile, onTogglePreviewExpanded, onCopyImage, onOcrStart, onOcrCancel
   } = props;
@@ -83,6 +85,8 @@ export function CapturePanel(props: CapturePanelProps) {
           <SettingsPanel
             autoCopyEnabled={autoCopyEnabled}
             onToggleAutoCopy={onToggleAutoCopy}
+            skipStitchedDiskSave={skipStitchedDiskSave}
+            onToggleSkipStitchedDiskSave={onToggleSkipStitchedDiskSave}
             saveFolder={saveFolder}
             onSelectFolder={onSelectFolder}
             shortcutKey={shortcutKey}

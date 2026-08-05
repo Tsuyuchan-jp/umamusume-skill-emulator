@@ -19,11 +19,13 @@ const PROBE_RESULT_MESSAGES: Record<SkillDataSource, string> = {
 
 interface SettingsPanelProps {
   autoCopyEnabled: boolean;
+  skipStitchedDiskSave: boolean;
   saveFolder: string;
   shortcutKey: string;
   isRecordingShortcut: boolean;
   apiKey: string;
   onToggleAutoCopy: (enabled: boolean) => void;
+  onToggleSkipStitchedDiskSave: (enabled: boolean) => void;
   onSelectFolder: () => void;
   onRecordingShortcutStart: () => void;
   onRecordingShortcutBlur: () => void;
@@ -34,11 +36,13 @@ interface SettingsPanelProps {
 
 export function SettingsPanel({
   autoCopyEnabled,
+  skipStitchedDiskSave,
   saveFolder,
   shortcutKey,
   isRecordingShortcut,
   apiKey,
   onToggleAutoCopy,
+  onToggleSkipStitchedDiskSave,
   onSelectFolder,
   onRecordingShortcutStart,
   onRecordingShortcutBlur,
@@ -121,12 +125,34 @@ export function SettingsPanel({
           <>
             <div className="h-px w-full bg-white/[0.05]"></div>
 
-            <div className="flex flex-col gap-2">
+            <label
+              className="flex items-center gap-2 text-xs text-zinc-400 cursor-pointer select-none hover:text-zinc-300 transition-colors group"
+              title="ON のとき結合画像はメモリ上のプレビューのみ（OCR 用）。PC ディスクには保存しません"
+            >
+              <div className="relative flex items-center justify-center w-4 h-4 rounded border border-zinc-800 bg-zinc-900/50 group-hover:border-emerald-500/50 transition-colors shrink-0">
+                <input
+                  type="checkbox"
+                  className="absolute opacity-0 w-full h-full cursor-pointer z-10"
+                  checked={skipStitchedDiskSave}
+                  onChange={(e) => onToggleSkipStitchedDiskSave(e.target.checked)}
+                />
+                <svg className={`w-3 h-3 text-emerald-400 absolute transition-opacity ${skipStitchedDiskSave ? "opacity-100" : "opacity-0"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
+                </svg>
+              </div>
+              <span>結合画像をディスクに保存しない</span>
+            </label>
+
+            <div className={`flex flex-col gap-2 ${skipStitchedDiskSave ? "opacity-50" : ""}`}>
               <div className="flex flex-col gap-0.5 w-full">
                 <span className="text-xs font-medium text-zinc-300">画像の保存先フォルダ</span>
-                <span className="text-[10px] text-zinc-500">未設定時は標準ダウンロードフォルダ</span>
+                <span className="text-[10px] text-zinc-500">
+                  {skipStitchedDiskSave
+                    ? "非保存 ON のため使用しません（設定値は保持されます）"
+                    : "未設定時は標準ダウンロードフォルダ"}
+                </span>
               </div>
-              <div className="flex w-full min-w-0 items-center bg-zinc-950/50 border border-zinc-800/80 rounded-lg overflow-hidden group focus-within:border-emerald-500/50 transition-colors">
+              <div className={`flex w-full min-w-0 items-center bg-zinc-950/50 border border-zinc-800/80 rounded-lg overflow-hidden group transition-colors ${skipStitchedDiskSave ? "pointer-events-none" : "focus-within:border-emerald-500/50"}`}>
                 <div className="pl-3 pr-2 text-zinc-500 shrink-0">
                   <Folder className="w-3.5 h-3.5 text-zinc-500" />
                 </div>
@@ -134,13 +160,15 @@ export function SettingsPanel({
                   type="text"
                   readOnly
                   placeholder="未設定"
-                  className="flex-1 bg-transparent py-2 text-xs text-zinc-300 outline-none truncate min-w-0"
-                  title={saveFolder || "標準のダウンロードフォルダ"}
+                  disabled={skipStitchedDiskSave}
+                  className="flex-1 bg-transparent py-2 text-xs text-zinc-300 outline-none truncate min-w-0 disabled:text-zinc-500"
+                  title={skipStitchedDiskSave ? "結合画像をディスクに保存しないが ON のため無効" : (saveFolder || "標準のダウンロードフォルダ")}
                   value={saveFolder}
                 />
                 <button
                   onClick={onSelectFolder}
-                  className="shrink-0 bg-zinc-800 hover:bg-emerald-600 text-zinc-300 hover:text-white text-xs font-semibold px-4 py-2 border-l border-zinc-700/50 transition-all active:bg-emerald-700"
+                  disabled={skipStitchedDiskSave}
+                  className="shrink-0 bg-zinc-800 hover:bg-emerald-600 text-zinc-300 hover:text-white text-xs font-semibold px-4 py-2 border-l border-zinc-700/50 transition-all active:bg-emerald-700 disabled:hover:bg-zinc-800 disabled:hover:text-zinc-300"
                 >
                   変更
                 </button>

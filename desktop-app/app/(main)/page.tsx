@@ -46,6 +46,7 @@ export default function Home() {
   const { showToast, toastMessage, toastType, showToastMessage } = useToast();
 
   const [autoCopyEnabled, setAutoCopyEnabled] = useState<boolean>(true);
+  const [skipStitchedDiskSave, setSkipStitchedDiskSave] = useState<boolean>(false);
   const [saveFolder, setSaveFolder] = useState<string>("");
   const [shortcutKey, setShortcutKey] = useState<string>("F9");
   const [isRecordingShortcut, setIsRecordingShortcut] = useState<boolean>(false);
@@ -199,6 +200,10 @@ export default function Home() {
     if (savedAutoCopy !== null) {
       setAutoCopyEnabled(savedAutoCopy === "true");
     }
+    const savedSkipDiskSave = localStorage.getItem("skipStitchedDiskSave");
+    if (savedSkipDiskSave !== null) {
+      setSkipStitchedDiskSave(savedSkipDiskSave === "true");
+    }
     const savedFolder = localStorage.getItem("saveFolder");
     if (savedFolder) {
       setSaveFolder(savedFolder);
@@ -302,6 +307,11 @@ export default function Home() {
   const handleToggleAutoCopy = (enabled: boolean) => {
     setAutoCopyEnabled(enabled);
     localStorage.setItem("autoCopyEnabled", String(enabled));
+  };
+
+  const handleToggleSkipStitchedDiskSave = (enabled: boolean) => {
+    setSkipStitchedDiskSave(enabled);
+    localStorage.setItem("skipStitchedDiskSave", String(enabled));
   };
 
   const handleSelectFolder = async () => {
@@ -498,6 +508,7 @@ export default function Home() {
           resultImage={resultImage}
           umaData={umaData}
           autoCopyEnabled={autoCopyEnabled}
+          skipStitchedDiskSave={skipStitchedDiskSave}
           saveFolder={saveFolder}
           shortcutKey={shortcutKey}
           isRecordingShortcut={isRecordingShortcut}
@@ -507,6 +518,7 @@ export default function Home() {
           previewRef={previewRef}
           shortcutInputRef={shortcutInputRef}
           onToggleAutoCopy={handleToggleAutoCopy}
+          onToggleSkipStitchedDiskSave={handleToggleSkipStitchedDiskSave}
           onSelectFolder={handleSelectFolder}
           onRecordingShortcutStart={() => setIsRecordingShortcut(true)}
           onRecordingShortcutBlur={() => setIsRecordingShortcut(false)}

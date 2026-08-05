@@ -123,32 +123,39 @@ export function useCapture() {
       setCaptureMessage("画像を結合しています...");
       const { cleanDataUrl } = await stitchImages(imageUrls);
 
-      const filename = `factor_${Date.now()}.png`;
-      const saveFolder = localStorage.getItem("saveFolder");
+      const skipDiskSave = localStorage.getItem("skipStitchedDiskSave") === "true";
 
-      if (saveFolder) {
-        // Rustバックエンド経由で指定フォルダに保存
-        const savedPath = await invoke<string>("save_stitched_image", {
-          base64Data: cleanDataUrl,
-          directory: saveFolder,
-          filename: filename
-        });
-        setSaveResult(`保存しました: ${savedPath}`);
+      if (!skipDiskSave) {
+        const filename = `factor_${Date.now()}.png`;
+        const saveFolder = localStorage.getItem("saveFolder");
+
+        if (saveFolder) {
+          // Rustバックエンド経由で指定フォルダに保存
+          const savedPath = await invoke<string>("save_stitched_image", {
+            base64Data: cleanDataUrl,
+            directory: saveFolder,
+            filename: filename
+          });
+          setSaveResult(`保存しました: ${savedPath}`);
+        } else {
+          // ブラウザ標準のダウンロード機能（フォールバック）
+          const link = document.createElement("a");
+          link.href = cleanDataUrl;
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          setSaveResult(`ダウンロードフォルダに保存されました: ${filename}`);
+        }
+        setCaptureMessage("画像の結合と保存が完了しました！");
       } else {
-        // ブラウザ標準のダウンロード機能（フォールバック）
-        const link = document.createElement("a");
-        link.href = cleanDataUrl;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        setSaveResult(`ダウンロードフォルダに保存されました: ${filename}`);
+        setSaveResult("");
+        setCaptureMessage("画像の結合が完了しました（ディスクには保存していません）");
       }
 
       setResultImage(cleanDataUrl);
       setResultImageFromFile(false);
       setCaptureStatus("saved");
-      setCaptureMessage("画像の結合と保存が完了しました！");
 
     } catch (error: unknown) {
       const msg = typeof error === "string" ? error : (error instanceof Error ? error.message : JSON.stringify(error));
