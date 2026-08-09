@@ -15,11 +15,14 @@ function toHalfWidth(str: string): string {
   return s;
 }
 
-export function fuzzyMatchSkillId(rawInput: string | null | undefined, isFirstSkill: boolean): string {
-  if (!rawInput) return "";
+/** ファジーマッチ閾値（fuzzyMatchSkillId と診断で共有。変更時は両方に影響） */
+export const FUZZY_MATCH_THRESHOLD = 0.45;
+
+/** 空白除去・半角正規化後の入力と最良一致（rating 含む）。診断・マッチ共通 */
+function findBestSkillMatch(rawInput: string): { cleanInput: string; target: string; rating: number } | null {
   let cleanInput = rawInput.replace(/[\s\u3000]+/g, "");
   cleanInput = toHalfWidth(cleanInput);
-  if (!cleanInput) return "";
+  if (!cleanInput) return null;
 
   const matches = stringSimilarity.findBestMatch(cleanInput, umasimSkillNames);
   let bestMatch = matches.bestMatch;
@@ -34,10 +37,18 @@ export function fuzzyMatchSkillId(rawInput: string | null | undefined, isFirstSk
     }
   }
 
-  if (bestMatch.rating < 0.45) return "";
+  return { cleanInput, target: bestMatch.target, rating: bestMatch.rating };
+}
+
+export function fuzzyMatchSkillId(rawInput: string | null | undefined, isFirstSkill: boolean): string {
+  if (!rawInput) return "";
+  const best = findBestSkillMatch(rawInput);
+  if (!best) return "";
+
+  if (best.rating < FUZZY_MATCH_THRESHOLD) return "";
 
   // Find the exact skill objects that match the best matched name
-  const matchedSkills = umasimSkillDataList.filter(s => s.name === bestMatch.target);
+  const matchedSkills = umasimSkillDataList.filter(s => s.name === best.target);
   if (matchedSkills.length === 0) return "";
 
   if (matchedSkills.length === 1) {
@@ -60,6 +71,123 @@ export function fuzzyMatchSkillId(rawInput: string | null | undefined, isFirstSk
   const nonUniqueSkill = matchedSkills.find(s => s.rarity !== 'unique');
   if (nonUniqueSkill) return String(nonUniqueSkill.id);
   return '';
+}
+
+/** 生 OCR スキル1件分のマッチ診断（読み取り専用・一覧ロジックは変更しない） */
+export interface OcrSkillEntryDiag {
+  /** OCR が返した生のスキル名 */
+  input: string;
+  /** umasim 側の最良一致名（無ければ空） */
+  bestMatchName: string;
+  /** 類似度 0〜1 */
+  rating: number;
+  /** 閾値 0.45 以上なら採用候補 */
+  accepted: boolean;
+  /** fuzzyMatchSkillId で解決した skillId（未解決は空） */
+  skillId: string;
+}
+
+/** 注目スキル（千鍛万錬・快速など）の切り分け用 */
+export interface OcrFocusSkillDiag {
+  name: string;
+  /** 生配列に完全一致（空白無視）があるか */
+  presentInRaw: boolean;
+  /** 完全一致した生文字列（複数可） */
+  rawHits: string[];
+  /** ヒット行があれば先頭ヒットのマッチ結果。無ければ注目名そのもので評価 */
+  match: OcrSkillEntryDiag;
+}
+
+export interface OcrSkillDiagnostics {
+  rawSkills: string[];
+  entries: OcrSkillEntryDiag[];
+  focus: OcrFocusSkillDiag[];
+}
+
+const DEFAULT_FOCUS_SKILLS = ["千鍛万錬", "快速"];
+
+function normalizeSkillLabel(s: string): string {
+  return toHalfWidth(s.replace(/[\s\u3000]+/g, ""));
+}
+
+function diagnoseOneSkill(rawInput: string, isFirstSkill: boolean): OcrSkillEntryDiag {
+  const best = findBestSkillMatch(rawInput);
+  const skillId = fuzzyMatchSkillId(rawInput, isFirstSkill);
+  if (!best) {
+    return { input: rawInput, bestMatchName: "", rating: 0, accepted: false, skillId: "" };
+  }
+  return {
+    input: rawInput,
+    bestMatchName: best.target,
+    rating: best.rating,
+    accepted: best.rating >= FUZZY_MATCH_THRESHOLD,
+    skillId,
+  };
+}
+
+/**
+ * OCR 生 skills の切り分け診断（読み取り専用）。
+ * fuzzyMatchSkillId / normalizeStatusData の挙動は変えない。
+ */
+export function buildOcrSkillDiagnostics(
+  rawSkills: string[],
+  focusNames: string[] = DEFAULT_FOCUS_SKILLS
+): OcrSkillDiagnostics {
+  const list = Array.isArray(rawSkills) ? rawSkills.map((s) => String(s ?? "")) : [];
+  const entries = list.map((s, index) => diagnoseOneSkill(s, index === 0));
+
+  const focus = focusNames.map((name) => {
+    const targetNorm = normalizeSkillLabel(name);
+    const rawHits = list.filter((s) => normalizeSkillLabel(s) === targetNorm);
+    const presentInRaw = rawHits.length > 0;
+    // ヒットがあればその行の index で isFirstSkill を合わせる。無ければ先頭以外扱い
+    let match: OcrSkillEntryDiag;
+    if (presentInRaw) {
+      const idx = list.indexOf(rawHits[0]);
+      match = diagnoseOneSkill(rawHits[0], idx === 0);
+    } else {
+      match = diagnoseOneSkill(name, false);
+    }
+    return { name, presentInRaw, rawHits, match };
+  });
+
+  return { rawSkills: list, entries, focus };
+}
+
+/** クリップボード共有用のプレーンテキスト */
+export function formatOcrSkillDiagnosticsText(diag: OcrSkillDiagnostics): string {
+  const lines: string[] = [];
+  lines.push("=== OCR 診断（切り分け用）===");
+  lines.push(`生スキル数: ${diag.rawSkills.length}`);
+  lines.push("");
+  lines.push("【読み方】");
+  lines.push("- 生OCR なし → OCR 欠落（Phase B: プロンプト強化候補）");
+  lines.push("- 生OCR あり・マッチ除外 → 誤読マッチ失敗（Phase B: エイリアス等）");
+  lines.push("- 生OCR あり・マッチ採用なのに一覧に無い → 表示側バグ（別調査）");
+  lines.push("");
+
+  for (const f of diag.focus) {
+    const verdict = f.match.accepted ? "採用" : "除外";
+    lines.push(`【${f.name}】`);
+    lines.push(`  生OCR: ${f.presentInRaw ? "あり" : "なし"}`);
+    if (f.rawHits.length > 0) {
+      lines.push(`  該当生文字列: ${f.rawHits.join(" / ")}`);
+    }
+    lines.push(
+      `  マッチ: ${verdict} / rating=${f.match.rating.toFixed(3)} / 最良一致=${f.match.bestMatchName || "(なし)"} / skillId=${f.match.skillId || "(なし)"}`
+    );
+    lines.push("");
+  }
+
+  lines.push("【生スキル名一覧】");
+  diag.rawSkills.forEach((s, i) => {
+    const e = diag.entries[i];
+    const verdict = e?.accepted ? "採用" : "除外";
+    lines.push(
+      `  ${i + 1}. ${s} → ${verdict} rating=${(e?.rating ?? 0).toFixed(3)} best=${e?.bestMatchName || "(なし)"} id=${e?.skillId || "-"}`
+    );
+  });
+  return lines.join("\n");
 }
 
 // 適性の補正用 (A~G, S)

@@ -2,7 +2,7 @@
 
 > OCR → ファジーマッチ（名前のあいまい一致）経路で「千鍛万錬」「快速」が所持スキル一覧に載らない問題の調査・修正。
 
-- **ステータス**: draft
+- **ステータス**: in-progress
 - **作成日**: 2026-08-10 02:23
 - **関連コミット**: （完了後に記入）
 
@@ -21,6 +21,7 @@
 
 ```
 結合画像 → Gemini OCR（生の skills 文字列配列）
+         → 診断ヘルパー（buildOcrSkillDiagnostics・読み取り専用）
          → fuzzyMatchSkillId（umasimSkillNames と類似度比較）
          → sanitizeSkillIds → SkillPanel 一覧
 ```
@@ -51,10 +52,10 @@
 
 **示唆**: 「千鍛万錬」は **鍛→段** のような1文字誤読でも落ちる。完全一致なら落ちない → 実機で落ちているなら、生 OCR に正しい名前が無い／誤読されている可能性が高い。
 
-### 未確定（Phase A で実機確認）
+### 未確定（Phase A 実機確認）
 
-- 現状 **Gemini の生 `skills` 配列を保存・表示する経路が無い**（`normalizeStatusData` 直後にマッチ結果だけ残る）
-- 「千鍛万錬」「快速」について、OCR 欠落とマッチ失敗の切り分けは **生 JSON 確認が必要**
+- Phase A 実装により生 `skills` と注目スキルのマッチ結果を UI で確認可能
+- 「千鍛万錬」「快速」について、OCR 欠落とマッチ失敗の切り分けは **実機診断の報告待ち**
 
 ---
 
@@ -62,7 +63,7 @@
 
 ### やること
 
-- Phase A: 生 OCR `skills` の診断（千鍛万錬・快速の切り分け）
+- Phase A: 生 OCR `skills` の診断（千鍛万錬・快速の切り分け）← **実装済み・実機待ち**
 - Phase B: 切り分け結果に応じたプロンプト／マッチ耐性の修正（別途承認）
 - 回帰テスト（ファジー・必要なら OCR 契約の机上）
 
@@ -78,15 +79,31 @@
 
 ## 仕様
 
-### Phase A — 切り分け（承認待ち・本チャットで説明）
+### Phase A — 切り分け（実装済み・実機確認待ち）
 
 目的: 実機 OCR 1回で「生の名前があるか／マッチで落ちたか」を共同開発者が確認できること。
 
-方針案の詳細はチャットで提示し、承認後に実装する（ここでは要約のみ）。
+データフロー:
 
-1. OCR 解析後に **生のスキル名一覧** と、注目2件（千鍛万錬・快速）のマッチ結果を確認できる診断を追加
-2. 再現キャプチャで確認し、OCR 欠落かマッチ失敗かを確定
-3. 結果に応じて Phase B を提案・再承認
+```
+結合画像 → Gemini OCR（生 skills 文字列配列）
+         → 診断ヘルパー（各生名のマッチ結果を記録）
+         → 既存 normalizeStatusData / fuzzyMatchSkillId（変更なし）
+         → SkillPanel 一覧
+```
+
+実装内容（確定）:
+
+1. `geminiOcr.ts`: `analyzeStitchedImage` の戻り値に `rawSkills: string[]`（正規化前）を含める。プロンプト・閾値は変更しない
+2. `fuzzyMatcher.ts`: `buildOcrSkillDiagnostics`（読み取り専用）。各生名の input / 最良一致 / rating / 0.45 採用・除外 / skillId。注目「千鍛万錬」「快速」の生配列完全一致も表示
+3. UI: 折りたたみ「OCR 診断（切り分け用）」＋「診断をコピー」。`OcrDiagnosticPanel.tsx`。umaData クリア時・新規 OCR 開始時に診断もクリア
+4. テスト: `fuzzyMatcher.test.ts` に診断ヘルパー最小ケース
+
+診断の読み方:
+
+- 生OCR なし → OCR 欠落（Phase B: プロンプト強化候補）
+- 生OCR あり・マッチ除外 → 誤読マッチ失敗（Phase B: エイリアス等）
+- 生OCR あり・マッチ採用なのに一覧に無い → 表示側バグ（別調査）
 
 ### Phase B — 修正候補（Phase A 後に再承認）
 
@@ -108,14 +125,16 @@
 
 ---
 
-## 触るファイル（予定・Phase A）
+## 触るファイル（Phase A）
 
 | ファイル | 変更内容 |
 |---------|---------|
 | `desktop-app/app/lib/geminiOcr.ts` | 生 `skills` を戻り値に含める |
 | `desktop-app/app/lib/fuzzyMatcher.ts` | 診断用ヘルパー（一覧ロジックは変更しない） |
-| `desktop-app/app/(main)/page.tsx` 等 | 診断結果を UI またはコピー可能にする |
-| `docs/TODO.md` / 本 REQ | 進捗・決定ログ |
+| `desktop-app/app/lib/fuzzyMatcher.test.ts` | 診断ヘルパー最小テスト |
+| `desktop-app/app/components/OcrDiagnosticPanel.tsx` | 一時診断 UI（新規） |
+| `desktop-app/app/(main)/page.tsx` | 診断 state・表示配線 |
+| `docs/TODO.md` / 本 REQ / `INDEX.md` | 進捗・決定ログ |
 
 Phase B は切り分け後にファイル表を更新する。
 
@@ -134,9 +153,10 @@ Phase B は切り分け後にファイル表を更新する。
 ## 完了条件
 
 - [x] `docs/TODO.md` に本 REQ を掲載
+- [x] Phase A: 生 OCR 診断 UI・ヘルパー実装（机上テスト PASS）
 - [ ] Phase A: 生 OCR で千鍛万錬・快速の有無を実機確認
 - [ ] Phase B: 承認した修正を実装し、両スキルが一覧に出る
-- [ ] `npm test`（ファジー関連）PASS
+- [x] `npm test`（ファジー関連・診断ヘルパー）PASS
 - [ ] 実機確認
 - [ ] REQ `done`・TODO 完了済みへ移動・コミット
 
@@ -158,3 +178,6 @@ Phase B は切り分け後にファイル表を更新する。
 | 2026-08-10 02:23 | CONCEPT-MAP: 今回の用語追加なし（既存説明＋本 REQ で足りる） | 調査段階・会話用の新概念は REQ 表で足りる |
 | 2026-08-10 02:30 | **逃げためらい等 umasim 未収録は本 REQ スコープ外**。アプリも載せない方針を維持。デバフ欠落のユーザー説明は別 TODO | ユーザー決定 |
 | 2026-08-10 02:30 | 次は Phase A（生 OCR 診断）から。実装内容はチャットで説明し承認後に着手 | ユーザー決定 |
+| 2026-08-10 02:38 | Phase A 実装承認どおり着手。`rawSkills` + `buildOcrSkillDiagnostics` + 折りたたみ診断 UI | ユーザー承認済み方針 |
+| 2026-08-10 02:38 | **折りたたみ UI は Phase B 実機確認後に削除**（恒久機能ではない） | 一時診断のため |
+| 2026-08-10 02:38 | CONCEPT-MAP: 今回の用語追加なし（既存カードで十分） | Phase A は診断経路の可視化のみ |

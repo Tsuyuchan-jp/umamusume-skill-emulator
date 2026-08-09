@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fuzzyMatchSkillId } from "./fuzzyMatcher";
+import { buildOcrSkillDiagnostics, fuzzyMatchSkillId } from "./fuzzyMatcher";
 
 const UNIQUE_GOLD = "101351"; // 黄金を訪ねて（通常固有）
 const INHERIT_GOLD = "901351"; // 黄金を訪ねて（通常継承）
@@ -19,5 +19,34 @@ describe("fuzzyMatchSkillId — 継承進化優先", () => {
 
   it("先頭以外の「ずっとずっと輝いて」も継承進化 ID になる", () => {
     expect(fuzzyMatchSkillId("ずっとずっと輝いて", false)).toBe(INHERIT_EVO_SHINE);
+  });
+});
+
+describe("buildOcrSkillDiagnostics — Phase A 切り分け", () => {
+  it("「千鍛万錬」完全一致 → 採用", () => {
+    const diag = buildOcrSkillDiagnostics(["千鍛万錬"]);
+    expect(diag.entries).toHaveLength(1);
+    expect(diag.entries[0].accepted).toBe(true);
+    expect(diag.entries[0].rating).toBe(1);
+    expect(diag.entries[0].bestMatchName).toBe("千鍛万錬");
+    expect(diag.entries[0].skillId).not.toBe("");
+
+    const focus = diag.focus.find((f) => f.name === "千鍛万錬");
+    expect(focus?.presentInRaw).toBe(true);
+    expect(focus?.match.accepted).toBe(true);
+  });
+
+  it("「千段万錬」→ 除外（rating < 0.45）", () => {
+    const diag = buildOcrSkillDiagnostics(["千段万錬"]);
+    expect(diag.entries[0].accepted).toBe(false);
+    expect(diag.entries[0].rating).toBeLessThan(0.45);
+    expect(diag.entries[0].skillId).toBe("");
+  });
+
+  it("「逃げためらい」→ 除外（umasim 未収録・回帰）", () => {
+    const diag = buildOcrSkillDiagnostics(["逃げためらい"]);
+    expect(diag.entries[0].accepted).toBe(false);
+    expect(diag.entries[0].rating).toBeLessThan(0.45);
+    expect(diag.entries[0].skillId).toBe("");
   });
 });

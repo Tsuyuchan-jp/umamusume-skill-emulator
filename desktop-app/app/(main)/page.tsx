@@ -11,6 +11,7 @@ import { useToast } from "../hooks/useToast";
 import { ApiKeyModal } from "../components/ApiKeyModal";
 import { StatusPanel } from "../components/StatusPanel";
 import { SkillPanel } from "../components/SkillPanel";
+import { OcrDiagnosticPanel } from "../components/OcrDiagnosticPanel";
 
 import { ToastNotification } from "../components/ToastNotification";
 import { RaceConditionSelector } from "../components/RaceConditionSelector";
@@ -64,6 +65,8 @@ export default function Home() {
   const [apiKey, setApiKey] = useState<string>("");
   const [showApiKeyModal, setShowApiKeyModal] = useState<boolean>(false);
   const [umaData, setUmaData] = useState<UmaStatusData | null>(null);
+  /** Phase A 一時診断用。Gemini 生 skills（正規化前）。umaData クリア時に一緒に消す */
+  const [ocrRawSkills, setOcrRawSkills] = useState<string[] | null>(null);
   const [isOcrProcessing, setIsOcrProcessing] = useState<boolean>(false);
   /** OCR 中止用。geminiOcr 内では生成せず page が保持する */
   const ocrAbortRef = useRef<AbortController | null>(null);
@@ -252,6 +255,7 @@ export default function Home() {
 
     setIsOcrProcessing(true);
     setUmaData(null);
+    setOcrRawSkills(null);
     showToastMessage("OCR解析中...", "success", 0); // タイマーなしで表示し続ける
 
     try {
@@ -261,6 +265,7 @@ export default function Home() {
         return;
       }
       setUmaData(res.data);
+      setOcrRawSkills(res.rawSkills);
       showToastMessage("OCR解析が完了しました！", "success", 4000);
     } catch (err: any) {
       if (err?.name === "AbortError" || controller.signal.aborted) {
@@ -426,6 +431,7 @@ export default function Home() {
     // 画像が変わったら OCR 結果を破棄（ファイル差し替え・新規キャプチャ共通）
     // ※ スクロール用 early return の後に置かないこと（差し替え時にクリア漏れになる）
     setUmaData(null);
+    setOcrRawSkills(null);
 
     if (!resultImage || !previewRef.current) return;
     const timer = setTimeout(() => {
@@ -536,6 +542,9 @@ export default function Home() {
 
         {umaData && (
           <div className="flex flex-col gap-5 animate-fadeIn pb-10">
+            {/* Phase A 一時診断（Phase B 実機確認後に削除） */}
+            {ocrRawSkills && <OcrDiagnosticPanel rawSkills={ocrRawSkills} />}
+
             {/* 1. コース */}
             <RaceConditionSelector condition={raceCondition} onChange={setRaceCondition} />
 

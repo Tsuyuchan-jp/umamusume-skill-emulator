@@ -95,7 +95,7 @@ export async function analyzeStitchedImage(
   apiKey: string,
   dataUrl: string,
   options?: { signal?: AbortSignal }
-): Promise<{ data: UmaStatusData; modelUsed: string }> {
+): Promise<{ data: UmaStatusData; modelUsed: string; rawSkills: string[] }> {
   const signal = options?.signal;
   const base64Data = dataUrl.replace(/^data:image\/(png|jpeg);base64,/, "");
   
@@ -172,5 +172,13 @@ export async function analyzeStitchedImage(
     }
   }
 
-  return { data: normalizeStatusData(rawData) as UmaStatusData, modelUsed: MODEL };
+  const rawSkills: string[] = Array.isArray(rawData?.skills)
+    ? rawData.skills.map((s: unknown) => String(s ?? ""))
+    : [];
+
+  return {
+    data: normalizeStatusData(rawData) as UmaStatusData,
+    modelUsed: MODEL,
+    rawSkills,
+  };
 }
