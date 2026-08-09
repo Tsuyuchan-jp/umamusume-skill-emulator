@@ -3,10 +3,11 @@
 > **進捗の正本ではない。** 次にやることは [TODO.md](TODO.md) を見る。
 > `TODO.md` の完了済みは直近10件のみ。それより古い完了行はここに移す。
 
-最終更新: 2026-08-05 18:08
+最終更新: 2026-08-10 03:13
 
 ---
 
+- [x] **Settings スキルデータ接続チェック UI** — 診断 fold＋`probeSkillDataSources`（非破壊）＋見出し1ボタン。CHANGELOG / PROJECT / SYSTEM_SPEC 同期。`npm test` 68件 PASS。**実機検証クローズ**（remote/cache/bundled 文言・見出しトグル・自動コピー非干渉・診断後 sim/フォールバックトースト退行なし OK / 2026-07-23 09:18 / `f0f2e64`〜`906bc3d`）/ `[REQ-skill-data-fetch-fallback.md](tasks/REQ-skill-data-fetch-fallback.md)` Phase 3 後続
 - [x] **シナリオ進化スキル（`scenario`）を赤スキル（`evo`）と同じ表示枠に** — `getSkillRarityInfoById` で scenario → evo（★・赤）表示、パレット dedupe に scenario 追加。`npm test` 68件 PASS。**実機検証クローズ**（パレット追加・一覧★赤・サマリー「進化」増加・既存 evo/rare 退行なし OK / 2026-07-23 08:47 / `790688d`〜`da163bf`）
 - [x] **OCR 後スキル数サマリー表示**（総数・金・進化） — `countSkillSummary` + `SkillSummaryLine` を SkillPanel / SimulationStatusView に配線。未知・unique・inherit は総数のみ。`npm test` 66件 PASS。**実機検証クローズ**（SkillPanel 見出し下・一覧件数一致・追加/削除/全削除で再計算・sim ステータス条件パネル・SkillVerifier 等に未表示・OCR/キャプチャ/sim 退行なし OK / 2026-07-23 08:25 / `2352002`〜`3ea8e6f`）
 - [x] **過去キャプチャ画像からステータス読み込み（ファイル OCR ルート）** — 結合済み PNG/JPEG を選択→プレビュー→既存 OCR/Abort。ファイル由来は autoCopy・saveFolder 再保存なし。recording/OCR 中は「画像ファイルを開く」無効。差し替え時 `umaData` クリア修正込み。`npm test` 62件 PASS。**実機検証クローズ**（ファイル経路・キャプチャなし sim・autoCopy 退行なし・中止・ボタン無効・差し替え後再 OCR OK / 2026-07-23 07:48 / `096d436`〜`4b01db5`）/ [`REQ-file-ocr-status.md`](tasks/REQ-file-ocr-status.md) **done**
