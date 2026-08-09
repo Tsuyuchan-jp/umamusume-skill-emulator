@@ -2,7 +2,7 @@
 
 > **TODO の代替ではない。** 次にやることの正本は [`docs/TODO.md`](../TODO.md)。
 > 本ファイルは `docs/tasks/REQ-*.md`（テンプレ除く）の **一覧・ステータス・辿りやすさ** を目的とする。
-> ステータスは各 REQ の `**ステータス**:` 行を正とする。最終更新: 2026-07-30 06:18
+> ステータスは各 REQ の `**ステータス**:` 行を正とする。最終更新: 2026-08-10 02:23
 
 ## 使い方
 
@@ -90,6 +90,7 @@
 
 | REQ | ステータス | TODO掲載 | 備考 |
 |-----|-----------|---------|------|
+| [`REQ-ocr-fuzzy-missing-skills.md`](REQ-ocr-fuzzy-missing-skills.md) | draft | 進行中 | 千鍛万錬・快速・逃げためらい。調査完了・実装は承認後 |
 | [`REQ-file-ocr-status.md`](REQ-file-ocr-status.md) | done | 完了済み | 過去キャプチャ画像のファイル選択 → 既存 OCR。**実機検証クローズ**（2026-07-23 07:48 / `4b01db5`） |
 | [`REQ-ocr-cancel.md`](REQ-ocr-cancel.md) | done | 完了済み | AbortController + CapturePanel「停止」。**実機検証クローズ**（2026-07-23 06:04 / `bac51e7`） |
 | [`REQ-auto-capture-multi-screen.md`](REQ-auto-capture-multi-screen.md) | done | 完了済み | Phase 1/1b/3 本線 done。Phase 2 は任意見送り |
@@ -115,9 +116,9 @@
 
 | 項目 | 件数 |
 |------|------|
-| REQ 総数（テンプレ除く） | 38 |
+| REQ 総数（テンプレ除く） | 39 |
 | done | 29 |
-| draft | 4 |
+| draft | 5 |
 | in-progress | 3 |
 | superseded | 3 |
 | ロードマップ（親） | 1（`REQ-race-detail-graph.md`） |

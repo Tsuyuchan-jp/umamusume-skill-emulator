@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（要点は下記「更新ルール」「エージェント必須手順」。詳細は [`DOCS-GUIDE.md`](DOCS-GUIDE.md)）。
 
-最終更新: 2026-08-05 18:26
+最終更新: 2026-08-10 02:23
 
 ---
 
@@ -16,7 +16,7 @@
 
 ## 現在のフォーカス
 
-（なし — 次は Backlog P1（着手可能）/ P2 から選択）
+OCR/ファジーマッチ — 「千鍛万錬」「快速」「逃げためらい」欠落の調査・方針承認待ち
 
 ## サマリー（手更新）
 
@@ -24,7 +24,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 | 進行中 | P1 着手可能 | P1 棚上げ | P2 未着手 | 保留 |
 | --- | --- | --- | --- | --- |
-| 0 | 3 | 1 | 7 | 1 |
+| 1 | 2 | 1 | 7 | 1 |
 
 直近リリース: **v1.5.0**（2026-07-30）
 
@@ -32,7 +32,13 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 ## 進行中
 
-（なし）
+- [ ] **OCR/ファジーマッチ — 「千鍛万錬」「快速」「逃げためらい」がスキルリストに出ない**（調査完了・実装は承認後） / [`REQ-ocr-fuzzy-missing-skills.md`](tasks/REQ-ocr-fuzzy-missing-skills.md)
+  - **調査結論（2026-08-10）**:
+    - **逃げためらい**（mdb `200851`）: 上流 umasim `skill_data.txt` にも無し → ファジーマッチ不能が**確定**（同系けん制/焦り/ためらい 12件も同様）
+    - **千鍛万錬**（`204031`）・**快速**（`202552`）: DB 上は存在。完全一致は rating 1.0 で通る。机上では「千段万錬」等の1文字誤読で 0.33 < 0.45 となり除外されうる
+    - 現状、OCR 生 `skills` を残す経路が無く、千鍛万錬/快速は **OCR 欠落 vs 誤読マッチ失敗** が未切り分け
+  - **次（承認待ち）**: Phase A 生 OCR 診断 → Phase B（プロンプト／エイリアス／表示専用スタブ等）をユーザー承認後に実装
+  - 触る想定: `geminiOcr.ts`, `fuzzyMatcher.ts`, 必要なら表示専用スタブ / extract
 
 
 ## 次にやること（Backlog）
@@ -52,16 +58,6 @@ Backlog・保留を変更したら件数を合わせて更新する。
   - 触る想定: `umaemuAdapter.ts`, `worker.js` / WASM（`SkillEventDump` 拡張の可能性）、`RaceDetailChart.tsx`, `raceGraphBuilder.ts`, `types.ts`
   - 注意: **着手前に Ask mode で umasim 調査・UI 案を確定**。REQ 起票推奨（レース詳細グラフ Phase 3 系の拡張）
   - 関連: `[REQ-race-detail-graph-phase3.md](tasks/REQ-race-detail-graph-phase3.md)` スキル帯・`[REQ-race-detail-graph-skill-tooltip.md](tasks/REQ-race-detail-graph-skill-tooltip.md)`
-
-- [ ] **OCR/ファジーマッチ — 「千鍛万錬」「快速」「逃げためらい」がスキルリストに出ない**
-  - 症状: OCR 解析後、所持スキル一覧に上記3件が載らない（実機確認）
-  - 切り分け未確定: Gemini OCR が名前を落としているのか、`fuzzyMatchSkillId` が閾値未満で除外しているのか
-  - メモ（コード確認）:
-    - **千鍛万錬**（rare）・**快速**（normal）は `umasimSkillData` / `skill_data.txt` に存在 → OCR 欠落 or 類似度 < 0.45 の可能性
-    - **逃げためらい** は `skillRarityData`（mdb）にはあるが **`umasimSkillData` / `skill_data.txt` に無し** → 現状ファジーマッチでは ID 解決不可（同系「先行/差し/追込ためらい」も同様の可能性）
-  - 目標: 3スキルが OCR→一覧→sim に載る。原因が OCR / マッチ / DB 欠落のどれか特定して修正
-  - 触る想定: `geminiOcr.ts`（生レスポンス確認）、`fuzzyMatcher.ts`、`umasimSkillData.ts` / extract（逃げためらいが umasim 未収録なら調査）
-  - 着手: まず OCR 生 JSON に名前があるか確認 → 無ければプロンプト、あればマッチ/DB
 
 - [ ] **Worker 大量試行時の断続失敗対策**（調査・別タスク）
   - 背景: ユーザーレポートで 1,000 回 sim の途中失敗など fetch 単独では説明しきれないパターンあり（`[REQ-skill-data-fetch-fallback.md](tasks/REQ-skill-data-fetch-fallback.md)` スコープ外）
