@@ -10,9 +10,11 @@ import { SkillSummaryLine } from './SkillSummaryLine';
 interface SkillPanelProps {
   data: UmaStatusData;
   onChange: (data: UmaStatusData) => void;
+  /** 案 A''用: 見出し直下に差し込む未マッチ通知（無ければ描画しない） */
+  unmatchedNoticeSlot?: React.ReactNode;
 }
 
-export function SkillPanel({ data, onChange }: SkillPanelProps) {
+export function SkillPanel({ data, onChange, unmatchedNoticeSlot }: SkillPanelProps) {
 
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
   const [isUniquePaletteOpen, setIsUniquePaletteOpen] = useState(false);
@@ -68,6 +70,11 @@ export function SkillPanel({ data, onChange }: SkillPanelProps) {
             すべてのスキルを削除
           </button>
         </div>
+
+        {unmatchedNoticeSlot ? (
+          <div className="mb-3">{unmatchedNoticeSlot}</div>
+        ) : null}
+
         <SkillSummaryLine skillIds={data.skillIds ?? []} className="mb-4" />
 
         {!hasNormalUniqueAtFirst && (

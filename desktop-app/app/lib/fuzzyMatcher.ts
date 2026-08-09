@@ -168,6 +168,57 @@ export function buildOcrSkillDiagnostics(
   return { rawSkills: list, entries, focus };
 }
 
+/** OCR で読めたが一覧に入れなかったスキル名（ユーザー向け通知用） */
+export interface UnmatchedOcrSkill {
+  /** OCR が返した生のスキル名 */
+  input: string;
+  /** ファジー最良一致名（無ければ空。rating / skillId は出さない） */
+  closestName: string;
+}
+
+/**
+ * 生 OCR のうち fuzzyMatchSkillId が空になったもの（一覧除外と同じ判定）。
+ * マッチ成功ロジック・閾値は変更しない。
+ */
+export function buildUnmatchedOcrSkills(rawSkills: string[]): UnmatchedOcrSkill[] {
+  const list = Array.isArray(rawSkills) ? rawSkills.map((s) => String(s ?? "")) : [];
+  const result: UnmatchedOcrSkill[] = [];
+  for (let i = 0; i < list.length; i++) {
+    const input = list[i];
+    if (!normalizeSkillLabel(input)) continue;
+    if (fuzzyMatchSkillId(input, i === 0)) continue;
+    const best = findBestSkillMatch(input);
+    result.push({
+      input,
+      closestName: best?.target ?? "",
+    });
+  }
+  return result;
+}
+
+/** 未マッチ通知のコピー用テキスト（ユーザー向け・診断用語なし） */
+export function formatUnmatchedOcrSkillsText(items: UnmatchedOcrSkill[]): string {
+  const lines: string[] = [];
+  lines.push(`読み取れたが一覧に入れなかった名前（${items.length}）`);
+  lines.push("");
+  lines.push(
+    "画面から読めましたが、アプリのスキル一覧に対応できませんでした。誤読や、シミュレーション用データに無い名前のことがあります。一覧とシミュレーションには含まれません。"
+  );
+  lines.push("");
+  lines.push(
+    "逃げためらいなどの一部デバフは、本家シミュレーション用データに無いため一覧に出ません。"
+  );
+  lines.push("");
+  for (const item of items) {
+    if (item.closestName) {
+      lines.push(`・${item.input}（近い候補: ${item.closestName}）`);
+    } else {
+      lines.push(`・${item.input}`);
+    }
+  }
+  return lines.join("\n");
+}
+
 /** クリップボード共有用のプレーンテキスト */
 export function formatOcrSkillDiagnosticsText(diag: OcrSkillDiagnostics): string {
   const lines: string[] = [];

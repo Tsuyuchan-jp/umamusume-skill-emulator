@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（要点は下記「更新ルール」「エージェント必須手順」。詳細は [`DOCS-GUIDE.md`](DOCS-GUIDE.md)）。
 
-最終更新: 2026-08-10 03:37
+最終更新: 2026-08-10 03:40
 
 ---
 
@@ -16,7 +16,7 @@
 
 ## 現在のフォーカス
 
-OCR 未マッチ見える化（B1）— 恒久 UI（A'/A'' トグル比較）
+OCR 未マッチ見える化（B1）— 実機で A'/A'' 位置比較待ち
 
 ## サマリー（手更新）
 
@@ -24,7 +24,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 | 進行中 | P1 着手可能 | P1 棚上げ | P2 未着手 | 保留 |
 | --- | --- | --- | --- | --- |
-| 1 | 2 | 1 | 9 | 1 |
+| なし | 2 | 1 | 9 | 1 |
 
 直近リリース: **v1.5.0**（2026-07-30）
 
@@ -32,8 +32,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 ## 進行中
 
-- [ ] **OCR 未マッチ見える化（B1）** — 恒久 UI（案 A'/A'' トグル比較）・Phase A 診断置換。マッチ閾値・エイリアスは変更しない
-  - 関連: [`REQ-ocr-fuzzy-missing-skills.md`](tasks/REQ-ocr-fuzzy-missing-skills.md)
+（なし — 次は実機で B1 位置比較。採用後にトグル／不採用側削除）
 
 
 ## 次にやること（Backlog）
@@ -81,12 +80,11 @@ Backlog・保留を変更したら件数を合わせて更新する。
   - 触る想定: `fuzzyMatcher.ts`, `fuzzyMatcher.test.ts`
   - 関連: [`REQ-ocr-fuzzy-missing-skills.md`](tasks/REQ-ocr-fuzzy-missing-skills.md)
 
-- [ ] **OCR 後 — umasim 未収録デバフが一覧に無いことのユーザー向け説明**
-  - 背景: 「逃げためらい」等は本家 umasim に定義が無く、当アプリも一覧／sim に載せない方針（[`REQ-ocr-fuzzy-missing-skills.md`](tasks/REQ-ocr-fuzzy-missing-skills.md) スコープ外決定）
-  - 目標: OCR 後に「画面にあったデバフがリストに無い」と混乱しないよう、**なぜ無いのか**をユーザー向けに短く説明する（文言・配置は着手時に設計）
-  - 触る想定: SkillPanel / CapturePanel / Settings のいずれか、必要なら短いヘルプ文言
-  - 注意: スキル自体をスタブ追加して一覧に載せることはしない（方針維持）。**B1 未マッチ UI と合流検討**（B1 実装中）
-  - 関連調査: けん制／焦り／ためらい系 12件が umasim 未収録
+- [ ] **OCR 未マッチ — 表示位置の確定後クリーンアップ**
+  - 背景: B1 実装で案 A'（SkillPanel 直前）と案 A''（パネル内最上）をトグル比較中
+  - 目標: 採用位置を1つに固定し、トグルと不採用側の描画を削除
+  - 着手条件: 実機で位置を選んだあと（verify-close 前でも可）
+  - 関連: [`REQ-ocr-fuzzy-missing-skills.md`](tasks/REQ-ocr-fuzzy-missing-skills.md)
 
 - [ ] **keep-alive タブのメモリ/描画負荷軽減**（将来 Fix）
   - 現状: sim 済みタブは unmount せず Recharts 等がタブ数分残る。1〜3 タブ運用では問題になりにくい
@@ -134,6 +132,8 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 直近10件のみ。それ以前は [`TODO-ARCHIVE.md`](TODO-ARCHIVE.md)。
 
+- [x] **OCR 未マッチ見える化（B1）** — 恒久 UI（案 A'/A'' トグル比較・デフォルト A''）・Phase A 診断削除・未収録デバフ短い注記。`npm test` 88件 PASS（2026-08-10 03:40 / `HASH_PENDING`）/ [`REQ-ocr-fuzzy-missing-skills.md`](tasks/REQ-ocr-fuzzy-missing-skills.md)（位置確定クリーンアップ・B2 は継続）
+- [x] **OCR 後 — umasim 未収録デバフ説明（P2）** — B1 未マッチ通知内の短い注記で充足・クローズ（2026-08-10 03:40 / `HASH_PENDING`）
 - [x] **OCR B0 — 千鍛万錬の既知誤読エイリアス** — `千銀万錬` / `千段万錬` → `千鍛万錬`。`npm test` 83件 PASS。**実機検証クローズ**（診断で千銀万錬→採用・SkillPanel に千鍛万錬表示 OK / 2026-08-10 03:13 / `2ce0649`）/ [`REQ-ocr-fuzzy-missing-skills.md`](tasks/REQ-ocr-fuzzy-missing-skills.md)（B1/B2 は継続）
 - [x] **オートキャプチャ結合画像のディスク非保存オプション** — 設定トグル `skipStitchedDiskSave`・非保存時は stitch のみ・保存先 UI disabled。`npm test` 77件 PASS。**実機検証クローズ**（非保存 ON/OFF・プレビュー・ディスク非保存・自動コピー・OCR・ファイル OCR 退行なし OK / 2026-08-05 18:26 / `040bcf4`）/ [`REQ-capture-skip-disk-save.md`](tasks/REQ-capture-skip-disk-save.md) **done**
 - [x] **v1.5.0 リリースビルド** — DMM `master.mdb`（2026-07-30）差し替え・skillRarity **1857件**（+17）・version 1.5.0 bump・CHANGELOG 昇格・`app.exe` 生成・77件テスト PASS（2026-07-30 16:03 / `2aefc9c`）
@@ -142,8 +142,6 @@ Backlog・保留を変更したら件数を合わせて更新する。
 - [x] **v1.4.1 リリースビルド** — version 1.4.1 bump・CHANGELOG Unreleased 昇格・`app.exe` 生成・74件テスト PASS（2026-07-23 22:28 / `65d45cf`）
 - [x] **継承固有の継承進化（special）対応** — 判定一般化・表示 evo 寄せ・パレット例外2行・OCR 優先。`npm test` 74件 PASS。**実機検証クローズ**（パレット2行・★赤表示・日本総大将非表示・OCR 継承進化寄り・既存タブ ID 自動変更なし OK / 2026-07-23 22:28 / `56b6896`〜`7bbaeed`）/ [`REQ-inherit-evolution-special.md`](tasks/REQ-inherit-evolution-special.md) **done**
 - [x] **v1.4.0 リリースビルド** — version 1.4.0 bump・CHANGELOG Unreleased 昇格・`app.exe` 生成・68件テスト PASS（2026-07-23 09:45 / `0afad19`〜`28afaaf`）
-- [x] **ゲームアップデート後のスキルデータ更新（2026-07-23）** — Steam `master.mdb`（2026-07-21）差し替え・umasim **2047件**（+5）・skillRarity **1840件**（+7）。新規固有「冠絶タクティクス」等。CHANGELOG Unreleased 追記（2026-07-23 09:37 / `a446405`）
-- [x] **CapturePanel「画像ファイルを開く」ヒント圧縮（案A）** — 1行要約＋ⓘ クリックで詳細2点（外側クリック/Escape 閉じ・キーボード操作可）。`npm test` 68件 PASS。**実機検証クローズ**（1行表示・ⓘ 開閉・キーボード・ファイル選択〜OCR 退行なし OK / 2026-07-23 09:29 / `e366281`〜`2f64b56`）
 
 ---
 

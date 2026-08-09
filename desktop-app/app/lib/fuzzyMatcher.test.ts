@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { buildOcrSkillDiagnostics, fuzzyMatchSkillId } from "./fuzzyMatcher";
+import {
+  buildOcrSkillDiagnostics,
+  buildUnmatchedOcrSkills,
+  formatUnmatchedOcrSkillsText,
+  fuzzyMatchSkillId,
+} from "./fuzzyMatcher";
 
 const UNIQUE_GOLD = "101351"; // 黄金を訪ねて（通常固有）
 const INHERIT_GOLD = "901351"; // 黄金を訪ねて（通常継承）
@@ -64,5 +69,37 @@ describe("buildOcrSkillDiagnostics — Phase A 切り分け", () => {
     expect(diag.entries[0].accepted).toBe(false);
     expect(diag.entries[0].rating).toBeLessThan(0.45);
     expect(diag.entries[0].skillId).toBe("");
+  });
+});
+
+describe("buildUnmatchedOcrSkills — Phase B1 未マッチ一覧", () => {
+  it("すべて採用できる場合は空", () => {
+    expect(buildUnmatchedOcrSkills(["千鍛万錬", "快速"])).toEqual([]);
+  });
+
+  it("B0 エイリアス済みの誤読は未マッチに出ない", () => {
+    expect(buildUnmatchedOcrSkills(["千銀万錬"])).toEqual([]);
+  });
+
+  it("未収録・低類似は未マッチに入り、近い候補があれば付ける", () => {
+    const items = buildUnmatchedOcrSkills(["逃げためらい", "千鍛万錬"]);
+    expect(items).toHaveLength(1);
+    expect(items[0].input).toBe("逃げためらい");
+    // 最良一致名はあっても rating は出さない（ヘルパーは名前のみ）
+    expect(typeof items[0].closestName).toBe("string");
+  });
+
+  it("空文字・空白のみはスキップ", () => {
+    expect(buildUnmatchedOcrSkills(["", "  ", "\u3000"])).toEqual([]);
+  });
+
+  it("コピー文面に診断用語（rating / skillId）を含めない", () => {
+    const items = buildUnmatchedOcrSkills(["逃げためらい"]);
+    const text = formatUnmatchedOcrSkillsText(items);
+    expect(text).toContain("一覧に入れなかった");
+    expect(text).toContain("逃げためらい");
+    expect(text).not.toMatch(/rating/i);
+    expect(text).not.toMatch(/skillId/i);
+    expect(text).not.toContain("切り分け");
   });
 });
