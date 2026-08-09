@@ -132,8 +132,8 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 直近10件のみ。それ以前は [`TODO-ARCHIVE.md`](TODO-ARCHIVE.md)。
 
-- [x] **OCR 未マッチ見える化（B1）** — 恒久 UI（案 A'/A'' トグル比較・デフォルト A''）・Phase A 診断削除・未収録デバフ短い注記。`npm test` 88件 PASS（2026-08-10 03:40 / `HASH_PENDING`）/ [`REQ-ocr-fuzzy-missing-skills.md`](tasks/REQ-ocr-fuzzy-missing-skills.md)（位置確定クリーンアップ・B2 は継続）
-- [x] **OCR 後 — umasim 未収録デバフ説明（P2）** — B1 未マッチ通知内の短い注記で充足・クローズ（2026-08-10 03:40 / `HASH_PENDING`）
+- [x] **OCR 未マッチ見える化（B1）** — 恒久 UI（案 A'/A'' トグル比較・デフォルト A''）・Phase A 診断削除・未収録デバフ短い注記。`npm test` 88件 PASS（2026-08-10 03:40 / `dbca8af`）/ [`REQ-ocr-fuzzy-missing-skills.md`](tasks/REQ-ocr-fuzzy-missing-skills.md)（位置確定クリーンアップ・B2 は継続）
+- [x] **OCR 後 — umasim 未収録デバフ説明（P2）** — B1 未マッチ通知内の短い注記で充足・クローズ（2026-08-10 03:40 / `dbca8af`）
 - [x] **OCR B0 — 千鍛万錬の既知誤読エイリアス** — `千銀万錬` / `千段万錬` → `千鍛万錬`。`npm test` 83件 PASS。**実機検証クローズ**（診断で千銀万錬→採用・SkillPanel に千鍛万錬表示 OK / 2026-08-10 03:13 / `2ce0649`）/ [`REQ-ocr-fuzzy-missing-skills.md`](tasks/REQ-ocr-fuzzy-missing-skills.md)（B1/B2 は継続）
 - [x] **オートキャプチャ結合画像のディスク非保存オプション** — 設定トグル `skipStitchedDiskSave`・非保存時は stitch のみ・保存先 UI disabled。`npm test` 77件 PASS。**実機検証クローズ**（非保存 ON/OFF・プレビュー・ディスク非保存・自動コピー・OCR・ファイル OCR 退行なし OK / 2026-08-05 18:26 / `040bcf4`）/ [`REQ-capture-skip-disk-save.md`](tasks/REQ-capture-skip-disk-save.md) **done**
 - [x] **v1.5.0 リリースビルド** — DMM `master.mdb`（2026-07-30）差し替え・skillRarity **1857件**（+17）・version 1.5.0 bump・CHANGELOG 昇格・`app.exe` 生成・77件テスト PASS（2026-07-30 16:03 / `2aefc9c`）
