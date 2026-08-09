@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（要点は下記「更新ルール」「エージェント必須手順」。詳細は [`DOCS-GUIDE.md`](DOCS-GUIDE.md)）。
 
-最終更新: 2026-08-10 03:40
+最終更新: 2026-08-10 03:48
 
 ---
 
@@ -16,7 +16,7 @@
 
 ## 現在のフォーカス
 
-OCR 未マッチ見える化（B1）— 実機で A'/A'' 位置比較待ち
+OCR 未マッチ見える化（B1）— 文言確認待ち
 
 ## サマリー（手更新）
 
@@ -24,7 +24,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 | 進行中 | P1 着手可能 | P1 棚上げ | P2 未着手 | 保留 |
 | --- | --- | --- | --- | --- |
-| なし | 2 | 1 | 9 | 1 |
+| なし | 2 | 1 | 8 | 1 |
 
 直近リリース: **v1.5.0**（2026-07-30）
 
@@ -32,7 +32,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 ## 進行中
 
-（なし — 次は実機で B1 位置比較。採用後にトグル／不採用側削除）
+（なし — B1 文言・位置固定の実機確認待ち）
 
 
 ## 次にやること（Backlog）
@@ -78,12 +78,6 @@ Backlog・保留を変更したら件数を合わせて更新する。
   - 目標: ファジー除外後、正規化後文字数≥4 かつ最良一致との編集距離が1なら採用。閾値 0.45 は下げない。短名（快速）は対象外
   - 着手条件: B0 実機クローズ済。誤マッチ用の机上テスト方針を決めてから（B1 と並行可だが優先は B1）
   - 触る想定: `fuzzyMatcher.ts`, `fuzzyMatcher.test.ts`
-  - 関連: [`REQ-ocr-fuzzy-missing-skills.md`](tasks/REQ-ocr-fuzzy-missing-skills.md)
-
-- [ ] **OCR 未マッチ — 表示位置の確定後クリーンアップ**
-  - 背景: B1 実装で案 A'（SkillPanel 直前）と案 A''（パネル内最上）をトグル比較中
-  - 目標: 採用位置を1つに固定し、トグルと不採用側の描画を削除
-  - 着手条件: 実機で位置を選んだあと（verify-close 前でも可）
   - 関連: [`REQ-ocr-fuzzy-missing-skills.md`](tasks/REQ-ocr-fuzzy-missing-skills.md)
 
 - [ ] **keep-alive タブのメモリ/描画負荷軽減**（将来 Fix）
@@ -132,7 +126,8 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 直近10件のみ。それ以前は [`TODO-ARCHIVE.md`](TODO-ARCHIVE.md)。
 
-- [x] **OCR 未マッチ見える化（B1）** — 恒久 UI（案 A'/A'' トグル比較・デフォルト A''）・Phase A 診断削除・未収録デバフ短い注記。`npm test` 88件 PASS（2026-08-10 03:40 / `dbca8af`）/ [`REQ-ocr-fuzzy-missing-skills.md`](tasks/REQ-ocr-fuzzy-missing-skills.md)（位置確定クリーンアップ・B2 は継続）
+- [x] **OCR 未マッチ — 位置固定＋文言簡略** — パネル内最上に固定（トグル削除）。見出し「OCRで読めたが取得スキルに無い名前」。本文1段落化（2026-08-10 03:48 / `HASH_PENDING`）
+- [x] **OCR 未マッチ見える化（B1）** — 恒久 UI・Phase A 診断削除・未収録デバフ短い注記。`npm test` 88件 PASS（2026-08-10 03:40 / `dbca8af`）/ [`REQ-ocr-fuzzy-missing-skills.md`](tasks/REQ-ocr-fuzzy-missing-skills.md)（B2 は継続）
 - [x] **OCR 後 — umasim 未収録デバフ説明（P2）** — B1 未マッチ通知内の短い注記で充足・クローズ（2026-08-10 03:40 / `dbca8af`）
 - [x] **OCR B0 — 千鍛万錬の既知誤読エイリアス** — `千銀万錬` / `千段万錬` → `千鍛万錬`。`npm test` 83件 PASS。**実機検証クローズ**（診断で千銀万錬→採用・SkillPanel に千鍛万錬表示 OK / 2026-08-10 03:13 / `2ce0649`）/ [`REQ-ocr-fuzzy-missing-skills.md`](tasks/REQ-ocr-fuzzy-missing-skills.md)（B1/B2 は継続）
 - [x] **オートキャプチャ結合画像のディスク非保存オプション** — 設定トグル `skipStitchedDiskSave`・非保存時は stitch のみ・保存先 UI disabled。`npm test` 77件 PASS。**実機検証クローズ**（非保存 ON/OFF・プレビュー・ディスク非保存・自動コピー・OCR・ファイル OCR 退行なし OK / 2026-08-05 18:26 / `040bcf4`）/ [`REQ-capture-skip-disk-save.md`](tasks/REQ-capture-skip-disk-save.md) **done**
@@ -141,7 +136,6 @@ Backlog・保留を変更したら件数を合わせて更新する。
 - [x] **オートキャプチャ結合 — チャンミ月刊トゥインクル増刊号・3面** — Phase1 偽 bound 回避＋Phase2 最終 sessionStable（S* 近傍クラスタ）。Vitest 10/10・golden 29/29。**実機検証クローズ**（9位戦績欠けなし・二重なし・Frame5→6 terminal micro skip coarse=167 / 2026-07-30 06:18 / `1750e69`〜`8b4d9de`）/ [`REQ-stitch-twinkle-extra-page3.md`](tasks/REQ-stitch-twinkle-extra-page3.md) **done**
 - [x] **v1.4.1 リリースビルド** — version 1.4.1 bump・CHANGELOG Unreleased 昇格・`app.exe` 生成・74件テスト PASS（2026-07-23 22:28 / `65d45cf`）
 - [x] **継承固有の継承進化（special）対応** — 判定一般化・表示 evo 寄せ・パレット例外2行・OCR 優先。`npm test` 74件 PASS。**実機検証クローズ**（パレット2行・★赤表示・日本総大将非表示・OCR 継承進化寄り・既存タブ ID 自動変更なし OK / 2026-07-23 22:28 / `56b6896`〜`7bbaeed`）/ [`REQ-inherit-evolution-special.md`](tasks/REQ-inherit-evolution-special.md) **done**
-- [x] **v1.4.0 リリースビルド** — version 1.4.0 bump・CHANGELOG Unreleased 昇格・`app.exe` 生成・68件テスト PASS（2026-07-23 09:45 / `0afad19`〜`28afaaf`）
 
 ---
 

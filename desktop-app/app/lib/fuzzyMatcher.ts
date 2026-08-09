@@ -199,14 +199,10 @@ export function buildUnmatchedOcrSkills(rawSkills: string[]): UnmatchedOcrSkill[
 /** 未マッチ通知のコピー用テキスト（ユーザー向け・診断用語なし） */
 export function formatUnmatchedOcrSkillsText(items: UnmatchedOcrSkill[]): string {
   const lines: string[] = [];
-  lines.push(`読み取れたが一覧に入れなかった名前（${items.length}）`);
+  lines.push(`OCRで読めたが取得スキルに無い名前（${items.length}）`);
   lines.push("");
   lines.push(
-    "画面から読めましたが、アプリのスキル一覧に対応できませんでした。誤読や、シミュレーション用データに無い名前のことがあります。一覧とシミュレーションには含まれません。"
-  );
-  lines.push("");
-  lines.push(
-    "逃げためらいなどの一部デバフは、本家シミュレーション用データに無いため一覧に出ません。"
+    "下の取得スキルには含めていません（誤読やデータ未収録のことがあります）。逃げためらいなど一部デバフも同様です。"
   );
   lines.push("");
   for (const item of items) {

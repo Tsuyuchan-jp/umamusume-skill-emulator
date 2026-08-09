@@ -3,10 +3,11 @@
 > **進捗の正本ではない。** 次にやることは [TODO.md](TODO.md) を見る。
 > `TODO.md` の完了済みは直近10件のみ。それより古い完了行はここに移す。
 
-最終更新: 2026-08-10 03:40
+最終更新: 2026-08-10 03:48
 
 ---
 
+- [x] **v1.4.0 リリースビルド** — version 1.4.0 bump・CHANGELOG Unreleased 昇格・`app.exe` 生成・68件テスト PASS（2026-07-23 09:45 / `0afad19`〜`28afaaf`）
 - [x] **ゲームアップデート後のスキルデータ更新（2026-07-23）** — Steam `master.mdb`（2026-07-21）差し替え・umasim **2047件**（+5）・skillRarity **1840件**（+7）。新規固有「冠絶タクティクス」等。CHANGELOG Unreleased 追記（2026-07-23 09:37 / `a446405`）
 - [x] **CapturePanel「画像ファイルを開く」ヒント圧縮（案A）** — 1行要約＋ⓘ クリックで詳細2点（外側クリック/Escape 閉じ・キーボード操作可）。`npm test` 68件 PASS。**実機検証クローズ**（1行表示・ⓘ 開閉・キーボード・ファイル選択〜OCR 退行なし OK / 2026-07-23 09:29 / `e366281`〜`2f64b56`）
 - [x] **Settings スキルデータ接続チェック UI** — 診断 fold＋`probeSkillDataSources`（非破壊）＋見出し1ボタン。CHANGELOG / PROJECT / SYSTEM_SPEC 同期。`npm test` 68件 PASS。**実機検証クローズ**（remote/cache/bundled 文言・見出しトグル・自動コピー非干渉・診断後 sim/フォールバックトースト退行なし OK / 2026-07-23 09:18 / `f0f2e64`〜`906bc3d`）/ `[REQ-skill-data-fetch-fallback.md](tasks/REQ-skill-data-fetch-fallback.md)` Phase 3 後続

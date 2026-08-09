@@ -11,10 +11,7 @@ import { useToast } from "../hooks/useToast";
 import { ApiKeyModal } from "../components/ApiKeyModal";
 import { StatusPanel } from "../components/StatusPanel";
 import { SkillPanel } from "../components/SkillPanel";
-import {
-  OcrUnmatchedSkillsNotice,
-  UnmatchedNoticePlacement,
-} from "../components/OcrUnmatchedSkillsNotice";
+import { OcrUnmatchedSkillsNotice } from "../components/OcrUnmatchedSkillsNotice";
 
 import { ToastNotification } from "../components/ToastNotification";
 import { RaceConditionSelector } from "../components/RaceConditionSelector";
@@ -68,11 +65,8 @@ export default function Home() {
   const [apiKey, setApiKey] = useState<string>("");
   const [showApiKeyModal, setShowApiKeyModal] = useState<boolean>(false);
   const [umaData, setUmaData] = useState<UmaStatusData | null>(null);
-  /** Phase A 一時診断用。Gemini 生 skills（正規化前）。umaData クリア時に一緒に消す */
+  /** OCR 未マッチ通知用。Gemini 生 skills（正規化前）。umaData クリア時に一緒に消す */
   const [ocrRawSkills, setOcrRawSkills] = useState<string[] | null>(null);
-  /** 未マッチ通知の表示位置（デフォルト: パネル内最上＝案 A''）。Settings 非永続 */
-  const [unmatchedNoticePlacement, setUnmatchedNoticePlacement] =
-    useState<UnmatchedNoticePlacement>("inside");
   const [isOcrProcessing, setIsOcrProcessing] = useState<boolean>(false);
   /** OCR 中止用。geminiOcr 内では生成せず page が保持する */
   const ocrAbortRef = useRef<AbortController | null>(null);
@@ -554,25 +548,12 @@ export default function Home() {
             {/* 2. ステータス */}
             <StatusPanel data={umaData} onChange={setUmaData} raceCondition={raceCondition} />
 
-            {/* 3. スキル（未マッチ通知: 案 A'＝直前 / 案 A''＝パネル内最上） */}
-            {ocrRawSkills && unmatchedNoticePlacement === "before" && (
-              <OcrUnmatchedSkillsNotice
-                rawSkills={ocrRawSkills}
-                placement={unmatchedNoticePlacement}
-                onPlacementChange={setUnmatchedNoticePlacement}
-              />
-            )}
+            {/* 3. スキル（未マッチ通知は SkillPanel 内・見出し直下） */}
             <SkillPanel
               data={umaData}
               onChange={setUmaData}
               unmatchedNoticeSlot={
-                ocrRawSkills && unmatchedNoticePlacement === "inside" ? (
-                  <OcrUnmatchedSkillsNotice
-                    rawSkills={ocrRawSkills}
-                    placement={unmatchedNoticePlacement}
-                    onPlacementChange={setUnmatchedNoticePlacement}
-                  />
-                ) : null
+                ocrRawSkills ? <OcrUnmatchedSkillsNotice rawSkills={ocrRawSkills} /> : null
               }
             />
 
