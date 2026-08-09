@@ -36,15 +36,15 @@ export function OcrUnmatchedSkillsNotice({ rawSkills }: OcrUnmatchedSkillsNotice
   return (
     <details className="rounded-lg border border-amber-800/40 bg-amber-950/15 px-3 py-2 text-sm text-zinc-300">
       <summary className="cursor-pointer select-none whitespace-nowrap font-semibold text-amber-100/90">
-        OCR失敗（{unmatched.length}）
+        読み取り失敗（{unmatched.length}件）
       </summary>
 
       <div className="mt-3 flex flex-col gap-2.5 border-t border-amber-900/30 pt-3">
         <p className="text-xs leading-relaxed text-zinc-400">
-          このリストは、OCRで取得スキルに入れられなかったスキル名です。
+          取得スキルに入らなかったOCRスキル名です。
         </p>
         <p className="text-xs leading-relaxed text-zinc-500">
-          一部デバフはシミュレーターに適用されないため、リストに入っています。
+          一部デバフはシミュに適用されないため、取得スキルには含まれません。
         </p>
 
         <div className="flex flex-wrap items-center gap-2">

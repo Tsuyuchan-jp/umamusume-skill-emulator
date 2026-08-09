@@ -199,10 +199,10 @@ export function buildUnmatchedOcrSkills(rawSkills: string[]): UnmatchedOcrSkill[
 /** 未マッチ通知のコピー用テキスト（ユーザー向け・診断用語なし） */
 export function formatUnmatchedOcrSkillsText(items: UnmatchedOcrSkill[]): string {
   const lines: string[] = [];
-  lines.push(`OCR失敗（${items.length}）`);
+  lines.push(`読み取り失敗（${items.length}件）`);
   lines.push("");
-  lines.push("このリストは、OCRで取得スキルに入れられなかったスキル名です。");
-  lines.push("一部デバフはシミュレーターに適用されないため、リストに入っています。");
+  lines.push("取得スキルに入らなかったOCRスキル名です。");
+  lines.push("一部デバフはシミュに適用されないため、取得スキルには含まれません。");
   lines.push("");
   for (const item of items) {
     if (item.closestName) {
