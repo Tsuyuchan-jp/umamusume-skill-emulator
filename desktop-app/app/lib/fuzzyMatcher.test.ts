@@ -96,7 +96,9 @@ describe("buildUnmatchedOcrSkills — Phase B1 未マッチ一覧", () => {
   it("コピー文面に診断用語（rating / skillId）を含めない", () => {
     const items = buildUnmatchedOcrSkills(["逃げためらい"]);
     const text = formatUnmatchedOcrSkillsText(items);
-    expect(text).toContain("OCRで読めたが取得スキルに無い名前");
+    expect(text).toContain("OCR失敗");
+    expect(text).toContain("取得スキルに入れられなかった");
+    expect(text).toContain("シミュレーターに適用されない");
     expect(text).toContain("逃げためらい");
     expect(text).not.toMatch(/rating/i);
     expect(text).not.toMatch(/skillId/i);
