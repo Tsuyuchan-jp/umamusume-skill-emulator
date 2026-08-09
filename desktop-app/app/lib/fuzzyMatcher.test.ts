@@ -22,6 +22,22 @@ describe("fuzzyMatchSkillId — 継承進化優先", () => {
   });
 });
 
+const SENKAN_BANREN = "204031"; // 千鍛万錬
+
+describe("fuzzyMatchSkillId — Phase B0 OCR エイリアス", () => {
+  it("「千銀万錬」→ 千鍛万錬に採用", () => {
+    expect(fuzzyMatchSkillId("千銀万錬", false)).toBe(SENKAN_BANREN);
+  });
+
+  it("「千段万錬」→ 千鍛万錬に採用", () => {
+    expect(fuzzyMatchSkillId("千段万錬", false)).toBe(SENKAN_BANREN);
+  });
+
+  it("「千鍛万錬」完全一致は従来どおり採用", () => {
+    expect(fuzzyMatchSkillId("千鍛万錬", false)).toBe(SENKAN_BANREN);
+  });
+});
+
 describe("buildOcrSkillDiagnostics — Phase A 切り分け", () => {
   it("「千鍛万錬」完全一致 → 採用", () => {
     const diag = buildOcrSkillDiagnostics(["千鍛万錬"]);
@@ -36,11 +52,11 @@ describe("buildOcrSkillDiagnostics — Phase A 切り分け", () => {
     expect(focus?.match.accepted).toBe(true);
   });
 
-  it("「千段万錬」→ 除外（rating < 0.45）", () => {
+  it("「千段万錬」→ B0 エイリアスで採用", () => {
     const diag = buildOcrSkillDiagnostics(["千段万錬"]);
-    expect(diag.entries[0].accepted).toBe(false);
-    expect(diag.entries[0].rating).toBeLessThan(0.45);
-    expect(diag.entries[0].skillId).toBe("");
+    expect(diag.entries[0].accepted).toBe(true);
+    expect(diag.entries[0].bestMatchName).toBe("千鍛万錬");
+    expect(diag.entries[0].skillId).toBe(SENKAN_BANREN);
   });
 
   it("「逃げためらい」→ 除外（umasim 未収録・回帰）", () => {

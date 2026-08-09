@@ -18,11 +18,25 @@ function toHalfWidth(str: string): string {
 /** ファジーマッチ閾値（fuzzyMatchSkillId と診断で共有。変更時は両方に影響） */
 export const FUZZY_MATCH_THRESHOLD = 0.45;
 
-/** 空白除去・半角正規化後の入力と最良一致（rating 含む）。診断・マッチ共通 */
+/**
+ * OCR 既知誤読 → 正式スキル名（正規化後の完全一致のみ）。
+ * Phase B0: 千鍛万錬の実機確認済み誤読に限定。閾値は下げない。
+ */
+const OCR_SKILL_ALIASES: Record<string, string> = {
+  千銀万錬: "千鍛万錬",
+  千段万錬: "千鍛万錬",
+};
+
+function applyOcrSkillAlias(cleanInput: string): string {
+  return OCR_SKILL_ALIASES[cleanInput] ?? cleanInput;
+}
+
+/** 空白除去・半角正規化・エイリアス後の入力と最良一致（rating 含む）。診断・マッチ共通 */
 function findBestSkillMatch(rawInput: string): { cleanInput: string; target: string; rating: number } | null {
   let cleanInput = rawInput.replace(/[\s\u3000]+/g, "");
   cleanInput = toHalfWidth(cleanInput);
   if (!cleanInput) return null;
+  cleanInput = applyOcrSkillAlias(cleanInput);
 
   const matches = stringSimilarity.findBestMatch(cleanInput, umasimSkillNames);
   let bestMatch = matches.bestMatch;
