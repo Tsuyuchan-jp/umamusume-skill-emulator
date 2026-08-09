@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（要点は下記「更新ルール」「エージェント必須手順」。詳細は [`DOCS-GUIDE.md`](DOCS-GUIDE.md)）。
 
-最終更新: 2026-08-10 04:01
+最終更新: 2026-08-10 04:08
 
 ---
 
@@ -26,7 +26,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 | --- | --- | --- | --- | --- |
 | なし | 2 | 1 | 8 | 1 |
 
-直近リリース: **v1.5.0**（2026-07-30）
+直近リリース: **v1.6.0**（2026-08-10）
 
 ---
 
@@ -126,6 +126,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 直近10件のみ。それ以前は [`TODO-ARCHIVE.md`](TODO-ARCHIVE.md)。
 
+- [x] **v1.6.0 リリースビルド** — version 1.6.0 bump・CHANGELOG Unreleased 昇格・`app.exe` 生成・88件テスト PASS（2026-08-10 04:08 / `HASH_PENDING`）
 - [x] **OCR 未マッチ見える化（B1）** — 恒久 UI（パネル内最上・「読み取り失敗（N件）」）・Phase A 診断削除・未収録デバフ注記。`npm test` PASS。**実機検証クローズ**（位置・文言・0件非表示・千鍛万錬退行なし・診断パネル消失・パレット/sim 退行なし OK / 2026-08-10 04:01 / `dbca8af`〜`7097951`）/ [`REQ-ocr-fuzzy-missing-skills.md`](tasks/REQ-ocr-fuzzy-missing-skills.md)（B2 は継続）
 - [x] **OCR 未マッチ — 文言確定** — 見出し「読み取り失敗（N件）」。本文「取得スキルに入らなかったOCRスキル名」＋デバフ注記（2026-08-10 03:59 / `7097951`）— B1 実機クローズに含む
 - [x] **OCR 未マッチ — 文言再調整** — 見出し「OCR失敗（N）」1行固定。本文はリスト説明＋デバフ（シミュ非適用）注記（2026-08-10 03:54 / `591ebe7`）
@@ -135,7 +136,6 @@ Backlog・保留を変更したら件数を合わせて更新する。
 - [x] **オートキャプチャ結合画像のディスク非保存オプション** — 設定トグル `skipStitchedDiskSave`・非保存時は stitch のみ・保存先 UI disabled。`npm test` 77件 PASS。**実機検証クローズ**（非保存 ON/OFF・プレビュー・ディスク非保存・自動コピー・OCR・ファイル OCR 退行なし OK / 2026-08-05 18:26 / `040bcf4`）/ [`REQ-capture-skip-disk-save.md`](tasks/REQ-capture-skip-disk-save.md) **done**
 - [x] **v1.5.0 リリースビルド** — DMM `master.mdb`（2026-07-30）差し替え・skillRarity **1857件**（+17）・version 1.5.0 bump・CHANGELOG 昇格・`app.exe` 生成・77件テスト PASS（2026-07-30 16:03 / `2aefc9c`）
 - [x] **ゲームアップデート後のスキルデータ更新（2026-07-30）** — umasim **2066件**（+19）。水着セイウン／ブライト固有「海風にまったり身を任せ」「夕凪のリトリート・メモリー」等。extract の HELPERS_TAIL に継承進化ヘルパーを同期。skillRarity は v1.5.0 で DMM mdb 反映（2026-07-30 15:42 / `18bd17e`）
-- [x] **オートキャプチャ結合 — チャンミ月刊トゥインクル増刊号・3面** — Phase1 偽 bound 回避＋Phase2 最終 sessionStable（S* 近傍クラスタ）。Vitest 10/10・golden 29/29。**実機検証クローズ**（9位戦績欠けなし・二重なし・Frame5→6 terminal micro skip coarse=167 / 2026-07-30 06:18 / `1750e69`〜`8b4d9de`）/ [`REQ-stitch-twinkle-extra-page3.md`](tasks/REQ-stitch-twinkle-extra-page3.md) **done**
 
 ---
 
