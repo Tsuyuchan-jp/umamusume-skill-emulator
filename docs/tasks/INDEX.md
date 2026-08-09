@@ -90,7 +90,7 @@
 
 | REQ | ステータス | TODO掲載 | 備考 |
 |-----|-----------|---------|------|
-| [`REQ-ocr-fuzzy-missing-skills.md`](REQ-ocr-fuzzy-missing-skills.md) | in-progress | 完了済み（B1）/ Backlog（B2） | B1 位置=パネル内最上・文言簡略済。B2 は TODO |
+| [`REQ-ocr-fuzzy-missing-skills.md`](REQ-ocr-fuzzy-missing-skills.md) | in-progress | 完了済み（B0/B1）/ Backlog（B2） | B1 実機クローズ済（2026-08-10）。B2 は TODO。REQ `done` は B2 後 |
 | [`REQ-file-ocr-status.md`](REQ-file-ocr-status.md) | done | 完了済み | 過去キャプチャ画像のファイル選択 → 既存 OCR。**実機検証クローズ**（2026-07-23 07:48 / `4b01db5`） |
 | [`REQ-ocr-cancel.md`](REQ-ocr-cancel.md) | done | 完了済み | AbortController + CapturePanel「停止」。**実機検証クローズ**（2026-07-23 06:04 / `bac51e7`） |
 | [`REQ-auto-capture-multi-screen.md`](REQ-auto-capture-multi-screen.md) | done | 完了済み | Phase 1/1b/3 本線 done。Phase 2 は任意見送り |
