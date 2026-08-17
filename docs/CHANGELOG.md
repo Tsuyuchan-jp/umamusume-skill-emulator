@@ -8,7 +8,7 @@
 
 ## Unreleased
 
-- **umasim クレジット** — 設定画面に「レースシミュレーションは umasim（mee1080、AGPLv3）を利用しています。」を表示。配布 zip には `NOTICE.md` と AGPL 全文を同梱
+- **umasim クレジット** — 設定の「シミュレーション用データ（診断）」内に「レースシミュレーションは umasim（mee1080、AGPLv3）を利用しています。」を表示。配布 zip には `NOTICE.md` と AGPL 全文を同梱
 
 ---
 

@@ -226,6 +226,9 @@ export function SettingsPanel({
                 <p className="text-[10px] text-zinc-500 leading-relaxed">
                   シミュレーション（WASM）が使うスキルデータの取得先を確認します。OCR・スキルパレット用のデータとは別です。
                 </p>
+                <p className="text-[10px] text-zinc-500 leading-relaxed">
+                  レースシミュレーションは umasim（mee1080、AGPLv3）を利用しています。
+                </p>
                 <button
                   type="button"
                   onClick={handleProbeSkillData}
@@ -247,10 +250,6 @@ export function SettingsPanel({
             </details>
           </>
         )}
-
-        <p className="text-[10px] text-zinc-500 leading-relaxed pt-3 border-t border-white/[0.05]">
-          レースシミュレーションは umasim（mee1080、AGPLv3）を利用しています。
-        </p>
       </div>
     </div>
   );
