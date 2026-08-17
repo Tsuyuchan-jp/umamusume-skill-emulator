@@ -12,7 +12,11 @@ desktop-app/src-tauri/target/release/app.exe
 ```
 
 - この exe をそのまま起動して利用する
-- 配布時も **この1ファイル**（必要なら同フォルダの DLL 等は Tauri が同梱済みの単体 exe 想定）を渡す
+- 配布時は次を **同じフォルダ（または同じ zip）に入れて** 渡す
+  - `desktop-app/src-tauri/target/release/app.exe`
+  - リポジトリ直下の [`NOTICE.md`](../NOTICE.md)
+  - [`licenses/AGPL-3.0.txt`](../licenses/AGPL-3.0.txt)
+- ソース一式は毎回同梱しなくてよい。配布を受けた人から求められたら渡す（案内は `NOTICE.md`）
 - `bundle/msi`・`bundle/nsis` のインストーラーは **生成しても配布しない**（検証用に `npm run tauri build` だけ走らせる場合は除く）
 
 ---

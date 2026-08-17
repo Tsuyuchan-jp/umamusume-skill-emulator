@@ -247,6 +247,10 @@ export function SettingsPanel({
             </details>
           </>
         )}
+
+        <p className="text-[10px] text-zinc-500 leading-relaxed pt-3 border-t border-white/[0.05]">
+          レースシミュレーションは umasim（mee1080、AGPLv3）を利用しています。
+        </p>
       </div>
     </div>
   );

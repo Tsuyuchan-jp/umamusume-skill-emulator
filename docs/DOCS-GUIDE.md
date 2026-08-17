@@ -4,7 +4,7 @@
 > アプリの製品仕様・技術概要は [`PROJECT.md`](PROJECT.md)。**進捗・要件・運用の地図はここ。**
 > リポジトリ全体の紹介は [ルート `README.md`](../README.md)（別ファイル）。
 
-最終更新: 2026-07-23 06:48
+最終更新: 2026-08-17 14:57
 
 ---
 
@@ -45,6 +45,7 @@ REQ が `done` になっても、**ここを更新し続ける**。
 | [`CHAT_TEMPLATE.md`](CHAT_TEMPLATE.md) | チャット起票テンプレ（設計 / 実装 / 検証 / 実機クローズ） |
 | [`RELEASE_BUILD.md`](RELEASE_BUILD.md) | app.exe ビルド・バージョン bump |
 | [`CHANGELOG.md`](CHANGELOG.md) | リリース履歴。**`Unreleased`** = 次回リリース下書き（人間チェック用）。運用: 同ファイル末尾「運用（Unreleased の維持）」 |
+| [`../NOTICE.md`](../NOTICE.md) | umasim（AGPLv3）クレジットとソース提供の案内。配布 zip に同梱 |
 
 ### 参照用（`reference/`）
 

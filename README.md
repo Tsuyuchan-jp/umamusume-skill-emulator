@@ -8,6 +8,12 @@ Steam版・DMM版「ウマ娘 プリティーダービー」向けのレース�
 バージョン bump・リリース手順: [docs/RELEASE_BUILD.md](./docs/RELEASE_BUILD.md#バージョン管理)  
 **開発・Cursor 運用**: [docs/DOCS-GUIDE.md](./docs/DOCS-GUIDE.md)
 
+## ライセンス・クレジット
+
+レースシミュレーションは [umasim](https://github.com/mee1080/umasim)（mee1080、[AGPLv3](licenses/AGPL-3.0.txt)）を利用しています。詳細・ソース提供の案内は [NOTICE.md](./NOTICE.md) を参照してください。
+
+本リポジトリは公開 GitHub としては配布しません。配布を受けた方からの求めがあれば、対応するソースを提供します。
+
 ## プロジェクト構成
 
 ```

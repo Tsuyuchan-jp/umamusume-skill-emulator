@@ -12,7 +12,7 @@
 
 ## 配布・起動（本番）
 
-- **配布形式**: インストーラーは使わず、`desktop-app/src-tauri/target/release/app.exe` を **直接起動・配布**する
+- **配布形式**: インストーラーは使わず、`desktop-app/src-tauri/target/release/app.exe` を **直接起動**する。会員への配布時は **`NOTICE.md` と `licenses/AGPL-3.0.txt` を exe と同じ zip に同梱**する（詳細: [`RELEASE_BUILD.md`](RELEASE_BUILD.md)・[`NOTICE.md`](../NOTICE.md)）
 - **リリースビルド**: バージョン bump や CHANGELOG 更新時は、完了前に必ず `npm run build:release-exe` で上記 exe を最新化する（詳細: [`RELEASE_BUILD.md`](RELEASE_BUILD.md)）
 - **git**: `app.exe` はコミットしない（ビルド成果物）
 
