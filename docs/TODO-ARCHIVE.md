@@ -3,10 +3,11 @@
 > **進捗の正本ではない。** 次にやることは [TODO.md](TODO.md) を見る。
 > `TODO.md` の完了済みは直近10件のみ。それより古い完了行はここに移す。
 
-最終更新: 2026-08-17 15:03
+最終更新: 2026-08-25 14:42
 
 ---
 
+- [x] **umasim AGPL クレジット（A）** — 設定「シミュレーション用データ（診断）」内に短いクレジット、`NOTICE.md` + AGPL 全文を exe と同梱、ソースは求められたら渡す。GitHub 公開なし。**実機検証クローズ**（診断内に1文・パネル外に出ない OK / 2026-08-17 15:07 / `25877e0`〜`96b320d`）
 - [x] **v1.5.0 リリースビルド** — DMM `master.mdb`（2026-07-30）差し替え・skillRarity **1857件**（+17）・version 1.5.0 bump・CHANGELOG 昇格・`app.exe` 生成・77件テスト PASS（2026-07-30 16:03 / `2aefc9c`）
 - [x] **ゲームアップデート後のスキルデータ更新（2026-07-30）** — umasim **2066件**（+19）。水着セイウン／ブライト固有「海風にまったり身を任せ」「夕凪のリトリート・メモリー」等。extract の HELPERS_TAIL に継承進化ヘルパーを同期。skillRarity は v1.5.0 で DMM mdb 反映（2026-07-30 15:42 / `18bd17e`）
 - [x] **オートキャプチャ結合 — チャンミ月刊トゥインクル増刊号・3面** — Phase1 偽 bound 回避＋Phase2 最終 sessionStable（S* 近傍クラスタ）。Vitest 10/10・golden 29/29。**実機検証クローズ**（9位戦績欠けなし・二重なし・Frame5→6 terminal micro skip coarse=167 / 2026-07-30 06:18 / `1750e69`〜`8b4d9de`）/ [`REQ-stitch-twinkle-extra-page3.md`](tasks/REQ-stitch-twinkle-extra-page3.md) **done**
