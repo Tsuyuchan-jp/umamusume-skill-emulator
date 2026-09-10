@@ -3,9 +3,11 @@
 > **進捗の正本ではない。** 次にやることは [TODO.md](TODO.md) を見る。
 > `TODO.md` の完了済みは直近10件のみ。それより古い完了行はここに移す。
 
-最終更新: 2026-09-10 18:35
+最終更新: 2026-09-10 18:48
 
 ---
+
+- [x] **OCR B0 — 千鍛万錬の既知誤読エイリアス** — `千銀万錬` / `千段万錬` → `千鍛万錬`。`npm test` 83件 PASS。**実機検証クローズ**（診断で千銀万錬→採用・SkillPanel に千鍛万錬表示 OK / 2026-08-10 03:13 / `2ce0649`）/ [`REQ-ocr-fuzzy-missing-skills.md`](tasks/REQ-ocr-fuzzy-missing-skills.md)（B2 は継続）
 
 - [x] **オートキャプチャ結合画像のディスク非保存オプション** — 設定トグル `skipStitchedDiskSave`・非保存時は stitch のみ・保存先 UI disabled。`npm test` 77件 PASS。**実機検証クローズ**（非保存 ON/OFF・プレビュー・ディスク非保存・自動コピー・OCR・ファイル OCR 退行なし OK / 2026-08-05 18:26 / `040bcf4`）/ [`REQ-capture-skip-disk-save.md`](tasks/REQ-capture-skip-disk-save.md) **done**
 

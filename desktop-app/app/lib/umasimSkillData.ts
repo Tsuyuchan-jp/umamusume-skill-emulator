@@ -763,6 +763,11 @@ export const umasimSkillDataList = [
     "rarity": "unique"
   },
   {
+    "name": "光れ！弾けろ！超新星爆発！",
+    "id": "101411",
+    "rarity": "unique"
+  },
+  {
     "name": "Ring-a-Link",
     "id": "101431",
     "rarity": "unique"
@@ -980,6 +985,11 @@ export const umasimSkillDataList = [
   {
     "name": "Oh!bento-magic☆",
     "id": "110421",
+    "rarity": "unique"
+  },
+  {
+    "name": "最恐！いたずら計画なのだ♪",
+    "id": "110431",
     "rarity": "unique"
   },
   {
@@ -1248,6 +1258,11 @@ export const umasimSkillDataList = [
     "rarity": "unique"
   },
   {
+    "name": "渚のヴィーナスタイム♡",
+    "id": "111131",
+    "rarity": "unique"
+  },
+  {
     "name": "不凋なるCattleya",
     "id": "111161",
     "rarity": "unique"
@@ -1260,6 +1275,11 @@ export const umasimSkillDataList = [
   {
     "name": "暁霞を拓き、朝を掴む",
     "id": "111241",
+    "rarity": "unique"
+  },
+  {
+    "name": "剛心鉄壁ガーディアン",
+    "id": "111271",
     "rarity": "unique"
   },
   {
@@ -1495,6 +1515,21 @@ export const umasimSkillDataList = [
   {
     "name": "抱えた動揺",
     "id": "204581",
+    "rarity": "special"
+  },
+  {
+    "name": "アタシは抑えない！！",
+    "id": "204591",
+    "rarity": "special"
+  },
+  {
+    "name": "アタシが苦しい！？",
+    "id": "204601",
+    "rarity": "special"
+  },
+  {
+    "name": "アタシアタシアタシ！！",
+    "id": "204611",
     "rarity": "special"
   },
   {
@@ -2153,6 +2188,11 @@ export const umasimSkillDataList = [
     "rarity": "inherit"
   },
   {
+    "name": "光れ！弾けろ！超新星爆発！",
+    "id": "901411",
+    "rarity": "inherit"
+  },
+  {
     "name": "Ring-a-Link",
     "id": "901431",
     "rarity": "inherit"
@@ -2370,6 +2410,11 @@ export const umasimSkillDataList = [
   {
     "name": "Oh!bento-magic☆",
     "id": "910421",
+    "rarity": "inherit"
+  },
+  {
+    "name": "最恐！いたずら計画なのだ♪",
+    "id": "910431",
     "rarity": "inherit"
   },
   {
@@ -2638,6 +2683,11 @@ export const umasimSkillDataList = [
     "rarity": "inherit"
   },
   {
+    "name": "渚のヴィーナスタイム♡",
+    "id": "911131",
+    "rarity": "inherit"
+  },
+  {
     "name": "不凋なるCattleya",
     "id": "911161",
     "rarity": "inherit"
@@ -2650,6 +2700,11 @@ export const umasimSkillDataList = [
   {
     "name": "暁霞を拓き、朝を掴む",
     "id": "911241",
+    "rarity": "inherit"
+  },
+  {
+    "name": "剛心鉄壁ガーディアン",
+    "id": "911271",
     "rarity": "inherit"
   },
   {
@@ -2815,6 +2870,11 @@ export const umasimSkillDataList = [
   {
     "name": "黄金を訪ねて",
     "id": "91101351",
+    "rarity": "special"
+  },
+  {
+    "name": "光れ！弾けろ！超新星爆発！",
+    "id": "91101411",
     "rarity": "special"
   },
   {
@@ -6453,6 +6513,11 @@ export const umasimSkillDataList = [
     "rarity": "evo"
   },
   {
+    "name": "トドメのかつ丼！",
+    "id": "112702211",
+    "rarity": "evo"
+  },
+  {
     "name": "影打",
     "id": "202012",
     "rarity": "normal"
@@ -6590,6 +6655,11 @@ export const umasimSkillDataList = [
   {
     "name": "負けたくない！",
     "id": "106902211",
+    "rarity": "evo"
+  },
+  {
+    "name": "桜咲くときは今――！",
+    "id": "106902221",
     "rarity": "evo"
   },
   {
@@ -7718,6 +7788,11 @@ export const umasimSkillDataList = [
     "rarity": "evo"
   },
   {
+    "name": "愛されすぎてマジごめん♡",
+    "id": "111302111",
+    "rarity": "evo"
+  },
+  {
     "name": "探求心",
     "id": "202702",
     "rarity": "normal"
@@ -8203,6 +8278,11 @@ export const umasimSkillDataList = [
     "rarity": "evo"
   },
   {
+    "name": "星奔光天",
+    "id": "114101111",
+    "rarity": "evo"
+  },
+  {
     "name": "飛躍の予感",
     "id": "202982",
     "rarity": "normal"
@@ -8533,6 +8613,11 @@ export const umasimSkillDataList = [
     "rarity": "rare"
   },
   {
+    "name": "ラスカル・ロンプ！",
+    "id": "104302111",
+    "rarity": "evo"
+  },
+  {
     "name": "ハジける風雲児",
     "id": "112402211",
     "rarity": "evo"
@@ -8763,6 +8848,11 @@ export const umasimSkillDataList = [
     "rarity": "evo"
   },
   {
+    "name": "秘める気のない才気",
+    "id": "111302211",
+    "rarity": "evo"
+  },
+  {
     "name": "躍動",
     "id": "203432",
     "rarity": "normal"
@@ -8951,6 +9041,11 @@ export const umasimSkillDataList = [
     "name": "見事な砂蹴り",
     "id": "203601",
     "rarity": "rare"
+  },
+  {
+    "name": "ワルの大脱走",
+    "id": "104302211",
+    "rarity": "evo"
   },
   {
     "name": "砂蹴り",
@@ -9773,6 +9868,11 @@ export const umasimSkillDataList = [
     "rarity": "rare"
   },
   {
+    "name": "王道刑事、強面派",
+    "id": "112702111",
+    "rarity": "evo"
+  },
+  {
     "name": "海を越える神回！",
     "id": "113202211",
     "rarity": "evo"
@@ -9980,6 +10080,106 @@ export const umasimSkillDataList = [
   {
     "name": "ダブルアクセル",
     "id": "204502",
+    "rarity": "normal"
+  },
+  {
+    "name": "超然",
+    "id": "204511",
+    "rarity": "rare"
+  },
+  {
+    "name": "天意の彼方",
+    "id": "114101211",
+    "rarity": "evo"
+  },
+  {
+    "name": "久遠の天際",
+    "id": "114101221",
+    "rarity": "evo"
+  },
+  {
+    "name": "存在感",
+    "id": "204512",
+    "rarity": "normal"
+  },
+  {
+    "name": "当機立断",
+    "id": "204521",
+    "rarity": "rare"
+  },
+  {
+    "name": "潮目を掴んで",
+    "id": "204522",
+    "rarity": "normal"
+  },
+  {
+    "name": "清麗高雅",
+    "id": "204531",
+    "rarity": "rare"
+  },
+  {
+    "name": "華麗な踏み込み",
+    "id": "204532",
+    "rarity": "normal"
+  },
+  {
+    "name": "純真無垢",
+    "id": "204571",
+    "rarity": "rare"
+  },
+  {
+    "name": "ただその先へ",
+    "id": "204572",
+    "rarity": "normal"
+  },
+  {
+    "name": "広がる景色",
+    "id": "204632",
+    "rarity": "normal"
+  },
+  {
+    "name": "私の足取り",
+    "id": "204642",
+    "rarity": "normal"
+  },
+  {
+    "name": "開けろ風穴！",
+    "id": "204661",
+    "rarity": "rare"
+  },
+  {
+    "name": "砂塵を越えて",
+    "id": "204662",
+    "rarity": "normal"
+  },
+  {
+    "name": "堅忍果決",
+    "id": "204671",
+    "rarity": "rare"
+  },
+  {
+    "name": "ここが狙い目",
+    "id": "204672",
+    "rarity": "normal"
+  },
+  {
+    "name": "元気バクハツ",
+    "id": "204682",
+    "rarity": "normal"
+  },
+  {
+    "name": "素質の証明",
+    "id": "204701",
+    "rarity": "rare"
+  },
+  {
+    "name": "突き抜ける走り",
+    "id": "204702",
+    "rarity": "normal"
+  },
+  {
+    "name": "連綿",
+    "id": "204622",
     "rarity": "normal"
   },
   {
