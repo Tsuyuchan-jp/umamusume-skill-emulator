@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（要点は下記「更新ルール」「エージェント必須手順」。詳細は [`DOCS-GUIDE.md`](DOCS-GUIDE.md)）。
 
-最終更新: 2026-09-10 18:48
+最終更新: 2026-09-10 18:50
 
 ---
 
@@ -126,7 +126,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 直近10件のみ。それ以前は [`TODO-ARCHIVE.md`](TODO-ARCHIVE.md)。
 
-- [x] **ゲームアップデート後のスキルデータ追従** — DMM `master.mdb`（2026-08-31）差し替え・umasim **2106件**（+40）・skillRarity **1892件**（+35）。新規固有「光れ！弾けろ！超新星爆発！」等。コース・プリセット・WASM は今回未変更。`npm test` 92件 PASS（2026-09-10 18:48）
+- [x] **ゲームアップデート後のスキルデータ追従** — DMM `master.mdb`（2026-08-31）差し替え・umasim **2106件**（+40）・skillRarity **1892件**（+35）。新規固有「光れ！弾けろ！超新星爆発！」等。コース・プリセット・WASM は今回未変更。`npm test` 92件 PASS（2026-09-10 18:48 / `071aa4a`）
 - [x] **ファイル OCR の対応拡張子に WebP を追加** — ダイアログ・ヒント・拡張子から MIME 補完・Gemini へ実 MIME 送信。クリップボード手動コピーの WebP は対象外。`npm test` 92件 PASS（2026-09-10 18:35 / `48badca`）
 - [x] **Git 履歴から `auto-capture-design-pack.zip` を削除** — 現行に無い約 53MB zip を履歴除外し Private へ force push（2026-08-25 14:43 / `f079357`）
 - [x] **GitHub Private へ初回 push** — 履歴から `master.mdb` と誤ファイル `src-tauri/2` を除外。ローカルの `master.mdb` は gitignore のまま保持（2026-08-25 14:38 / `da004f4`）
