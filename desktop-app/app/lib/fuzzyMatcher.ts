@@ -15,6 +15,26 @@ function toHalfWidth(str: string): string {
   return s;
 }
 
+/**
+ * OCR と辞書を同じ土台に乗せる。
+ * NFC: Gemini が返す結合濁点（ハ+゙ → バ）を1文字にまとめる。
+ * 末尾 Lv 数字: 固有スキル枠のレベル表記が名前に混ざるのを除く。
+ */
+function canonicalizeSkillText(str: string): string {
+  let s = str.normalize("NFC").replace(/[\s\u3000]+/g, "");
+  s = toHalfWidth(s);
+  s = s.replace(/Lv\.?\d+$/i, "");
+  return s;
+}
+
+let cachedCanonicalSkillNames: string[] | null = null;
+function getCanonicalSkillNames(): string[] {
+  if (!cachedCanonicalSkillNames) {
+    cachedCanonicalSkillNames = umasimSkillNames.map((n) => canonicalizeSkillText(n));
+  }
+  return cachedCanonicalSkillNames;
+}
+
 /** ファジーマッチ閾値（fuzzyMatchSkillId と診断で共有。変更時は両方に影響） */
 export const FUZZY_MATCH_THRESHOLD = 0.45;
 
@@ -33,25 +53,32 @@ function applyOcrSkillAlias(cleanInput: string): string {
 
 /** 空白除去・半角正規化・エイリアス後の入力と最良一致（rating 含む）。診断・マッチ共通 */
 function findBestSkillMatch(rawInput: string): { cleanInput: string; target: string; rating: number } | null {
-  let cleanInput = rawInput.replace(/[\s\u3000]+/g, "");
-  cleanInput = toHalfWidth(cleanInput);
+  let cleanInput = canonicalizeSkillText(rawInput);
   if (!cleanInput) return null;
   cleanInput = applyOcrSkillAlias(cleanInput);
 
-  const matches = stringSimilarity.findBestMatch(cleanInput, umasimSkillNames);
-  let bestMatch = matches.bestMatch;
+  const canonicalNames = getCanonicalSkillNames();
+  const matches = stringSimilarity.findBestMatch(cleanInput, canonicalNames);
+  let bestIndex = matches.bestMatchIndex;
+  let bestRating = matches.bestMatch.rating;
 
   const inputSuffix = cleanInput.slice(-1);
   const hasSymbol = ['○', '◎', '×'].includes(inputSuffix);
   if (hasSymbol) {
-    const exactSymbolMatches = matches.ratings.filter(r => r.target.endsWith(inputSuffix) && r.rating > 0.4);
+    const exactSymbolMatches = matches.ratings
+      .map((r, i) => ({ rating: r.rating, target: r.target, index: i }))
+      .filter((r) => r.target.endsWith(inputSuffix) && r.rating > 0.4);
     if (exactSymbolMatches.length > 0) {
       exactSymbolMatches.sort((a, b) => b.rating - a.rating);
-      bestMatch = exactSymbolMatches[0];
+      bestIndex = exactSymbolMatches[0].index;
+      bestRating = exactSymbolMatches[0].rating;
     }
   }
 
-  return { cleanInput, target: bestMatch.target, rating: bestMatch.rating };
+  const originalName = umasimSkillNames[bestIndex];
+  if (!originalName) return null;
+
+  return { cleanInput, target: originalName, rating: bestRating };
 }
 
 export function fuzzyMatchSkillId(rawInput: string | null | undefined, isFirstSkill: boolean): string {
@@ -121,7 +148,7 @@ export interface OcrSkillDiagnostics {
 const DEFAULT_FOCUS_SKILLS = ["千鍛万錬", "快速"];
 
 function normalizeSkillLabel(s: string): string {
-  return toHalfWidth(s.replace(/[\s\u3000]+/g, ""));
+  return canonicalizeSkillText(s);
 }
 
 function diagnoseOneSkill(rawInput: string, isFirstSkill: boolean): OcrSkillEntryDiag {

@@ -43,6 +43,34 @@ describe("fuzzyMatchSkillId — Phase B0 OCR エイリアス", () => {
   });
 });
 
+const GRAY_UNIQUE = "120061";
+const RYABA_MARU = "200152";
+const NEVER_GIVE_UP = "202721";
+const AGGRESSIVE = "203222";
+
+describe("fuzzyMatchSkillId — OCR 結合濁点（NFD）と固有 Lv", () => {
+  it("分解されたカナでもネバーギブアップを採用", () => {
+    expect(fuzzyMatchSkillId("ネバーギブアップ".normalize("NFD"), false)).toBe(
+      NEVER_GIVE_UP
+    );
+  });
+
+  it("分解されたカナでもアグレッシブを採用", () => {
+    expect(fuzzyMatchSkillId("アグレッシブ".normalize("NFD"), false)).toBe(
+      AGGRESSIVE
+    );
+  });
+
+  it("分解されたカナの良バ場〇を良バ場○として採用", () => {
+    expect(fuzzyMatchSkillId("良バ場〇".normalize("NFD"), false)).toBe(RYABA_MARU);
+  });
+
+  it("結合濁点＋末尾 Lv6 でも灰の光跡を採用", () => {
+    const raw = "灰の光跡：シンデレラグレイ Lv6".normalize("NFD");
+    expect(fuzzyMatchSkillId(raw, true)).toBe(GRAY_UNIQUE);
+  });
+});
+
 describe("buildOcrSkillDiagnostics — Phase A 切り分け", () => {
   it("「千鍛万錬」完全一致 → 採用", () => {
     const diag = buildOcrSkillDiagnostics(["千鍛万錬"]);
