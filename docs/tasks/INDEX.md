@@ -2,7 +2,7 @@
 
 > **TODO の代替ではない。** 次にやることの正本は [`docs/TODO.md`](../TODO.md)。
 > 本ファイルは `docs/tasks/REQ-*.md`（テンプレ除く）の **一覧・ステータス・辿りやすさ** を目的とする。
-> ステータスは各 REQ の `**ステータス**:` 行を正とする。最終更新: 2026-09-10 19:33
+> ステータスは各 REQ の `**ステータス**:` 行を正とする。最終更新: 2026-09-10 19:42
 
 ## 使い方
 
@@ -21,6 +21,7 @@
 
 | REQ | ステータス | TODO掲載 | 備考 |
 |-----|-----------|---------|------|
+| [`REQ-release-v1.6.1.md`](REQ-release-v1.6.1.md) | in-progress | 進行中 | v1.6.1 リリース（実機クローズ済み差分） |
 | [`REQ-release-v1.2.0.md`](REQ-release-v1.2.0.md) | done | 完了済み | v1.2.0 リリース（2026-07-18）。長距離 sim は 2026-07-23 クローズ |
 | [`REQ-release-v1.1.0.md`](REQ-release-v1.1.0.md) | done | 完了済み | v1.1.0（R1/R2.5/R3）。配布: [`RELEASE_BUILD.md`](../RELEASE_BUILD.md) |
 | [`REQ-secure-api-key.md`](REQ-secure-api-key.md) | done | 完了済み | Gemini API キー → Windows 資格情報マネージャー |
