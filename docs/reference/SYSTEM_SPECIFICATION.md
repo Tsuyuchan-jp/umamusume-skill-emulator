@@ -249,7 +249,7 @@ Steam版・DMM版「ウマ娘 プリティーダービー」向けの **Windows 
 
 ### 4.3 スキルマスタ（umasimSkillData.ts）
 
-`extract_umasim_skill_data.js` が umasim の `skill_data.txt` から生成。約 2,000 エントリ。
+`extract_umasim_skill_data.js` が umasim の `skill_data.txt` から生成。約 2,100 エントリ（2026-09-10 extract 時点で 2106 件）。
 
 ```typescript
 interface UmasimSkillEntry {
