@@ -273,6 +273,7 @@
 | 2026-06-25 07:18 | 実機検証手順 1〜2 OK。手順 3〜7 は TODO P1 Backlog へ延期 | ユーザー判断で後日実施。検証手順を改訂版に更新 |
 | 2026-07-23 04:52 | **実機検証クローズ** — 手順 3〜7 全 OK。REQ 正式クローズ | ユーザー実機確認。CONCEPT-MAP: 今回の用語追加なし（既存カードで十分） |
 | 2026-07-23 09:18 | **実機検証クローズ** — Settings 接続チェック UI（`probeSkillDataSources`・診断 fold・見出し1ボタン）。remote/cache/bundled・見出しトグル・自動コピー非干渉・診断後 sim 退行なし OK | ユーザー実機確認。Phase 3 余力スコープの後続 Backlog 実装 |
+| 2026-09-10 19:04 | `fs:allow-mkdir` 等に `$APPDATA/skill_data`（ディレクトリ本体）を追加。`**` だけでは mkdir 対象外でキャッシュ書き込みが forbidden になっていた | 実機コンソール警告。sim は remote/bundled で継続可能だったがキャッシュ設計を修復 |
 
 ---
 
