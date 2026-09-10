@@ -126,7 +126,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 直近10件のみ。それ以前は [`TODO-ARCHIVE.md`](TODO-ARCHIVE.md)。
 
-- [x] **v1.6.1 リリースビルド** — version 1.6.1 bump・CHANGELOG Unreleased 昇格・`app.exe` 生成・96件テスト PASS（2026-09-10 19:48 / `b2fcd49`）/ [`REQ-release-v1.6.1.md`](tasks/REQ-release-v1.6.1.md)
+- [x] **v1.6.1 リリースビルド** — version 1.6.1 bump・CHANGELOG Unreleased 昇格・`app.exe` 生成・96件テスト PASS（2026-09-10 19:48 / `b2fcd49`〜`8659650`）/ [`REQ-release-v1.6.1.md`](tasks/REQ-release-v1.6.1.md)
 - [x] **OCR 結合濁点（NFD）のスキルマッチ失敗を修正** — NFC 正規化＋末尾 `Lv` 数字除去。灰の光跡 / 良バ場〇 / ネバーギブアップ / アグレッシブ。閾値 0.45 維持。`npm test` 96件 PASS。**実機検証クローズ**（4件すべて所持スキルに適用 OK / 2026-09-10 19:33 / `369eab6`）
 - [x] **AppData スキルキャッシュの mkdir 権限不足を修正** — `$APPDATA/skill_data` 本体を fs capability に追加。コンソール `forbidden path` / `allow-mkdir` 解消。sim 本体は対象外（2026-09-10 19:04 / `2be708c`）
 - [x] **ゲームアップデート後のスキルデータ追従** — DMM `master.mdb`（2026-08-31）差し替え・umasim **2106件**（+40）・skillRarity **1892件**（+35）。新規固有「光れ！弾けろ！超新星爆発！」等。コース・プリセット・WASM は今回未変更。`npm test` 92件 PASS。**実機検証クローズ**（新スキル反映・OCR/sim 退行なし OK / 2026-09-10 18:58 / `071aa4a`）
