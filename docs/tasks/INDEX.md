@@ -2,7 +2,7 @@
 
 > **TODO の代替ではない。** 次にやることの正本は [`docs/TODO.md`](../TODO.md)。
 > 本ファイルは `docs/tasks/REQ-*.md`（テンプレ除く）の **一覧・ステータス・辿りやすさ** を目的とする。
-> ステータスは各 REQ の `**ステータス**:` 行を正とする。最終更新: 2026-08-10 02:30
+> ステータスは各 REQ の `**ステータス**:` 行を正とする。最終更新: 2026-09-10 19:02
 
 ## 使い方
 
@@ -91,7 +91,7 @@
 | REQ | ステータス | TODO掲載 | 備考 |
 |-----|-----------|---------|------|
 | [`REQ-ocr-fuzzy-missing-skills.md`](REQ-ocr-fuzzy-missing-skills.md) | in-progress | 完了済み（B0/B1）/ Backlog（B2） | B1 実機クローズ済（2026-08-10）。B2 は TODO。REQ `done` は B2 後 |
-| [`REQ-file-ocr-status.md`](REQ-file-ocr-status.md) | done | 完了済み | 過去キャプチャ画像のファイル選択 → 既存 OCR。**実機検証クローズ**（2026-07-23 07:48 / `4b01db5`） |
+| [`REQ-file-ocr-status.md`](REQ-file-ocr-status.md) | done | 完了済み | 過去キャプチャ画像のファイル選択 → 既存 OCR。**実機検証クローズ**（2026-07-23 07:48 / `4b01db5`）。WebP 拡張も実機クローズ（2026-09-10 19:02 / `48badca`） |
 | [`REQ-ocr-cancel.md`](REQ-ocr-cancel.md) | done | 完了済み | AbortController + CapturePanel「停止」。**実機検証クローズ**（2026-07-23 06:04 / `bac51e7`） |
 | [`REQ-auto-capture-multi-screen.md`](REQ-auto-capture-multi-screen.md) | done | 完了済み | Phase 1/1b/3 本線 done。Phase 2 は任意見送り |
 | [`REQ-stitch-rewrite.md`](REQ-stitch-rewrite.md) | done | 完了済み | R0–R5 完了（R5: `opencvStitcher.ts` 削除・`stitchImages` 一本化） |
