@@ -167,7 +167,7 @@ export function CapturePanel(props: CapturePanelProps) {
             type="button"
             onClick={onLoadImageFromFile}
             disabled={fileOpenDisabled}
-            title="結合済みステータス画面の PNG / JPEG を選択"
+            title="結合済みステータス画面の PNG / JPEG / WebP を選択"
             className="w-full font-bold py-2.5 px-4 rounded-xl shadow-md transition-all active:scale-[0.98] text-sm flex justify-center items-center gap-2 bg-zinc-800/80 hover:bg-zinc-700 text-zinc-100 border border-zinc-700/80 disabled:opacity-40 disabled:pointer-events-none disabled:active:scale-100"
           >
             <FolderOpen className="w-4 h-4" />
@@ -175,7 +175,7 @@ export function CapturePanel(props: CapturePanelProps) {
           </button>
           <div className="relative flex items-center gap-1" ref={fileHintRef}>
             <p className="text-[11px] text-zinc-500">
-              結合済みステータス画面（PNG / JPEG）を想定
+              結合済みステータス画面（PNG / JPEG / WebP）を想定
             </p>
             <button
               type="button"

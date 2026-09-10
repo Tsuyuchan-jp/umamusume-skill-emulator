@@ -3,9 +3,11 @@
 > **進捗の正本ではない。** 次にやることは [TODO.md](TODO.md) を見る。
 > `TODO.md` の完了済みは直近10件のみ。それより古い完了行はここに移す。
 
-最終更新: 2026-08-25 14:42
+最終更新: 2026-09-10 18:35
 
 ---
+
+- [x] **オートキャプチャ結合画像のディスク非保存オプション** — 設定トグル `skipStitchedDiskSave`・非保存時は stitch のみ・保存先 UI disabled。`npm test` 77件 PASS。**実機検証クローズ**（非保存 ON/OFF・プレビュー・ディスク非保存・自動コピー・OCR・ファイル OCR 退行なし OK / 2026-08-05 18:26 / `040bcf4`）/ [`REQ-capture-skip-disk-save.md`](tasks/REQ-capture-skip-disk-save.md) **done**
 
 - [x] **umasim AGPL クレジット（A）** — 設定「シミュレーション用データ（診断）」内に短いクレジット、`NOTICE.md` + AGPL 全文を exe と同梱、ソースは求められたら渡す。GitHub 公開なし。**実機検証クローズ**（診断内に1文・パネル外に出ない OK / 2026-08-17 15:07 / `25877e0`〜`96b320d`）
 - [x] **v1.5.0 リリースビルド** — DMM `master.mdb`（2026-07-30）差し替え・skillRarity **1857件**（+17）・version 1.5.0 bump・CHANGELOG 昇格・`app.exe` 生成・77件テスト PASS（2026-07-30 16:03 / `2aefc9c`）

@@ -182,7 +182,7 @@ export function useCapture() {
     try {
       const selected = await open({
         multiple: false,
-        filters: [{ name: "画像", extensions: ["png", "jpg", "jpeg"] }],
+        filters: [{ name: "画像", extensions: ["png", "jpg", "jpeg", "webp"] }],
       });
       if (!selected || typeof selected !== "string") {
         return;

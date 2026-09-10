@@ -8,6 +8,7 @@
 
 ## Unreleased
 
+- **ファイル OCR の WebP 対応** — 「画像ファイルを開く」で WebP も選択できる。Gemini へは画像の実際の種類（PNG / JPEG / WebP）を渡す
 - **umasim クレジット** — 設定の「シミュレーション用データ（診断）」内に「レースシミュレーションは umasim（mee1080、AGPLv3）を利用しています。」を表示。配布 zip には `NOTICE.md` と AGPL 全文を同梱
 
 ---

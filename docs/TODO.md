@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（要点は下記「更新ルール」「エージェント必須手順」。詳細は [`DOCS-GUIDE.md`](DOCS-GUIDE.md)）。
 
-最終更新: 2026-08-25 14:43
+最終更新: 2026-09-10 18:35
 
 ---
 
@@ -126,6 +126,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 直近10件のみ。それ以前は [`TODO-ARCHIVE.md`](TODO-ARCHIVE.md)。
 
+- [x] **ファイル OCR の対応拡張子に WebP を追加** — ダイアログ・ヒント・拡張子から MIME 補完・Gemini へ実 MIME 送信。クリップボード手動コピーの WebP は対象外。`npm test` 92件 PASS（2026-09-10 18:35）
 - [x] **Git 履歴から `auto-capture-design-pack.zip` を削除** — 現行に無い約 53MB zip を履歴除外し Private へ force push（2026-08-25 14:43 / `f079357`）
 - [x] **GitHub Private へ初回 push** — 履歴から `master.mdb` と誤ファイル `src-tauri/2` を除外。ローカルの `master.mdb` は gitignore のまま保持（2026-08-25 14:38 / `da004f4`）
 - [x] **v1.6.0 リリースビルド** — version 1.6.0 bump・CHANGELOG Unreleased 昇格・`app.exe` 生成・88件テスト PASS（2026-08-10 04:08 / `35aa0a7`）
@@ -135,7 +136,6 @@ Backlog・保留を変更したら件数を合わせて更新する。
 - [x] **OCR 未マッチ — 位置固定＋文言簡略** — パネル内最上に固定（トグル削除）（2026-08-10 03:48 / `fa66a23`）
 - [x] **OCR 後 — umasim 未収録デバフ説明（P2）** — B1 未マッチ通知内の短い注記で充足・クローズ（2026-08-10 03:40 / `dbca8af`）— B1 実機クローズに含む
 - [x] **OCR B0 — 千鍛万錬の既知誤読エイリアス** — `千銀万錬` / `千段万錬` → `千鍛万錬`。`npm test` 83件 PASS。**実機検証クローズ**（診断で千銀万錬→採用・SkillPanel に千鍛万錬表示 OK / 2026-08-10 03:13 / `2ce0649`）/ [`REQ-ocr-fuzzy-missing-skills.md`](tasks/REQ-ocr-fuzzy-missing-skills.md)（B2 は継続）
-- [x] **オートキャプチャ結合画像のディスク非保存オプション** — 設定トグル `skipStitchedDiskSave`・非保存時は stitch のみ・保存先 UI disabled。`npm test` 77件 PASS。**実機検証クローズ**（非保存 ON/OFF・プレビュー・ディスク非保存・自動コピー・OCR・ファイル OCR 退行なし OK / 2026-08-05 18:26 / `040bcf4`）/ [`REQ-capture-skip-disk-save.md`](tasks/REQ-capture-skip-disk-save.md) **done**
 
 ---
 

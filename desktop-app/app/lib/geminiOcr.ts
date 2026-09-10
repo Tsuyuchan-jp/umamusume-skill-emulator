@@ -87,6 +87,32 @@ function cleanAndParseJSON(str: string): any {
 }
 
 
+const SUPPORTED_INLINE_MIMES = new Set(["image/png", "image/jpeg", "image/webp"]);
+
+/**
+ * Gemini 送信用に dataUrl から MIME と Base64 本体を取り出す。
+ * PNG / JPEG / WebP のみ（`image/jpg` は `image/jpeg` に正規化）。
+ */
+export function parseInlineImageDataUrl(dataUrl: string): {
+  mimeType: string;
+  base64Data: string;
+} {
+  const match = dataUrl.match(/^data:([^;]+);base64,([\s\S]+)$/);
+  if (!match) {
+    throw new Error(
+      "画像データの形式を認識できませんでした。PNG / JPEG / WebP を指定してください。"
+    );
+  }
+  let mimeType = match[1].trim().toLowerCase();
+  if (mimeType === "image/jpg") mimeType = "image/jpeg";
+  if (!SUPPORTED_INLINE_MIMES.has(mimeType)) {
+    throw new Error(
+      `未対応の画像形式です（${mimeType}）。PNG / JPEG / WebP を指定してください。`
+    );
+  }
+  return { mimeType, base64Data: match[2] };
+}
+
 /**
  * 結合済みのDataURL画像1枚を送信する（デフォルト）
  * @param options.signal 中止用 AbortSignal（AbortController）。将来のファイル OCR でも再利用する
@@ -97,8 +123,8 @@ export async function analyzeStitchedImage(
   options?: { signal?: AbortSignal }
 ): Promise<{ data: UmaStatusData; modelUsed: string; rawSkills: string[] }> {
   const signal = options?.signal;
-  const base64Data = dataUrl.replace(/^data:image\/(png|jpeg);base64,/, "");
-  
+  const { mimeType, base64Data } = parseInlineImageDataUrl(dataUrl);
+
   const payload = {
     system_instruction: {
       parts: { text: SYSTEM_INSTRUCTION }
@@ -109,7 +135,7 @@ export async function analyzeStitchedImage(
           { text: "この画像のステータス情報をJSONで抽出してください。" },
           {
             inline_data: {
-              mime_type: "image/png",
+              mime_type: mimeType,
               data: base64Data
             }
           }
