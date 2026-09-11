@@ -160,28 +160,36 @@ describe("buildUnmatchedOcrSkills — Phase B1 未マッチ一覧", () => {
     ).toEqual([]);
   });
 
-  it("未収録・低類似は未マッチに入り、近い候補があれば付ける", () => {
+  it("未収録デバフはシミュ対象外（近い候補なし）", () => {
     const items = buildUnmatchedOcrSkills(["逃げためらい", "千鍛万錬"]);
     expect(items).toHaveLength(1);
     expect(items[0].input).toBe("逃げためらい");
-    // 最良一致名はあっても rating は出さない（ヘルパーは名前のみ）
-    expect(typeof items[0].closestName).toBe("string");
+    expect(items[0].kind).toBe("simExcluded");
+    expect(items[0].closestName).toBe("");
   });
 
   it("空文字・空白のみはスキップ", () => {
     expect(buildUnmatchedOcrSkills(["", "  ", "\u3000"])).toEqual([]);
   });
 
-  it("コピー文面に診断用語（rating / skillId）を含めない", () => {
+  it("コピー文面: 対象外は失敗扱いにしない", () => {
     const items = buildUnmatchedOcrSkills(["逃げためらい"]);
     const text = formatUnmatchedOcrSkillsText(items);
-    expect(text).toContain("読み取り失敗");
-    expect(text).toMatch(/\d+件/);
-    expect(text).toContain("取得スキルに入らなかったOCRスキル名");
-    expect(text).toContain("シミュに適用されない");
+    expect(text).toContain("シミュ対象外");
+    expect(text).toContain("読み取りの失敗ではありません");
     expect(text).toContain("逃げためらい");
+    expect(text).not.toContain("読み取り失敗");
     expect(text).not.toMatch(/rating/i);
     expect(text).not.toMatch(/skillId/i);
     expect(text).not.toContain("切り分け");
+  });
+
+  it("コピー文面: 本当の失敗は読み取り失敗見出し", () => {
+    const items = buildUnmatchedOcrSkills(["@@@"]);
+    expect(items[0].kind).toBe("ocrFailed");
+    const text = formatUnmatchedOcrSkillsText(items);
+    expect(text).toContain("読み取り失敗");
+    expect(text).toContain("正式なスキル名に合わせられなかった");
+    expect(text).not.toContain("シミュ対象外");
   });
 });

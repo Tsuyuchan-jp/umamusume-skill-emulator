@@ -5,6 +5,7 @@ import {
   isUniqueSkillId,
   sanitizeSkillIds,
 } from './umasimSkillData';
+import { skillRarityMap } from './skillRarityData';
 import { UmaStatusData } from './types';
 
 // 全角英数字を半角に変換するユーティリティ（さらに漢数字のゼロ「〇」を記号の丸「○」に正規化）
@@ -276,8 +277,34 @@ export function buildOcrSkillDiagnostics(
 export interface UnmatchedOcrSkill {
   /** OCR が返した生のスキル名 */
   input: string;
-  /** ファジー最良一致名（無ければ空。rating / skillId は出さない） */
+  /** ファジー最良一致名（無ければ空。対象外は出さない。rating / skillId は出さない） */
   closestName: string;
+  /** シミュ非対応（仕様）か、名前照合の失敗か */
+  kind: "simExcluded" | "ocrFailed";
+}
+
+let cachedMdbCanonicalNames: Set<string> | null = null;
+
+function getMdbCanonicalNames(): Set<string> {
+  if (!cachedMdbCanonicalNames) {
+    cachedMdbCanonicalNames = new Set(
+      Object.keys(skillRarityMap).map((n) => canonicalizeSkillText(n)).filter(Boolean)
+    );
+  }
+  return cachedMdbCanonicalNames;
+}
+
+/**
+ * 未マッチを仕様（シミュ非対応）と読み取り失敗に分ける。
+ * ゲーム辞書にあるが umasim に無い名前、または末尾「ためらい」。
+ */
+function isSimExcludedUnmatchedName(rawInput: string): boolean {
+  const clean = canonicalizeSkillText(rawInput);
+  if (!clean) return false;
+  const inUmasim = getCanonicalSkillNames().includes(clean);
+  if (inUmasim) return false;
+  if (getMdbCanonicalNames().has(clean)) return true;
+  return /ためらい$/.test(clean);
 }
 
 /**
@@ -291,31 +318,71 @@ export function buildUnmatchedOcrSkills(rawSkills: string[]): UnmatchedOcrSkill[
     const input = list[i];
     if (!normalizeSkillLabel(input)) continue;
     if (fuzzyMatchSkillId(input, i === 0)) continue;
-    const best = findBestSkillMatch(input);
+    const simExcluded = isSimExcludedUnmatchedName(input);
+    const best = simExcluded ? null : findBestSkillMatch(input);
     result.push({
       input,
-      closestName: best?.target ?? "",
+      closestName: simExcluded ? "" : (best?.target ?? ""),
+      kind: simExcluded ? "simExcluded" : "ocrFailed",
     });
   }
   return result;
 }
 
-/** 未マッチ通知のコピー用テキスト（ユーザー向け・診断用語なし） */
-export function formatUnmatchedOcrSkillsText(items: UnmatchedOcrSkill[]): string {
+export function partitionUnmatchedOcrSkills(items: UnmatchedOcrSkill[]): {
+  simExcluded: UnmatchedOcrSkill[];
+  ocrFailed: UnmatchedOcrSkill[];
+} {
+  const simExcluded: UnmatchedOcrSkill[] = [];
+  const ocrFailed: UnmatchedOcrSkill[] = [];
+  for (const item of items) {
+    if (item.kind === "simExcluded") simExcluded.push(item);
+    else ocrFailed.push(item);
+  }
+  return { simExcluded, ocrFailed };
+}
+
+const SIM_EXCLUDED_BODY =
+  "画面では読めましたが、このアプリのシミュレーションでは使わないスキルです。読み取りの失敗ではありません。";
+const OCR_FAILED_BODY =
+  "名前を正式なスキル名に合わせられなかったため、取得スキルに入っていません。";
+
+function formatUnmatchedSection(
+  title: string,
+  body: string,
+  items: UnmatchedOcrSkill[],
+  withClosest: boolean
+): string {
   const lines: string[] = [];
-  lines.push(`読み取り失敗（${items.length}件）`);
+  lines.push(`${title}（${items.length}件）`);
   lines.push("");
-  lines.push("取得スキルに入らなかったOCRスキル名です。");
-  lines.push("一部デバフはシミュに適用されないため、取得スキルには含まれません。");
+  lines.push(body);
   lines.push("");
   for (const item of items) {
-    if (item.closestName) {
+    if (withClosest && item.closestName) {
       lines.push(`・${item.input}（近い候補: ${item.closestName}）`);
     } else {
       lines.push(`・${item.input}`);
     }
   }
   return lines.join("\n");
+}
+
+export function formatSimExcludedOcrSkillsText(items: UnmatchedOcrSkill[]): string {
+  return formatUnmatchedSection("シミュ対象外", SIM_EXCLUDED_BODY, items, false);
+}
+
+export function formatOcrFailedSkillsText(items: UnmatchedOcrSkill[]): string {
+  return formatUnmatchedSection("読み取り失敗", OCR_FAILED_BODY, items, true);
+}
+
+/** 未マッチ通知のコピー用テキスト（ユーザー向け・診断用語なし） */
+export function formatUnmatchedOcrSkillsText(items: UnmatchedOcrSkill[]): string {
+  const { simExcluded, ocrFailed } = partitionUnmatchedOcrSkills(items);
+  const parts: string[] = [];
+  if (simExcluded.length > 0) parts.push(formatSimExcludedOcrSkillsText(simExcluded));
+  if (ocrFailed.length > 0) parts.push(formatOcrFailedSkillsText(ocrFailed));
+  return parts.join("\n\n");
 }
 
 /** クリップボード共有用のプレーンテキスト */
