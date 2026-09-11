@@ -49,24 +49,92 @@ export const FUZZY_MATCH_THRESHOLD = 0.45;
 
 /**
  * OCR 既知誤読 → 正式スキル名（正規化後の完全一致のみ）。
- * Phase B0: 千鍛万錬の実機確認済み誤読に限定。閾値は下げない。
+ * 骨格・編集距離1で拾える千鍛系は表に足さない。2文字差だけ残す。
  */
 const OCR_SKILL_ALIASES: Record<string, string> = {
   千銀万錬: "千鍛万錬",
   千段万錬: "千鍛万錬",
+  勝利へ至る累積: "勝利ヘ至ル累積",
+  聡せめ心: "臆せぬ心",
 };
 
 function applyOcrSkillAlias(cleanInput: string): string {
   return OCR_SKILL_ALIASES[cleanInput] ?? cleanInput;
 }
 
-/** 空白除去・半角正規化・エイリアス後の入力と最良一致（rating 含む）。診断・マッチ共通 */
+/** カタログで /^千.万.$/ に合うのは千鍛万錬のみ。成語寄せの4文字誤読を吸収する */
+const SENMAN_SKELETON = /^千.万.$/;
+
+/** エイリアス後。骨格だけ合いカタログに無いとき、唯一の千.万.正式名へ */
+export function applySenmanSkeleton(cleanInput: string): string {
+  if (!SENMAN_SKELETON.test(cleanInput)) return cleanInput;
+  const skeletonHits = [...new Set(getCanonicalSkillNames().filter((n) => SENMAN_SKELETON.test(n)))];
+  if (skeletonHits.includes(cleanInput)) return cleanInput;
+  if (skeletonHits.length !== 1) return cleanInput;
+  return skeletonHits[0];
+}
+
+/** Levenshtein。短いラベルの1文字ずれ用 */
+export function editDistance(a: string, b: string): number {
+  if (a === b) return 0;
+  const n = a.length;
+  const m = b.length;
+  if (n === 0) return m;
+  if (m === 0) return n;
+  const prev = new Array<number>(m + 1);
+  const cur = new Array<number>(m + 1);
+  for (let j = 0; j <= m; j++) prev[j] = j;
+  for (let i = 1; i <= n; i++) {
+    cur[0] = i;
+    for (let j = 1; j <= m; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      cur[j] = Math.min(prev[j]! + 1, cur[j - 1]! + 1, prev[j - 1]! + cost);
+    }
+    for (let j = 0; j <= m; j++) prev[j] = cur[j]!;
+  }
+  return prev[m]!;
+}
+
+/** 編集距離1の救済は短名（快速など）を巻き込まない */
+const MIN_EDIT_RESCUE_LEN = 4;
+
+/** 空白除去・半角正規化・エイリアス／骨格／編集距離1のあと最良一致（rating 含む） */
 function findBestSkillMatch(rawInput: string): { cleanInput: string; target: string; rating: number } | null {
   let cleanInput = canonicalizeSkillText(rawInput);
   if (!cleanInput) return null;
   cleanInput = applyOcrSkillAlias(cleanInput);
+  cleanInput = applySenmanSkeleton(cleanInput);
 
+  const originalNames = getActiveSkillNames();
   const canonicalNames = getCanonicalSkillNames();
+
+  if (cleanInput.length >= MIN_EDIT_RESCUE_LEN) {
+    let editBestIndex = -1;
+    let editDist = Infinity;
+    let editDice = -1;
+    for (let i = 0; i < canonicalNames.length; i++) {
+      const norm = canonicalNames[i];
+      if (!norm || norm.length < MIN_EDIT_RESCUE_LEN) continue;
+      const d = editDistance(cleanInput, norm);
+      if (d > 1) continue;
+      const rating = stringSimilarity.compareTwoStrings(cleanInput, norm);
+      if (d < editDist || (d === editDist && rating > editDice)) {
+        editDist = d;
+        editDice = rating;
+        editBestIndex = i;
+      }
+    }
+    if (editBestIndex >= 0 && editDist <= 1) {
+      const originalName = originalNames[editBestIndex];
+      if (!originalName) return null;
+      return {
+        cleanInput,
+        target: originalName,
+        rating: editDist === 0 ? 1 : Math.max(editDice, FUZZY_MATCH_THRESHOLD),
+      };
+    }
+  }
+
   const matches = stringSimilarity.findBestMatch(cleanInput, canonicalNames);
   let bestIndex = matches.bestMatchIndex;
   let bestRating = matches.bestMatch.rating;

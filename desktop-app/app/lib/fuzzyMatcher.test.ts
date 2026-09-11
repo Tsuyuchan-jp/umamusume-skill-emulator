@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  applySenmanSkeleton,
   buildOcrSkillDiagnostics,
   buildUnmatchedOcrSkills,
+  editDistance,
   formatUnmatchedOcrSkillsText,
   fuzzyMatchSkillId,
 } from "./fuzzyMatcher";
@@ -40,6 +42,49 @@ describe("fuzzyMatchSkillId — Phase B0 OCR エイリアス", () => {
 
   it("「千鍛万錬」完全一致は従来どおり採用", () => {
     expect(fuzzyMatchSkillId("千鍛万錬", false)).toBe(SENKAN_BANREN);
+  });
+});
+
+const OKUSE_KOKORO = "203772"; // 臆せぬ心
+const SHOURI_UNIQUE = "120231"; // 勝利ヘ至ル累積（通常固有）
+const SHOURI_INHERIT = "920231"; // 勝利ヘ至ル累積（通常継承）
+
+describe("fuzzyMatchSkillId — 千.万.骨格・編集距離1・実機誤読", () => {
+  it("編集距離: 一文字置換は1", () => {
+    expect(editDistance("千錘万錬", "千鍛万錬")).toBe(1);
+    expect(editDistance("千礫万鋒", "千鍛万錬")).toBe(2);
+  });
+
+  it("千.万.骨格: カタログに無い成語寄せ → 千鍛万錬", () => {
+    expect(applySenmanSkeleton("千紫万紅")).toBe("千鍛万錬");
+    expect(applySenmanSkeleton("千礫万鋒")).toBe("千鍛万錬");
+    expect(applySenmanSkeleton("千鍛万錬")).toBe("千鍛万錬");
+  });
+
+  it("千.万.骨格: 千万バリキ！！！は触らない", () => {
+    expect(applySenmanSkeleton("千万バリキ！！！")).toBe("千万バリキ！！！");
+  });
+
+  it("実機「千錘万錬」→ 千鍛万錬", () => {
+    expect(fuzzyMatchSkillId("千錘万錬", false)).toBe(SENKAN_BANREN);
+  });
+
+  it("実機「千礫万鋒」→ 千鍛万錬（骨格）", () => {
+    expect(fuzzyMatchSkillId("千礫万鋒", false)).toBe(SENKAN_BANREN);
+  });
+
+  it("実機「勝利へ至る累積」→ 先頭は unique、以降は inherit", () => {
+    expect(fuzzyMatchSkillId("勝利へ至る累積", true)).toBe(SHOURI_UNIQUE);
+    expect(fuzzyMatchSkillId("勝利へ至る累積", false)).toBe(SHOURI_INHERIT);
+  });
+
+  it("実機「聡せめ心」→ 臆せぬ心", () => {
+    expect(fuzzyMatchSkillId("聡せめ心", false)).toBe(OKUSE_KOKORO);
+  });
+
+  it("短名「快速」は完全一致のみ（編集距離1の対象外）", () => {
+    expect(fuzzyMatchSkillId("快速", false)).not.toBe("");
+    expect(fuzzyMatchSkillId("快足", false)).toBe("");
   });
 });
 
@@ -107,6 +152,12 @@ describe("buildUnmatchedOcrSkills — Phase B1 未マッチ一覧", () => {
 
   it("B0 エイリアス済みの誤読は未マッチに出ない", () => {
     expect(buildUnmatchedOcrSkills(["千銀万錬"])).toEqual([]);
+  });
+
+  it("実機4件の誤読は未マッチに出ない", () => {
+    expect(
+      buildUnmatchedOcrSkills(["千錘万錬", "千礫万鋒", "勝利へ至る累積", "聡せめ心"])
+    ).toEqual([]);
   });
 
   it("未収録・低類似は未マッチに入り、近い候補があれば付ける", () => {
