@@ -96,46 +96,58 @@ export function editDistance(a: string, b: string): number {
   return prev[m]!;
 }
 
-/** 編集距離1の救済は短名（快速など）を巻き込まない */
-const MIN_EDIT_RESCUE_LEN = 4;
+/** 同名（固有／継承）は1候補として数える */
+function uniqueCanonicalNameEntries(): { original: string; canonical: string }[] {
+  const seen = new Set<string>();
+  const originals = getActiveSkillNames();
+  const canonicals = getCanonicalSkillNames();
+  const out: { original: string; canonical: string }[] = [];
+  for (let i = 0; i < originals.length; i++) {
+    const canonical = canonicals[i];
+    const original = originals[i];
+    if (!canonical || !original || seen.has(canonical)) continue;
+    seen.add(canonical);
+    out.push({ original, canonical });
+  }
+  return out;
+}
 
-/** 空白除去・半角正規化・エイリアス／骨格／編集距離1のあと最良一致（rating 含む） */
+/** 空白除去・半角正規化・エイリアス／骨格／一意な編集距離1のあと最良一致 */
 function findBestSkillMatch(rawInput: string): { cleanInput: string; target: string; rating: number } | null {
   let cleanInput = canonicalizeSkillText(rawInput);
   if (!cleanInput) return null;
   cleanInput = applyOcrSkillAlias(cleanInput);
   cleanInput = applySenmanSkeleton(cleanInput);
 
-  const originalNames = getActiveSkillNames();
-  const canonicalNames = getCanonicalSkillNames();
-
-  if (cleanInput.length >= MIN_EDIT_RESCUE_LEN) {
-    let editBestIndex = -1;
-    let editDist = Infinity;
-    let editDice = -1;
-    for (let i = 0; i < canonicalNames.length; i++) {
-      const norm = canonicalNames[i];
-      if (!norm || norm.length < MIN_EDIT_RESCUE_LEN) continue;
-      const d = editDistance(cleanInput, norm);
-      if (d > 1) continue;
-      const rating = stringSimilarity.compareTwoStrings(cleanInput, norm);
-      if (d < editDist || (d === editDist && rating > editDice)) {
-        editDist = d;
-        editDice = rating;
-        editBestIndex = i;
-      }
+  const uniqueNames = uniqueCanonicalNameEntries();
+  let exactOriginal: string | null = null;
+  const ed1Hits: { original: string; dice: number }[] = [];
+  for (const { original, canonical } of uniqueNames) {
+    const d = editDistance(cleanInput, canonical);
+    if (d === 0) {
+      exactOriginal = original;
+      break;
     }
-    if (editBestIndex >= 0 && editDist <= 1) {
-      const originalName = originalNames[editBestIndex];
-      if (!originalName) return null;
-      return {
-        cleanInput,
-        target: originalName,
-        rating: editDist === 0 ? 1 : Math.max(editDice, FUZZY_MATCH_THRESHOLD),
-      };
+    if (d === 1) {
+      ed1Hits.push({
+        original,
+        dice: stringSimilarity.compareTwoStrings(cleanInput, canonical),
+      });
     }
   }
+  if (exactOriginal) {
+    return { cleanInput, target: exactOriginal, rating: 1 };
+  }
+  if (ed1Hits.length === 1) {
+    const hit = ed1Hits[0];
+    return {
+      cleanInput,
+      target: hit.original,
+      rating: Math.max(hit.dice, FUZZY_MATCH_THRESHOLD),
+    };
+  }
 
+  const canonicalNames = getCanonicalSkillNames();
   const matches = stringSimilarity.findBestMatch(cleanInput, canonicalNames);
   let bestIndex = matches.bestMatchIndex;
   let bestRating = matches.bestMatch.rating;
@@ -322,7 +334,7 @@ export function buildUnmatchedOcrSkills(rawSkills: string[]): UnmatchedOcrSkill[
     const best = simExcluded ? null : findBestSkillMatch(input);
     result.push({
       input,
-      closestName: simExcluded ? "" : (best?.target ?? ""),
+      closestName: simExcluded ? "" : (best && best.rating > 0 ? best.target : ""),
       kind: simExcluded ? "simExcluded" : "ocrFailed",
     });
   }

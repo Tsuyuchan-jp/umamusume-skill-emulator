@@ -82,9 +82,17 @@ describe("fuzzyMatchSkillId — 千.万.骨格・編集距離1・実機誤読", 
     expect(fuzzyMatchSkillId("聡せめ心", false)).toBe(OKUSE_KOKORO);
   });
 
-  it("短名「快速」は完全一致のみ（編集距離1の対象外）", () => {
-    expect(fuzzyMatchSkillId("快速", false)).not.toBe("");
-    expect(fuzzyMatchSkillId("快足", false)).toBe("");
+  it("短名「快速」は完全一致。一意な1文字差の「快足」は快速へ", () => {
+    expect(fuzzyMatchSkillId("快速", false)).toBe("202552");
+    expect(fuzzyMatchSkillId("快足", false)).toBe("202552");
+  });
+
+  it("実機「光陰」→ 一意な1文字差で光明", () => {
+    expect(fuzzyMatchSkillId("光陰", false)).toBe("203642");
+  });
+
+  it("複数候補の1文字差（赤炎→蒼炎/陽炎）は採用しない", () => {
+    expect(fuzzyMatchSkillId("赤炎", false)).toBe("");
   });
 });
 
@@ -187,9 +195,15 @@ describe("buildUnmatchedOcrSkills — Phase B1 未マッチ一覧", () => {
   it("コピー文面: 本当の失敗は読み取り失敗見出し", () => {
     const items = buildUnmatchedOcrSkills(["@@@"]);
     expect(items[0].kind).toBe("ocrFailed");
+    expect(items[0].closestName).toBe("");
     const text = formatUnmatchedOcrSkillsText(items);
     expect(text).toContain("読み取り失敗");
     expect(text).toContain("正式なスキル名に合わせられなかった");
     expect(text).not.toContain("シミュ対象外");
+    expect(text).not.toContain("波乱注意砲");
+  });
+
+  it("光陰は一意な1文字差で未マッチに出ない", () => {
+    expect(buildUnmatchedOcrSkills(["光陰"])).toEqual([]);
   });
 });
