@@ -3,9 +3,11 @@
 > **進捗の正本ではない。** 次にやることは [TODO.md](TODO.md) を見る。
 > `TODO.md` の完了済みは直近10件のみ。それより古い完了行はここに移す。
 
-最終更新: 2026-09-12 07:42
+最終更新: 2026-09-12 07:55
 
 ---
+
+- [x] **v1.6.0 リリースビルド** — version 1.6.0 bump・CHANGELOG Unreleased 昇格・`app.exe` 生成・88件テスト PASS（2026-08-10 04:08 / `35aa0a7`）
 
 - [x] **OCR 未マッチ見える化（B1）** — 恒久 UI（パネル内最上・「読み取り失敗（N件）」）・Phase A 診断削除・未収録デバフ注記。`npm test` PASS。**実機検証クローズ**（位置・文言・0件非表示・千鍛万錬退行なし・診断パネル消失・パレット/sim 退行なし OK / 2026-08-10 04:01 / `dbca8af`〜`7097951`）/ [`REQ-ocr-fuzzy-missing-skills.md`](tasks/REQ-ocr-fuzzy-missing-skills.md)
 
