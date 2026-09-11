@@ -18,6 +18,12 @@ import { RaceConditionSelector } from "../components/RaceConditionSelector";
 import { analyzeStitchedImage } from "../lib/geminiOcr";
 import { migrateFromLocalStorage, saveApiKey } from "../lib/apiKeyStorage";
 import { UmaStatusData, SimTab, RaceCondition } from "../lib/types";
+import {
+  markSkillDataToastAnnounced,
+  refreshRuntimeMaster,
+} from "../lib/runtimeMasterData";
+import type { RacePreset } from "../lib/eventTrack";
+import type { SkillDataSource } from "../lib/engine/umaemuAdapter";
 import { SimTabPanel } from "./SimTabPanel";
 import SimulationStatusView from "../components/SimulationStatusView";
 import { CapturePanel } from "../components/CapturePanel";
@@ -125,6 +131,32 @@ export default function Home() {
     surfaceCond: 1, // 良
     playerNum: 9
   });
+
+  const [skillDataSource, setSkillDataSource] = useState<SkillDataSource | null>(null);
+  const [skillDataLoading, setSkillDataLoading] = useState(true);
+  const [eventPresets, setEventPresets] = useState<RacePreset[]>([]);
+
+  const runMasterRefresh = (force: boolean) => {
+    void (async () => {
+      setSkillDataLoading(true);
+      try {
+        const result = await refreshRuntimeMaster({ force });
+        setSkillDataSource(result.skillSource);
+        setEventPresets(result.presets);
+        markSkillDataToastAnnounced();
+        const duration = result.toast.type === "success" ? 4000 : 5000;
+        showToastMessage(result.toast.message, result.toast.type, duration);
+      } finally {
+        setSkillDataLoading(false);
+      }
+    })();
+  };
+
+  useEffect(() => {
+    runMasterRefresh(false);
+    // 起動時のみ。showToastMessage は setState 経由で安定
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const previewRef = useRef<HTMLDivElement>(null);
   const autoCopyTriggeredRef = useRef<boolean>(false);
@@ -538,12 +570,20 @@ export default function Home() {
           onCopyImage={copyImageToClipboard}
           onOcrStart={handleOcrStart}
           onOcrCancel={handleOcrCancel}
+          skillDataSource={skillDataSource}
+          skillDataLoading={skillDataLoading}
+          eventPresetCount={eventPresets.length}
+          onRefreshSkillData={() => runMasterRefresh(true)}
         />
 
         {umaData && (
           <div className="flex flex-col gap-5 animate-fadeIn pb-10">
             {/* 1. コース */}
-            <RaceConditionSelector condition={raceCondition} onChange={setRaceCondition} />
+            <RaceConditionSelector
+              condition={raceCondition}
+              onChange={setRaceCondition}
+              presets={eventPresets}
+            />
 
             {/* 2. ステータス */}
             <StatusPanel data={umaData} onChange={setUmaData} raceCondition={raceCondition} />

@@ -2,20 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { Folder, Keyboard, Settings, Key, ChevronDown, ChevronUp } from "lucide-react";
+import type { SkillDataSource } from "../lib/engine/umaemuAdapter";
 import {
-  probeSkillDataSources,
-  type SkillDataSource,
-} from "../lib/engine/umaemuAdapter";
-import { SKILL_DATA_FETCH_ERROR_MESSAGE } from "../lib/engine/simulationErrors";
+  eventPresetStatusText,
+  skillDataStatusText,
+} from "../lib/skillDataUi";
 
 const SETTINGS_PANEL_EXPANDED_KEY = "settingsPanelExpanded";
-
-const PROBE_RESULT_MESSAGES: Record<SkillDataSource, string> = {
-  remote: "オンライン（GitHub）から取得できました。最新データを利用できます。",
-  cache: "オンライン取得はできませんでしたが、保存済みデータは利用できます。",
-  bundled:
-    "オンライン／保存済みは使えませんでしたが、同梱データは利用できます（最新ではない可能性があります）。",
-};
 
 interface SettingsPanelProps {
   autoCopyEnabled: boolean;
@@ -32,6 +25,10 @@ interface SettingsPanelProps {
   onKeyDownForShortcut: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   onShowApiKeyModal: () => void;
   shortcutInputRef: React.RefObject<HTMLInputElement | null>;
+  skillDataSource: SkillDataSource | null;
+  skillDataLoading: boolean;
+  eventPresetCount: number;
+  onRefreshSkillData: () => void | Promise<void>;
 }
 
 export function SettingsPanel({
@@ -48,12 +45,14 @@ export function SettingsPanel({
   onRecordingShortcutBlur,
   onKeyDownForShortcut,
   onShowApiKeyModal,
-  shortcutInputRef
+  shortcutInputRef,
+  skillDataSource,
+  skillDataLoading,
+  eventPresetCount,
+  onRefreshSkillData,
 }: SettingsPanelProps) {
   // SSR と初回クライアント描画を一致させるため、localStorage はマウント後に読む
   const [isExpanded, setIsExpanded] = useState(true);
-  const [probeChecking, setProbeChecking] = useState(false);
-  const [probeResultText, setProbeResultText] = useState<string | null>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem(SETTINGS_PANEL_EXPANDED_KEY);
@@ -68,20 +67,6 @@ export function SettingsPanel({
       localStorage.setItem(SETTINGS_PANEL_EXPANDED_KEY, String(next));
       return next;
     });
-  };
-
-  const handleProbeSkillData = async () => {
-    if (probeChecking) return;
-    setProbeChecking(true);
-    setProbeResultText("確認中…");
-    try {
-      const source = await probeSkillDataSources();
-      setProbeResultText(PROBE_RESULT_MESSAGES[source]);
-    } catch {
-      setProbeResultText(SKILL_DATA_FETCH_ERROR_MESSAGE);
-    } finally {
-      setProbeChecking(false);
-    }
   };
 
   return (
@@ -220,32 +205,26 @@ export function SettingsPanel({
             <details className="pt-3 border-t border-white/[0.05] group">
               <summary className="cursor-pointer select-none text-xs font-medium text-zinc-300 list-none flex items-center gap-1.5 hover:text-zinc-200 transition-colors [&::-webkit-details-marker]:hidden">
                 <ChevronDown className="w-3.5 h-3.5 text-zinc-500 shrink-0 transition-transform group-open:rotate-180" />
-                シミュレーション用データ（診断）
+                スキルデータ（診断）
               </summary>
               <div className="mt-2 flex flex-col gap-2 pl-5">
+                <p className="text-[10px] text-zinc-500 leading-relaxed" role="status" aria-live="polite">
+                  {skillDataStatusText(skillDataSource, skillDataLoading)}
+                </p>
                 <p className="text-[10px] text-zinc-500 leading-relaxed">
-                  シミュレーション（WASM）が使うスキルデータの取得先を確認します。OCR・スキルパレット用のデータとは別です。
+                  {eventPresetStatusText(eventPresetCount)}
                 </p>
                 <p className="text-[10px] text-zinc-500 leading-relaxed">
                   レースシミュレーションは umasim（mee1080、AGPLv3）を利用しています。
                 </p>
                 <button
                   type="button"
-                  onClick={handleProbeSkillData}
-                  disabled={probeChecking}
+                  onClick={() => { void onRefreshSkillData(); }}
+                  disabled={skillDataLoading}
                   className="self-start shrink-0 bg-zinc-800 hover:bg-emerald-600 disabled:opacity-60 disabled:hover:bg-zinc-800 text-zinc-300 hover:text-white disabled:hover:text-zinc-300 text-xs font-semibold px-4 py-2 border border-zinc-700/50 rounded-lg transition-all active:bg-emerald-700"
                 >
-                  接続を確認
+                  {skillDataLoading ? "取得中…" : "最新のスキルデータを取得する"}
                 </button>
-                {probeResultText != null && (
-                  <p
-                    className="text-[11px] text-zinc-400 leading-relaxed"
-                    role="status"
-                    aria-live="polite"
-                  >
-                    {probeResultText}
-                  </p>
-                )}
               </div>
             </details>
           </>

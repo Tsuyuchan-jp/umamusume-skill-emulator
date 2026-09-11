@@ -5,7 +5,7 @@
 >
 > 入口: [`DOCS-GUIDE.md`](DOCS-GUIDE.md)
 
-最終更新: 2026-07-23 22:21
+最終更新: 2026-09-12 06:56
 
 ---
 
@@ -87,6 +87,13 @@ crop 内（上→下）
 |------|--------|------|------|-----------|
 | Tab Arrival | タブ到着 | 概念＋画面領域 | 新タブを TabBar 上で入場演出する（飛翔ではない） | `TabBar.tsx`・`onTabArrived` |
 | inherit evolution | 継承進化 | 概念＋識別子・定数 | 名称同一・枠色のみ変化の継承固有進化。`special` かつ同名 `inherit` あり → 表示は evo（★赤）。パレットは通常継承と2行 | `isInheritEvolutionSkill`・`REQ-inherit-evolution-special.md` |
+
+### スキル・レースデータ
+
+| 英語 | 日本語 | 種別 | 一言 | どこで見る |
+|------|--------|------|------|-----------|
+| skill catalog | スキル一覧 | 概念＋データ項目 | OCR／パレット用の名前・ID・レアリティ。シミュ JSON から起動時に生成 | `applyUmasimSkillCatalog`・`REQ-runtime-skill-catalog.md` |
+| event_track | 開催ローテ | ファイル・ドキュメント | umasim のチャンミ／LoH 条件 CSV。起動時に取得 | `eventTrack.ts` |
 
 ### オートキャプチャ結合 — 仕様層
 

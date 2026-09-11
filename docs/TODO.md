@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（要点は下記「更新ルール」「エージェント必須手順」。詳細は [`DOCS-GUIDE.md`](DOCS-GUIDE.md)）。
 
-最終更新: 2026-09-10 19:48
+最終更新: 2026-09-12 06:56
 
 ---
 
@@ -16,7 +16,7 @@
 
 ## 現在のフォーカス
 
-（なし — 次は Backlog から選択。OCR B2 は任意）
+（起動時スキル一覧 — umasim フェッチ）
 
 ## サマリー（手更新）
 
@@ -24,7 +24,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 | 進行中 | P1 着手可能 | P1 棚上げ | P2 未着手 | 保留 |
 | --- | --- | --- | --- | --- |
-| なし | 2 | 1 | 8 | 1 |
+| 1 | 2 | 1 | 7 | 1 |
 
 直近リリース: **v1.6.1**（2026-09-10）
 
@@ -32,7 +32,11 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 ## 進行中
 
-（なし）
+- [ ] **起動時スキル一覧更新と開催ローテフェッチ**
+  - 起動時に umasim のシミュ JSON を取得し、OCR／パレット用一覧をその場で生成。開催ローテは `event_track.txt`
+  - トースト A〜D、設定診断、手動「最新のスキルデータを取得する」
+  - **実機検証待ち**
+  - 関連: `[REQ-runtime-skill-catalog.md](tasks/REQ-runtime-skill-catalog.md)`
 
 
 ## 次にやること（Backlog）
@@ -113,13 +117,6 @@ Backlog・保留を変更したら件数を合わせて更新する。
   - 現状: スキル名のみ（`getSkillNameById`）
   - 低優先: SkillPanel / Verifier で足りるなら見送り可
 
-- [ ] **skill_data.txt 参照の一本化（案B）— 自前 GitHub fetch**
-  - 背景: P1 後も WASM=mee1080/umasim 実行時 fetch、UI=同梱 `umasimSkillData.ts` と更新経路が分かれる。参照正本を1本にすると保守・不整合防止に有利
-  - 目標: 開発者が `extract-umasim-skills` 等で生成した `skill_data.txt` を **自前リポジトリ** に置き、アプリはそこから fetch（WASM 初期化 + パレット/OCR 用一覧の共通正本）。extract→push のみで **アプリ再配布なし** に近づける（オンライン時）
-  - 想定: `umaemuAdapter.fetchSkillData` の URL を自前 raw に変更、パレット/OCR も同一 JSON から派生（または runtime キャッシュ共有）。オフライン用に同梱フォールバック要検討
-  - 触る想定: `umaemuAdapter.ts`, `umasimSkillData.ts`, `UPDATE_SKILLS.md`, extract/publish 手順（CI 化も可）
-  - **今回やらない**: P1 完了後・余裕ができたら着手。`race.js`/WASM 本体更新・`skillRarityData.ts`（mdb）は別経路のまま
-
 ---
 
 ## 完了済み
@@ -151,13 +148,15 @@ Backlog・保留を変更したら件数を合わせて更新する。
 未解決・調査中・運用上の参照メモのみ。実機クローズ／解消済みのバグは載せない（完了済み・REQ・ARCHIVE を参照）。
 
 - **Tab Arrival（2026-07-23）**: Phase A（TabBar 入場）**実機検証クローズ**（`7e3acd8`）。旧 Phase B（ヘッダー+scale）は `49ec2f1` でロールバック済み。**KPI フラッシュ**は `e8e5acf` 実装→実機で表現不一致のため `f57d467` でロールバック。**見送り**（再着手時は Ask で方針再合意）
-- パレットのスキル一覧は **umasimSkillDataList**（ローカル）正本 — `buildPaletteSkillOptions`。WASM sim は `fetchSkillData()`（GitHub 優先 → AppData → 同梱 `public/skill_data.txt`）
+- パレット／OCR のスキル一覧は **実行時の umasim シミュ JSON** から生成（初期値は同梱）。WASM sim も同じ `fetchSkillData()`（GitHub 優先 → AppData → 同梱）
+- **sim スキルデータ**: 起動時に取得。オフライン時は同梱/キャッシュ。設定「スキルデータ（診断）」と手動取得ボタン
+- **開催ローテ**: umasim `event_track.txt`。失敗時はプリセット非表示。新コース自体は `trackData.ts` 更新が別途必要
+- 案B（自前 GitHub への skill_data 置き場）は `[REQ-runtime-skill-catalog.md](tasks/REQ-runtime-skill-catalog.md)` の umasim 直取りで不要
+- **新スキル時の現状**: オンラインかつ umasim が更新済みなら **再配布不要**。新しいスキル機構や新コースは WASM / `trackData.ts` 更新が残る
 - **オートキャプチャ Capture–Stitch 契約**: **広帯 -4 / 狭帯 -3**（`scrollRegionH` しきい値 280px）。**M5**: wheel は stitch（TS）正本・Rust IPC 受信。正本: `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)`「Capture–Stitch 契約」
 - **Scene Model ロードマップ**: `[REQ-stitch-scene-model.md](tasks/REQ-stitch-scene-model.md)` 起票（M0 done）。Catalog: `[SCENE-CATALOG.md](../auto-capture-design-pack/SCENE-CATALOG.md)`。素材運用: `[PACK-GUIDE.md](../auto-capture-design-pack/PACK-GUIDE.md)`
 - **stitch `layoutOpenCv.ts`**: 旧 `layout.ts` は Next.js 16 の `app/` 予約名衝突でリネーム（`0fac03e`）。正本は `layoutCore.ts`。ビルド失敗時は `[RELEASE_BUILD.md](RELEASE_BUILD.md)` トラブルシュート
 - **オートキャプチャ結合 R3.5 設計正本**: shiftEstimate（SSD + median）。詳細: `[REQ-stitch-rewrite.md](tasks/REQ-stitch-rewrite.md)` R3.5 節
-- **sim スキルデータ**: オンライン時 GitHub fetch + AppData キャッシュ。オフライン時は同梱/キャッシュで制限付き動作（フォールバック時トースト）。取得先は Settings「シミュレーション用データ（診断）」で手動確認可
-- **新スキル時の現状**: 同梱 `umasimSkillData.ts` 利用箇所（P1 後のパレット/OCR）は **extract + アプリ再配布** が必要。WASM のみ mee1080/umasim fetch なら sim 定義はオンラインで追従しうるが、パレット/OCR は同梱更新まで新スキル非対応
 - Gemini API キーは Windows 資格情報マネージャー（`com.umamusume.race-analyzer` / `gemini_api_key`）に保存
 - 直近レース詳細グラフ: ロードマップ `[REQ-race-detail-graph.md](tasks/REQ-race-detail-graph.md)`。**Phase 5 実装正本**は `[REQ-race-detail-graph-map-view.md](tasks/REQ-race-detail-graph-map-view.md)`（Google Map 型・等倍 XY + 2D パン）。旧 R2/R3 は superseded
 - 現代ウマ娘: 所持 50〜70+ スキル。グラフ `skillEvents` は発動イベント数（20〜40+ あり得る）

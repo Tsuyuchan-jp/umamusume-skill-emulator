@@ -1,10 +1,9 @@
 import stringSimilarity from 'string-similarity';
 import {
+  getActiveSkillDataList,
   isInheritEvolutionSkill,
   isUniqueSkillId,
   sanitizeSkillIds,
-  umasimSkillDataList,
-  umasimSkillNames,
 } from './umasimSkillData';
 import { UmaStatusData } from './types';
 
@@ -28,11 +27,21 @@ function canonicalizeSkillText(str: string): string {
 }
 
 let cachedCanonicalSkillNames: string[] | null = null;
+
+function getActiveSkillNames(): string[] {
+  return getActiveSkillDataList().map((s) => s.name);
+}
+
 function getCanonicalSkillNames(): string[] {
   if (!cachedCanonicalSkillNames) {
-    cachedCanonicalSkillNames = umasimSkillNames.map((n) => canonicalizeSkillText(n));
+    cachedCanonicalSkillNames = getActiveSkillNames().map((n) => canonicalizeSkillText(n));
   }
   return cachedCanonicalSkillNames;
+}
+
+/** 実行時にスキル一覧を差し替えたあと呼ぶ */
+export function resetCanonicalSkillNameCache(): void {
+  cachedCanonicalSkillNames = null;
 }
 
 /** ファジーマッチ閾値（fuzzyMatchSkillId と診断で共有。変更時は両方に影響） */
@@ -75,7 +84,7 @@ function findBestSkillMatch(rawInput: string): { cleanInput: string; target: str
     }
   }
 
-  const originalName = umasimSkillNames[bestIndex];
+  const originalName = getActiveSkillNames()[bestIndex];
   if (!originalName) return null;
 
   return { cleanInput, target: originalName, rating: bestRating };
@@ -89,7 +98,7 @@ export function fuzzyMatchSkillId(rawInput: string | null | undefined, isFirstSk
   if (best.rating < FUZZY_MATCH_THRESHOLD) return "";
 
   // Find the exact skill objects that match the best matched name
-  const matchedSkills = umasimSkillDataList.filter(s => s.name === best.target);
+  const matchedSkills = getActiveSkillDataList().filter(s => s.name === best.target);
   if (matchedSkills.length === 0) return "";
 
   if (matchedSkills.length === 1) {

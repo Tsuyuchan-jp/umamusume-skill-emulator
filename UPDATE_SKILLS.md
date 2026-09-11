@@ -10,21 +10,20 @@
 | データ                  | 出力先                          | 更新方法                                                        | 本番での役割                                  |
 | -------------------- | ---------------------------- | ----------------------------------------------------------- | --------------------------------------- |
 | `skillRarityData.ts` | `desktop-app/app/lib/`       | `master.mdb` → `extract_rarity_from_mdb.js`                 | スキル一覧の色分け（金・緑など）                        |
-| `umasimSkillData.ts` | `desktop-app/app/lib/`       | `extract_umasim_skill_data.js`                              | **OCR 後のスキル名→ID 変換**（`fuzzyMatcher.ts`） |
-| `skill_data.txt`     | `desktop-app/public/`        | `extract_umasim_skill_data.js`（`umasimSkillData.ts` と同時生成）  | **WASM 同梱フォールバック**（オフライン・fetch 失敗時）     |
-| `skill_data.txt`     | GitHub + AppData キャッシュ       | 実行時 fetch（`umaemuAdapter.ts`）                               | **WASM エンジン初期化**（オンライン時は最新優先）           |
+| `umasimSkillData.ts` | `desktop-app/app/lib/`       | `extract_umasim_skill_data.js`（**同梱予備**）                  | 起動時にシミュ JSON から差し替える OCR／パレット一覧の初期値 |
+| `skill_data.txt`     | `desktop-app/public/`        | 同上（`umasimSkillData.ts` と同時生成）                          | **WASM 同梱フォールバック**（オフライン・fetch 失敗時）     |
+| `skill_data.txt`     | GitHub + AppData キャッシュ       | **起動時** fetch（`runtimeMasterData.ts`）                         | **OCR／パレット／WASM** の正本（オンライン時は最新優先）           |
 | `race.js` / `*.wasm` | `desktop-app/public/umaemu/` | umasim `:race` ビルド → 手動コピー（[手順 7](#7-racejs--wasm-エンジンの更新)） | **レースシミュレーション本体**（`worker.js` 経由）       |
 | `trackData.ts`       | `desktop-app/app/lib/`       | **手動編集**                                                    | コース選択 UI・レース条件の ID 変換                   |
-| `race_presets.json`  | `desktop-app/public/`        | **手動編集**                                                    | レース条件プリセット                              |
+| 開催ローテ           | umasim `data/event_track.txt` | **起動時 fetch**（失敗時はボタン非表示）                         | チャンミ／LoH ワンタッチ                             |
 
 
-### 重要: 二重管理になっている部分
+### 重要: 二重管理になっていた部分（起動時に一本化）
 
-- **OCR マッチング** → ローカルの `umasimSkillData.ts`
-- **シミュレーション本体（オンライン）** → 実行時に GitHub から取得する `skill_data.txt`（成功時 AppData にキャッシュ）
-- **シミュレーション本体（オフライン）** → 同梱 `desktop-app/public/skill_data.txt` または AppData キャッシュ
+- **OCR／パレット／シミュレーション（オンライン）** → 起動時に GitHub（umasim）から取得する `skill_data.txt`
+- **オフライン** → AppData キャッシュ、なければ同梱 `public/skill_data.txt` と同梱一覧
 
-ゲーム更新後は `**extract-umasim-skills` を必ず実行**し、`umasimSkillData.ts` と `public/skill_data.txt` を同時更新してください。ネットワーク接続時は実行時 fetch でも umasim 側の最新が反映されます。オフライン環境では、取得した `skill_data.txt` をローカル引数で渡して更新してください。
+ゲーム更新後はオンライン起動できれば **OCR／パレット／シミュは umasim の最新 `skill_data.txt` に追従**します。同梱を新しくしたいときだけ `extract-umasim-skills` を実行してください。
 
 ---
 
@@ -49,7 +48,6 @@ npm run extract-umasim-skills   # OCR マッチング用（ネットワーク必
 
 手動で必要な場合:
 
-- [ ] `desktop-app/public/race_presets.json` — 新しい CM / LoH プリセット
 - [ ] `desktop-app/app/lib/trackData.ts` — 新コース・新競馬場
 - [ ] `desktop-app/public/umaemu/race.js` 等 — シミュレーションだけ失敗する場合（[手順 7](#7-racejs--wasm-エンジンの更新)）
 
@@ -138,11 +136,9 @@ node tools/mdb-extractor/extract_umasim_skill_data.js path/to/skill_data.txt
 2. `trackData.ts` に競馬場（`TrackLocation`）とコース（`TrackCourse`）を追記
 3. `RaceConditionSelector` で選択できることを確認
 
-### 6. `race_presets.json` の更新（手動）
+### 6. 開催ローテ（起動時取得）
 
-チャンピオンズミーティングやリーグオブヒーローズ等のワンタッチプリセットです。
-
-- ファイル: `desktop-app/public/race_presets.json`
+チャンミ／LoH のワンタッチは umasim の [`data/event_track.txt`](https://raw.githubusercontent.com/mee1080/umasim/refs/heads/main/data/event_track.txt) を起動時に取得します。失敗時はボタンを出しません。新競馬場が `trackData.ts` に無い場合はチップを作れません。
 
 ### 7. `race.js` / WASM エンジンの更新
 
@@ -290,10 +286,10 @@ npm run tauri dev
 
 | 症状                       | 疑わしい原因                   | 対処                                                          |
 | ------------------------ | ------------------------ | ----------------------------------------------------------- |
-| 新スキルが OCR 後に空欄になる        | `umasimSkillData.ts` が古い | `npm run extract-umasim-skills`                             |
-| スキル色がずれる                 | `skillRarityData.ts` が古い | `npm run extract-skill-info`（要 `master.mdb`）                |
+| 新スキルが OCR 後に空欄になる        | umasim 未更新、またはオンライン取得失敗 | 設定で「最新のスキルデータを取得する」。umasim 側の `skill_data.txt` 更新待ち |
+| スキル色がずれる                 | `skillRarityData.ts` が古い | `npm run extract-skill-info`（要 `master.mdb`）。表示正本は実行時一覧 |
 | シミュレーションだけ失敗             | `race.js` が古い / ネットワーク   | [手順 7（race.js / WASM エンジンの更新）](#7-racejs--wasm-エンジンの更新) を参照 |
 | 新コースが選べない                | `trackData.ts` 未更新       | 手順 5 で追記                                                    |
-| `extract-skill-info` が失敗 | `master.mdb` 未配置         | ルートに配置して再実行                                                 |
+| 開催チップが出ない                 | `event_track.txt` 取得失敗、またはコース未収録 | オンライン確認。新場は手順 5 |
 
 

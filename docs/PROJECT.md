@@ -24,7 +24,7 @@
 | デスクトップ | Tauri 2 |
 | シミュレーション | umasim WASM（Web Worker 経由） |
 | OCR | Google Gemini API |
-| スキルデータ | `umasim/data/skill_data.txt`（GitHub 取得 + ローカル `umasimSkillData.ts`）。sim 用取得先は Settings の「シミュレーション用データ（診断）」で手動確認可 |
+| スキルデータ | `umasim/data/skill_data.txt`（起動時 GitHub 取得。OCR／パレット一覧も同じデータから生成。同梱は予備）。設定「スキルデータ（診断）」で状態確認・手動再取得 |
 
 ## ディレクトリ構成（主要）
 

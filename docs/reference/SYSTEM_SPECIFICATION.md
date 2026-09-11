@@ -152,7 +152,7 @@ Steam版・DMM版「ウマ娘 プリティーダービー」向けの **Windows 
 ### 3.3 レース条件・シミュレーション
 
 - 競馬場・コース・馬場状態・出走人数の選択（`RaceConditionSelector`）
-- レース条件プリセット（`public/race_presets.json`）
+- レース条件プリセット（umasim `event_track.txt` を起動時取得）
 - umasim WASM による N 回レースシミュレーション（進捗コールバック付き）
 - 集計サマリ: 全体 / マックススパート / 非マックススパート別（勝率、平均タイム、スタミナキープ率等）
 - シミュレーションエラー正規化・トースト通知（`simulationErrors.ts`）
@@ -182,7 +182,7 @@ Steam版・DMM版「ウマ娘 プリティーダービー」向けの **Windows 
 - 全画面 Cockpit レイアウト（サイドバー折りたたみ、右カラム全幅グラフ）
 - タブ keep-alive（切替時の再シミュレーション回避）
 - 設定パネル折りたたみ（キャプチャ設定・API キー・自動コピー等）。見出し（矢印・歯車・「設定」）1ボタンでトグル
-- sim 用スキルデータの接続診断（Settings 内「シミュレーション用データ（診断）」・`probeSkillDataSources`・読取専用）
+- sim 用スキルデータの接続診断（Settings 内「スキルデータ（診断）」・起動時フェッチ結果の表示・手動再取得）
 - トースト通知（Portal 経由）
 - システムトレイ（閉じる = 非表示、終了メニュー）
 - 透過オーバーレイウィンドウ（`/overlay` ルート）— キャプチャ進捗表示
@@ -202,7 +202,6 @@ Steam版・DMM版「ウマ娘 プリティーダービー」向けの **Windows 
 
 - keep-alive タブのメモリ負荷軽減（5 タブ以上想定）
 - スキルパレットのレアリティ段階別ソート
-- `skill_data.txt` 参照の一本化（自前 GitHub fetch 案）
 
 ---
 
@@ -223,7 +222,7 @@ Steam版・DMM版「ウマ娘 プリティーダービー」向けの **Windows 
 ┌─────────────────────────────────────────────────────────────┐
 │ アプリ内データモデル（TypeScript 型 + 静的 JSON/TS）          │
 │  UmaStatusData, RaceCondition, SimTab, SimResultDump, ...   │
-│  trackData.ts, race_presets.json                            │
+│  trackData.ts, event_track.txt（起動時 fetch）              │
 └─────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────┐
@@ -249,7 +248,7 @@ Steam版・DMM版「ウマ娘 プリティーダービー」向けの **Windows 
 
 ### 4.3 スキルマスタ（umasimSkillData.ts）
 
-`extract_umasim_skill_data.js` が umasim の `skill_data.txt` から生成。約 2,100 エントリ（2026-09-10 extract 時点で 2106 件）。
+`extract_umasim_skill_data.js` が umasim の `skill_data.txt` から **同梱予備**を生成。実行時は起動フェッチで差し替える。約 2,100 エントリ（2026-09-10 extract 時点で 2106 件）。
 
 ```typescript
 interface UmasimSkillEntry {
@@ -323,7 +322,7 @@ erDiagram
 
 | ファイル | 内容 |
 |---------|------|
-| `public/race_presets.json` | よく使う `RaceCondition` プリセット |
+| umasim `event_track.txt` | チャンミ／LoH ワンタッチ（起動時 fetch） |
 | `app/lib/skillRarityData.json` | レガシー（`.ts` が正本） |
 
 ---
@@ -435,7 +434,7 @@ public/
 │   ├── race.js                  umasim WASM ブリッジ
 │   ├── worker.js                Web Worker エントリ
 │   └── *.wasm                   WASM バイナリ
-└── race_presets.json            レース条件プリセット
+└── skill_data.txt               シミュ JSON 同梱予備
 ```
 
 ### 5.5 tools/

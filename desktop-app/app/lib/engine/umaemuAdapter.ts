@@ -96,8 +96,12 @@ async function loadBundledSkillData(): Promise<RawSkillData[]> {
   return applySkillDataSource(text, "bundled");
 }
 
-/** WASM sim / SIMULATE_DETAIL 専用。パレットは umasimSkillDataList を正本とする。 */
-export async function fetchSkillData(): Promise<RawSkillData[]> {
+export async function fetchSkillData(options?: { force?: boolean }): Promise<RawSkillData[]> {
+  if (options?.force) {
+    cachedSkillsJson = null;
+    lastSkillDataMeta = null;
+  }
+
   if (cachedSkillsJson) {
     return validateSkillDataText(cachedSkillsJson);
   }

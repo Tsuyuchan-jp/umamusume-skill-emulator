@@ -10535,7 +10535,32 @@ export const umasimSkillDataList = [
 ];
 export const umasimSkillNames = umasimSkillDataList.map(s => s.name);
 
-type UmasimSkillEntry = (typeof umasimSkillDataList)[number];
+export type UmasimSkillEntry = (typeof umasimSkillDataList)[number];
+
+/** 実行時に差し替える一覧（初期値は同梱）。OCR・パレット・名前解決の正本 */
+let activeSkillDataList: UmasimSkillEntry[] = umasimSkillDataList;
+
+function getActiveSkillList(): UmasimSkillEntry[] {
+  return activeSkillDataList;
+}
+
+const MIN_CATALOG_LENGTH = 100;
+
+/** シミュ JSON から抜き出した一覧で OCR／パレット正本を差し替える */
+export function applyUmasimSkillCatalog(entries: UmasimSkillEntry[]): void {
+  if (entries.length < MIN_CATALOG_LENGTH) {
+    throw new Error(`Skill catalog too short (${entries.length})`);
+  }
+  activeSkillDataList = entries;
+}
+
+export function getActiveSkillDataList(): UmasimSkillEntry[] {
+  return activeSkillDataList;
+}
+
+export function resetUmasimSkillCatalogToBundled(): void {
+  activeSkillDataList = umasimSkillDataList;
+}
 
 /** パレットに表示しないレアリティ（育成外の特殊スキル・マイナス効果スキル） */
 export const PALETTE_EXCLUDED_RARITIES = new Set(['special', 'minus']);
@@ -10550,7 +10575,7 @@ const PALETTE_ID_RESOLVE_PRIORITY = ['inherit', 'evo', 'scenario', 'rare', 'norm
  */
 export function isInheritEvolutionSkill(skill: UmasimSkillEntry): boolean {
   if (skill.rarity !== 'special') return false;
-  return umasimSkillDataList.some((s) => s.name === skill.name && s.rarity === 'inherit');
+  return getActiveSkillList().some((s) => s.name === skill.name && s.rarity === 'inherit');
 }
 
 export function isInheritEvolutionSkillId(skillId: string): boolean {
@@ -10585,24 +10610,25 @@ export interface PaletteSkillOption {
   label: string;
 }
 
-/** パレット用スキル一覧（正本: umasimSkillDataList） */
+/** パレット用スキル一覧（正本: 実行時一覧） */
 export function buildPaletteSkillOptions(options: { onlyUnique?: boolean } = {}): PaletteSkillOption[] {
   const { onlyUnique = false } = options;
   const byName = new Map<string, UmasimSkillEntry[]>();
+  const list = getActiveSkillList();
 
-  for (const skill of umasimSkillDataList) {
+  for (const skill of list) {
     if (!isPaletteVisibleSkill(skill, onlyUnique)) continue;
     // 継承進化は同名 dedupe 対象外（後で別行として出す）
     if (isInheritEvolutionSkill(skill)) continue;
-    const list = byName.get(skill.name) ?? [];
-    list.push(skill);
-    byName.set(skill.name, list);
+    const group = byName.get(skill.name) ?? [];
+    group.push(skill);
+    byName.set(skill.name, group);
   }
 
   const seen = new Set<string>();
   const result: PaletteSkillOption[] = [];
 
-  for (const skill of umasimSkillDataList) {
+  for (const skill of list) {
     if (!isPaletteVisibleSkill(skill, onlyUnique)) continue;
 
     if (isInheritEvolutionSkill(skill)) {
@@ -10625,7 +10651,7 @@ export function buildPaletteSkillOptions(options: { onlyUnique?: boolean } = {})
 }
 
 export function getSkillById(id: string) {
-  return umasimSkillDataList.find(s => String(s.id) === String(id));
+  return getActiveSkillList().find(s => String(s.id) === String(id));
 }
 
 export function getSkillNameById(id: string): string {

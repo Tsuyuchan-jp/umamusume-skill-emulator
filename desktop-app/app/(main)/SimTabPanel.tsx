@@ -202,7 +202,8 @@ export const SimTabPanel: React.FC<SimTabPanelProps> = ({
                   );
                 }
                 const { getLastSkillDataMeta } = await import("../lib/engine/umaemuAdapter");
-                if (getLastSkillDataMeta()?.usedFallback) {
+                const { wasSkillDataToastAnnounced } = await import("../lib/runtimeMasterData");
+                if (getLastSkillDataMeta()?.usedFallback && !wasSkillDataToastAnnounced()) {
                   showToastMessage(SKILL_DATA_FALLBACK_TOAST_MESSAGE, "error", 5000);
                 }
                 if (simResult.raceDetailFetchFailed) {

@@ -2,7 +2,7 @@
 
 > **TODO の代替ではない。** 次にやることの正本は [`docs/TODO.md`](../TODO.md)。
 > 本ファイルは `docs/tasks/REQ-*.md`（テンプレ除く）の **一覧・ステータス・辿りやすさ** を目的とする。
-> ステータスは各 REQ の `**ステータス**:` 行を正とする。最終更新: 2026-09-10 19:48
+> ステータスは各 REQ の `**ステータス**:` 行を正とする。最終更新: 2026-09-12 06:56
 
 ## 使い方
 
@@ -26,6 +26,7 @@
 | [`REQ-release-v1.1.0.md`](REQ-release-v1.1.0.md) | done | 完了済み | v1.1.0（R1/R2.5/R3）。配布: [`RELEASE_BUILD.md`](../RELEASE_BUILD.md) |
 | [`REQ-secure-api-key.md`](REQ-secure-api-key.md) | done | 完了済み | Gemini API キー → Windows 資格情報マネージャー |
 | [`REQ-skill-data-fetch-fallback.md`](REQ-skill-data-fetch-fallback.md) | done | 完了済み | fetch フォールバック・sim エラー区別・AppData キャッシュ。**実機検証クローズ**（2026-07-23） |
+| [`REQ-runtime-skill-catalog.md`](REQ-runtime-skill-catalog.md) | in-progress | 進行中 | 起動時 umasim フェッチで OCR 一覧生成＋開催ローテ。実機検証待ち |
 | [`REQ-long-distance-sim-error.md`](REQ-long-distance-sim-error.md) | done | 完了済み | 失敗走スキップ＋ヘッダー完走表示。**実機検証クローズ**（2026-07-23 / `a138908`） |
 
 ---
@@ -117,9 +118,9 @@
 
 | 項目 | 件数 |
 |------|------|
-| REQ 総数（テンプレ除く） | 39 |
+| REQ 総数（テンプレ除く） | 40 |
 | done | 29 |
 | draft | 5 |
-| in-progress | 3 |
+| in-progress | 4 |
 | superseded | 3 |
 | ロードマップ（親） | 1（`REQ-race-detail-graph.md`） |

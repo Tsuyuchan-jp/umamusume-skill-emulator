@@ -2,6 +2,7 @@ import React from 'react';
 import { Copy, Wand2, ChevronDown, ChevronUp, FolderOpen, Info } from "lucide-react";
 import { SettingsPanel } from "./SettingsPanel";
 import { UmaStatusData } from "../lib/types";
+import type { SkillDataSource } from "../lib/engine/umaemuAdapter";
 
 interface CapturePanelProps {
   statusCfg: { color: string; pulse: boolean; label: string };
@@ -38,6 +39,11 @@ interface CapturePanelProps {
   onCopyImage: (dataUrl: string) => void;
   onOcrStart: () => void;
   onOcrCancel: () => void;
+
+  skillDataSource: SkillDataSource | null;
+  skillDataLoading: boolean;
+  eventPresetCount: number;
+  onRefreshSkillData: () => void | Promise<void>;
 }
 
 export function CapturePanel(props: CapturePanelProps) {
@@ -48,7 +54,8 @@ export function CapturePanel(props: CapturePanelProps) {
     isPreviewExpanded, isOcrProcessing, previewRef, shortcutInputRef,
     onToggleAutoCopy, onToggleSkipStitchedDiskSave, onSelectFolder, onRecordingShortcutStart, onRecordingShortcutBlur,
     onKeyDownForShortcut, onShowApiKeyModal, onStartAutoCapture, onStopCapture,
-    onResetCapture, onLoadImageFromFile, onTogglePreviewExpanded, onCopyImage, onOcrStart, onOcrCancel
+    onResetCapture, onLoadImageFromFile,     onTogglePreviewExpanded, onCopyImage, onOcrStart, onOcrCancel,
+    skillDataSource, skillDataLoading, eventPresetCount, onRefreshSkillData,
   } = props;
 
   const fileOpenDisabled = captureStatus === "recording" || isOcrProcessing;
@@ -97,6 +104,10 @@ export function CapturePanel(props: CapturePanelProps) {
             shortcutInputRef={shortcutInputRef}
             apiKey={apiKey}
             onShowApiKeyModal={onShowApiKeyModal}
+            skillDataSource={skillDataSource}
+            skillDataLoading={skillDataLoading}
+            eventPresetCount={eventPresetCount}
+            onRefreshSkillData={onRefreshSkillData}
           />
         </div>
 

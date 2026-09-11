@@ -111,7 +111,7 @@ npm run extract-umasim-skills   # OCR スキル名マッチング（本番で重
 npm run extract-umasim-skills   # ネットワーク必須
 ```
 
-手動更新: `trackData.ts`（コース）、`race_presets.json`（プリセット）、`race.js` / WASM エンジン（[手順 7](UPDATE_SKILLS.md#7-racejs--wasm-エンジンの更新)）
+手動更新: `trackData.ts`（新コース追加時）、`race.js` / WASM エンジン（[手順 7](UPDATE_SKILLS.md#7-racejs--wasm-エンジンの更新)）。スキル一覧とチャンミ／LoH プリセットは起動時に umasim から取得（再配布不要）
 
 ## バージョン管理（開発者向け）
 

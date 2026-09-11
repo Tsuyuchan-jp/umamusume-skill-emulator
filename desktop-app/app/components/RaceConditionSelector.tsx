@@ -1,15 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { trackData } from '../lib/trackData';
 import { MapPin, Flag, CloudRain, Users, CalendarDays } from 'lucide-react';
 import { RaceCondition } from '../lib/types';
-
-interface RacePreset extends RaceCondition {
-  name: string;
-}
+import type { RacePreset } from '../lib/eventTrack';
 
 interface RaceConditionSelectorProps {
   condition: RaceCondition;
   onChange: (condition: RaceCondition) => void;
+  presets?: RacePreset[];
 }
 
 const SURFACE_CONDITIONS = [
@@ -21,8 +19,7 @@ const SURFACE_CONDITIONS = [
 
 const PLAYER_NUMS = [9, 12, 18];
 
-export function RaceConditionSelector({ condition, onChange }: RaceConditionSelectorProps) {
-  const [presets, setPresets] = useState<RacePreset[]>([]);
+export function RaceConditionSelector({ condition, onChange, presets = [] }: RaceConditionSelectorProps) {
   const [isAnimating, setIsAnimating] = useState(false);
   const animTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -32,14 +29,6 @@ export function RaceConditionSelector({ condition, onChange }: RaceConditionSele
            condition.surfaceCond === preset.surfaceCond &&
            condition.playerNum === preset.playerNum;
   };
-
-  useEffect(() => {
-    // 外部ファイルからプリセットを取得
-    fetch('/race_presets.json')
-      .then(res => res.json())
-      .then(data => setPresets(data))
-      .catch(err => console.error('Failed to load race presets:', err));
-  }, []);
 
   const selectedLocation = trackData.find(loc => loc.id === condition.locationId);
 

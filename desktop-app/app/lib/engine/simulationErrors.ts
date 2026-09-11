@@ -13,7 +13,7 @@ export const SIMULATION_WORKER_ERROR_MESSAGE =
 export const SIMULATION_NULL_ERROR_MESSAGE =
   "超長距離レースの連続シミュレーション中に内部エラーが発生しました。試行回数を減らすか、作戦を変更してお試しください。改善しない場合はアプリを再起動してください。";
 
-/** フォールバック使用時のトースト文言（sim 自体は成功） */
+/** フォールバック使用時のトースト文言（B。起動時未通知のときだけ sim で出す） */
 export const SKILL_DATA_FALLBACK_TOAST_MESSAGE =
   "オンライン取得に失敗したため、保存済み／同梱のスキルデータで続行しました（最新版ではない可能性があります）。";
 
