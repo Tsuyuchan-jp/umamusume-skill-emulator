@@ -3,9 +3,11 @@
 > **進捗の正本ではない。** 次にやることは [TODO.md](TODO.md) を見る。
 > `TODO.md` の完了済みは直近10件のみ。それより古い完了行はここに移す。
 
-最終更新: 2026-09-12 08:01
+最終更新: 2026-09-12 08:31
 
 ---
+
+- [x] **Git 履歴から `auto-capture-design-pack.zip` を削除** — 現行に無い約 53MB zip を履歴除外し Private へ force push（2026-08-25 14:43 / `f079357`）
 
 - [x] **GitHub Private へ初回 push** — 履歴から `master.mdb` と誤ファイル `src-tauri/2` を除外。ローカルの `master.mdb` は gitignore のまま保持（2026-08-25 14:38 / `da004f4`）
 
