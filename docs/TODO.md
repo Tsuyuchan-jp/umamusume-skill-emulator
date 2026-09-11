@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（要点は下記「更新ルール」「エージェント必須手順」。詳細は [`DOCS-GUIDE.md`](DOCS-GUIDE.md)）。
 
-最終更新: 2026-09-12 06:56
+最終更新: 2026-09-12 07:17
 
 ---
 
@@ -16,7 +16,7 @@
 
 ## 現在のフォーカス
 
-（起動時スキル一覧 — umasim フェッチ）
+（なし — 次は Backlog から選択。OCR B2 は任意）
 
 ## サマリー（手更新）
 
@@ -24,7 +24,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 | 進行中 | P1 着手可能 | P1 棚上げ | P2 未着手 | 保留 |
 | --- | --- | --- | --- | --- |
-| 1 | 2 | 1 | 7 | 1 |
+| なし | 2 | 1 | 7 | 1 |
 
 直近リリース: **v1.6.1**（2026-09-10）
 
@@ -32,11 +32,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 ## 進行中
 
-- [ ] **起動時スキル一覧更新と開催ローテフェッチ**
-  - 起動時に umasim のシミュ JSON を取得し、OCR／パレット用一覧をその場で生成。開催ローテは `event_track.txt`
-  - トースト A〜D、設定診断、手動「最新のスキルデータを取得する」
-  - **実機検証待ち**
-  - 関連: `[REQ-runtime-skill-catalog.md](tasks/REQ-runtime-skill-catalog.md)`
+（なし）
 
 
 ## 次にやること（Backlog）
@@ -123,6 +119,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 直近10件のみ。それ以前は [`TODO-ARCHIVE.md`](TODO-ARCHIVE.md)。
 
+- [x] **起動時スキル一覧更新と開催ローテフェッチ** — umasim シミュ JSON から OCR／パレット一覧を生成。`event_track.txt` でチャンミ／LoH。トースト A〜D。`npm test` 103件 PASS。**実機検証クローズ**（起動 A・診断・手動取得・プリセット・OCR/sim 退行なし OK / 2026-09-12 07:17 / `a5faa8c`）/ [`REQ-runtime-skill-catalog.md`](tasks/REQ-runtime-skill-catalog.md)
 - [x] **v1.6.1 リリースビルド** — version 1.6.1 bump・CHANGELOG Unreleased 昇格・`app.exe` 生成・96件テスト PASS（2026-09-10 19:48 / `b2fcd49`〜`8659650`）/ [`REQ-release-v1.6.1.md`](tasks/REQ-release-v1.6.1.md)
 - [x] **OCR 結合濁点（NFD）のスキルマッチ失敗を修正** — NFC 正規化＋末尾 `Lv` 数字除去。灰の光跡 / 良バ場〇 / ネバーギブアップ / アグレッシブ。閾値 0.45 維持。`npm test` 96件 PASS。**実機検証クローズ**（4件すべて所持スキルに適用 OK / 2026-09-10 19:33 / `369eab6`）
 - [x] **AppData スキルキャッシュの mkdir 権限不足を修正** — `$APPDATA/skill_data` 本体を fs capability に追加。コンソール `forbidden path` / `allow-mkdir` 解消。sim 本体は対象外（2026-09-10 19:04 / `2be708c`）
@@ -132,7 +129,6 @@ Backlog・保留を変更したら件数を合わせて更新する。
 - [x] **GitHub Private へ初回 push** — 履歴から `master.mdb` と誤ファイル `src-tauri/2` を除外。ローカルの `master.mdb` は gitignore のまま保持（2026-08-25 14:38 / `da004f4`）
 - [x] **v1.6.0 リリースビルド** — version 1.6.0 bump・CHANGELOG Unreleased 昇格・`app.exe` 生成・88件テスト PASS（2026-08-10 04:08 / `35aa0a7`）
 - [x] **OCR 未マッチ見える化（B1）** — 恒久 UI（パネル内最上・「読み取り失敗（N件）」）・Phase A 診断削除・未収録デバフ注記。`npm test` PASS。**実機検証クローズ**（位置・文言・0件非表示・千鍛万錬退行なし・診断パネル消失・パレット/sim 退行なし OK / 2026-08-10 04:01 / `dbca8af`〜`7097951`）/ [`REQ-ocr-fuzzy-missing-skills.md`](tasks/REQ-ocr-fuzzy-missing-skills.md)（B2 は継続）
-- [x] **OCR 未マッチ — 文言確定** — 見出し「読み取り失敗（N件）」。本文「取得スキルに入らなかったOCRスキル名」＋デバフ注記（2026-08-10 03:59 / `7097951`）— B1 実機クローズに含む
 
 ---
 

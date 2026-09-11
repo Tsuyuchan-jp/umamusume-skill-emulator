@@ -2,7 +2,7 @@
 
 > **TODO の代替ではない。** 次にやることの正本は [`docs/TODO.md`](../TODO.md)。
 > 本ファイルは `docs/tasks/REQ-*.md`（テンプレ除く）の **一覧・ステータス・辿りやすさ** を目的とする。
-> ステータスは各 REQ の `**ステータス**:` 行を正とする。最終更新: 2026-09-12 06:56
+> ステータスは各 REQ の `**ステータス**:` 行を正とする。最終更新: 2026-09-12 07:17
 
 ## 使い方
 
@@ -26,7 +26,7 @@
 | [`REQ-release-v1.1.0.md`](REQ-release-v1.1.0.md) | done | 完了済み | v1.1.0（R1/R2.5/R3）。配布: [`RELEASE_BUILD.md`](../RELEASE_BUILD.md) |
 | [`REQ-secure-api-key.md`](REQ-secure-api-key.md) | done | 完了済み | Gemini API キー → Windows 資格情報マネージャー |
 | [`REQ-skill-data-fetch-fallback.md`](REQ-skill-data-fetch-fallback.md) | done | 完了済み | fetch フォールバック・sim エラー区別・AppData キャッシュ。**実機検証クローズ**（2026-07-23） |
-| [`REQ-runtime-skill-catalog.md`](REQ-runtime-skill-catalog.md) | in-progress | 進行中 | 起動時 umasim フェッチで OCR 一覧生成＋開催ローテ。実機検証待ち |
+| [`REQ-runtime-skill-catalog.md`](REQ-runtime-skill-catalog.md) | done | 完了済み | 起動時 umasim フェッチで OCR 一覧生成＋開催ローテ。**実機検証クローズ**（2026-09-12 07:17 / `a5faa8c`） |
 | [`REQ-long-distance-sim-error.md`](REQ-long-distance-sim-error.md) | done | 完了済み | 失敗走スキップ＋ヘッダー完走表示。**実機検証クローズ**（2026-07-23 / `a138908`） |
 
 ---
@@ -108,6 +108,7 @@
 
 | REQ | ステータス | TODO掲載 | 備考 |
 |-----|-----------|---------|------|
+| [`REQ-runtime-skill-catalog.md`](REQ-runtime-skill-catalog.md) | done | 完了済み | 起動時フェッチで OCR 一覧＋開催ローテ。**実機検証クローズ**（2026-09-12） |
 | [`REQ-inherit-evolution-special.md`](REQ-inherit-evolution-special.md) | done | 完了済み | 継承進化。**実機検証クローズ**（2026-07-23 22:28） |
 | [`REQ-skill-display.md`](REQ-skill-display.md) | done | Backlog | 5色表示等。Backlog: StatusPanel 色分け（任意） |
 | [`REQ-palette-local-skill-data.md`](REQ-palette-local-skill-data.md) | done | Backlog・完了済み | パレットローカル参照。Backlog: レアリティ段階別並び |
@@ -119,8 +120,8 @@
 | 項目 | 件数 |
 |------|------|
 | REQ 総数（テンプレ除く） | 40 |
-| done | 29 |
+| done | 30 |
 | draft | 5 |
-| in-progress | 4 |
+| in-progress | 3 |
 | superseded | 3 |
 | ロードマップ（親） | 1（`REQ-race-detail-graph.md`） |
