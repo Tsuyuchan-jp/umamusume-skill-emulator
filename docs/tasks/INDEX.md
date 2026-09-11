@@ -92,7 +92,7 @@
 
 | REQ | ステータス | TODO掲載 | 備考 |
 |-----|-----------|---------|------|
-| [`REQ-ocr-fuzzy-missing-skills.md`](REQ-ocr-fuzzy-missing-skills.md) | in-progress | 進行中（難読スキル調査）/ Backlog（B2） | B0/B1・NFC クローズ済。2026-09-12: 千鍛万錬・勝利ヘ至ル累積・臆せぬ心。新規 REQ なし。B2 後に `done` |
+| [`REQ-ocr-fuzzy-missing-skills.md`](REQ-ocr-fuzzy-missing-skills.md) | in-progress | 進行中（難読スキル・方針提案済み） | 実機4件＋oshi 骨格/ed1 参照。実装は承認後。新規 REQ なし |
 | [`REQ-file-ocr-status.md`](REQ-file-ocr-status.md) | done | 完了済み | 過去キャプチャ画像のファイル選択 → 既存 OCR。**実機検証クローズ**（2026-07-23 07:48 / `4b01db5`）。WebP 拡張も実機クローズ（2026-09-10 19:02 / `48badca`） |
 | [`REQ-ocr-cancel.md`](REQ-ocr-cancel.md) | done | 完了済み | AbortController + CapturePanel「停止」。**実機検証クローズ**（2026-07-23 06:04 / `bac51e7`） |
 | [`REQ-auto-capture-multi-screen.md`](REQ-auto-capture-multi-screen.md) | done | 完了済み | Phase 1/1b/3 本線 done。Phase 2 は任意見送り |
