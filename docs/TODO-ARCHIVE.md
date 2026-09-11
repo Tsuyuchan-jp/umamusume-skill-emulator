@@ -3,9 +3,11 @@
 > **進捗の正本ではない。** 次にやることは [TODO.md](TODO.md) を見る。
 > `TODO.md` の完了済みは直近10件のみ。それより古い完了行はここに移す。
 
-最終更新: 2026-09-12 07:55
+最終更新: 2026-09-12 08:01
 
 ---
+
+- [x] **GitHub Private へ初回 push** — 履歴から `master.mdb` と誤ファイル `src-tauri/2` を除外。ローカルの `master.mdb` は gitignore のまま保持（2026-08-25 14:38 / `da004f4`）
 
 - [x] **v1.6.0 リリースビルド** — version 1.6.0 bump・CHANGELOG Unreleased 昇格・`app.exe` 生成・88件テスト PASS（2026-08-10 04:08 / `35aa0a7`）
 
