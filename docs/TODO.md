@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（要点は下記「更新ルール」「エージェント必須手順」。詳細は [`DOCS-GUIDE.md`](DOCS-GUIDE.md)）。
 
-最終更新: 2026-09-12 08:39
+最終更新: 2026-09-12 08:58
 
 ---
 
@@ -112,7 +112,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 直近10件のみ。それ以前は [`TODO-ARCHIVE.md`](TODO-ARCHIVE.md)。
 
-- [x] **umasim :race WASM を最新に差し替え** — ヘッドレス `:race` を再ビルドし `desktop-app/public/umaemu/` の `race.js` / `48522844437df62843ae.wasm` を更新。`worker.js` の `initializeEngine` / `runSimulation` / `runSimulationDetail` は維持。`npm test` 116件 PASS。**実機検証クローズ**（sim 完走・wasm 読み込みエラーなし。Console の `succession_skill_count` 未対応ログは本家 SkillChecker。勝負師などの `random_lot_shared` も本家未実装のまま / 2026-09-12 08:39 / `c0aaa14`）
+- [x] **umasim :race WASM を最新に差し替え** — ヘッドレス `:race` を再ビルドし `desktop-app/public/umaemu/` の `race.js` / `48522844437df62843ae.wasm` を更新。`worker.js` の `initializeEngine` / `runSimulation` / `runSimulationDetail` は維持。`npm test` 116件 PASS。**実機検証クローズ**（sim 完走・wasm 読み込みエラーなし。Console の `succession_skill_count` 未対応ログは本家 SkillChecker。勝負師などの `random_lot_shared` も本家未実装のまま / 2026-09-12 08:39 / `c0aaa14`）。手順正本 [`UPDATE_SKILLS.md`](../UPDATE_SKILLS.md) 手順 7 に橋渡し・起動時 `main()` 対処を同期（2026-09-12 08:58）
 - [x] **OCR 短名誤読 — 光陰→光明** — 一意な1文字差で採用。類似度0の近い候補は非表示。`npm test` 116件 PASS。**実機検証クローズ**（光明が所持スキルに載る・光陰は失敗に出ない OK / 2026-09-12 08:01 / `aebe8a1`）
 - [x] **OCR 未マッチ通知 — デバフを失敗扱いにしない** — シミュ対象外と読み取り失敗を分割。ためらい等は灰色。`npm test` 113件 PASS。**実機検証クローズ**（対象外／失敗の切り分け OK / 2026-09-12 07:55 / `ad7e56c`）
 - [x] **OCR 難読スキル名の失敗改善** — 骨格・編集距離1・エイリアス2件。`npm test` 111件 PASS。**実機検証クローズ**（千錘万錬／千礫万鋒／勝利へ至る累積／聡せめ心が所持スキルに載る OK / 2026-09-12 07:42 / `ea88603`）/ [`REQ-ocr-fuzzy-missing-skills.md`](tasks/REQ-ocr-fuzzy-missing-skills.md) **done**

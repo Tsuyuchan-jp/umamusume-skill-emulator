@@ -5,7 +5,7 @@
 >
 > 入口: [`DOCS-GUIDE.md`](DOCS-GUIDE.md)
 
-最終更新: 2026-09-12 07:49
+最終更新: 2026-09-12 08:58
 
 ---
 
@@ -96,6 +96,7 @@ crop 内（上→下）
 | senman skeleton | 千.万.骨格 | 識別子・定数＋処理・モジュール | ちょうど4文字の「千○万○」誤読を、辞書にその型が千鍛万錬だけのとき寄せる | `applySenmanSkeleton`・`REQ-ocr-fuzzy-missing-skills.md` |
 | sim-excluded | シミュ対象外 | 概念＋画面領域 | OCR では読めたが umasim 未収録のため sim に載せない（ためらい等）。読み取り失敗とは別表示 | `OcrUnmatchedSkillsNotice` |
 | event_track | 開催ローテ | ファイル・ドキュメント | umasim のチャンミ／LoH 条件 CSV。起動時に取得 | `eventTrack.ts` |
+| WasmEngine | レースWASM橋渡し | 処理・モジュール | 本家 `:race` に `initializeEngine` 等を載せてビルド。公開 `wasm.js` はそのまま使わない | `tools/umasim-race-wasm`・`UPDATE_SKILLS.md` 手順 7 |
 
 ### オートキャプチャ結合 — 仕様層
 

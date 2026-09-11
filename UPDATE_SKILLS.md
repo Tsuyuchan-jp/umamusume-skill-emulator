@@ -2,6 +2,8 @@
 
 ウマ娘のゲームアップデート後、または umasim エンジン更新後に、本プロジェクトのデータを最新化する手順です。
 
+最終更新: 2026-09-12 08:58（手順 7: 本家公開 `wasm.js` は使わず、橋渡しを載せて `:race` をビルド。実機クローズ済み）
+
 ## データ源の全体像
 
 本番アプリ（`desktop-app`）は **複数のデータファイル** を同時に使います。更新漏れがあると、表示は正しくてもシミュレーションや OCR マッチングがずれることがあります。
@@ -168,6 +170,18 @@ node tools/mdb-extractor/extract_umasim_skill_data.js path/to/skill_data.txt
 | `docs/race/wasm.js`（umasim リポジトリ内） | Compose ベースのレースエミュレータ Web UI                     | **使用しない** — 本アプリはヘッドレス `race.js` を使用    |
 
 
+#### 本アプリ用の載せ方（公開バイナリのそのままコピーではない）
+
+計算ロジックは本家 `:race`、このアプリから呼ぶ名前は当リポジトリの橋渡しです。当初からこの経路です。
+
+1. umasim は本リポジトリに入れない。クローン先は `tools/umasim-race-wasm/build-race-wasm.ps1` と同じ **リポジトリの親フォルダの `umasim-temp`**（例: `Documents/google antigravity/umasim-temp`）
+2. `tools/umasim-race-wasm/WasmEngine.kt` を umasim の `race/src/wasmJsMain/kotlin/io/github/mee1080/umasim/race/WasmEngine.kt` へコピー（スクリプトがやる）
+3. [`tools/umasim-race-wasm/SkillData.patch.md`](tools/umasim-race-wasm/SkillData.patch.md) どおり、`SkillData.kt` の `skillData2` 直後に `initSkillDataFromJson` を追記。本家に `loadLocalSkillData` があっても **置き換えない**
+4. 本家 `SkillData.wasmJs.kt` が `TODO("Not supported")` のときは空 JSON 配列 `"[]"` を返す（モジュール起動時の本家 `main()` が例外にならないため。実データは Worker の `initializeEngine`）
+5. ビルドは `.\gradlew.bat :race:wasmJsBrowserDistribution` のみ（`build_wasm.bat` は使わない）
+
+直近の差し替え: 2026-09-12、成果物 `48522844437df62843ae.wasm`。実機で sim 完走を確認済み。
+
 #### umasim のビルド
 
 ```powershell
@@ -265,6 +279,9 @@ npm run tauri dev
 - [ ] シミュレーションがエラーなく完了する
 - [ ] ブラウザ DevTools の Console に WASM 読み込みエラーがない
 - [ ] `desktop-app/public/umaemu/` に `race.js` と対応する `*.wasm` が存在する
+- [ ] `worker.js` を上書きしていない（`initializeEngine` / `runSimulation` / `runSimulationDetail` が呼べる）
+
+Console に `not supported condition`（例: `succession_skill_count`）が出ても、本家スキル判定の未実装であり wasm 読み込み失敗ではない。勝負師などの `random_lot_shared` も本家未実装のまま。
 
 ---
 
@@ -289,6 +306,8 @@ npm run tauri dev
 | 新スキルが OCR 後に空欄になる        | umasim 未更新、またはオンライン取得失敗 | 設定で「最新のスキルデータを取得する」。umasim 側の `skill_data.txt` 更新待ち |
 | スキル色がずれる                 | `skillRarityData.ts` が古い | `npm run extract-skill-info`（要 `master.mdb`）。表示正本は実行時一覧 |
 | シミュレーションだけ失敗             | `race.js` が古い / ネットワーク   | [手順 7（race.js / WASM エンジンの更新）](#7-racejs--wasm-エンジンの更新) を参照 |
+| wasm 読み込み直後に落ちる           | 本家 `loadLocalSkillData` が wasm で TODO | `SkillData.wasmJs.kt` を空 JSON `"[]"` にする（[SkillData.patch.md](tools/umasim-race-wasm/SkillData.patch.md)） |
+| Console に `not supported condition` | 本家 SkillChecker 未実装の発動条件 | 読み込みエラーではない。連綿の `succession_skill_count` 等 |
 | 新コースが選べない                | `trackData.ts` 未更新       | 手順 5 で追記                                                    |
 | 開催チップが出ない                 | `event_track.txt` 取得失敗、またはコース未収録 | オンライン確認。新場は手順 5 |
 
