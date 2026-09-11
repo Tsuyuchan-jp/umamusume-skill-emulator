@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（要点は下記「更新ルール」「エージェント必須手順」。詳細は [`DOCS-GUIDE.md`](DOCS-GUIDE.md)）。
 
-最終更新: 2026-09-12 07:37
+最終更新: 2026-09-12 07:42
 
 ---
 
@@ -16,7 +16,7 @@
 
 ## 現在のフォーカス
 
-OCR 難読スキル名の失敗改善（実装済・実機検証待ち）
+OCR 未マッチ通知のデバフ表示（仕様と失敗の切り分け・案提示）
 
 ## サマリー（手更新）
 
@@ -32,11 +32,11 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 ## 進行中
 
-- [ ] **OCR 難読スキル名の失敗改善**（実装済・**実機検証待ち**）
-  - 照合順: エイリアス → `千.万.` 骨格 → 編集距離≤1（4文字以上）→ Dice 0.45
-  - 実機4件の机上: 千錘万錬 / 千礫万鋒 / 勝利へ至る累積 / 聡せめ心 → 採用（`npm test` 111件 PASS）
-  - 実機確認: 同じ4件が SkillPanel に載り、読み取り失敗から消えること。快速・パレット／sim 退行なし
-  - 関連: [`REQ-ocr-fuzzy-missing-skills.md`](tasks/REQ-ocr-fuzzy-missing-skills.md)（B2 吸収）
+- [ ] **OCR 未マッチ通知 — デバフを失敗扱いにしない**（案提示・実装は承認後）
+  - 背景: umasim 未収録の妨害スキル（逃げためらい等）も「読み取り失敗」に混ざる。注記はあるが見出しが失敗のため仕様と誤読が区別できない
+  - 目標: シミュ非対応は仕様として見せ、本当の OCR 失敗だけ警告色にする
+  - 方針: **新規 REQ は立てない**（文言・リスト分割の小タスク。B1 の延長）
+  - 触る想定: `OcrUnmatchedSkillsNotice.tsx`, `fuzzyMatcher.ts`（分類ヘルパー）
 
 
 ## 次にやること（Backlog）
@@ -116,6 +116,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 直近10件のみ。それ以前は [`TODO-ARCHIVE.md`](TODO-ARCHIVE.md)。
 
+- [x] **OCR 難読スキル名の失敗改善** — 骨格・編集距離1・エイリアス2件。`npm test` 111件 PASS。**実機検証クローズ**（千錘万錬／千礫万鋒／勝利へ至る累積／聡せめ心が所持スキルに載る OK / 2026-09-12 07:42 / `ea88603`）/ [`REQ-ocr-fuzzy-missing-skills.md`](tasks/REQ-ocr-fuzzy-missing-skills.md) **done**
 - [x] **起動時スキル一覧更新と開催ローテフェッチ** — umasim シミュ JSON から OCR／パレット一覧を生成。`event_track.txt` でチャンミ／LoH。トースト A〜D。`npm test` 103件 PASS。**実機検証クローズ**（起動 A・診断・手動取得・プリセット・OCR/sim 退行なし OK / 2026-09-12 07:17 / `a5faa8c`）/ [`REQ-runtime-skill-catalog.md`](tasks/REQ-runtime-skill-catalog.md)
 - [x] **v1.6.1 リリースビルド** — version 1.6.1 bump・CHANGELOG Unreleased 昇格・`app.exe` 生成・96件テスト PASS（2026-09-10 19:48 / `b2fcd49`〜`8659650`）/ [`REQ-release-v1.6.1.md`](tasks/REQ-release-v1.6.1.md)
 - [x] **OCR 結合濁点（NFD）のスキルマッチ失敗を修正** — NFC 正規化＋末尾 `Lv` 数字除去。灰の光跡 / 良バ場〇 / ネバーギブアップ / アグレッシブ。閾値 0.45 維持。`npm test` 96件 PASS。**実機検証クローズ**（4件すべて所持スキルに適用 OK / 2026-09-10 19:33 / `369eab6`）
@@ -125,7 +126,6 @@ Backlog・保留を変更したら件数を合わせて更新する。
 - [x] **Git 履歴から `auto-capture-design-pack.zip` を削除** — 現行に無い約 53MB zip を履歴除外し Private へ force push（2026-08-25 14:43 / `f079357`）
 - [x] **GitHub Private へ初回 push** — 履歴から `master.mdb` と誤ファイル `src-tauri/2` を除外。ローカルの `master.mdb` は gitignore のまま保持（2026-08-25 14:38 / `da004f4`）
 - [x] **v1.6.0 リリースビルド** — version 1.6.0 bump・CHANGELOG Unreleased 昇格・`app.exe` 生成・88件テスト PASS（2026-08-10 04:08 / `35aa0a7`）
-- [x] **OCR 未マッチ見える化（B1）** — 恒久 UI（パネル内最上・「読み取り失敗（N件）」）・Phase A 診断削除・未収録デバフ注記。`npm test` PASS。**実機検証クローズ**（位置・文言・0件非表示・千鍛万錬退行なし・診断パネル消失・パレット/sim 退行なし OK / 2026-08-10 04:01 / `dbca8af`〜`7097951`）/ [`REQ-ocr-fuzzy-missing-skills.md`](tasks/REQ-ocr-fuzzy-missing-skills.md)（B2 は継続）
 
 ---
 
