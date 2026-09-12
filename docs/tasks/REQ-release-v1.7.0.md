@@ -2,9 +2,9 @@
 
 > v1.6.1 以降の Unreleased を **v1.7.0** として配布するための作業正本。
 
-- **ステータス**: in-progress
+- **ステータス**: done
 - **作成日**: 2026-09-12 09:02
-- **関連コミット**: （完了後に記入）
+- **関連コミット**: `4c042e6`〜
 
 ---
 
@@ -48,11 +48,11 @@
 
 ## 完了条件
 
-- [ ] `desktop-app/package.json` → `1.7.0`
-- [ ] `docs/CHANGELOG.md` に v1.7.0 節（Unreleased は「（なし）」）
-- [ ] `npm test` 通過（`version.test.ts` 含む）
-- [ ] `npm run build:release-exe` で `app.exe` 生成
-- [ ] `docs/TODO.md` 完了済み行にコミットハッシュ
+- [x] `desktop-app/package.json` → `1.7.0`
+- [x] `docs/CHANGELOG.md` に v1.7.0 節（Unreleased は「（なし）」）
+- [x] `npm test` 通過（`version.test.ts` 含む）
+- [x] `npm run build:release-exe` で `app.exe` 生成
+- [x] `docs/TODO.md` 完了済み行にコミットハッシュ
 
 ---
 
@@ -62,3 +62,4 @@
 |------|------|
 | 2026-09-12 09:02 | ユーザー指示。現状を 1.7.0 として版上げ・リリースビルド |
 | 2026-09-12 09:02 | CONCEPT-MAP: 今回の用語追加なし（既存カードで十分） |
+| 2026-09-12 09:08 | `npm test` 116件 PASS・`build:release-exe` 成功（`app.exe` 2026-09-12 09:08、約 20.9 MB） |

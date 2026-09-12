@@ -31,7 +31,7 @@
 
 ### ビルド
 
-- 配布正本: `desktop-app/src-tauri/target/release/app.exe` 更新予定（`npm run build:release-exe`）
+- 配布正本: `desktop-app/src-tauri/target/release/app.exe` 更新（`npm run build:release-exe`、2026-09-12 09:08）
 
 ---
 

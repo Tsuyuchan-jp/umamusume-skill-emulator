@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（要点は下記「更新ルール」「エージェント必須手順」。詳細は [`DOCS-GUIDE.md`](DOCS-GUIDE.md)）。
 
-最終更新: 2026-09-12 09:02
+最終更新: 2026-09-12 09:08
 
 ---
 
@@ -16,7 +16,7 @@
 
 ## 現在のフォーカス
 
-v1.7.0 リリースビルド
+（なし — 次は Backlog から選択）
 
 ## サマリー（手更新）
 
@@ -24,15 +24,15 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 | 進行中 | P1 着手可能 | P1 棚上げ | P2 未着手 | 保留 |
 | --- | --- | --- | --- | --- |
-| 1 | 2 | 1 | 6 | 1 |
+| なし | 2 | 1 | 6 | 1 |
 
-直近リリース: **v1.6.1**（2026-09-10）
+直近リリース: **v1.7.0**（2026-09-12）
 
 ---
 
 ## 進行中
 
-- [ ] **v1.7.0 リリースビルド** — version 1.7.0 bump・CHANGELOG Unreleased 昇格・`app.exe` 生成 / [`REQ-release-v1.7.0.md`](tasks/REQ-release-v1.7.0.md)
+（なし）
 
 
 ## 次にやること（Backlog）
@@ -112,6 +112,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 直近10件のみ。それ以前は [`TODO-ARCHIVE.md`](TODO-ARCHIVE.md)。
 
+- [x] **v1.7.0 リリースビルド** — version 1.7.0 bump・CHANGELOG Unreleased 昇格・`app.exe` 生成・116件テスト PASS（2026-09-12 09:08 / `4c042e6`〜）/ [`REQ-release-v1.7.0.md`](tasks/REQ-release-v1.7.0.md)
 - [x] **umasim :race WASM を最新に差し替え** — ヘッドレス `:race` を再ビルドし `desktop-app/public/umaemu/` の `race.js` / `48522844437df62843ae.wasm` を更新。`worker.js` の `initializeEngine` / `runSimulation` / `runSimulationDetail` は維持。`npm test` 116件 PASS。**実機検証クローズ**（sim 完走・wasm 読み込みエラーなし。Console の `succession_skill_count` 未対応ログは本家 SkillChecker。勝負師などの `random_lot_shared` も本家未実装のまま / 2026-09-12 08:39 / `c0aaa14`）。手順正本 [`UPDATE_SKILLS.md`](../UPDATE_SKILLS.md) 手順 7 に橋渡し・起動時 `main()` 対処を同期（2026-09-12 08:58）
 - [x] **OCR 短名誤読 — 光陰→光明** — 一意な1文字差で採用。類似度0の近い候補は非表示。`npm test` 116件 PASS。**実機検証クローズ**（光明が所持スキルに載る・光陰は失敗に出ない OK / 2026-09-12 08:01 / `aebe8a1`）
 - [x] **OCR 未マッチ通知 — デバフを失敗扱いにしない** — シミュ対象外と読み取り失敗を分割。ためらい等は灰色。`npm test` 113件 PASS。**実機検証クローズ**（対象外／失敗の切り分け OK / 2026-09-12 07:55 / `ad7e56c`）
@@ -121,7 +122,6 @@ Backlog・保留を変更したら件数を合わせて更新する。
 - [x] **OCR 結合濁点（NFD）のスキルマッチ失敗を修正** — NFC 正規化＋末尾 `Lv` 数字除去。灰の光跡 / 良バ場〇 / ネバーギブアップ / アグレッシブ。閾値 0.45 維持。`npm test` 96件 PASS。**実機検証クローズ**（4件すべて所持スキルに適用 OK / 2026-09-10 19:33 / `369eab6`）
 - [x] **AppData スキルキャッシュの mkdir 権限不足を修正** — `$APPDATA/skill_data` 本体を fs capability に追加。コンソール `forbidden path` / `allow-mkdir` 解消。sim 本体は対象外（2026-09-10 19:04 / `2be708c`）
 - [x] **ゲームアップデート後のスキルデータ追従** — DMM `master.mdb`（2026-08-31）差し替え・umasim **2106件**（+40）・skillRarity **1892件**（+35）。新規固有「光れ！弾けろ！超新星爆発！」等。コース・プリセット・WASM は今回未変更。`npm test` 92件 PASS。**実機検証クローズ**（新スキル反映・OCR/sim 退行なし OK / 2026-09-10 18:58 / `071aa4a`）
-- [x] **ファイル OCR の対応拡張子に WebP を追加** — ダイアログ・ヒント・拡張子から MIME 補完・Gemini へ実 MIME 送信。クリップボード手動コピーの WebP は対象外。`npm test` 92件 PASS。**実機検証クローズ**（WebP 選択・プレビュー・OCR・PNG/JPEG 退行なし OK / 2026-09-10 19:02 / `48badca`）
 
 ---
 

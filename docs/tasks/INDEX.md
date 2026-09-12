@@ -2,7 +2,7 @@
 
 > **TODO の代替ではない。** 次にやることの正本は [`docs/TODO.md`](../TODO.md)。
 > 本ファイルは `docs/tasks/REQ-*.md`（テンプレ除く）の **一覧・ステータス・辿りやすさ** を目的とする。
-> ステータスは各 REQ の `**ステータス**:` 行を正とする。最終更新: 2026-09-12 09:02
+> ステータスは各 REQ の `**ステータス**:` 行を正とする。最終更新: 2026-09-12 09:08
 
 ## 使い方
 
@@ -21,7 +21,7 @@
 
 | REQ | ステータス | TODO掲載 | 備考 |
 |-----|-----------|---------|------|
-| [`REQ-release-v1.7.0.md`](REQ-release-v1.7.0.md) | in-progress | 進行中 | v1.7.0 リリース（2026-09-12）。`app.exe` 更新予定 |
+| [`REQ-release-v1.7.0.md`](REQ-release-v1.7.0.md) | done | 完了済み | v1.7.0 リリース（2026-09-12）。`app.exe` 更新 |
 | [`REQ-release-v1.6.1.md`](REQ-release-v1.6.1.md) | done | 完了済み | v1.6.1 リリース（2026-09-10）。`app.exe` 更新 |
 | [`REQ-release-v1.2.0.md`](REQ-release-v1.2.0.md) | done | 完了済み | v1.2.0 リリース（2026-07-18）。長距離 sim は 2026-07-23 クローズ |
 | [`REQ-release-v1.1.0.md`](REQ-release-v1.1.0.md) | done | 完了済み | v1.1.0（R1/R2.5/R3）。配布: [`RELEASE_BUILD.md`](../RELEASE_BUILD.md) |
