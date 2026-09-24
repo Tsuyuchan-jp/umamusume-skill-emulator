@@ -4,7 +4,7 @@
 > Cursor 作業チャット起票時は `@docs/TODO.md` を **最初に** 参照する。
 > **着手時と完了時の両方** で必ず更新し、コミットに含める（要点は下記「更新ルール」「エージェント必須手順」。詳細は [`DOCS-GUIDE.md`](DOCS-GUIDE.md)）。
 
-最終更新: 2026-09-12 09:08
+最終更新: 2026-09-24
 
 ---
 
@@ -24,9 +24,9 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 | 進行中 | P1 着手可能 | P1 棚上げ | P2 未着手 | 保留 |
 | --- | --- | --- | --- | --- |
-| なし | 2 | 1 | 6 | 1 |
+| なし | 2 | 1 | 7 | 1 |
 
-直近リリース: **v1.7.0**（2026-09-12）
+直近リリース: **v1.7.1**（2026-09-24）
 
 ---
 
@@ -73,6 +73,12 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 ### P2 — 改善・アイデア
 
+- [ ] **Gemini OCR のモデルフォールバック**
+  - 背景: `Gemini 3.1 Flash-Lite` で継続的に OCR が失敗し、`Gemini 3.5 Flash-Lite` への切替で実機 OCR は回復した。現在は原因を判別できるエラー表示と単一モデル運用で安定性を確認済み
+  - 目標: 503（サーバーの一時的な利用不能）のときだけ、別の対応モデルへ自動フォールバックして OCR 成功率を高める。429（利用枠超過）では別モデルへ再試行しない
+  - 触る想定: `geminiOcr.ts`（モデル候補・503限定フォールバック・結果モデルの保持）、`geminiOcr.test.ts`、必要に応じてUIの完了／エラー表示
+  - 注意: 候補モデルの提供状況・料金・OCR精度を実機で確認してから採用する。フォールバックの発生をユーザーへ明示するかは設計時に決定する
+
 - [ ] **keep-alive タブのメモリ/描画負荷軽減**（将来 Fix）
   - 現状: sim 済みタブは unmount せず Recharts 等がタブ数分残る。1〜3 タブ運用では問題になりにくい
   - 目標: 非アクティブタブのグラフ/Recharts をアンマウントまたは lazy 化（5 タブ以上を想定した場合）
@@ -112,6 +118,7 @@ Backlog・保留を変更したら件数を合わせて更新する。
 
 直近10件のみ。それ以前は [`TODO-ARCHIVE.md`](TODO-ARCHIVE.md)。
 
+- [x] **v1.7.1 リリースビルド** — Gemini OCR を 3.5 Flash-Lite へ移行・実機 OCR 完了・version 1.7.1 bump・CHANGELOG 昇格・`app.exe` 生成（2026-09-24）/ [`REQ-release-v1.7.1.md`](tasks/REQ-release-v1.7.1.md)
 - [x] **v1.7.0 リリースビルド** — version 1.7.0 bump・CHANGELOG Unreleased 昇格・`app.exe` 生成・116件テスト PASS（2026-09-12 09:08 / `4c042e6`〜`c692f89`）/ [`REQ-release-v1.7.0.md`](tasks/REQ-release-v1.7.0.md)
 - [x] **umasim :race WASM を最新に差し替え** — ヘッドレス `:race` を再ビルドし `desktop-app/public/umaemu/` の `race.js` / `48522844437df62843ae.wasm` を更新。`worker.js` の `initializeEngine` / `runSimulation` / `runSimulationDetail` は維持。`npm test` 116件 PASS。**実機検証クローズ**（sim 完走・wasm 読み込みエラーなし。Console の `succession_skill_count` 未対応ログは本家 SkillChecker。勝負師などの `random_lot_shared` も本家未実装のまま / 2026-09-12 08:39 / `c0aaa14`）。手順正本 [`UPDATE_SKILLS.md`](../UPDATE_SKILLS.md) 手順 7 に橋渡し・起動時 `main()` 対処を同期（2026-09-12 08:58）
 - [x] **OCR 短名誤読 — 光陰→光明** — 一意な1文字差で採用。類似度0の近い候補は非表示。`npm test` 116件 PASS。**実機検証クローズ**（光明が所持スキルに載る・光陰は失敗に出ない OK / 2026-09-12 08:01 / `aebe8a1`）

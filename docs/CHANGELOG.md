@@ -12,6 +12,18 @@
 
 ---
 
+## v1.7.1 — 2026-09-24
+
+### 修正
+
+- **OCR の Gemini 接続安定化** — 使用モデルを `Gemini 3.5 Flash-Lite` へ切り替え、実機で OCR 完了を確認。API の利用枠超過（429）と一時的なサーバー利用不能（503）を区別して、Google の詳細メッセージも表示する
+
+### ビルド
+
+- 配布正本: `desktop-app/src-tauri/target/release/app.exe` 更新（`npm run build:release-exe`、2026-09-24）
+
+---
+
 ## v1.7.0 — 2026-09-12
 
 ### 新機能
