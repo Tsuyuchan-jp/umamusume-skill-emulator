@@ -309,11 +309,7 @@ export default function Home() {
       }
       console.error(err);
       if (session !== ocrSessionRef.current) return;
-      if (err.message && (err.message.includes("503") || err.message.includes("UNAVAILABLE"))) {
-        showToastMessage("現在AIサーバーが大変混み合っています。数秒待ってからもう一度お試しください。", "error", 4000);
-      } else {
-        showToastMessage(`OCRエラー: ${err.message}`, "error", 4000);
-      }
+      showToastMessage(`OCRエラー: ${err.message}`, "error", 4000);
     } finally {
       // 新しいセッションが始まっている場合は processing を落とさない
       if (session === ocrSessionRef.current) {

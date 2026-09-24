@@ -1,7 +1,8 @@
 import { UmaStatusData } from "./types";
 import { normalizeStatusData } from "./fuzzyMatcher";
 
-const MODEL = "gemini-3.1-flash-lite";
+/** OCR は Gemini 3.1 Flash-Lite の後継モデルを使用する。 */
+export const GEMINI_OCR_MODEL = "gemini-3.5-flash-lite";
 
 class ApiError extends Error {
   status: number;
@@ -10,6 +11,31 @@ class ApiError extends Error {
     this.name = 'ApiError';
     this.status = status;
   }
+}
+
+/** Gemini のエラー本文から、利用者が確認できる要点だけを取り出す。 */
+export function formatGeminiApiError(status: number, errorText: string): string {
+  let detail = errorText;
+  try {
+    const parsed = JSON.parse(errorText) as { error?: { message?: unknown } };
+    if (typeof parsed.error?.message === "string") {
+      detail = parsed.error.message;
+    }
+  } catch {
+    // JSON ではない応答はそのまま使う
+  }
+
+  // トーストを読みやすく保ち、意図しない長大な応答も表示しない。
+  const conciseDetail = detail.replace(/\s+/g, " ").trim().slice(0, 240);
+  const suffix = conciseDetail ? `（詳細: ${conciseDetail}）` : "";
+
+  if (status === 429) {
+    return `Gemini API の利用枠に達しました。Google AI Studio の Rate limits を確認してください。${suffix}`;
+  }
+  if (status === 503) {
+    return `Gemini API サーバーが一時的に利用できません。時間をおいて再試行してください。${suffix}`;
+  }
+  return `Gemini API Error (${status}): ${conciseDetail || "応答内容を取得できませんでした"}`;
 }
 
 /** ユーザー中止（AbortSignal）由来のエラーか。ApiError(429/503) に変換しない */
@@ -150,7 +176,7 @@ export async function analyzeStitchedImage(
   };
 
   const callApi = async () => {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_OCR_MODEL}:generateContent?key=${apiKey}`;
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -174,8 +200,8 @@ export async function analyzeStitchedImage(
     const status = err instanceof ApiError ? err.status : 500;
     const message = err instanceof Error ? err.message : String(err);
 
-    if (status === 429 || status === 503) {
-      throw new Error(`Gemini APIの制限またはサーバー混雑に達しました。数秒〜数分待ってから再度お試しください。`);
+    if (err instanceof ApiError) {
+      throw new Error(formatGeminiApiError(status, message));
     }
     throw new Error(`Gemini API Error (${status}): ${message}`);
   }
@@ -204,7 +230,7 @@ export async function analyzeStitchedImage(
 
   return {
     data: normalizeStatusData(rawData) as UmaStatusData,
-    modelUsed: MODEL,
+    modelUsed: GEMINI_OCR_MODEL,
     rawSkills,
   };
 }
